@@ -100,9 +100,9 @@ impl AssertionData {
     fn fail(self, error: MatchError, case: ErrorCase) -> ! {
         let mut formatter = ErrorFormatter::new(error.into_reason(case), self.name, self.location);
 
-        self.fmt.fmt(&mut formatter);
+        self.fmt.fmt(&mut formatter).expect("Failed to format error message.");
 
-        panic!("{}", formatter.msg());
+        panic!("{}", formatter.as_str());
     }
 }
 
