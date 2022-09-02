@@ -10,3 +10,4 @@ readme = "README.md"
 license = "MIT"
 
 [dependencies]
+anyhow = "1.0"
