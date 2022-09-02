@@ -1,0 +1,12 @@
+[package]
+name = "xpct"
+version = "0.1.0"
+edition = "2021"
+authors = ["Wren Powell <wrentpowell@gmail.com>"]
+homepage = "https://github.com/lostatc/xpct"
+repository = "https://github.com/lostatc/xpct"
+documentation = "https://docs.rs/xpct"
+readme = "README.md"
+license = "MIT"
+
+[dependencies]
