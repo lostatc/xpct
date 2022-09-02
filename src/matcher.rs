@@ -130,13 +130,13 @@ impl fmt::Debug for AssertionData {
 }
 
 #[derive(Debug)]
-pub struct Assertion<V> {
-    value: V,
+pub struct Assertion<T> {
+    value: T,
     data: AssertionData,
 }
 
-impl<V> Assertion<V> {
-    pub fn to<M: Matcher<In = V>>(self, matcher: &mut M) -> Assertion<M::Out> {
+impl<T> Assertion<T> {
+    pub fn to<M: Matcher<In = T>>(self, matcher: &mut M) -> Assertion<M::Out> {
         match matcher.matches(self.value) {
             Ok(value) => Assertion {
                 value,
@@ -146,7 +146,7 @@ impl<V> Assertion<V> {
         }
     }
 
-    pub fn to_not<M: Matcher<In = V>>(self, matcher: &mut M) -> Assertion<M::Out> {
+    pub fn to_not<M: Matcher<In = T>>(self, matcher: &mut M) -> Assertion<M::Out> {
         match matcher.matches(self.value) {
             Ok(value) => Assertion {
                 value,
@@ -156,7 +156,11 @@ impl<V> Assertion<V> {
         }
     }
 
-    pub fn with_name(self, name: impl Into<String>) -> Assertion<V> {
+    pub fn into(self) -> T {
+        self.value
+    }
+
+    pub fn with_name(self, name: impl Into<String>) -> Self {
         Assertion {
             value: self.value,
             data: AssertionData {
@@ -167,7 +171,7 @@ impl<V> Assertion<V> {
         }
     }
 
-    pub fn with_location(self, location: impl Into<AssertionLocation>) -> Assertion<V> {
+    pub fn with_location(self, location: impl Into<AssertionLocation>) -> Self {
         Assertion {
             value: self.value,
             data: AssertionData {
@@ -177,9 +181,20 @@ impl<V> Assertion<V> {
             },
         }
     }
+
+    pub fn with_fmt(self, fmt: impl FormatError + 'static) -> Self {
+        Assertion {
+            value: self.value,
+            data: AssertionData {
+                name: self.data.name,
+                location: self.data.location,
+                fmt: Box::new(fmt),
+            },
+        }
+    }
 }
 
-pub fn expect<V>(actual: V) -> Assertion<V> {
+pub fn expect<T>(actual: T) -> Assertion<T> {
     Assertion {
         value: actual,
         data: Default::default(),
