@@ -54,10 +54,6 @@ impl<T> IndentWriter<T> {
         }
     }
 
-    pub fn into_inner(self) -> T {
-        self.inner
-    }
-
     pub fn indent(&self) -> u32 {
         self.indent
     }
@@ -66,7 +62,9 @@ impl<T> IndentWriter<T> {
         self.indent = indent;
         match indent {
             i if i == 0 => self.prefix = None,
-            i if i < Self::PREFIX_CACHE.len() as u32 => self.prefix = Some(Cow::Borrowed(Self::PREFIX_CACHE[i as usize - 1])),
+            i if i < Self::PREFIX_CACHE.len() as u32 => {
+                self.prefix = Some(Cow::Borrowed(Self::PREFIX_CACHE[i as usize - 1]))
+            }
             _ => self.prefix = Some(Cow::Owned(" ".repeat(indent as usize))),
         }
     }
@@ -127,7 +125,7 @@ where
         match &self.prefix {
             Some(prefix) if self.newline => {
                 self.inner.write_str(&prefix)?;
-            },
+            }
             _ => {}
         }
 

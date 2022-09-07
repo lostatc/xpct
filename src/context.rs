@@ -12,6 +12,7 @@ pub struct AssertionContext {
     pub expr: Option<String>,
 }
 
+#[macro_export]
 macro_rules! file_location {
     () => {
         FileLocation {

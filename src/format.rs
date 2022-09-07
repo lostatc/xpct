@@ -1,10 +1,11 @@
 use std::fmt;
 
-use super::error::DynMatchError;
-use super::indent::IndentWriter;
 use super::context::AssertionContext;
+use super::indent::IndentWriter;
+use super::matcher::MatchCase;
+use super::result::{MatchError, Matches};
 
-pub trait Display {
+pub trait Format {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result;
 }
 
@@ -49,41 +50,33 @@ impl AsRef<str> for Formatter {
     }
 }
 
-pub struct DefaultErrorFormat(anyhow::Error);
+pub trait ResultFormat: Format + 'static {
+    type Res: Matches;
 
-impl Display for DefaultErrorFormat {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        todo!()
-    }
+    fn new(result: Self::Res, case: MatchCase) -> Self;
 }
 
-impl From<anyhow::Error> for DefaultErrorFormat {
-    fn from(error: anyhow::Error) -> Self {
-        Self(error)
-    }
-}
-
-pub trait AssertionFormat: Display {
+pub trait AssertionFormat: Format {
     type Context;
-    
-    fn new(ctx: Self::Context, error: DynMatchError) -> Self;
+
+    fn new(ctx: Self::Context, error: MatchError) -> Self;
 }
 
 pub struct DefaultAssertionFormat {
     ctx: AssertionContext,
-    error: DynMatchError,
+    error: MatchError,
 }
 
-impl Display for DefaultAssertionFormat {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+impl Format for DefaultAssertionFormat {
+    fn fmt(&self, _: &mut Formatter) -> fmt::Result {
         todo!()
     }
 }
 
 impl AssertionFormat for DefaultAssertionFormat {
     type Context = AssertionContext;
-    
-    fn new(ctx: Self::Context, error: DynMatchError) -> Self {
+
+    fn new(ctx: Self::Context, error: MatchError) -> Self {
         Self { ctx, error }
     }
 }
