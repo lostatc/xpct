@@ -1,210 +1,124 @@
-use super::format::{DefaultFormat, ErrorFormatter, FormatError};
-use std::fmt;
+use std::marker::PhantomData;
 
-use super::location::AssertionLocation;
-
-#[derive(Debug)]
-pub enum FailReason {
-    Fail(String),
-    Err(anyhow::Error),
-}
-
-impl fmt::Display for FailReason {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Fail(msg) => f.write_str(msg),
-            Self::Err(error) => error.fmt(f),
-        }
-    }
-}
-
-impl From<String> for FailReason {
-    fn from(value: String) -> Self {
-        Self::Fail(value)
-    }
-}
-
-impl From<anyhow::Error> for FailReason {
-    fn from(err: anyhow::Error) -> Self {
-        Self::Err(err)
-    }
-}
+use super::error::{DynMatchError, MatchError};
+use super::format::Display;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum ErrorCase {
+pub enum MatchCase {
+    /// We are expecting this matcher to match.
     Positive,
+    
+    /// We are expecting this matcher to not match.
     Negative,
 }
 
-enum FailReasonBuilder {
-    Fail(Box<dyn FnOnce(ErrorCase) -> String>),
-    Err(anyhow::Error),
-}
-
-impl FailReasonBuilder {
-    fn build(self, case: ErrorCase) -> FailReason {
+impl MatchCase {
+    pub fn is_positive(&self) -> bool {
         match self {
-            Self::Fail(func) => FailReason::Fail(func(case)),
-            Self::Err(error) => FailReason::Err(error),
+            Self::Positive => true,
+            Self::Negative => false,
         }
     }
-}
 
-impl fmt::Debug for FailReasonBuilder {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    pub fn is_negative(&self) -> bool {
         match self {
-            Self::Fail(_) => f
-                .debug_tuple("Fail")
-                .field(&String::from(std::any::type_name::<
-                    Box<dyn FnOnce(ErrorCase) -> String>,
-                >()))
-                .finish(),
-            Self::Err(error) => f.debug_tuple("Err").field(error).finish(),
+            Self::Positive => false,
+            Self::Negative => true,
         }
     }
 }
 
 #[derive(Debug)]
-pub struct MatchError(FailReasonBuilder);
+pub struct MatchContext {
+    case: MatchCase
+}
 
-impl MatchError {
-    pub fn new(func: impl FnOnce(ErrorCase) -> String + 'static) -> Self {
-        Self(FailReasonBuilder::Fail(Box::new(func)))
+impl MatchContext {
+    pub(super) fn new(case: MatchCase) -> Self {
+        Self { case }
     }
 
-    fn into_reason(self, case: ErrorCase) -> FailReason {
-        self.0.build(case)
+    pub fn case(&self) -> MatchCase {
+        self.case
     }
 }
 
-impl From<anyhow::Error> for MatchError {
-    fn from(error: anyhow::Error) -> Self {
-        Self(FailReasonBuilder::Err(error))
-    }
+pub trait Match {
+    type In;
+    type Out;
+    type Reason;
+
+    fn matches(&mut self, ctx: &MatchContext, actual: Self::In) -> Result<Self::Out, MatchError<Self::Reason>>;
 }
 
-pub trait Matcher {
+pub trait DynMatch {
     type In;
     type Out;
 
-    fn matches(&mut self, actual: Self::In) -> Result<Self::Out, MatchError>;
+    fn matches(&mut self, ctx: &MatchContext, actual: Self::In) -> Result<Self::Out, DynMatchError>;
 }
 
-struct AssertionData {
-    name: Option<String>,
-    location: Option<AssertionLocation>,
-    fmt: Box<dyn FormatError>,
+struct InnerMatcher<M, ReasonFmt, ErrorFmt>
+where
+    M: Match,
+    ReasonFmt: Display + From<M::Reason>,
+    ErrorFmt: Display + From<anyhow::Error>,
+{
+    matcher: M,
+    reason_fmt: PhantomData<ReasonFmt>,
+    error_fmt: PhantomData<ErrorFmt>,
 }
 
-impl AssertionData {
-    fn fail(self, error: MatchError, case: ErrorCase) -> ! {
-        let mut formatter = ErrorFormatter::new(error.into_reason(case), self.name, self.location);
-
-        self.fmt.fmt(&mut formatter).expect("Failed to format error message.");
-
-        panic!("{}", formatter.as_str());
-    }
-}
-
-impl Default for AssertionData {
-    fn default() -> Self {
+impl<M, ReasonFmt, ErrorFmt> InnerMatcher<M, ReasonFmt, ErrorFmt>
+where
+    M: Match,
+    ReasonFmt: Display + From<M::Reason>,
+    ErrorFmt: Display + From<anyhow::Error>,
+{
+    pub fn new(matcher: M) -> Self {
         Self {
-            name: None,
-            location: None,
-            fmt: Box::new(DefaultFormat),
+            matcher,
+            reason_fmt: PhantomData,
+            error_fmt: PhantomData,
         }
     }
 }
 
-impl fmt::Debug for AssertionData {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("AssertionData")
-            .field("name", &self.name)
-            .field("location", &self.location)
-            .field(
-                "fmt",
-                &String::from(std::any::type_name::<Box<dyn FormatError>>()),
-            )
-            .finish()
-    }
-}
-
-#[derive(Debug)]
-pub struct Assertion<T> {
-    value: T,
-    data: AssertionData,
-}
-
-impl<T> Assertion<T> {
-    pub fn to<M: Matcher<In = T>>(self, matcher: &mut M) -> Assertion<M::Out> {
-        match matcher.matches(self.value) {
-            Ok(value) => Assertion {
-                value,
-                data: self.data,
-            },
-            Err(err) => self.data.fail(err, ErrorCase::Positive),
-        }
-    }
-
-    pub fn to_not<M: Matcher<In = T>>(self, matcher: &mut M) -> Assertion<M::Out> {
-        match matcher.matches(self.value) {
-            Ok(value) => Assertion {
-                value,
-                data: self.data,
-            },
-            Err(err) => self.data.fail(err, ErrorCase::Negative),
-        }
-    }
-
-    pub fn into(self) -> T {
-        self.value
-    }
-
-    pub fn with_name(self, name: impl Into<String>) -> Self {
-        Assertion {
-            value: self.value,
-            data: AssertionData {
-                name: Some(name.into()),
-                location: self.data.location,
-                fmt: self.data.fmt,
-            },
-        }
-    }
-
-    pub fn with_location(self, location: impl Into<AssertionLocation>) -> Self {
-        Assertion {
-            value: self.value,
-            data: AssertionData {
-                name: self.data.name,
-                location: Some(location.into()),
-                fmt: self.data.fmt,
-            },
-        }
-    }
-
-    pub fn with_fmt(self, fmt: impl FormatError + 'static) -> Self {
-        Assertion {
-            value: self.value,
-            data: AssertionData {
-                name: self.data.name,
-                location: self.data.location,
-                fmt: Box::new(fmt),
-            },
+impl<M, ReasonFmt, ErrorFmt> DynMatch for InnerMatcher<M, ReasonFmt, ErrorFmt>
+where
+    M: Match,
+    ReasonFmt: Display + From<M::Reason> + 'static,
+    ErrorFmt: Display + From<anyhow::Error> + 'static,
+{
+    type In = M::In;
+    type Out = M::Out;
+                    
+    fn matches(&mut self, ctx: &MatchContext, actual: Self::In) -> Result<Self::Out, DynMatchError> {
+        match self.matcher.matches(ctx, actual) {
+            Ok(out) => Ok(out),
+            Err(error) => Err(DynMatchError::new::<M::Reason, ReasonFmt, ErrorFmt>(error)),
         }
     }
 }
 
-pub fn expect<T>(actual: T) -> Assertion<T> {
-    Assertion {
-        value: actual,
-        data: Default::default(),
+pub struct Matcher<In, Out>(Box<dyn DynMatch<In = In, Out = Out>>);
+
+impl<In, Out> Matcher<In, Out> {
+    pub fn new<M, ReasonFmt, ErrorFmt>(matcher: M) -> Self
+    where
+        M: Match<In = In, Out = Out> + 'static,
+        ReasonFmt: Display + From<M::Reason> + 'static,
+        ErrorFmt: Display + From<anyhow::Error> + 'static,
+    {
+        Self(Box::new(InnerMatcher::<M, ReasonFmt, ErrorFmt>::new(matcher)))
     }
 }
 
-macro_rules! expect {
-    ($actual:expr) => {
-        expect($actual)
-            .with_name(stringify!($actual))
-            .with_location(file_location!())
-    };
+impl<In, Out> DynMatch for Matcher<In, Out> {
+    type In = In;
+    type Out = Out;
+    
+    fn matches(&mut self, ctx: &MatchContext, actual: Self::In) -> Result<Self::Out, DynMatchError> {
+        self.0.matches(ctx, actual)
+    }
 }

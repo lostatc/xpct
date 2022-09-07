@@ -1,52 +1,27 @@
 use std::fmt;
 
-use super::location::AssertionLocation;
-use super::matcher::FailReason;
+use super::error::DynMatchError;
 use super::indent::IndentWriter;
+use super::context::AssertionContext;
 
-pub trait FormatError {
-    fn fmt(&self, f: &mut ErrorFormatter) -> fmt::Result;
+pub trait Display {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result;
 }
 
 #[derive(Debug)]
-pub struct ErrorFormatter {
+pub struct Formatter {
     msg: IndentWriter<String>,
-    reason: FailReason,
-    name: Option<String>,
-    location: Option<AssertionLocation>,
 }
 
-impl ErrorFormatter {
-    pub(super) fn new(
-        reason: FailReason,
-        name: Option<String>,
-        location: Option<AssertionLocation>,
-    ) -> Self {
+impl Formatter {
+    pub(super) fn new() -> Self {
         Self {
-            msg: IndentWriter::new(match &reason {
-                FailReason::Fail(msg) => String::with_capacity(msg.len()),
-                FailReason::Err(_) => String::new(),
-            }),
-            reason,
-            name,
-            location,
+            msg: IndentWriter::new(String::new()),
         }
     }
 
     pub fn as_str(&self) -> &str {
         self.msg.as_str()
-    }
-
-    pub fn reason(&self) -> &FailReason {
-        &self.reason
-    }
-
-    pub fn name(&self) -> Option<&str> {
-        self.name.as_deref()
-    }
-
-    pub fn location(&self) -> Option<&AssertionLocation> {
-        self.location.as_ref()
     }
 
     pub fn indent(&self) -> u32 {
@@ -58,7 +33,7 @@ impl ErrorFormatter {
     }
 }
 
-impl fmt::Write for ErrorFormatter {
+impl fmt::Write for Formatter {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.msg.write_str(s)
     }
@@ -68,17 +43,47 @@ impl fmt::Write for ErrorFormatter {
     }
 }
 
-impl AsRef<str> for ErrorFormatter {
+impl AsRef<str> for Formatter {
     fn as_ref(&self) -> &str {
         self.msg.as_str()
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct DefaultFormat;
+pub struct DefaultErrorFormat(anyhow::Error);
 
-impl FormatError for DefaultFormat {
-    fn fmt(&self, _: &mut ErrorFormatter) -> fmt::Result {
-        todo!();
+impl Display for DefaultErrorFormat {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        todo!()
+    }
+}
+
+impl From<anyhow::Error> for DefaultErrorFormat {
+    fn from(error: anyhow::Error) -> Self {
+        Self(error)
+    }
+}
+
+pub trait AssertionFormat: Display {
+    type Context;
+    
+    fn new(ctx: Self::Context, error: DynMatchError) -> Self;
+}
+
+pub struct DefaultAssertionFormat {
+    ctx: AssertionContext,
+    error: DynMatchError,
+}
+
+impl Display for DefaultAssertionFormat {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        todo!()
+    }
+}
+
+impl AssertionFormat for DefaultAssertionFormat {
+    type Context = AssertionContext;
+    
+    fn new(ctx: Self::Context, error: DynMatchError) -> Self {
+        Self { ctx, error }
     }
 }
