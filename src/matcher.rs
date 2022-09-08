@@ -48,7 +48,7 @@ pub trait DynMatchNeg: MatchBase {
 
 pub trait DynMatch: DynMatchPos + DynMatchNeg {}
 
-pub struct InnerMatcher<M, Fmt: ResultFormat> {
+struct InnerMatcher<M, Fmt: ResultFormat> {
     matcher: M,
     result_fmt: PhantomData<Fmt>,
 }
@@ -115,31 +115,31 @@ where
 {
 }
 
-pub struct Matcher<In, PosOut, NegOut>(
-    Box<dyn DynMatch<In = In, PosOut = PosOut, NegOut = NegOut>>,
+pub struct Matcher<'a, In, PosOut, NegOut>(
+    Box<dyn DynMatch<In = In, PosOut = PosOut, NegOut = NegOut> + 'a>,
 );
 
-impl<In, PosOut, NegOut> fmt::Debug for Matcher<In, PosOut, NegOut> {
+impl<'a, In, PosOut, NegOut> fmt::Debug for Matcher<'a, In, PosOut, NegOut> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_tuple("Matcher").finish()
     }
 }
 
-impl<In, PosOut, NegOut> Matcher<In, PosOut, NegOut> {
+impl<'a, In, PosOut, NegOut> Matcher<'a, In, PosOut, NegOut> {
     pub fn new<M, Fmt>(matcher: M) -> Self
     where
-        M: MatchBase<In = In> + MatchPos<PosOut = PosOut> + MatchNeg<NegOut = NegOut> + 'static,
+        M: MatchBase<In = In> + MatchPos<PosOut = PosOut> + MatchNeg<NegOut = NegOut> + 'a,
         Fmt: ResultFormat<PosFail = M::PosFail, NegFail = M::NegFail>,
     {
         Self(Box::new(InnerMatcher::<_, Fmt>::new(matcher)))
     }
 }
 
-impl<In, PosOut, NegOut> MatchBase for Matcher<In, PosOut, NegOut> {
+impl<'a, In, PosOut, NegOut> MatchBase for Matcher<'a, In, PosOut, NegOut> {
     type In = In;
 }
 
-impl<In, PosOut, NegOut> DynMatchPos for Matcher<In, PosOut, NegOut> {
+impl<'a, In, PosOut, NegOut> DynMatchPos for Matcher<'a, In, PosOut, NegOut> {
     type PosOut = PosOut;
 
     fn match_pos(
@@ -150,7 +150,7 @@ impl<In, PosOut, NegOut> DynMatchPos for Matcher<In, PosOut, NegOut> {
     }
 }
 
-impl<In, PosOut, NegOut> DynMatchNeg for Matcher<In, PosOut, NegOut>
+impl<'a, In, PosOut, NegOut> DynMatchNeg for Matcher<'a, In, PosOut, NegOut>
 {
     type NegOut = NegOut;
 
@@ -163,4 +163,4 @@ impl<In, PosOut, NegOut> DynMatchNeg for Matcher<In, PosOut, NegOut>
 }
 
 
-impl<In, PosOut, NegOut> DynMatch for Matcher<In, PosOut, NegOut> {}
+impl<'a, In, PosOut, NegOut> DynMatch for Matcher<'a, In, PosOut, NegOut> {}

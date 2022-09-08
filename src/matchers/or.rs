@@ -240,11 +240,11 @@ impl ResultFormat for OrFormat {
     type NegFail = Vec<Option<DynMatchFailure>>;
 }
 
-pub fn or<T>(
+pub fn or<'a, T>(
     block: impl Fn(&mut OrContext<T>) -> anyhow::Result<()> + 'static,
-) -> Matcher<T, T, T>
+) -> Matcher<'a, T, T, T>
 where
-    T: 'static,
+    T: 'a,
 {
     Matcher::new::<_, OrFormat>(OrMatcher::new(block))
 }

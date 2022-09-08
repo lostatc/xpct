@@ -24,19 +24,19 @@ impl ResultFormat for NotFormat {
 }
 
 #[derive(Debug)]
-pub struct NotMatcher<In, PosOut, NegOut>(Matcher<In, PosOut, NegOut>);
+pub struct NotMatcher<'a, In, PosOut, NegOut>(Matcher<'a, In, PosOut, NegOut>);
 
-impl<In, PosOut, NegOut> NotMatcher<In, PosOut, NegOut> {
-    pub fn new(matcher: Matcher<In, PosOut, NegOut>) -> Self {
+impl<'a, In, PosOut, NegOut> NotMatcher<'a, In, PosOut, NegOut> {
+    pub fn new(matcher: Matcher<'a, In, PosOut, NegOut>) -> Self {
         NotMatcher(matcher)
     }
 }
 
-impl<In, PosOut, NegOut> MatchBase for NotMatcher<In, PosOut, NegOut> {
+impl<'a, In, PosOut, NegOut> MatchBase for NotMatcher<'a, In, PosOut, NegOut> {
     type In = In;
 }
 
-impl<In, PosOut, NegOut> MatchPos for NotMatcher<In, PosOut, NegOut> {
+impl<'a, In, PosOut, NegOut> MatchPos for NotMatcher<'a, In, PosOut, NegOut> {
     type PosOut = NegOut;
     type PosFail = DynMatchFailure;
 
@@ -48,7 +48,7 @@ impl<In, PosOut, NegOut> MatchPos for NotMatcher<In, PosOut, NegOut> {
     }
 }
 
-impl<In, PosOut, NegOut> MatchNeg for NotMatcher<In, PosOut, NegOut> {
+impl<'a, In, PosOut, NegOut> MatchNeg for NotMatcher<'a, In, PosOut, NegOut> {
     type NegOut = PosOut;
     type NegFail = DynMatchFailure;
 
@@ -60,11 +60,11 @@ impl<In, PosOut, NegOut> MatchNeg for NotMatcher<In, PosOut, NegOut> {
     }
 }
 
-pub fn not<In, PosOut, NegOut>(matcher: Matcher<In, PosOut, NegOut>) -> Matcher<In, NegOut, PosOut>
+pub fn not<'a, In, PosOut, NegOut>(matcher: Matcher<'a, In, PosOut, NegOut>) -> Matcher<'a, In, NegOut, PosOut>
 where
-    In: 'static,
-    PosOut: 'static,
-    NegOut: 'static,
+    In: 'a,
+    PosOut: 'a,
+    NegOut: 'a,
 {
     Matcher::new::<_, NotFormat>(NotMatcher::new(matcher))
 }
