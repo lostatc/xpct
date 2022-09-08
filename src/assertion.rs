@@ -3,19 +3,19 @@ use super::matcher::{DynMapNeg, DynMapPos, MapNeg, MapPos, Matcher};
 use super::result::{MatchError, MatchResult};
 
 #[derive(Debug)]
-pub struct Assertion<T, Fmt>
+pub struct Assertion<T, AssertFmt>
 where
-    Fmt: AssertionFormat,
+    AssertFmt: AssertionFormat,
 {
     value: T,
-    ctx: Fmt::Context,
+    ctx: AssertFmt::Context,
 }
 
-fn fail<Fmt>(ctx: Fmt::Context, error: MatchError) -> !
+fn fail<AssertFmt>(ctx: AssertFmt::Context, error: MatchError) -> !
 where
-    Fmt: AssertionFormat,
+    AssertFmt: AssertionFormat,
 {
-    let error = Fmt::new(ctx, error);
+    let error = AssertFmt::new(ctx, error);
     let mut formatter = Formatter::new();
 
     error
@@ -25,9 +25,9 @@ where
     panic!("{}", formatter.as_str());
 }
 
-impl<T, Fmt> Assertion<T, Fmt>
+impl<T, AssertFmt> Assertion<T, AssertFmt>
 where
-    Fmt: AssertionFormat,
+    AssertFmt: AssertionFormat,
 {
     pub fn to<M, ResultFmt>(self, matcher: &mut Matcher<M, ResultFmt>) -> M::PosOut
     where
@@ -36,8 +36,8 @@ where
     {
         match matcher.map_pos(self.value) {
             Ok(MatchResult::Success(out)) => out,
-            Ok(MatchResult::Fail(result)) => fail::<Fmt>(self.ctx, MatchError::Fail(result)),
-            Err(error) => fail::<Fmt>(self.ctx, MatchError::Err(error)),
+            Ok(MatchResult::Fail(result)) => fail::<AssertFmt>(self.ctx, MatchError::Fail(result)),
+            Err(error) => fail::<AssertFmt>(self.ctx, MatchError::Err(error)),
         }
     }
 
@@ -48,8 +48,8 @@ where
     {
         match matcher.map_neg(self.value) {
             Ok(MatchResult::Success(out)) => out,
-            Ok(MatchResult::Fail(result)) => fail::<Fmt>(self.ctx, MatchError::Fail(result)),
-            Err(error) => fail::<Fmt>(self.ctx, MatchError::Err(error)),
+            Ok(MatchResult::Fail(result)) => fail::<AssertFmt>(self.ctx, MatchError::Fail(result)),
+            Err(error) => fail::<AssertFmt>(self.ctx, MatchError::Err(error)),
         }
     }
 
@@ -57,24 +57,24 @@ where
         self.value
     }
 
-    pub fn ctx(&self) -> &Fmt::Context {
+    pub fn ctx(&self) -> &AssertFmt::Context {
         &self.ctx
     }
 
-    pub fn ctx_mut(&mut self) -> &mut Fmt::Context {
+    pub fn ctx_mut(&mut self) -> &mut AssertFmt::Context {
         &mut self.ctx
     }
 
-    pub fn with_ctx(mut self, block: impl FnOnce(&mut Fmt::Context)) -> Self {
+    pub fn with_ctx(mut self, block: impl FnOnce(&mut AssertFmt::Context)) -> Self {
         block(&mut self.ctx);
         self
     }
 }
 
-pub fn expect<T, Fmt>(actual: T) -> Assertion<T, Fmt>
+pub fn expect<T, AssertFmt>(actual: T) -> Assertion<T, AssertFmt>
 where
-    Fmt: AssertionFormat,
-    Fmt::Context: Default,
+    AssertFmt: AssertionFormat,
+    AssertFmt::Context: Default,
 {
     Assertion {
         value: actual,
@@ -83,18 +83,11 @@ where
 }
 
 #[macro_export]
-macro_rules! fail {
-    ($reason:expr) => {
-        return Ok(MatchError::Fail($reason.into()));
-    };
-}
-
-#[macro_export]
 macro_rules! expect {
     ($actual:expr) => {
-        expect($actual).with_ctx(|ctx| {
-            ctx.expr = Some(stringify!($actual));
-            ctx.location = Some(file_location!());
+        expect::<_, $crate::DefaultAssertionFormat>($actual).with_ctx(|ctx| {
+            ctx.expr = Some(String::from(stringify!($actual)));
+            ctx.location = Some($crate::file_location!());
         })
     };
 }
