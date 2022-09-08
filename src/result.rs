@@ -1,21 +1,22 @@
 use core::fmt;
 
 use super::format::{Format, Formatter, ResultFormat};
-use super::matcher::MatchCase;
-
-pub trait Matches {
-    fn matches(&self) -> bool;
-}
 
 pub struct MatchFailure(Box<dyn Format>);
 
 impl MatchFailure {
-    pub(crate) fn new<Res, Fmt>(reason: Res, case: MatchCase) -> Self
+    pub(crate) fn success<Success, Fmt>(success: Success) -> Self
     where
-        Res: Matches,
-        Fmt: ResultFormat<Res = Res>,
+        Fmt: ResultFormat<Success = Success>,
     {
-        Self(Box::new(Fmt::new(reason, case)))
+        Self(Box::new(Fmt::from(MatchResult::Success(success))))
+    }
+
+    pub(crate) fn fail<Fail, Fmt>(fail: Fail) -> Self
+    where
+        Fmt: ResultFormat<Fail = Fail>,
+    {
+        Self(Box::new(Fmt::from(MatchResult::Fail(fail))))
     }
 }
 
@@ -32,9 +33,9 @@ impl Format for MatchFailure {
 }
 
 #[derive(Debug)]
-pub enum MatchResult<T, Res> {
+pub enum MatchResult<T, Fail> {
     Success(T),
-    Fail(Res),
+    Fail(Fail),
 }
 
 #[derive(Debug)]

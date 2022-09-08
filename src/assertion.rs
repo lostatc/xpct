@@ -29,10 +29,10 @@ impl<T, Fmt> Assertion<T, Fmt>
 where
     Fmt: AssertionFormat,
 {
-    pub fn to<M, ResFmt>(self, matcher: &mut Matcher<M, ResFmt>) -> M::PosOut
+    pub fn to<M, ResultFmt>(self, matcher: &mut Matcher<M, ResultFmt>) -> M::PosOut
     where
         M: MapPos<In = T>,
-        ResFmt: ResultFormat<Res = M::Res>,
+        ResultFmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
     {
         match matcher.map_pos(self.value) {
             Ok(MatchResult::Success(out)) => out,
@@ -41,10 +41,10 @@ where
         }
     }
 
-    pub fn to_not<M, ResFmt>(self, matcher: &mut Matcher<M, ResFmt>) -> M::NegOut
+    pub fn to_not<M, ResultFmt>(self, matcher: &mut Matcher<M, ResultFmt>) -> M::NegOut
     where
         M: MapNeg<In = T>,
-        ResFmt: ResultFormat<Res = M::Res>,
+        ResultFmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
     {
         match matcher.map_neg(self.value) {
             Ok(MatchResult::Success(out)) => out,

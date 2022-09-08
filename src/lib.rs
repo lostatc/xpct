@@ -16,7 +16,7 @@ pub use matcher::{
     DynMap, DynMapNeg, DynMapPos, DynMatch, DynMatchBase, MapNeg, MapPos, Match, MatchBase,
     MatchCase, Matcher,
 };
-pub use result::{MatchError, MatchFailure, MatchResult, Matches};
+pub use result::{MatchError, MatchFailure, MatchResult};
 
 pub mod prelude {
     pub use crate::expect;

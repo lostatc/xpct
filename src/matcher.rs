@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use super::format::ResultFormat;
-use super::result::{MatchFailure, MatchResult, Matches};
+use super::result::{MatchResult, MatchFailure};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum MatchCase {
@@ -30,25 +30,26 @@ impl MatchCase {
 
 pub trait MatchBase {
     type In;
-    type Res: Matches;
+    type Success;
+    type Fail;
 }
 
 pub trait Match: MatchBase {
-    fn matches(&mut self, actual: &Self::In) -> anyhow::Result<Self::Res>;
+    fn matches(&mut self, actual: &Self::In) -> anyhow::Result<MatchResult<Self::Success, Self::Fail>>;
 }
 
 pub trait MapPos: MatchBase {
     type PosOut;
 
     fn map_pos(&mut self, actual: Self::In)
-        -> anyhow::Result<MatchResult<Self::PosOut, Self::Res>>;
+        -> anyhow::Result<MatchResult<Self::PosOut, Self::Fail>>;
 }
 
 pub trait MapNeg: MatchBase {
     type NegOut;
 
     fn map_neg(&mut self, actual: Self::In)
-        -> anyhow::Result<MatchResult<Self::NegOut, Self::Res>>;
+        -> anyhow::Result<MatchResult<Self::NegOut, Self::Success>>;
 }
 
 pub trait DynMatchBase {
@@ -100,7 +101,7 @@ impl<M, Fmt: ResultFormat> Matcher<M, Fmt> {
 impl<M, Fmt> DynMatchBase for Matcher<M, Fmt>
 where
     M: MatchBase,
-    Fmt: ResultFormat<Res = M::Res>,
+    Fmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
 {
     type In = M::In;
 }
@@ -108,20 +109,25 @@ where
 impl<M, Fmt> DynMatch for Matcher<M, Fmt>
 where
     M: Match,
-    Fmt: ResultFormat<Res = M::Res>,
+    Fmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
 {
     fn matches(
         &mut self,
         case: MatchCase,
         actual: &Self::In,
     ) -> anyhow::Result<MatchResult<(), MatchFailure>> {
-        match (self.matcher.matches(actual), case) {
-            (Ok(result), MatchCase::Pos) if result.matches() => Ok(MatchResult::Success(())),
-            (Ok(result), MatchCase::Neg) if !result.matches() => Ok(MatchResult::Success(())),
-            (Ok(result), _) => Ok(MatchResult::Fail(MatchFailure::new::<M::Res, Fmt>(
-                result, case,
-            ))),
-            (Err(error), _) => Err(error),
+        match self.matcher.matches(actual) {
+            Ok(result) => match result {
+                MatchResult::Success(success) => match case {
+                    MatchCase::Pos => Ok(MatchResult::Success(())),
+                    MatchCase::Neg => Ok(MatchResult::Fail(MatchFailure::success::<M::Success, Fmt>(success))),
+                },
+                MatchResult::Fail(fail) => match case {
+                    MatchCase::Pos => Ok(MatchResult::Fail(MatchFailure::fail::<M::Fail, Fmt>(fail))),
+                    MatchCase::Neg => Ok(MatchResult::Success(())),
+                },
+            },
+            Err(error) => Err(error),
         }
     }
 }
@@ -129,7 +135,7 @@ where
 impl<M, Fmt> DynMapPos for Matcher<M, Fmt>
 where
     M: MapPos,
-    Fmt: ResultFormat<Res = M::Res>,
+    Fmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
 {
     type PosOut = M::PosOut;
 
@@ -140,7 +146,7 @@ where
         match self.matcher.map_pos(actual) {
             Ok(MatchResult::Success(out)) => Ok(MatchResult::Success(out)),
             Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(
-                MatchFailure::new::<M::Res, Fmt>(result, MatchCase::Pos),
+                MatchFailure::fail::<M::Fail, Fmt>(result),
             )),
             Err(error) => Err(error),
         }
@@ -150,7 +156,7 @@ where
 impl<M, Fmt> DynMapNeg for Matcher<M, Fmt>
 where
     M: MapNeg,
-    Fmt: ResultFormat<Res = M::Res>,
+    Fmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
 {
     type NegOut = M::NegOut;
 
@@ -161,7 +167,7 @@ where
         match self.matcher.map_neg(actual) {
             Ok(MatchResult::Success(out)) => Ok(MatchResult::Success(out)),
             Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(
-                MatchFailure::new::<M::Res, Fmt>(result, MatchCase::Neg),
+                MatchFailure::success::<M::Success, Fmt>(result),
             )),
             Err(error) => Err(error),
         }
@@ -171,33 +177,34 @@ where
 impl<M, Fmt> DynMap for Matcher<M, Fmt>
 where
     M: MapPos + MapNeg,
-    Fmt: ResultFormat<Res = M::Res>,
+    Fmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
 {
 }
 
 impl<M, Fmt> MatchBase for Matcher<M, Fmt>
 where
     M: MatchBase,
-    Fmt: ResultFormat<Res = M::Res>,
+    Fmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
 {
     type In = M::In;
-    type Res = M::Res;
+    type Success = M::Success;
+    type Fail = M::Fail;
 }
 
 impl<M, Fmt> MapPos for Matcher<M, Fmt>
 where
     M: Match,
-    Fmt: ResultFormat<Res = M::Res>,
+    Fmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
 {
     type PosOut = M::In;
 
     fn map_pos(
         &mut self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::Res>> {
+    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::Fail>> {
         match self.matcher.matches(&actual) {
-            Ok(result) if result.matches() => Ok(MatchResult::Success(actual)),
-            Ok(result) => Ok(MatchResult::Fail(result)),
+            Ok(MatchResult::Success(_)) => Ok(MatchResult::Success(actual)),
+            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(result)),
             Err(error) => Err(error),
         }
     }
@@ -206,17 +213,17 @@ where
 impl<M, Fmt> MapNeg for Matcher<M, Fmt>
 where
     M: Match,
-    Fmt: ResultFormat<Res = M::Res>,
+    Fmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
 {
     type NegOut = M::In;
 
     fn map_neg(
         &mut self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, Self::Res>> {
+    ) -> anyhow::Result<MatchResult<Self::NegOut, Self::Success>> {
         match self.matcher.matches(&actual) {
-            Ok(result) if !result.matches() => Ok(MatchResult::Success(actual)),
-            Ok(result) => Ok(MatchResult::Fail(result)),
+            Ok(MatchResult::Success(result)) => Ok(MatchResult::Fail(result)),
+            Ok(MatchResult::Fail(_)) => Ok(MatchResult::Success(actual)),
             Err(error) => Err(error),
         }
     }
