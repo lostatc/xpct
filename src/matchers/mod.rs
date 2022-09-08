@@ -1,5 +1,5 @@
 mod not;
 mod or;
 
-pub use not::{not, NotMatcher, NotFormat};
-pub use or::{or, OrAssertion, OrContext, OrFormat};
+pub use not::{not, NotFormat, NotMatcher};
+pub use or::{or, ByRefOrAssertion, ClonedOrAssertion, CopiedOrAssertion, OrContext, OrFormat};

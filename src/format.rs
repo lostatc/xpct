@@ -2,7 +2,7 @@ use std::fmt;
 
 use super::context::AssertionContext;
 use super::indent::IndentWriter;
-use super::result::{MatchResult, MatchError};
+use super::result::{MatchError, MatchResult};
 
 pub trait Format {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result;
@@ -49,9 +49,9 @@ impl AsRef<str> for Formatter {
     }
 }
 
-pub trait ResultFormat: Format + From<MatchResult<Self::Success, Self::Fail>> + 'static {
-    type Success;
-    type Fail;
+pub trait ResultFormat: Format + From<MatchResult<Self::NegFail, Self::PosFail>> + 'static {
+    type PosFail;
+    type NegFail;
 }
 
 pub trait AssertionFormat: Format {

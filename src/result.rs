@@ -5,18 +5,18 @@ use super::format::{Format, Formatter, ResultFormat};
 pub struct MatchFailure(Box<dyn Format>);
 
 impl MatchFailure {
-    pub(crate) fn success<Success, Fmt>(success: Success) -> Self
+    pub(crate) fn new_pos<Fail, Fmt>(fail: Fail) -> Self
     where
-        Fmt: ResultFormat<Success = Success>,
-    {
-        Self(Box::new(Fmt::from(MatchResult::Success(success))))
-    }
-
-    pub(crate) fn fail<Fail, Fmt>(fail: Fail) -> Self
-    where
-        Fmt: ResultFormat<Fail = Fail>,
+        Fmt: ResultFormat<PosFail = Fail>,
     {
         Self(Box::new(Fmt::from(MatchResult::Fail(fail))))
+    }
+
+    pub(crate) fn new_neg<Fail, Fmt>(success: Fail) -> Self
+    where
+        Fmt: ResultFormat<NegFail = Fail>,
+    {
+        Self(Box::new(Fmt::from(MatchResult::Success(success))))
     }
 }
 

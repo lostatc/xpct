@@ -1,12 +1,10 @@
-use std::fmt;
-
 use crate::{
-    DynMapNeg, Format, Formatter, MapNeg, MapPos, MatchBase, MatchResult,
-    Matcher, MatchFailure, ResultFormat,
+    Format, Formatter, MatchNeg, MatchPos, MatchBase, DynMatchNeg, DynMatchPos, MatchFailure, MatchResult, Matcher,
+    ResultFormat,
 };
 
 #[derive(Debug)]
-pub struct NotFormat(MatchResult<(), MatchFailure>);
+pub struct NotFormat(MatchResult<MatchFailure, MatchFailure>);
 
 impl Format for NotFormat {
     fn fmt(&self, _: &mut Formatter) -> std::fmt::Result {
@@ -14,58 +12,59 @@ impl Format for NotFormat {
     }
 }
 
-impl From<MatchResult<(), MatchFailure>> for NotFormat {
-    fn from(result: MatchResult<(), MatchFailure>) -> Self {
+impl From<MatchResult<MatchFailure, MatchFailure>> for NotFormat {
+    fn from(result: MatchResult<MatchFailure, MatchFailure>) -> Self {
         Self(result)
     }
 }
 
 impl ResultFormat for NotFormat {
-    type Success = ();
-    type Fail = MatchFailure;
+    type PosFail = MatchFailure;
+    type NegFail = MatchFailure;
 }
 
-pub struct NotMatcher<In, Out>(
-    Box<dyn DynMapNeg<In = In, NegOut = Out>>,
-);
+#[derive(Debug)]
+pub struct NotMatcher<In, PosOut, NegOut>(Matcher<In, PosOut, NegOut>);
 
-impl<In, Out> fmt::Debug for NotMatcher<In, Out> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_tuple("NotMatcher").finish()
+impl<In, PosOut, NegOut> NotMatcher<In, PosOut, NegOut> {
+    pub fn new(matcher: Matcher<In, PosOut, NegOut>) -> Self {
+        NotMatcher(matcher)
     }
 }
 
-impl<In, Out> NotMatcher<In, Out> {
-    pub fn new<M, Fmt>(matcher: Matcher<M, Fmt>) -> Self
-    where
-        M: MapNeg<In = In, NegOut = Out> + 'static,
-        Fmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
-    {
-        NotMatcher(Box::new(matcher))
-    }
-}
-
-impl<In, Out> MatchBase for NotMatcher<In, Out> {
+impl<In, PosOut, NegOut> MatchBase for NotMatcher<In, PosOut, NegOut> {
     type In = In;
-    type Success = ();
-    type Fail = MatchFailure;
 }
 
-impl<In, Out> MapPos for NotMatcher<In, Out> {
-    type PosOut = Out;
+impl<In, PosOut, NegOut> MatchPos for NotMatcher<In, PosOut, NegOut> {
+    type PosOut = NegOut;
+    type PosFail = MatchFailure;
 
-    fn map_pos(
+    fn match_pos(
         &mut self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::Fail>> {
-        self.0.map_neg(actual)
+    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
+        self.0.match_neg(actual)
     }
 }
 
-pub fn not<M, Fmt>(matcher: Matcher<M, Fmt>) -> Matcher<NotMatcher<M::In, M::NegOut>, NotFormat>
+impl<In, PosOut, NegOut> MatchNeg for NotMatcher<In, PosOut, NegOut> {
+    type NegOut = PosOut;
+    type NegFail = MatchFailure;
+
+    fn match_neg(
+        &mut self,
+        actual: Self::In,
+    ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>> {
+        self.0.match_pos(actual)
+    }
+}
+
+pub fn not<In, PosOut, NegOut>(matcher: Matcher<In, PosOut, NegOut>) -> Matcher<In, NegOut, PosOut>
 where
-    M: MapNeg + 'static,
-    Fmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
+    In: 'static,
+    PosOut: 'static,
+    NegOut: 'static,
 {
-    Matcher::new(NotMatcher::new(matcher))
+    Matcher::new::<_, NotFormat>(NotMatcher::new(matcher))
 }

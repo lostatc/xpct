@@ -1,95 +1,59 @@
+use std::fmt;
 use std::marker::PhantomData;
 
 use super::format::ResultFormat;
-use super::result::{MatchResult, MatchFailure};
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum MatchCase {
-    /// We are expecting this matcher to match.
-    Pos,
-
-    /// We are expecting this matcher to not match.
-    Neg,
-}
-
-impl MatchCase {
-    pub fn is_pos(&self) -> bool {
-        match self {
-            Self::Pos => true,
-            Self::Neg => false,
-        }
-    }
-
-    pub fn is_neg(&self) -> bool {
-        match self {
-            Self::Pos => false,
-            Self::Neg => true,
-        }
-    }
-}
+use super::result::{MatchFailure, MatchResult};
 
 pub trait MatchBase {
     type In;
-    type Success;
-    type Fail;
 }
 
-pub trait Match: MatchBase {
-    fn matches(&mut self, actual: &Self::In) -> anyhow::Result<MatchResult<Self::Success, Self::Fail>>;
-}
-
-pub trait MapPos: MatchBase {
+pub trait MatchPos: MatchBase {
     type PosOut;
+    type PosFail;
 
-    fn map_pos(&mut self, actual: Self::In)
-        -> anyhow::Result<MatchResult<Self::PosOut, Self::Fail>>;
-}
-
-pub trait MapNeg: MatchBase {
-    type NegOut;
-
-    fn map_neg(&mut self, actual: Self::In)
-        -> anyhow::Result<MatchResult<Self::NegOut, Self::Success>>;
-}
-
-pub trait DynMatchBase {
-    type In;
-}
-
-pub trait DynMatch: DynMatchBase {
-    fn matches(
+    fn match_pos(
         &mut self,
-        case: MatchCase,
-        actual: &Self::In,
-    ) -> anyhow::Result<MatchResult<(), MatchFailure>>;
+        actual: Self::In,
+    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>>;
 }
 
-pub trait DynMapPos: DynMatchBase {
+pub trait MatchNeg: MatchBase {
+    type NegOut;
+    type NegFail;
+
+    fn match_neg(
+        &mut self,
+        actual: Self::In,
+    ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>>;
+}
+
+pub trait DynMatchPos: MatchBase {
     type PosOut;
 
-    fn map_pos(
+    fn match_pos(
         &mut self,
         actual: Self::In,
     ) -> anyhow::Result<MatchResult<Self::PosOut, MatchFailure>>;
 }
 
-pub trait DynMapNeg: DynMatchBase {
+pub trait DynMatchNeg: MatchBase {
     type NegOut;
 
-    fn map_neg(
+    fn match_neg(
         &mut self,
         actual: Self::In,
     ) -> anyhow::Result<MatchResult<Self::NegOut, MatchFailure>>;
 }
 
-pub trait DynMap: DynMapPos + DynMapNeg {}
+pub trait DynMatch: DynMatchPos + DynMatchNeg {}
 
-pub struct Matcher<M, Fmt: ResultFormat> {
+pub struct InnerMatcher<M, Fmt: ResultFormat> {
     matcher: M,
     result_fmt: PhantomData<Fmt>,
 }
 
-impl<M, Fmt: ResultFormat> Matcher<M, Fmt> {
+impl<M, Fmt: ResultFormat> InnerMatcher<M, Fmt> {
     pub fn new(matcher: M) -> Self {
         Self {
             matcher,
@@ -98,132 +62,111 @@ impl<M, Fmt: ResultFormat> Matcher<M, Fmt> {
     }
 }
 
-impl<M, Fmt> DynMatchBase for Matcher<M, Fmt>
+impl<M, Fmt> MatchBase for InnerMatcher<M, Fmt>
 where
     M: MatchBase,
-    Fmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
+    Fmt: ResultFormat,
 {
     type In = M::In;
 }
 
-impl<M, Fmt> DynMatch for Matcher<M, Fmt>
+impl<M, Fmt> DynMatchPos for InnerMatcher<M, Fmt>
 where
-    M: Match,
-    Fmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
-{
-    fn matches(
-        &mut self,
-        case: MatchCase,
-        actual: &Self::In,
-    ) -> anyhow::Result<MatchResult<(), MatchFailure>> {
-        match self.matcher.matches(actual) {
-            Ok(result) => match result {
-                MatchResult::Success(success) => match case {
-                    MatchCase::Pos => Ok(MatchResult::Success(())),
-                    MatchCase::Neg => Ok(MatchResult::Fail(MatchFailure::success::<M::Success, Fmt>(success))),
-                },
-                MatchResult::Fail(fail) => match case {
-                    MatchCase::Pos => Ok(MatchResult::Fail(MatchFailure::fail::<M::Fail, Fmt>(fail))),
-                    MatchCase::Neg => Ok(MatchResult::Success(())),
-                },
-            },
-            Err(error) => Err(error),
-        }
-    }
-}
-
-impl<M, Fmt> DynMapPos for Matcher<M, Fmt>
-where
-    M: MapPos,
-    Fmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
+    M: MatchPos,
+    Fmt: ResultFormat<PosFail = M::PosFail>,
 {
     type PosOut = M::PosOut;
 
-    fn map_pos(
+    fn match_pos(
         &mut self,
         actual: Self::In,
     ) -> anyhow::Result<MatchResult<Self::PosOut, MatchFailure>> {
-        match self.matcher.map_pos(actual) {
+        match self.matcher.match_pos(actual) {
             Ok(MatchResult::Success(out)) => Ok(MatchResult::Success(out)),
-            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(
-                MatchFailure::fail::<M::Fail, Fmt>(result),
-            )),
+            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(MatchFailure::new_pos::<
+                M::PosFail,
+                Fmt,
+            >(result))),
             Err(error) => Err(error),
         }
     }
 }
 
-impl<M, Fmt> DynMapNeg for Matcher<M, Fmt>
+impl<M, Fmt> DynMatchNeg for InnerMatcher<M, Fmt>
 where
-    M: MapNeg,
-    Fmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
+    M: MatchNeg,
+    Fmt: ResultFormat<NegFail = M::NegFail>,
 {
     type NegOut = M::NegOut;
 
-    fn map_neg(
+    fn match_neg(
         &mut self,
         actual: Self::In,
     ) -> anyhow::Result<MatchResult<Self::NegOut, MatchFailure>> {
-        match self.matcher.map_neg(actual) {
+        match self.matcher.match_neg(actual) {
             Ok(MatchResult::Success(out)) => Ok(MatchResult::Success(out)),
-            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(
-                MatchFailure::success::<M::Success, Fmt>(result),
-            )),
+            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(MatchFailure::new_neg::<
+                M::NegFail,
+                Fmt,
+            >(result))),
             Err(error) => Err(error),
         }
     }
 }
 
-impl<M, Fmt> DynMap for Matcher<M, Fmt>
+impl<M, Fmt> DynMatch for InnerMatcher<M, Fmt>
 where
-    M: MapPos + MapNeg,
-    Fmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
-{}
+    M: MatchPos + MatchNeg,
+    Fmt: ResultFormat<PosFail = M::PosFail, NegFail = M::NegFail>,
+{
+}
 
-pub struct MapAdapter<M>(M);
+pub struct Matcher<In, PosOut, NegOut>(
+    Box<dyn DynMatch<In = In, PosOut = PosOut, NegOut = NegOut>>,
+);
 
-impl<M> MapAdapter<M> {
-    pub fn new(matcher: M) -> Self {
-        Self(matcher)
-    }
-
-    pub fn into_inner(self) -> M {
-        self.0
+impl<In, PosOut, NegOut> fmt::Debug for Matcher<In, PosOut, NegOut> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("Matcher").finish()
     }
 }
 
-impl<M: MatchBase> MatchBase for MapAdapter<M> {
-    type In = M::In;
-    type Success = M::Success;
-    type Fail = M::Fail;
+impl<In, PosOut, NegOut> Matcher<In, PosOut, NegOut> {
+    pub fn new<M, Fmt>(matcher: M) -> Self
+    where
+        M: MatchBase<In = In> + MatchPos<PosOut = PosOut> + MatchNeg<NegOut = NegOut> + 'static,
+        Fmt: ResultFormat<PosFail = M::PosFail, NegFail = M::NegFail>,
+    {
+        Self(Box::new(InnerMatcher::<_, Fmt>::new(matcher)))
+    }
 }
 
-impl<M: Match> MapPos for MapAdapter<M> {
-    type PosOut = M::In;
+impl<In, PosOut, NegOut> MatchBase for Matcher<In, PosOut, NegOut> {
+    type In = In;
+}
 
-    fn map_pos(
+impl<In, PosOut, NegOut> DynMatchPos for Matcher<In, PosOut, NegOut> {
+    type PosOut = PosOut;
+
+    fn match_pos(
         &mut self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::Fail>> {
-        match self.0.matches(&actual) {
-            Ok(MatchResult::Success(_)) => Ok(MatchResult::Success(actual)),
-            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(result)),
-            Err(error) => Err(error),
-        }
+    ) -> anyhow::Result<MatchResult<Self::PosOut, MatchFailure>> {
+        self.0.match_pos(actual)
     }
 }
 
-impl<M: Match> MapNeg for MapAdapter<M> {
-    type NegOut = M::In;
+impl<In, PosOut, NegOut> DynMatchNeg for Matcher<In, PosOut, NegOut>
+{
+    type NegOut = NegOut;
 
-    fn map_neg(
+    fn match_neg(
         &mut self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, Self::Success>> {
-        match self.0.matches(&actual) {
-            Ok(MatchResult::Success(result)) => Ok(MatchResult::Fail(result)),
-            Ok(MatchResult::Fail(_)) => Ok(MatchResult::Success(actual)),
-            Err(error) => Err(error),
-        }
+    ) -> anyhow::Result<MatchResult<Self::NegOut, MatchFailure>> {
+        self.0.match_neg(actual)
     }
 }
+
+
+impl<In, PosOut, NegOut> DynMatch for Matcher<In, PosOut, NegOut> {}

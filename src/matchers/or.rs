@@ -1,38 +1,23 @@
 use std::fmt;
 
-use crate::{Format, Formatter, MapPos, DynMapPos, MapNeg, DynMapNeg, MatchFailure, ResultFormat, Matcher, MatchResult, MatchBase};
+use crate::{
+    DynMatchNeg, DynMatchPos, Format, Formatter, Matcher, MatchNeg, MatchPos, MatchBase, MatchFailure, MatchResult,
+    ResultFormat,
+};
 
 #[derive(Debug)]
-pub struct OrAssertion<'a, T> {
+struct BaseOrAssertion<'a, T> {
     value: T,
     failures: &'a mut Vec<Option<MatchFailure>>,
 }
 
-impl<'a, T> OrAssertion<'a, T> {
-    pub fn to<M, ResultFmt>(self, matcher: &mut Matcher<M, ResultFmt>) -> anyhow::Result<()>
-    where
-        M: MapPos<In = T>,
-        ResultFmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
-    {
-        match matcher.map_pos(self.value) {
-            Ok(MatchResult::Success(_)) => {
-                self.failures.push(None);
-                Ok(())
-            },
-            Ok(MatchResult::Fail(result)) => {
-                self.failures.push(Some(result));
-                Ok(())
-            },
-            Err(error) => Err(error),
-        }
+impl<'a, T> BaseOrAssertion<'a, T> {
+    fn new(value: T, failures: &'a mut Vec<Option<MatchFailure>>) -> Self {
+        Self { value, failures }
     }
 
-    pub fn to_not<M, ResultFmt>(self, matcher: &mut Matcher<M, ResultFmt>) -> anyhow::Result<()>
-    where
-        M: MapNeg<In = T>,
-        ResultFmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
-    {
-        match matcher.map_neg(self.value) {
+    pub fn to<Out>(self, matcher: &mut impl DynMatchPos<In = T, PosOut = Out>) -> anyhow::Result<()> {
+        match matcher.match_pos(self.value) {
             Ok(MatchResult::Success(_)) => {
                 self.failures.push(None);
                 Ok(())
@@ -40,9 +25,89 @@ impl<'a, T> OrAssertion<'a, T> {
             Ok(MatchResult::Fail(result)) => {
                 self.failures.push(Some(result));
                 Ok(())
-            },
+            }
             Err(error) => Err(error),
         }
+    }
+
+    pub fn to_not<Out>(self, matcher: &mut impl DynMatchNeg<In = T, NegOut = Out>) -> anyhow::Result<()> {
+        match matcher.match_neg(self.value) {
+            Ok(MatchResult::Success(_)) => {
+                self.failures.push(None);
+                Ok(())
+            }
+            Ok(MatchResult::Fail(result)) => {
+                self.failures.push(Some(result));
+                Ok(())
+            }
+            Err(error) => Err(error),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct ByRefOrAssertion<'a, T> {
+    value: &'a T,
+    failures: &'a mut Vec<Option<MatchFailure>>,
+}
+
+impl<'a, T> ByRefOrAssertion<'a, T> {
+    pub fn to<Out: 'a>(self, matcher: &mut impl DynMatchPos<In = &'a T, PosOut = &'a Out>) -> anyhow::Result<Self> {
+        BaseOrAssertion::new(self.value, self.failures)
+            .to(matcher)
+            .and(Ok(self))
+    }
+
+    pub fn to_not<Out: 'a>(self, matcher: &mut impl DynMatchNeg<In = &'a T, NegOut = &'a Out>) -> anyhow::Result<Self> {
+        BaseOrAssertion::new(self.value, self.failures)
+            .to_not(matcher)
+            .and(Ok(self))
+    }
+}
+
+#[derive(Debug)]
+pub struct CopiedOrAssertion<'a, T> {
+    value: T,
+    failures: &'a mut Vec<Option<MatchFailure>>,
+}
+
+impl<'a, T> CopiedOrAssertion<'a, T>
+where
+    T: Copy,
+{
+    pub fn to<Out>(self, matcher: &mut impl DynMatchPos<In = T, PosOut = Out>) -> anyhow::Result<Self> {
+        BaseOrAssertion::new(self.value, self.failures)
+            .to(matcher)
+            .and(Ok(self))
+    }
+
+    pub fn to_not<Out>(self, matcher: &mut impl DynMatchNeg<In = T, NegOut = Out>) -> anyhow::Result<Self> {
+        BaseOrAssertion::new(self.value, self.failures)
+            .to_not(matcher)
+            .and(Ok(self))
+    }
+}
+
+#[derive(Debug)]
+pub struct ClonedOrAssertion<'a, T> {
+    value: T,
+    failures: &'a mut Vec<Option<MatchFailure>>,
+}
+
+impl<'a, T> ClonedOrAssertion<'a, T>
+where
+    T: Clone,
+{
+    pub fn to<Out>(self, matcher: &mut impl DynMatchPos<In = T, PosOut = Out>) -> anyhow::Result<Self> {
+        BaseOrAssertion::new(self.value.clone(), self.failures)
+            .to(matcher)
+            .and(Ok(self))
+    }
+
+    pub fn to_not<Out>(self, matcher: &mut impl DynMatchNeg<In = T, NegOut = Out>) -> anyhow::Result<Self> {
+        BaseOrAssertion::new(self.value.clone(), self.failures)
+            .to_not(matcher)
+            .and(Ok(self))
     }
 }
 
@@ -53,8 +118,8 @@ pub struct OrContext<T> {
 }
 
 impl<T> OrContext<T> {
-    pub fn by_ref(&mut self) -> OrAssertion<&T> {
-        OrAssertion {
+    pub fn by_ref(&mut self) -> ByRefOrAssertion<T> {
+        ByRefOrAssertion {
             value: &self.value,
             failures: &mut self.failures,
         }
@@ -65,9 +130,9 @@ impl<T> OrContext<T>
 where
     T: Copy,
 {
-    pub fn copied(&mut self) -> OrAssertion<T> {
-        OrAssertion {
-            value: self.value,
+    pub fn copied(&mut self) -> CopiedOrAssertion<T> {
+        CopiedOrAssertion {
+            value: self.value.clone(),
             failures: &mut self.failures,
         }
     }
@@ -77,17 +142,15 @@ impl<T> OrContext<T>
 where
     T: Clone,
 {
-    pub fn cloned(&mut self) -> OrAssertion<T> {
-        OrAssertion {
+    pub fn cloned(&mut self) -> ClonedOrAssertion<T> {
+        ClonedOrAssertion {
             value: self.value.clone(),
             failures: &mut self.failures,
         }
     }
 }
 
-pub struct OrMatcher<T>(
-    Box<dyn Fn(&mut OrContext<T>) -> anyhow::Result<()>>
-);
+pub struct OrMatcher<T>(Box<dyn Fn(&mut OrContext<T>) -> anyhow::Result<()>>);
 
 impl<T> fmt::Debug for OrMatcher<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -103,17 +166,16 @@ impl<T> OrMatcher<T> {
 
 impl<T> MatchBase for OrMatcher<T> {
     type In = T;
-    type Success = Vec<Option<MatchFailure>>;
-    type Fail = Vec<MatchFailure>;
 }
 
-impl<T> MapPos for OrMatcher<T> {
+impl<T> MatchPos for OrMatcher<T> {
     type PosOut = T;
+    type PosFail = Vec<MatchFailure>;
 
-    fn map_pos(
+    fn match_pos(
         &mut self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::Fail>> {
+    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
         let mut assertion = OrContext {
             value: actual,
             failures: Vec::new(),
@@ -124,16 +186,25 @@ impl<T> MapPos for OrMatcher<T> {
         if assertion.failures.iter().any(Option::is_none) {
             Ok(MatchResult::Success(assertion.value))
         } else {
-            Ok(MatchResult::Fail(assertion.failures.into_iter().filter_map(std::convert::identity).collect()))
+            Ok(MatchResult::Fail(
+                assertion
+                    .failures
+                    .into_iter()
+                    .filter_map(std::convert::identity)
+                    .collect(),
+            ))
         }
     }
 }
 
-impl<T> MapNeg for OrMatcher<T> {
+impl<T> MatchNeg for OrMatcher<T> {
     type NegOut = T;
+    type NegFail = Vec<Option<MatchFailure>>;
 
-    fn map_neg(&mut self, actual: Self::In)
-        -> anyhow::Result<MatchResult<Self::NegOut, Self::Success>> {
+    fn match_neg(
+        &mut self,
+        actual: Self::In,
+    ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>> {
         let mut assertion = OrContext {
             value: actual,
             failures: Vec::new(),
@@ -165,10 +236,15 @@ impl From<MatchResult<Vec<Option<MatchFailure>>, Vec<MatchFailure>>> for OrForma
 }
 
 impl ResultFormat for OrFormat {
-    type Success = Vec<Option<MatchFailure>>;
-    type Fail = Vec<MatchFailure>;
+    type PosFail = Vec<MatchFailure>;
+    type NegFail = Vec<Option<MatchFailure>>;
 }
 
-pub fn or<T>(block: impl Fn(&mut OrContext<T>) -> anyhow::Result<()> + 'static) -> Matcher<OrMatcher<T>, OrFormat> {
-    Matcher::new(OrMatcher::new(block))
+pub fn or<T>(
+    block: impl Fn(&mut OrContext<T>) -> anyhow::Result<()> + 'static,
+) -> Matcher<T, T, T>
+where
+    T: 'static,
+{
+    Matcher::new::<_, OrFormat>(OrMatcher::new(block))
 }

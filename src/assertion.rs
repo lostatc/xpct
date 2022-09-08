@@ -1,5 +1,5 @@
-use super::format::{AssertionFormat, Formatter, ResultFormat};
-use super::matcher::{DynMapNeg, DynMapPos, MapNeg, MapPos, Matcher};
+use super::format::{AssertionFormat, Formatter};
+use super::matcher::{DynMatchNeg, DynMatchPos};
 use super::result::{MatchError, MatchResult};
 
 #[derive(Debug)]
@@ -29,12 +29,11 @@ impl<T, AssertFmt> Assertion<T, AssertFmt>
 where
     AssertFmt: AssertionFormat,
 {
-    pub fn to<M, ResultFmt>(self, matcher: &mut Matcher<M, ResultFmt>) -> Assertion<M::PosOut, AssertFmt>
-    where
-        M: MapPos<In = T>,
-        ResultFmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
-    {
-        match matcher.map_pos(self.value) {
+    pub fn to<Out>(
+        self,
+        matcher: &mut impl DynMatchPos<In = T, PosOut = Out>,
+    ) -> Assertion<Out, AssertFmt> {
+        match matcher.match_pos(self.value) {
             Ok(MatchResult::Success(out)) => Assertion {
                 value: out,
                 ctx: self.ctx,
@@ -44,12 +43,11 @@ where
         }
     }
 
-    pub fn to_not<M, ResultFmt>(self, matcher: &mut Matcher<M, ResultFmt>) -> Assertion<M::NegOut, AssertFmt>
-    where
-        M: MapNeg<In = T>,
-        ResultFmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
-    {
-        match matcher.map_neg(self.value) {
+    pub fn to_not<Out>(
+        self,
+        matcher: &mut impl DynMatchNeg<In = T, NegOut = Out>,
+    ) -> Assertion<Out, AssertFmt> {
+        match matcher.match_neg(self.value) {
             Ok(MatchResult::Success(out)) => Assertion {
                 value: out,
                 ctx: self.ctx,

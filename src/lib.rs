@@ -13,8 +13,8 @@ pub use assertion::{expect, Assertion};
 pub use context::{AssertionContext, FileLocation};
 pub use format::{AssertionFormat, DefaultAssertionFormat, Format, Formatter, ResultFormat};
 pub use matcher::{
-    DynMap, DynMapNeg, DynMapPos, DynMatch, DynMatchBase, MapNeg, MapPos, Match, MatchBase,
-    MatchCase, Matcher, MapAdapter,
+    DynMatch, MatchBase, MatchNeg, DynMatchNeg, MatchPos, DynMatchPos,
+    Matcher,
 };
 pub use result::{MatchError, MatchFailure, MatchResult};
 
