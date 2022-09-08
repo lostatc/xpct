@@ -29,25 +29,31 @@ impl<T, AssertFmt> Assertion<T, AssertFmt>
 where
     AssertFmt: AssertionFormat,
 {
-    pub fn to<M, ResultFmt>(self, matcher: &mut Matcher<M, ResultFmt>) -> M::PosOut
+    pub fn to<M, ResultFmt>(self, matcher: &mut Matcher<M, ResultFmt>) -> Assertion<M::PosOut, AssertFmt>
     where
         M: MapPos<In = T>,
         ResultFmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
     {
         match matcher.map_pos(self.value) {
-            Ok(MatchResult::Success(out)) => out,
+            Ok(MatchResult::Success(out)) => Assertion {
+                value: out,
+                ctx: self.ctx,
+            },
             Ok(MatchResult::Fail(result)) => fail::<AssertFmt>(self.ctx, MatchError::Fail(result)),
             Err(error) => fail::<AssertFmt>(self.ctx, MatchError::Err(error)),
         }
     }
 
-    pub fn to_not<M, ResultFmt>(self, matcher: &mut Matcher<M, ResultFmt>) -> M::NegOut
+    pub fn to_not<M, ResultFmt>(self, matcher: &mut Matcher<M, ResultFmt>) -> Assertion<M::NegOut, AssertFmt>
     where
         M: MapNeg<In = T>,
         ResultFmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
     {
         match matcher.map_neg(self.value) {
-            Ok(MatchResult::Success(out)) => out,
+            Ok(MatchResult::Success(out)) => Assertion {
+                value: out,
+                ctx: self.ctx,
+            },
             Ok(MatchResult::Fail(result)) => fail::<AssertFmt>(self.ctx, MatchError::Fail(result)),
             Err(error) => fail::<AssertFmt>(self.ctx, MatchError::Err(error)),
         }

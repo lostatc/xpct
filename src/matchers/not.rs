@@ -1,23 +1,26 @@
+use std::fmt;
+
 use crate::{
     DynMapNeg, Format, Formatter, MapNeg, MapPos, MatchBase, MatchResult,
     Matcher, MatchFailure, ResultFormat,
 };
 
-pub struct MaybeFailureFormat(MatchResult<(), MatchFailure>);
+#[derive(Debug)]
+pub struct NotFormat(MatchResult<(), MatchFailure>);
 
-impl Format for MaybeFailureFormat {
+impl Format for NotFormat {
     fn fmt(&self, _: &mut Formatter) -> std::fmt::Result {
         todo!()
     }
 }
 
-impl From<MatchResult<(), MatchFailure>> for MaybeFailureFormat {
+impl From<MatchResult<(), MatchFailure>> for NotFormat {
     fn from(result: MatchResult<(), MatchFailure>) -> Self {
         Self(result)
     }
 }
 
-impl ResultFormat for MaybeFailureFormat {
+impl ResultFormat for NotFormat {
     type Success = ();
     type Fail = MatchFailure;
 }
@@ -25,6 +28,12 @@ impl ResultFormat for MaybeFailureFormat {
 pub struct NotMatcher<In, Out>(
     Box<dyn DynMapNeg<In = In, NegOut = Out>>,
 );
+
+impl<In, Out> fmt::Debug for NotMatcher<In, Out> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("NotMatcher").finish()
+    }
+}
 
 impl<In, Out> NotMatcher<In, Out> {
     pub fn new<M, Fmt>(matcher: Matcher<M, Fmt>) -> Self
@@ -53,7 +62,7 @@ impl<In, Out> MapPos for NotMatcher<In, Out> {
     }
 }
 
-pub fn not<M, Fmt>(matcher: Matcher<M, Fmt>) -> Matcher<NotMatcher<M::In, M::NegOut>, MaybeFailureFormat>
+pub fn not<M, Fmt>(matcher: Matcher<M, Fmt>) -> Matcher<NotMatcher<M::In, M::NegOut>, NotFormat>
 where
     M: MapNeg + 'static,
     Fmt: ResultFormat<Success = M::Success, Fail = M::Fail>,
