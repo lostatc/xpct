@@ -1,10 +1,10 @@
 use crate::{
-    Format, Formatter, MatchNeg, MatchPos, MatchBase, DynMatchNeg, DynMatchPos, MatchFailure, MatchResult, Matcher,
-    ResultFormat,
+    Format, Formatter, MatchNeg, MatchPos, MatchBase, DynMatchNeg, DynMatchPos, DynMatchFailure, MatchResult, Matcher,
+    ResultFormat, MatchFailure,
 };
 
 #[derive(Debug)]
-pub struct NotFormat(MatchResult<MatchFailure, MatchFailure>);
+pub struct NotFormat(MatchFailure<DynMatchFailure, DynMatchFailure>);
 
 impl Format for NotFormat {
     fn fmt(&self, _: &mut Formatter) -> std::fmt::Result {
@@ -12,15 +12,15 @@ impl Format for NotFormat {
     }
 }
 
-impl From<MatchResult<MatchFailure, MatchFailure>> for NotFormat {
-    fn from(result: MatchResult<MatchFailure, MatchFailure>) -> Self {
+impl From<MatchFailure<DynMatchFailure, DynMatchFailure>> for NotFormat {
+    fn from(result: MatchFailure<DynMatchFailure, DynMatchFailure>) -> Self {
         Self(result)
     }
 }
 
 impl ResultFormat for NotFormat {
-    type PosFail = MatchFailure;
-    type NegFail = MatchFailure;
+    type PosFail = DynMatchFailure;
+    type NegFail = DynMatchFailure;
 }
 
 #[derive(Debug)]
@@ -38,7 +38,7 @@ impl<In, PosOut, NegOut> MatchBase for NotMatcher<In, PosOut, NegOut> {
 
 impl<In, PosOut, NegOut> MatchPos for NotMatcher<In, PosOut, NegOut> {
     type PosOut = NegOut;
-    type PosFail = MatchFailure;
+    type PosFail = DynMatchFailure;
 
     fn match_pos(
         &mut self,
@@ -50,7 +50,7 @@ impl<In, PosOut, NegOut> MatchPos for NotMatcher<In, PosOut, NegOut> {
 
 impl<In, PosOut, NegOut> MatchNeg for NotMatcher<In, PosOut, NegOut> {
     type NegOut = PosOut;
-    type NegFail = MatchFailure;
+    type NegFail = DynMatchFailure;
 
     fn match_neg(
         &mut self,

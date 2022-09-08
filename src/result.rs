@@ -2,31 +2,46 @@ use core::fmt;
 
 use super::format::{Format, Formatter, ResultFormat};
 
-pub struct MatchFailure(Box<dyn Format>);
+#[derive(Debug)]
+pub enum MatchFailure<Pos, Neg> {
+    Pos(Pos),
+    Neg(Neg),
+}
 
-impl MatchFailure {
-    pub(crate) fn new_pos<Fail, Fmt>(fail: Fail) -> Self
-    where
-        Fmt: ResultFormat<PosFail = Fail>,
-    {
-        Self(Box::new(Fmt::from(MatchResult::Fail(fail))))
+impl<Pos, Neg> MatchFailure<Pos, Neg> {
+    pub fn is_pos(&self) -> bool {
+        match self {
+            Self::Pos(_) => true,
+            Self::Neg(_) => false,
+        }
     }
 
-    pub(crate) fn new_neg<Fail, Fmt>(success: Fail) -> Self
-    where
-        Fmt: ResultFormat<NegFail = Fail>,
-    {
-        Self(Box::new(Fmt::from(MatchResult::Success(success))))
+    pub fn is_neg(&self) -> bool {
+        match self {
+            Self::Pos(_) => false,
+            Self::Neg(_) => true,
+        }
     }
 }
 
-impl fmt::Debug for MatchFailure {
+pub struct DynMatchFailure(Box<dyn Format>);
+
+impl DynMatchFailure {
+    pub fn new<Fmt, PosFail, NegFail>(failure: MatchFailure<PosFail, NegFail>) -> Self
+    where
+        Fmt: ResultFormat<PosFail = PosFail, NegFail = NegFail>,
+    {
+        Self(Box::new(Fmt::from(failure)))
+    }
+}
+
+impl fmt::Debug for DynMatchFailure {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_tuple("MatchFailure").finish()
     }
 }
 
-impl Format for MatchFailure {
+impl Format for DynMatchFailure {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         self.0.fmt(f)
     }
@@ -40,6 +55,6 @@ pub enum MatchResult<T, Fail> {
 
 #[derive(Debug)]
 pub enum MatchError {
-    Fail(MatchFailure),
+    Fail(DynMatchFailure),
     Err(anyhow::Error),
 }

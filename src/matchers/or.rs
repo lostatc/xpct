@@ -1,18 +1,18 @@
 use std::fmt;
 
 use crate::{
-    DynMatchNeg, DynMatchPos, Format, Formatter, Matcher, MatchNeg, MatchPos, MatchBase, MatchFailure, MatchResult,
-    ResultFormat,
+    DynMatchNeg, DynMatchPos, Format, Formatter, Matcher, MatchNeg, MatchPos, MatchBase, DynMatchFailure, MatchResult,
+    ResultFormat, MatchFailure,
 };
 
 #[derive(Debug)]
 struct BaseOrAssertion<'a, T> {
     value: T,
-    failures: &'a mut Vec<Option<MatchFailure>>,
+    failures: &'a mut Vec<Option<DynMatchFailure>>,
 }
 
 impl<'a, T> BaseOrAssertion<'a, T> {
-    fn new(value: T, failures: &'a mut Vec<Option<MatchFailure>>) -> Self {
+    fn new(value: T, failures: &'a mut Vec<Option<DynMatchFailure>>) -> Self {
         Self { value, failures }
     }
 
@@ -48,7 +48,7 @@ impl<'a, T> BaseOrAssertion<'a, T> {
 #[derive(Debug)]
 pub struct ByRefOrAssertion<'a, T> {
     value: &'a T,
-    failures: &'a mut Vec<Option<MatchFailure>>,
+    failures: &'a mut Vec<Option<DynMatchFailure>>,
 }
 
 impl<'a, T> ByRefOrAssertion<'a, T> {
@@ -68,7 +68,7 @@ impl<'a, T> ByRefOrAssertion<'a, T> {
 #[derive(Debug)]
 pub struct CopiedOrAssertion<'a, T> {
     value: T,
-    failures: &'a mut Vec<Option<MatchFailure>>,
+    failures: &'a mut Vec<Option<DynMatchFailure>>,
 }
 
 impl<'a, T> CopiedOrAssertion<'a, T>
@@ -91,7 +91,7 @@ where
 #[derive(Debug)]
 pub struct ClonedOrAssertion<'a, T> {
     value: T,
-    failures: &'a mut Vec<Option<MatchFailure>>,
+    failures: &'a mut Vec<Option<DynMatchFailure>>,
 }
 
 impl<'a, T> ClonedOrAssertion<'a, T>
@@ -114,7 +114,7 @@ where
 #[derive(Debug)]
 pub struct OrContext<T> {
     value: T,
-    failures: Vec<Option<MatchFailure>>,
+    failures: Vec<Option<DynMatchFailure>>,
 }
 
 impl<T> OrContext<T> {
@@ -170,7 +170,7 @@ impl<T> MatchBase for OrMatcher<T> {
 
 impl<T> MatchPos for OrMatcher<T> {
     type PosOut = T;
-    type PosFail = Vec<MatchFailure>;
+    type PosFail = Vec<DynMatchFailure>;
 
     fn match_pos(
         &mut self,
@@ -199,7 +199,7 @@ impl<T> MatchPos for OrMatcher<T> {
 
 impl<T> MatchNeg for OrMatcher<T> {
     type NegOut = T;
-    type NegFail = Vec<Option<MatchFailure>>;
+    type NegFail = Vec<Option<DynMatchFailure>>;
 
     fn match_neg(
         &mut self,
@@ -221,7 +221,7 @@ impl<T> MatchNeg for OrMatcher<T> {
 }
 
 #[derive(Debug)]
-pub struct OrFormat(MatchResult<Vec<Option<MatchFailure>>, Vec<MatchFailure>>);
+pub struct OrFormat(MatchFailure<Vec<DynMatchFailure>, Vec<Option<DynMatchFailure>>>);
 
 impl Format for OrFormat {
     fn fmt(&self, _: &mut Formatter) -> std::fmt::Result {
@@ -229,15 +229,15 @@ impl Format for OrFormat {
     }
 }
 
-impl From<MatchResult<Vec<Option<MatchFailure>>, Vec<MatchFailure>>> for OrFormat {
-    fn from(result: MatchResult<Vec<Option<MatchFailure>>, Vec<MatchFailure>>) -> Self {
+impl From<MatchFailure<Vec<DynMatchFailure>, Vec<Option<DynMatchFailure>>>> for OrFormat {
+    fn from(result: MatchFailure<Vec<DynMatchFailure>, Vec<Option<DynMatchFailure>>>) -> Self {
         Self(result)
     }
 }
 
 impl ResultFormat for OrFormat {
-    type PosFail = Vec<MatchFailure>;
-    type NegFail = Vec<Option<MatchFailure>>;
+    type PosFail = Vec<DynMatchFailure>;
+    type NegFail = Vec<Option<DynMatchFailure>>;
 }
 
 pub fn or<T>(

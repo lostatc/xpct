@@ -2,7 +2,7 @@ use std::fmt;
 use std::marker::PhantomData;
 
 use super::format::ResultFormat;
-use super::result::{MatchFailure, MatchResult};
+use super::result::{DynMatchFailure, MatchResult, MatchFailure};
 
 pub trait MatchBase {
     type In;
@@ -34,7 +34,7 @@ pub trait DynMatchPos: MatchBase {
     fn match_pos(
         &mut self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, MatchFailure>>;
+    ) -> anyhow::Result<MatchResult<Self::PosOut, DynMatchFailure>>;
 }
 
 pub trait DynMatchNeg: MatchBase {
@@ -43,7 +43,7 @@ pub trait DynMatchNeg: MatchBase {
     fn match_neg(
         &mut self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, MatchFailure>>;
+    ) -> anyhow::Result<MatchResult<Self::NegOut, DynMatchFailure>>;
 }
 
 pub trait DynMatch: DynMatchPos + DynMatchNeg {}
@@ -80,13 +80,10 @@ where
     fn match_pos(
         &mut self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, MatchFailure>> {
+    ) -> anyhow::Result<MatchResult<Self::PosOut, DynMatchFailure>> {
         match self.matcher.match_pos(actual) {
             Ok(MatchResult::Success(out)) => Ok(MatchResult::Success(out)),
-            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(MatchFailure::new_pos::<
-                M::PosFail,
-                Fmt,
-            >(result))),
+            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(DynMatchFailure::new::<Fmt, _, _>(MatchFailure::Pos(result)))),
             Err(error) => Err(error),
         }
     }
@@ -102,13 +99,10 @@ where
     fn match_neg(
         &mut self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, MatchFailure>> {
+    ) -> anyhow::Result<MatchResult<Self::NegOut, DynMatchFailure>> {
         match self.matcher.match_neg(actual) {
             Ok(MatchResult::Success(out)) => Ok(MatchResult::Success(out)),
-            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(MatchFailure::new_neg::<
-                M::NegFail,
-                Fmt,
-            >(result))),
+            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(DynMatchFailure::new::<Fmt, _, _>(MatchFailure::Neg(result)))),
             Err(error) => Err(error),
         }
     }
@@ -151,7 +145,7 @@ impl<In, PosOut, NegOut> DynMatchPos for Matcher<In, PosOut, NegOut> {
     fn match_pos(
         &mut self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, MatchFailure>> {
+    ) -> anyhow::Result<MatchResult<Self::PosOut, DynMatchFailure>> {
         self.0.match_pos(actual)
     }
 }
@@ -163,7 +157,7 @@ impl<In, PosOut, NegOut> DynMatchNeg for Matcher<In, PosOut, NegOut>
     fn match_neg(
         &mut self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, MatchFailure>> {
+    ) -> anyhow::Result<MatchResult<Self::NegOut, DynMatchFailure>> {
         self.0.match_neg(actual)
     }
 }
