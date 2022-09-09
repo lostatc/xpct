@@ -28,6 +28,15 @@ pub trait MatchNeg: MatchBase {
     ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>>;
 }
 
+pub trait SimpleMatch {
+    type Value;
+    type Fail;
+
+    fn matches(&mut self, actual: &Self::Value) -> anyhow::Result<bool>;
+
+    fn fail(self, actual: Self::Value) -> Self::Fail;
+}
+
 pub trait DynMatchPos: MatchBase {
     type PosOut;
 
@@ -113,6 +122,51 @@ where
     M: MatchPos + MatchNeg,
     Fmt: ResultFormat<Pos = M::PosFail, Neg = M::NegFail>,
 {
+}
+
+impl<T> MatchBase for T
+where
+    T: SimpleMatch,
+{
+    type In = <Self as SimpleMatch>::Value;
+}
+
+impl<T> MatchPos for T
+where
+    T: SimpleMatch,
+{
+    type PosOut = <Self as SimpleMatch>::Value;
+    type PosFail = <Self as SimpleMatch>::Fail;
+
+    fn match_pos(
+        mut self,
+        actual: Self::In,
+    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
+        match self.matches(&actual) {
+            Ok(true) => Ok(MatchResult::Success(actual)),
+            Ok(false) => Ok(MatchResult::Fail(self.fail(actual))),
+            Err(error) => Err(error),
+        }
+    }
+}
+
+impl<T> MatchNeg for T
+where
+    T: SimpleMatch,
+{
+    type NegOut = <T as SimpleMatch>::Value;
+    type NegFail = <T as SimpleMatch>::Fail;
+
+    fn match_neg(
+        mut self,
+        actual: Self::In,
+    ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>> {
+        match self.matches(&actual) {
+            Ok(true) => Ok(MatchResult::Fail(self.fail(actual))),
+            Ok(false) => Ok(MatchResult::Success(actual)),
+            Err(error) => Err(error),
+        }
+    }
 }
 
 pub type BoxMatcher<In, PosOut, NegOut> = Box<dyn DynMatch<In = In, PosOut = PosOut, NegOut = NegOut>>;
