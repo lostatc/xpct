@@ -1,6 +1,7 @@
 use super::format::{AssertionFormat, Formatter};
 use super::matcher::{DynMatchNeg, DynMatchPos};
 use super::result::{MatchError, MatchResult};
+use super::matchers::{self, OrContext};
 
 #[derive(Debug)]
 pub struct Assertion<T, AssertFmt>
@@ -31,9 +32,9 @@ where
 {
     pub fn to<Out>(
         self,
-        matcher: &mut impl DynMatchPos<In = T, PosOut = Out>,
+        matcher: impl DynMatchPos<In = T, PosOut = Out>,
     ) -> Assertion<Out, AssertFmt> {
-        match matcher.match_pos(self.value) {
+        match Box::new(matcher).match_pos(self.value) {
             Ok(MatchResult::Success(out)) => Assertion {
                 value: out,
                 ctx: self.ctx,
@@ -45,9 +46,9 @@ where
 
     pub fn to_not<Out>(
         self,
-        matcher: &mut impl DynMatchNeg<In = T, NegOut = Out>,
+        matcher: impl DynMatchNeg<In = T, NegOut = Out>,
     ) -> Assertion<Out, AssertFmt> {
-        match matcher.match_neg(self.value) {
+        match Box::new(matcher).match_neg(self.value) {
             Ok(MatchResult::Success(out)) => Assertion {
                 value: out,
                 ctx: self.ctx,

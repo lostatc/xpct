@@ -1,5 +1,5 @@
 use crate::{
-    Format, Formatter, MatchNeg, MatchPos, MatchBase, DynMatchNeg, DynMatchPos, DynMatchFailure, MatchResult, Matcher,
+    Format, Formatter, MatchNeg, MatchPos, MatchBase, DynMatchFailure, MatchResult, Matcher,
     ResultFormat, MatchFailure,
 };
 
@@ -12,59 +12,57 @@ impl Format for NotFormat {
     }
 }
 
-impl From<MatchFailure<DynMatchFailure, DynMatchFailure>> for NotFormat {
-    fn from(result: MatchFailure<DynMatchFailure, DynMatchFailure>) -> Self {
-        Self(result)
+impl ResultFormat for NotFormat {
+    type Pos = DynMatchFailure;
+    type Neg = DynMatchFailure;
+
+    fn new(fail: MatchFailure<Self::Pos, Self::Neg>) -> Self {
+        Self(fail)
     }
 }
 
-impl ResultFormat for NotFormat {
-    type PosFail = DynMatchFailure;
-    type NegFail = DynMatchFailure;
-}
-
 #[derive(Debug)]
-pub struct NotMatcher<'a, In, PosOut, NegOut>(Matcher<'a, In, PosOut, NegOut>);
+pub struct NotMatcher<In, PosOut, NegOut>(Matcher<In, PosOut, NegOut>);
 
-impl<'a, In, PosOut, NegOut> NotMatcher<'a, In, PosOut, NegOut> {
-    pub fn new(matcher: Matcher<'a, In, PosOut, NegOut>) -> Self {
+impl<In, PosOut, NegOut> NotMatcher<In, PosOut, NegOut> {
+    pub fn new(matcher: Matcher<In, PosOut, NegOut>) -> Self {
         NotMatcher(matcher)
     }
 }
 
-impl<'a, In, PosOut, NegOut> MatchBase for NotMatcher<'a, In, PosOut, NegOut> {
+impl<In, PosOut, NegOut> MatchBase for NotMatcher<In, PosOut, NegOut> {
     type In = In;
 }
 
-impl<'a, In, PosOut, NegOut> MatchPos for NotMatcher<'a, In, PosOut, NegOut> {
+impl<In, PosOut, NegOut> MatchPos for NotMatcher<In, PosOut, NegOut> {
     type PosOut = NegOut;
     type PosFail = DynMatchFailure;
 
     fn match_pos(
-        &mut self,
+        self,
         actual: Self::In,
     ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
-        self.0.match_neg(actual)
+        self.0.into_box().match_neg(actual)
     }
 }
 
-impl<'a, In, PosOut, NegOut> MatchNeg for NotMatcher<'a, In, PosOut, NegOut> {
+impl<In, PosOut, NegOut> MatchNeg for NotMatcher<In, PosOut, NegOut> {
     type NegOut = PosOut;
     type NegFail = DynMatchFailure;
 
     fn match_neg(
-        &mut self,
+        self,
         actual: Self::In,
     ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>> {
-        self.0.match_pos(actual)
+        self.0.into_box().match_pos(actual)
     }
 }
 
-pub fn not<'a, In, PosOut, NegOut>(matcher: Matcher<'a, In, PosOut, NegOut>) -> Matcher<'a, In, NegOut, PosOut>
+pub fn not<In, PosOut, NegOut>(matcher: Matcher<In, PosOut, NegOut>) -> Matcher<In, NegOut, PosOut>
 where
-    In: 'a,
-    PosOut: 'a,
-    NegOut: 'a,
+    In: 'static,
+    PosOut: 'static,
+    NegOut: 'static,
 {
     Matcher::new::<_, NotFormat>(NotMatcher::new(matcher))
 }

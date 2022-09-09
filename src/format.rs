@@ -49,9 +49,11 @@ impl AsRef<str> for Formatter {
     }
 }
 
-pub trait ResultFormat: Format + From<MatchFailure<Self::PosFail, Self::NegFail>> + 'static {
-    type PosFail;
-    type NegFail;
+pub trait ResultFormat: Format + 'static {
+    type Pos;
+    type Neg;
+
+    fn new(fail: MatchFailure<Self::Pos, Self::Neg>) -> Self;
 }
 
 pub trait AssertionFormat: Format {

@@ -13,7 +13,7 @@ pub trait MatchPos: MatchBase {
     type PosFail;
 
     fn match_pos(
-        &mut self,
+        self,
         actual: Self::In,
     ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>>;
 }
@@ -23,7 +23,7 @@ pub trait MatchNeg: MatchBase {
     type NegFail;
 
     fn match_neg(
-        &mut self,
+        self,
         actual: Self::In,
     ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>>;
 }
@@ -32,7 +32,7 @@ pub trait DynMatchPos: MatchBase {
     type PosOut;
 
     fn match_pos(
-        &mut self,
+        self: Box<Self>,
         actual: Self::In,
     ) -> anyhow::Result<MatchResult<Self::PosOut, DynMatchFailure>>;
 }
@@ -41,7 +41,7 @@ pub trait DynMatchNeg: MatchBase {
     type NegOut;
 
     fn match_neg(
-        &mut self,
+        self: Box<Self>,
         actual: Self::In,
     ) -> anyhow::Result<MatchResult<Self::NegOut, DynMatchFailure>>;
 }
@@ -73,12 +73,12 @@ where
 impl<M, Fmt> DynMatchPos for InnerMatcher<M, Fmt>
 where
     M: MatchPos,
-    Fmt: ResultFormat<PosFail = M::PosFail>,
+    Fmt: ResultFormat<Pos = M::PosFail>,
 {
     type PosOut = M::PosOut;
 
     fn match_pos(
-        &mut self,
+        self: Box<Self>,
         actual: Self::In,
     ) -> anyhow::Result<MatchResult<Self::PosOut, DynMatchFailure>> {
         match self.matcher.match_pos(actual) {
@@ -92,12 +92,12 @@ where
 impl<M, Fmt> DynMatchNeg for InnerMatcher<M, Fmt>
 where
     M: MatchNeg,
-    Fmt: ResultFormat<NegFail = M::NegFail>,
+    Fmt: ResultFormat<Neg = M::NegFail>,
 {
     type NegOut = M::NegOut;
 
     fn match_neg(
-        &mut self,
+        self: Box<Self>,
         actual: Self::In,
     ) -> anyhow::Result<MatchResult<Self::NegOut, DynMatchFailure>> {
         match self.matcher.match_neg(actual) {
@@ -111,51 +111,55 @@ where
 impl<M, Fmt> DynMatch for InnerMatcher<M, Fmt>
 where
     M: MatchPos + MatchNeg,
-    Fmt: ResultFormat<PosFail = M::PosFail, NegFail = M::NegFail>,
+    Fmt: ResultFormat<Pos = M::PosFail, Neg = M::NegFail>,
 {
 }
 
-pub struct Matcher<'a, In, PosOut, NegOut>(
-    Box<dyn DynMatch<In = In, PosOut = PosOut, NegOut = NegOut> + 'a>,
-);
+pub type BoxMatcher<In, PosOut, NegOut> = Box<dyn DynMatch<In = In, PosOut = PosOut, NegOut = NegOut>>;
 
-impl<'a, In, PosOut, NegOut> fmt::Debug for Matcher<'a, In, PosOut, NegOut> {
+pub struct Matcher<In, PosOut, NegOut>(BoxMatcher<In, PosOut, NegOut>);
+
+impl<In, PosOut, NegOut> fmt::Debug for Matcher<In, PosOut, NegOut> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_tuple("Matcher").finish()
     }
 }
 
-impl<'a, In, PosOut, NegOut> Matcher<'a, In, PosOut, NegOut> {
+impl<In, PosOut, NegOut> Matcher<In, PosOut, NegOut> {
     pub fn new<M, Fmt>(matcher: M) -> Self
     where
-        M: MatchBase<In = In> + MatchPos<PosOut = PosOut> + MatchNeg<NegOut = NegOut> + 'a,
-        Fmt: ResultFormat<PosFail = M::PosFail, NegFail = M::NegFail>,
+        M: MatchBase<In = In> + MatchPos<PosOut = PosOut> + MatchNeg<NegOut = NegOut> + 'static,
+        Fmt: ResultFormat<Pos = M::PosFail, Neg = M::NegFail>,
     {
         Self(Box::new(InnerMatcher::<_, Fmt>::new(matcher)))
     }
+
+    pub fn into_box(self) -> BoxMatcher<In, PosOut, NegOut> {
+        self.0
+    }
 }
 
-impl<'a, In, PosOut, NegOut> MatchBase for Matcher<'a, In, PosOut, NegOut> {
+impl<In, PosOut, NegOut> MatchBase for Matcher<In, PosOut, NegOut> {
     type In = In;
 }
 
-impl<'a, In, PosOut, NegOut> DynMatchPos for Matcher<'a, In, PosOut, NegOut> {
+impl<In, PosOut, NegOut> DynMatchPos for Matcher<In, PosOut, NegOut> {
     type PosOut = PosOut;
 
     fn match_pos(
-        &mut self,
+        self: Box<Self>,
         actual: Self::In,
     ) -> anyhow::Result<MatchResult<Self::PosOut, DynMatchFailure>> {
         self.0.match_pos(actual)
     }
 }
 
-impl<'a, In, PosOut, NegOut> DynMatchNeg for Matcher<'a, In, PosOut, NegOut>
+impl<In, PosOut, NegOut> DynMatchNeg for Matcher<In, PosOut, NegOut>
 {
     type NegOut = NegOut;
 
     fn match_neg(
-        &mut self,
+        self: Box<Self>,
         actual: Self::In,
     ) -> anyhow::Result<MatchResult<Self::NegOut, DynMatchFailure>> {
         self.0.match_neg(actual)
@@ -163,4 +167,4 @@ impl<'a, In, PosOut, NegOut> DynMatchNeg for Matcher<'a, In, PosOut, NegOut>
 }
 
 
-impl<'a, In, PosOut, NegOut> DynMatch for Matcher<'a, In, PosOut, NegOut> {}
+impl<In, PosOut, NegOut> DynMatch for Matcher<In, PosOut, NegOut> {}
