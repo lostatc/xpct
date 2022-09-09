@@ -1,7 +1,7 @@
 mod not;
-mod or;
+mod any;
 mod equal;
 
 pub use not::{not, NotFormat, NotMatcher};
-pub use or::{or, ByRefOrAssertion, ClonedOrAssertion, CopiedOrAssertion, OrContext, OrFormat, AllFailures, SomeFailures};
+pub use any::{any, ByRefAnyAssertion, ClonedAnyAssertion, CopiedAnyAssertion, AnyContext, AnyFormat, AllFailures, SomeFailures};
 pub use equal::{equal, Mismatch, EqualFormat, EqualMatcher};
