@@ -14,7 +14,7 @@ pub use context::{AssertionContext, FileLocation};
 pub use format::{AssertionFormat, DefaultAssertionFormat, Format, Formatter, ResultFormat};
 pub use matcher::{
     DynMatch, MatchBase, MatchNeg, DynMatchNeg, MatchPos, DynMatchPos,
-    Matcher,
+    Matcher, BoxMatcher,
 };
 pub use result::{MatchError, MatchFailure, DynMatchFailure, MatchResult};
 

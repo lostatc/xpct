@@ -9,7 +9,7 @@ pub struct Mismatch<Lhs, Rhs> {
 }
 
 #[derive(Debug)]
-pub struct EqualFormat<Lhs, Rhs>(MatchFailure<Mismatch<Lhs, Rhs>, Mismatch<Lhs, Rhs>>);
+pub struct EqualFormat<Lhs, Rhs>(MatchFailure<Mismatch<Lhs, Rhs>>);
 
 impl<Lhs, Rhs> Format for EqualFormat<Lhs, Rhs> {
     fn fmt(&self, _: &mut Formatter) -> std::fmt::Result {
@@ -23,9 +23,9 @@ where
     Rhs: 'static,
 {
     type Pos = Mismatch<Lhs, Rhs>;
-    type Neg = Mismatch<Lhs, Rhs>;
+    type Neg = Self::Pos;
 
-    fn new(fail: MatchFailure<Self::Pos, Self::Neg>) -> Self {
+    fn new(fail: MatchFailure<Self::Pos>) -> Self {
         Self(fail)
     }
 }

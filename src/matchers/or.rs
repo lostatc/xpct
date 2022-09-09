@@ -5,9 +5,13 @@ use crate::{
     ResultFormat, MatchFailure,
 };
 
+pub type AllFailures = Vec<DynMatchFailure>;
+
+pub type SomeFailures = Vec<Option<DynMatchFailure>>;
+
 #[derive(Debug)]
 enum OrAssertionState {
-    Ok(Vec<Option<DynMatchFailure>>),
+    Ok(SomeFailures),
     Err(anyhow::Error),
 }
 
@@ -195,7 +199,7 @@ impl<T> MatchBase for OrMatcher<T> {
 
 impl<T> MatchPos for OrMatcher<T> {
     type PosOut = T;
-    type PosFail = Vec<DynMatchFailure>;
+    type PosFail = AllFailures;
 
     fn match_pos(
         self,
@@ -223,7 +227,7 @@ impl<T> MatchPos for OrMatcher<T> {
 
 impl<T> MatchNeg for OrMatcher<T> {
     type NegOut = T;
-    type NegFail = Vec<Option<DynMatchFailure>>;
+    type NegFail = SomeFailures;
 
     fn match_neg(
         self,
@@ -245,7 +249,7 @@ impl<T> MatchNeg for OrMatcher<T> {
 }
 
 #[derive(Debug)]
-pub struct OrFormat(MatchFailure<Vec<DynMatchFailure>, Vec<Option<DynMatchFailure>>>);
+pub struct OrFormat(MatchFailure<AllFailures, SomeFailures>);
 
 impl Format for OrFormat {
     fn fmt(&self, _: &mut Formatter) -> std::fmt::Result {
@@ -254,8 +258,8 @@ impl Format for OrFormat {
 }
 
 impl ResultFormat for OrFormat {
-    type Pos = Vec<DynMatchFailure>;
-    type Neg = Vec<Option<DynMatchFailure>>;
+    type Pos = AllFailures;
+    type Neg = SomeFailures;
 
     fn new(fail: MatchFailure<Self::Pos, Self::Neg>) -> Self {
         Self(fail)

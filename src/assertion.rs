@@ -1,7 +1,6 @@
 use super::format::{AssertionFormat, Formatter};
 use super::matcher::{DynMatchNeg, DynMatchPos};
 use super::result::{MatchError, MatchResult};
-use super::matchers::{self, OrContext};
 
 #[derive(Debug)]
 pub struct Assertion<T, AssertFmt>

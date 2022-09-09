@@ -4,7 +4,7 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct NotFormat(MatchFailure<DynMatchFailure, DynMatchFailure>);
+pub struct NotFormat(MatchFailure<DynMatchFailure>);
 
 impl Format for NotFormat {
     fn fmt(&self, _: &mut Formatter) -> std::fmt::Result {
@@ -14,9 +14,9 @@ impl Format for NotFormat {
 
 impl ResultFormat for NotFormat {
     type Pos = DynMatchFailure;
-    type Neg = DynMatchFailure;
+    type Neg = Self::Pos;
 
-    fn new(fail: MatchFailure<Self::Pos, Self::Neg>) -> Self {
+    fn new(fail: MatchFailure<Self::Pos>) -> Self {
         Self(fail)
     }
 }

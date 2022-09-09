@@ -3,7 +3,7 @@ use core::fmt;
 use super::format::{Format, Formatter, ResultFormat};
 
 #[derive(Debug)]
-pub enum MatchFailure<Pos, Neg> {
+pub enum MatchFailure<Pos, Neg = Pos> {
     Pos(Pos),
     Neg(Neg),
 }
