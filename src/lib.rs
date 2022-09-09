@@ -20,5 +20,5 @@ pub use result::{MatchError, MatchFailure, DynMatchFailure, MatchResult};
 
 pub mod prelude {
     pub use crate::expect;
-    pub use crate::matchers::{not, or, equal};
+    pub use crate::matchers::{not, any, equal};
 }

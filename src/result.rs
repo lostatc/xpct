@@ -1,6 +1,7 @@
 use core::fmt;
 
 use super::format::{Format, Formatter, ResultFormat};
+use super::matcher::{MatchPos, MatchNeg};
 
 #[derive(Debug)]
 pub enum MatchFailure<Pos, Neg = Pos> {

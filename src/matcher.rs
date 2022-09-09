@@ -117,7 +117,7 @@ where
 
 pub type BoxMatcher<In, PosOut, NegOut> = Box<dyn DynMatch<In = In, PosOut = PosOut, NegOut = NegOut>>;
 
-pub struct Matcher<In, PosOut, NegOut>(BoxMatcher<In, PosOut, NegOut>);
+pub struct Matcher<In, PosOut, NegOut = PosOut>(BoxMatcher<In, PosOut, NegOut>);
 
 impl<In, PosOut, NegOut> fmt::Debug for Matcher<In, PosOut, NegOut> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

@@ -274,7 +274,7 @@ impl ResultFormat for AnyFormat {
 
 pub fn any<T>(
     block: impl Fn(&mut AnyContext<T>) + 'static,
-) -> Matcher<T, T, T>
+) -> Matcher<T, T>
 where
     T: 'static,
 {

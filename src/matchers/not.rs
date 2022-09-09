@@ -14,9 +14,9 @@ impl Format for NotFormat {
 
 impl ResultFormat for NotFormat {
     type Pos = DynMatchFailure;
-    type Neg = Self::Pos;
+    type Neg = DynMatchFailure;
 
-    fn new(fail: MatchFailure<Self::Pos>) -> Self {
+    fn new(fail: MatchFailure<Self::Pos, Self::Neg>) -> Self {
         Self(fail)
     }
 }

@@ -3,40 +3,40 @@ use std::marker::PhantomData;
 use crate::{MatchFailure, Format, Formatter, ResultFormat, MatchBase, MatchPos, MatchResult, MatchNeg, Matcher};
 
 #[derive(Debug)]
-pub struct Mismatch<Lhs, Rhs> {
-    pub expected: Rhs,
-    pub actual: Lhs,
+pub struct Mismatch<Actual, Expected> {
+    pub actual: Actual,
+    pub expected: Expected,
 }
 
 #[derive(Debug)]
-pub struct EqualFormat<Lhs, Rhs>(MatchFailure<Mismatch<Lhs, Rhs>>);
+pub struct MismatchFormat<Actual, Expected>(MatchFailure<Mismatch<Actual, Expected>>);
 
-impl<Lhs, Rhs> Format for EqualFormat<Lhs, Rhs> {
+impl<Actual, Expected> Format for MismatchFormat<Actual, Expected> {
     fn fmt(&self, _: &mut Formatter) -> std::fmt::Result {
         todo!()
     }
 }
 
-impl<Lhs, Rhs> ResultFormat for EqualFormat<Lhs, Rhs>
+impl<Actual, Expected> ResultFormat for MismatchFormat<Actual, Expected>
 where
-    Lhs: 'static,
-    Rhs: 'static,
+    Actual: 'static,
+    Expected: 'static,
 {
-    type Pos = Mismatch<Lhs, Rhs>;
-    type Neg = Self::Pos;
+    type Pos = Mismatch<Actual, Expected>;
+    type Neg = Mismatch<Actual, Expected>;
 
-    fn new(fail: MatchFailure<Self::Pos>) -> Self {
+    fn new(fail: MatchFailure<Self::Pos, Self::Neg>) -> Self {
         Self(fail)
     }
 }
 
-pub struct EqualMatcher<Lhs, Rhs> {
-    expected: Rhs,
-    actual: PhantomData<Lhs>,
+pub struct EqualMatcher<Actual, Expected> {
+    expected: Expected,
+    actual: PhantomData<Actual>,
 }
 
-impl<Lhs, Rhs> EqualMatcher<Lhs, Rhs> {
-    pub fn new(expected: Rhs) -> Self {
+impl<Actual, Expected> EqualMatcher<Actual, Expected> {
+    pub fn new(expected: Expected) -> Self {
         Self {
             expected,
             actual: PhantomData,
@@ -44,16 +44,16 @@ impl<Lhs, Rhs> EqualMatcher<Lhs, Rhs> {
     }
 }
 
-impl<Lhs, Rhs> MatchBase for EqualMatcher<Lhs, Rhs> {
-    type In = Lhs;
+impl<Actual, Expected> MatchBase for EqualMatcher<Actual, Expected> {
+    type In = Actual;
 }
 
-impl<Lhs, Rhs> MatchPos for EqualMatcher<Lhs, Rhs>
+impl<Actual, Expected> MatchPos for EqualMatcher<Actual, Expected>
 where
-    Lhs: PartialEq<Rhs> + Eq,
+    Actual: PartialEq<Expected> + Eq,
 {
-    type PosOut = Lhs;
-    type PosFail = Mismatch<Lhs, Rhs>;
+    type PosOut = Actual;
+    type PosFail = Mismatch<Actual, Expected>;
 
     fn match_pos(
         self,
@@ -70,12 +70,12 @@ where
     }
 }
 
-impl<Lhs, Rhs> MatchNeg for EqualMatcher<Lhs, Rhs>
+impl<Actual, Expected> MatchNeg for EqualMatcher<Actual, Expected>
 where
-    Lhs: PartialEq<Rhs> + Eq,
+    Actual: PartialEq<Expected> + Eq,
 {
-    type NegOut = Lhs;
-    type NegFail = Mismatch<Lhs, Rhs>;
+    type NegOut = Actual;
+    type NegFail = Mismatch<Actual, Expected>;
 
     fn match_neg(
         self,
@@ -92,10 +92,10 @@ where
     }
 }
 
-pub fn equal<Lhs, Rhs>(actual: Rhs) -> Matcher<Lhs, Lhs, Lhs>
+pub fn equal<Actual, Expected>(expected: Expected) -> Matcher<Actual, Actual>
 where
-    Lhs: PartialEq<Rhs> + Eq + 'static,
-    Rhs: 'static,
+    Actual: PartialEq<Expected> + Eq + 'static,
+    Expected: 'static,
 {
-    Matcher::new::<_, EqualFormat<Lhs, Rhs>>(EqualMatcher::new(actual))
+    Matcher::new::<_, MismatchFormat<Actual, Expected>>(EqualMatcher::new(expected))
 }
