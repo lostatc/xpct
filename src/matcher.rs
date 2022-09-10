@@ -256,3 +256,17 @@ impl<'a, In, PosOut, NegOut> DynMatchNeg for Matcher<'a, In, PosOut, NegOut>
         self.0.match_neg(actual)
     }
 }
+
+#[macro_export]
+macro_rules! success {
+    ($success:expr) => {
+        return std::result::Result::Ok($crate::MatchResult::Success($success))
+    };
+}
+
+#[macro_export]
+macro_rules! fail {
+    ($fail:expr) => {
+        return std::result::Result::Ok($crate::MatchResult::Fail($fail))
+    };
+}
