@@ -16,9 +16,6 @@ pub use matcher::{
 };
 pub use result::{AssertionFailure, DynMatchFailure, MatchError, MatchFailure, MatchResult};
 
-#[cfg(feature = "handlebars")]
-pub use template::HandlebarsTemplate;
-
 #[cfg(feature = "fmt")]
 pub use format::DefaultAssertionFormat;
 

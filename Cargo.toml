@@ -22,6 +22,5 @@ once_cell = "1.14"
 
 [features]
 default = ["fmt"]
-fmt = ["handlebars", "color"]
-handlebars = ["dep:serde", "dep:handlebars"]
+fmt = ["dep:serde", "dep:handlebars", "color"]
 color = ["dep:atty", "dep:termcolor"]

@@ -1,8 +1,8 @@
-#![cfg(feature = "handlebars")]
+#![cfg(feature = "fmt")]
 
 use std::sync::Mutex;
 
-use handlebars::{Handlebars, HelperDef};
+use handlebars::Handlebars;
 use once_cell::sync::Lazy;
 use serde::Serialize;
 
@@ -36,12 +36,5 @@ impl HandlebarsTemplate {
             .unwrap()
             .render(self.name.as_ref(), data)
             .expect("failed to render handlebars template")
-    }
-
-    pub fn register_helper(name: &str, def: Box<dyn HelperDef + Send + Sync + 'static>) {
-        HANDLEBARS_REGISTRY
-            .lock()
-            .unwrap()
-            .register_helper(name, def);
     }
 }
