@@ -3,13 +3,14 @@ pub mod matchers;
 mod assertion;
 mod context;
 mod format;
-mod indent;
 mod matcher;
 mod result;
 
 pub use assertion::{expect, Assertion};
 pub use context::{AssertionContext, FileLocation};
-pub use format::{AssertionFormat, DefaultAssertionFormat, ResultFormat};
+pub use format::{
+    AssertionFailure, AssertionFormat, DefaultAssertionFormat, HandlebarsFormat, ResultFormat,
+};
 pub use matcher::{
     BoxMatcher, DynMatch, DynMatchNeg, DynMatchPos, MatchBase, MatchNeg, MatchPos, Matcher,
     SimpleMatch,

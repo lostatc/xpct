@@ -9,7 +9,7 @@ use crate::{
 pub struct AllFailures(pub Vec<DynMatchFailure>);
 
 impl fmt::Display for AllFailures {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, _: &mut fmt::Formatter<'_>) -> fmt::Result {
         todo!()
     }
 }
@@ -18,17 +18,8 @@ impl fmt::Display for AllFailures {
 pub struct SomeFailures(pub Vec<Option<DynMatchFailure>>);
 
 impl fmt::Display for SomeFailures {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, _: &mut fmt::Formatter<'_>) -> fmt::Result {
         todo!();
-        /*
-        indexed_list(
-            f,
-            self.0.iter().map(|maybe_fail| match maybe_fail {
-                Some(fail) => fail.as_ref(),
-                None => "<matched>",
-            }),
-        );
-        */
     }
 }
 
@@ -306,27 +297,8 @@ impl<'a, T> MatchNeg for AnyMatcher<'a, T> {
 pub struct AnyFormat(MatchFailure<AllFailures, SomeFailures>);
 
 impl fmt::Display for AnyFormat {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, _: &mut fmt::Formatter<'_>) -> fmt::Result {
         todo!();
-        /*
-        match &self.0 {
-            MatchFailure::Pos(failures) => {
-                f.write_str("Expected at least one of these to match, but none did:");
-                f.writeln();
-                f.set_indent(2);
-                f.write_fmt(failures);
-            }
-            MatchFailure::Neg(failures) => {
-                f.write_str(&format!(
-                    "Expected none of these to match, but {} did:",
-                    failures.count(),
-                ));
-                f.writeln();
-                f.set_indent(2);
-                f.write_fmt(failures);
-            }
-        }
-        */
     }
 }
 

@@ -1,8 +1,10 @@
 use std::fmt;
 
+use serde::Serialize;
+
 use super::format::ResultFormat;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub enum MatchFailure<Pos, Neg = Pos> {
     // We were expecting the matcher to succeed but it failed.
     Pos(Pos),
@@ -27,7 +29,7 @@ impl<Pos, Neg> MatchFailure<Pos, Neg> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct DynMatchFailure(String);
 
 impl DynMatchFailure {
@@ -105,6 +107,15 @@ impl std::error::Error for MatchError {
             MatchError::Fail(_) => None,
             MatchError::Err(error) => error.source(),
         }
+    }
+}
+
+impl Serialize for MatchError {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(self.to_string().as_str())
     }
 }
 

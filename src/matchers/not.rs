@@ -9,7 +9,7 @@ use crate::{
 pub struct NotFormat(MatchFailure<DynMatchFailure>);
 
 impl fmt::Display for NotFormat {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, _: &mut fmt::Formatter<'_>) -> fmt::Result {
         todo!()
     }
 }

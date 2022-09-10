@@ -1,3 +1,5 @@
+use crate::format::AssertionFailure;
+
 use super::format::AssertionFormat;
 use super::matcher::{DynMatchNeg, DynMatchPos};
 use super::result::{MatchError, MatchResult};
@@ -15,7 +17,7 @@ fn fail<AssertFmt>(ctx: AssertFmt::Context, error: MatchError) -> !
 where
     AssertFmt: AssertionFormat,
 {
-    panic!("\n{}", AssertFmt::new(ctx, error).to_string());
+    panic!("\n{}", AssertFmt::new(AssertionFailure { ctx, error }));
 }
 
 impl<T, AssertFmt> Assertion<T, AssertFmt>

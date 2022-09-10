@@ -189,7 +189,7 @@ impl<'a, T> MatchNeg for EachMatcher<'a, T> {
 pub struct EachFormat(MatchFailure<DynMatchFailure, ()>);
 
 impl fmt::Display for EachFormat {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, _: &mut fmt::Formatter<'_>) -> fmt::Result {
         todo!()
     }
 }
