@@ -4,7 +4,10 @@ use super::format::{Format, Formatter, ResultFormat};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MatchFailure<Pos, Neg = Pos> {
+    // We were expecting the matcher to succeed but it failed.
     Pos(Pos),
+
+    // We were expecting the matcher to fail but it succeeded.
     Neg(Neg),
 }
 
@@ -28,7 +31,7 @@ impl<Pos, Neg> MatchFailure<Pos, Neg> {
 pub struct DynMatchFailure(String);
 
 impl DynMatchFailure {
-    pub fn new<Fmt, PosFail, NegFail>(fail: MatchFailure<PosFail, NegFail>) -> Self
+    pub(super) fn new<Fmt, PosFail, NegFail>(fail: MatchFailure<PosFail, NegFail>) -> Self
     where
         Fmt: ResultFormat<Pos = PosFail, Neg = NegFail>,
     {

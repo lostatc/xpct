@@ -13,5 +13,5 @@ pub use each::{
     each, ByRefEachAssertion, ClonedEachAssertion, CopiedEachAssertion, EachContext, EachFormat,
     EachMatcher,
 };
-pub use equal::{equal, EqualMatcher, Mismatch, MismatchFormat};
+pub use equal::{equal, EqualFormat, EqualMatcher, Mismatch};
 pub use not::{not, NotFormat, NotMatcher};

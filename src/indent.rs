@@ -44,9 +44,9 @@ impl IndentWriter {
         "                                ",
     ];
 
-    pub fn new(inner: String) -> Self {
+    pub fn new() -> Self {
         Self {
-            inner,
+            inner: String::new(),
             indent: 0,
             prefix: None,
             newline: true,
@@ -68,7 +68,15 @@ impl IndentWriter {
             i if i < Self::PREFIX_CACHE.len() as u32 => {
                 self.prefix = Some(Cow::Borrowed(Self::PREFIX_CACHE[i as usize - 1]))
             }
-            _ => self.prefix = Some(Cow::Owned(" ".repeat(indent as usize))),
+            i => self.prefix = Some(Cow::Owned(" ".repeat(i as usize))),
+        }
+    }
+
+    fn newline(&self) -> bool {
+        if let Some(character) = self.inner.chars().rev().nth(0) {
+            character == '\n'
+        } else {
+            true
         }
     }
 
@@ -83,15 +91,14 @@ impl IndentWriter {
                     self.inner.push('\n');
                 }
 
-                if !line.is_empty() {
+                if !line.is_empty() && self.newline() {
                     self.inner.push_str(&prefix);
                 }
 
                 self.inner.push_str(line);
             }
 
-            self.newline = s.ends_with('\n');
-            if self.newline {
+            if self.newline() {
                 self.inner.push('\n');
             }
         } else {
@@ -101,7 +108,7 @@ impl IndentWriter {
 
     pub fn write_char(&mut self, c: char) {
         match &self.prefix {
-            Some(prefix) if self.newline => {
+            Some(prefix) if self.newline() => {
                 self.inner.push_str(&prefix);
             }
             _ => {}

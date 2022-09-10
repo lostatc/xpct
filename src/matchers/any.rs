@@ -5,9 +5,72 @@ use crate::{
     MatchNeg, MatchPos, MatchResult, Matcher, ResultFormat,
 };
 
-pub type AllFailures = Vec<DynMatchFailure>;
+#[derive(Debug)]
+pub struct AllFailures(pub Vec<DynMatchFailure>);
 
-pub type SomeFailures = Vec<Option<DynMatchFailure>>;
+impl Format for AllFailures {
+    fn fmt(&self, f: &mut Formatter) {
+        let digits = self.0.len().to_string().len();
+        let new_indent = f.indent() + digits as u32 + 4;
+
+        for (i, fail) in self.0.iter().enumerate() {
+            f.set_indent(0);
+            f.write_str(format!("[{:0digits$}]  ", i, digits = digits));
+            f.set_indent(new_indent);
+            f.write_fmt(fail);
+            f.writeln();
+            f.writeln();
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct SomeFailures(pub Vec<Option<DynMatchFailure>>);
+
+impl Format for SomeFailures {
+    fn fmt(&self, f: &mut Formatter) {
+        let digits = self.0.len().to_string().len();
+        let new_indent = f.indent() + digits as u32 + 4;
+
+        for (i, maybe_fail) in self.0.iter().enumerate() {
+            f.set_indent(0);
+            f.write_str(format!("[{:0digits$}]  ", i, digits = digits));
+            f.set_indent(new_indent);
+
+            if let Some(fail) = maybe_fail {
+                f.write_fmt(fail);
+            } else {
+                f.write_str("<matched>");
+            }
+
+            f.writeln();
+            f.writeln();
+        }
+    }
+}
+
+impl SomeFailures {
+    pub fn has_any(&self) -> bool {
+        self.0.iter().any(Option::is_none)
+    }
+
+    pub fn has_all(&self) -> bool {
+        self.0.iter().all(Option::is_none)
+    }
+
+    pub fn count(&self) -> usize {
+        self.0.iter().filter(|item| item.is_none()).count()
+    }
+
+    pub fn filter_into(self) -> AllFailures {
+        AllFailures(
+            self.0
+                .into_iter()
+                .filter_map(std::convert::identity)
+                .collect(),
+        )
+    }
+}
 
 #[derive(Debug)]
 enum AnyAssertionState {
@@ -17,7 +80,7 @@ enum AnyAssertionState {
 
 impl AnyAssertionState {
     fn new() -> Self {
-        Self::Ok(Vec::new())
+        Self::Ok(SomeFailures(Vec::new()))
     }
 }
 
@@ -36,10 +99,10 @@ impl<'a, T> BaseAnyAssertion<'a, T> {
         if let AnyAssertionState::Ok(failures) = self.state {
             match Box::new(matcher).match_pos(self.value) {
                 Ok(MatchResult::Success(_)) => {
-                    failures.push(None);
+                    failures.0.push(None);
                 }
                 Ok(MatchResult::Fail(result)) => {
-                    failures.push(Some(result));
+                    failures.0.push(Some(result));
                 }
                 Err(error) => {
                     *self.state = AnyAssertionState::Err(error);
@@ -52,10 +115,10 @@ impl<'a, T> BaseAnyAssertion<'a, T> {
         if let AnyAssertionState::Ok(failures) = self.state {
             match Box::new(matcher).match_neg(self.value) {
                 Ok(MatchResult::Success(_)) => {
-                    failures.push(None);
+                    failures.0.push(None);
                 }
                 Ok(MatchResult::Fail(result)) => {
-                    failures.push(Some(result));
+                    failures.0.push(Some(result));
                 }
                 Err(error) => {
                     *self.state = AnyAssertionState::Err(error);
@@ -220,15 +283,10 @@ impl<'a, T> MatchPos for AnyMatcher<'a, T> {
 
         match ctx.state {
             AnyAssertionState::Ok(failures) => {
-                if failures.iter().any(Option::is_none) {
+                if failures.has_any() {
                     Ok(MatchResult::Success(ctx.value))
                 } else {
-                    Ok(MatchResult::Fail(
-                        failures
-                            .into_iter()
-                            .filter_map(std::convert::identity)
-                            .collect(),
-                    ))
+                    Ok(MatchResult::Fail(failures.filter_into()))
                 }
             }
             AnyAssertionState::Err(error) => Err(error),
@@ -250,7 +308,7 @@ impl<'a, T> MatchNeg for AnyMatcher<'a, T> {
 
         match ctx.state {
             AnyAssertionState::Ok(failures) => {
-                if failures.iter().any(Option::is_none) {
+                if failures.has_any() {
                     Ok(MatchResult::Fail(failures))
                 } else {
                     Ok(MatchResult::Success(ctx.value))
@@ -265,8 +323,24 @@ impl<'a, T> MatchNeg for AnyMatcher<'a, T> {
 pub struct AnyFormat(MatchFailure<AllFailures, SomeFailures>);
 
 impl Format for AnyFormat {
-    fn fmt(&self, _: &mut Formatter) {
-        todo!()
+    fn fmt(&self, f: &mut Formatter) {
+        match &self.0 {
+            MatchFailure::Pos(failures) => {
+                f.write_str("Expected at least one of these to match, but none did:");
+                f.writeln();
+                f.indent_by(2);
+                f.write_fmt(failures);
+            }
+            MatchFailure::Neg(failures) => {
+                f.write_str(&format!(
+                    "Expected none of these to match, but {} did:",
+                    failures.count(),
+                ));
+                f.writeln();
+                f.indent_by(2);
+                f.write_fmt(failures);
+            }
+        }
     }
 }
 

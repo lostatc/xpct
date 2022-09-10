@@ -20,7 +20,7 @@ where
 
     format.fmt(&mut formatter);
 
-    panic!("{}", formatter.as_str());
+    panic!("\n{}", formatter.as_str());
 }
 
 impl<T, AssertFmt> Assertion<T, AssertFmt>

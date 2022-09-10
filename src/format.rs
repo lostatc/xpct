@@ -14,7 +14,7 @@ pub struct Formatter {
 impl Formatter {
     pub(super) fn new() -> Self {
         Self {
-            msg: IndentWriter::new(String::new()),
+            msg: IndentWriter::new(),
         }
     }
 
@@ -26,7 +26,7 @@ impl Formatter {
         self.msg.as_ref()
     }
 
-    pub fn indent(&self) -> u32 {
+    pub fn indent(&mut self) -> u32 {
         self.msg.indent()
     }
 
@@ -34,12 +34,30 @@ impl Formatter {
         self.msg.set_indent(indent);
     }
 
-    pub fn write_str(&mut self, s: &str) {
-        self.msg.write_str(s);
+    pub fn indent_by(&mut self, by: u32) {
+        self.msg.set_indent(self.msg.indent() + by);
+    }
+
+    pub fn dedent_by(&mut self, by: u32) {
+        self.msg.set_indent(self.msg.indent() - by);
+    }
+
+    pub fn write_fmt(&mut self, fmt: &impl Format) {
+        let mut formatter = Self::new();
+        fmt.fmt(&mut formatter);
+        self.write_str(formatter.as_str().trim());
+    }
+
+    pub fn write_str(&mut self, s: impl AsRef<str>) {
+        self.msg.write_str(s.as_ref());
     }
 
     pub fn write_char(&mut self, c: char) {
         self.msg.write_char(c);
+    }
+
+    pub fn writeln(&mut self) {
+        self.msg.write_char('\n');
     }
 }
 
@@ -63,8 +81,27 @@ pub struct DefaultAssertionFormat {
 }
 
 impl Format for DefaultAssertionFormat {
-    fn fmt(&self, _: &mut Formatter) {
-        todo!()
+    fn fmt(&self, f: &mut Formatter) {
+        match (&self.ctx.location, &self.ctx.expr) {
+            (Some(location), Some(expr)) => {
+                f.write_str(&format!(
+                    "[{}:{}:{}] {}\n",
+                    location.file, location.line, location.column, expr
+                ));
+            }
+            (Some(location), None) => {
+                f.write_str(&format!(
+                    "[{}:{}:{}]\n",
+                    location.file, location.line, location.column
+                ));
+            }
+            (None, Some(expr)) => {
+                f.write_str(&format!("{}\n", expr));
+            }
+            _ => {}
+        }
+
+        f.write_str(&self.error.to_string());
     }
 }
 

@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::{Format, Formatter, MatchFailure, Matcher, ResultFormat, SimpleMatch};
 
 #[derive(Debug)]
@@ -7,15 +9,50 @@ pub struct Mismatch<Actual, Expected> {
 }
 
 #[derive(Debug)]
-pub struct MismatchFormat<Actual, Expected>(MatchFailure<Mismatch<Actual, Expected>>);
+pub struct EqualFormat<Actual, Expected>(MatchFailure<Mismatch<Actual, Expected>>);
 
-impl<Actual, Expected> Format for MismatchFormat<Actual, Expected> {
-    fn fmt(&self, _: &mut Formatter) {
-        todo!()
+impl<Actual, Expected> Format for EqualFormat<Actual, Expected>
+where
+    Actual: fmt::Debug,
+    Expected: fmt::Debug,
+{
+    fn fmt(&self, f: &mut Formatter) {
+        match &self.0 {
+            MatchFailure::Pos(mismatch) => {
+                f.write_str("Expected:");
+                f.writeln();
+                f.indent_by(2);
+                f.write_str(&format!("{:?}", mismatch.actual));
+                f.writeln();
+                f.dedent_by(2);
+                f.write_str("To equal:");
+                f.writeln();
+                f.indent_by(2);
+                f.write_str(&format!("{:?}", mismatch.expected));
+                f.writeln();
+            }
+            MatchFailure::Neg(mismatch) => {
+                f.write_str("Expected:");
+                f.writeln();
+                f.indent_by(2);
+                f.write_str(&format!("{:?}", mismatch.actual));
+                f.writeln();
+                f.dedent_by(2);
+                f.write_str("To not equal:");
+                f.writeln();
+                f.indent_by(2);
+                f.write_str(&format!("{:?}", mismatch.expected));
+                f.writeln();
+            }
+        }
     }
 }
 
-impl<Actual, Expected> ResultFormat for MismatchFormat<Actual, Expected> {
+impl<Actual, Expected> ResultFormat for EqualFormat<Actual, Expected>
+where
+    Actual: fmt::Debug,
+    Expected: fmt::Debug,
+{
     type Pos = Mismatch<Actual, Expected>;
     type Neg = Mismatch<Actual, Expected>;
 
@@ -54,8 +91,8 @@ where
 
 pub fn equal<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
 where
-    Actual: PartialEq<Expected> + Eq + 'a,
-    Expected: 'a,
+    Actual: PartialEq<Expected> + Eq + fmt::Debug + 'a,
+    Expected: fmt::Debug + 'a,
 {
-    Matcher::simple::<MismatchFormat<Actual, Expected>, _>(EqualMatcher::new(expected))
+    Matcher::simple::<EqualFormat<Actual, Expected>, _>(EqualMatcher::new(expected))
 }
