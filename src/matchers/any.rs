@@ -185,7 +185,7 @@ where
     }
 }
 
-pub struct AnyMatcher<T>(Box<dyn Fn(&mut AnyContext<T>)>);
+pub struct AnyMatcher<T>(Box<dyn FnOnce(&mut AnyContext<T>)>);
 
 impl<T> fmt::Debug for AnyMatcher<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -194,7 +194,7 @@ impl<T> fmt::Debug for AnyMatcher<T> {
 }
 
 impl<T> AnyMatcher<T> {
-    pub fn new(block: impl Fn(&mut AnyContext<T>) + 'static) -> Self {
+    pub fn new(block: impl FnOnce(&mut AnyContext<T>) + 'static) -> Self {
         Self(Box::new(block))
     }
 }
