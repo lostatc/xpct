@@ -15,7 +15,7 @@ fn fail<AssertFmt>(ctx: AssertFmt::Context, error: MatchError) -> !
 where
     AssertFmt: AssertionFormat,
 {
-    panic!("\n{}", crate::format(&AssertFmt::new(ctx, error)));
+    panic!("\n{}", AssertFmt::new(ctx, error).to_string());
 }
 
 impl<T, AssertFmt> Assertion<T, AssertFmt>

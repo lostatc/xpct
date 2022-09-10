@@ -1,25 +1,26 @@
 use std::fmt;
 
-use crate::fmt::indexed_list;
 use crate::{
-    DynMatchFailure, DynMatchNeg, DynMatchPos, Format, Formatter, MatchBase, MatchFailure,
-    MatchNeg, MatchPos, MatchResult, Matcher, ResultFormat,
+    DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchFailure, MatchNeg, MatchPos,
+    MatchResult, Matcher, ResultFormat,
 };
 
 #[derive(Debug)]
 pub struct AllFailures(pub Vec<DynMatchFailure>);
 
-impl Format for AllFailures {
-    fn fmt(&self, f: &mut Formatter) {
-        indexed_list(f, self.0.iter().map(AsRef::as_ref));
+impl fmt::Display for AllFailures {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        todo!()
     }
 }
 
 #[derive(Debug)]
 pub struct SomeFailures(pub Vec<Option<DynMatchFailure>>);
 
-impl Format for SomeFailures {
-    fn fmt(&self, f: &mut Formatter) {
+impl fmt::Display for SomeFailures {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        todo!();
+        /*
         indexed_list(
             f,
             self.0.iter().map(|maybe_fail| match maybe_fail {
@@ -27,6 +28,7 @@ impl Format for SomeFailures {
                 None => "<matched>",
             }),
         );
+        */
     }
 }
 
@@ -303,8 +305,10 @@ impl<'a, T> MatchNeg for AnyMatcher<'a, T> {
 #[derive(Debug)]
 pub struct AnyFormat(MatchFailure<AllFailures, SomeFailures>);
 
-impl Format for AnyFormat {
-    fn fmt(&self, f: &mut Formatter) {
+impl fmt::Display for AnyFormat {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        todo!();
+        /*
         match &self.0 {
             MatchFailure::Pos(failures) => {
                 f.write_str("Expected at least one of these to match, but none did:");
@@ -322,6 +326,7 @@ impl Format for AnyFormat {
                 f.write_fmt(failures);
             }
         }
+        */
     }
 }
 

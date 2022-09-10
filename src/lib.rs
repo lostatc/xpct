@@ -1,4 +1,3 @@
-pub mod fmt;
 pub mod matchers;
 
 mod assertion;
@@ -10,9 +9,7 @@ mod result;
 
 pub use assertion::{expect, Assertion};
 pub use context::{AssertionContext, FileLocation};
-pub use format::{
-    format, AssertionFormat, DefaultAssertionFormat, Format, Formatter, ResultFormat,
-};
+pub use format::{AssertionFormat, DefaultAssertionFormat, ResultFormat};
 pub use matcher::{
     BoxMatcher, DynMatch, DynMatchNeg, DynMatchPos, MatchBase, MatchNeg, MatchPos, Matcher,
     SimpleMatch,

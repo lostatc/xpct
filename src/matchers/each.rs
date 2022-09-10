@@ -1,6 +1,6 @@
 use crate::{
-    DynMatchFailure, DynMatchNeg, DynMatchPos, Format, Formatter, MatchBase, MatchError,
-    MatchFailure, MatchNeg, MatchPos, MatchResult, Matcher, ResultFormat,
+    DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchError, MatchFailure, MatchNeg,
+    MatchPos, MatchResult, Matcher, ResultFormat,
 };
 use std::fmt;
 
@@ -188,8 +188,8 @@ impl<'a, T> MatchNeg for EachMatcher<'a, T> {
 #[derive(Debug)]
 pub struct EachFormat(MatchFailure<DynMatchFailure, ()>);
 
-impl Format for EachFormat {
-    fn fmt(&self, _: &mut Formatter) {
+impl fmt::Display for EachFormat {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         todo!()
     }
 }

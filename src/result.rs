@@ -1,6 +1,6 @@
 use std::fmt;
 
-use super::format::{Format, Formatter, ResultFormat};
+use super::format::ResultFormat;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MatchFailure<Pos, Neg = Pos> {
@@ -35,19 +35,13 @@ impl DynMatchFailure {
     where
         Fmt: ResultFormat<Pos = PosFail, Neg = NegFail>,
     {
-        Self(crate::format(&Fmt::new(fail)))
+        Self(Fmt::new(fail).to_string())
     }
 }
 
 impl AsRef<str> for DynMatchFailure {
     fn as_ref(&self) -> &str {
         self.0.as_ref()
-    }
-}
-
-impl Format for DynMatchFailure {
-    fn fmt(&self, f: &mut Formatter) {
-        f.write_str(self.0.as_str());
     }
 }
 

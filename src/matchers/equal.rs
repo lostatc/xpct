@@ -1,7 +1,6 @@
 use std::fmt;
 
-use crate::fmt::{labeled_mismatch, LabeledMismatch};
-use crate::{Format, Formatter, MatchFailure, Matcher, ResultFormat, SimpleMatch};
+use crate::{MatchFailure, Matcher, ResultFormat, SimpleMatch};
 
 #[derive(Debug)]
 pub struct Mismatch<Actual, Expected> {
@@ -12,30 +11,35 @@ pub struct Mismatch<Actual, Expected> {
 #[derive(Debug)]
 pub struct EqualFormat<Actual, Expected>(MatchFailure<Mismatch<Actual, Expected>>);
 
-impl<Actual, Expected> Format for EqualFormat<Actual, Expected>
+impl<Actual, Expected> fmt::Display for EqualFormat<Actual, Expected>
 where
     Actual: fmt::Debug,
     Expected: fmt::Debug,
 {
-    fn fmt(&self, f: &mut Formatter) {
-        match &self.0 {
-            MatchFailure::Pos(mismatch) => labeled_mismatch(
-                f,
-                LabeledMismatch {
-                    expected_label: "Expected:",
-                    actual_label: "To equal:",
-                    mismatch,
-                },
-            ),
-            MatchFailure::Neg(mismatch) => labeled_mismatch(
-                f,
-                LabeledMismatch {
-                    expected_label: "Expected:",
-                    actual_label: "To not equal:",
-                    mismatch,
-                },
-            ),
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        todo!()
+        /*
+        fn fmt(&self, f: &mut Formatter) {
+            match &self.0 {
+                MatchFailure::Pos(mismatch) => labeled_mismatch(
+                    f,
+                    LabeledMismatch {
+                        expected_label: "Expected:",
+                        actual_label: "To equal:",
+                        mismatch,
+                    },
+                ),
+                MatchFailure::Neg(mismatch) => labeled_mismatch(
+                    f,
+                    LabeledMismatch {
+                        expected_label: "Expected:",
+                        actual_label: "To not equal:",
+                        mismatch,
+                    },
+                ),
+            }
         }
+        */
     }
 }
 

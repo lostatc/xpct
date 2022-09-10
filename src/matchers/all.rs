@@ -1,7 +1,8 @@
 use crate::{
-    DynMatchFailure, DynMatchNeg, DynMatchPos, Format, Formatter, MatchBase, MatchError,
-    MatchFailure, MatchNeg, MatchPos, MatchResult, Matcher, ResultFormat,
+    DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchError, MatchFailure, MatchNeg,
+    MatchPos, MatchResult, Matcher, ResultFormat,
 };
+use std::fmt;
 
 pub struct AllAssertion<T> {
     value: T,
@@ -88,8 +89,8 @@ impl<'a, In, Out> MatchNeg for AllMatcher<'a, In, Out> {
 #[derive(Debug)]
 pub struct AllFormat(MatchFailure<DynMatchFailure, ()>);
 
-impl Format for AllFormat {
-    fn fmt(&self, _: &mut Formatter) {
+impl fmt::Display for AllFormat {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         todo!()
     }
 }

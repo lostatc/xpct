@@ -1,13 +1,15 @@
+use std::fmt;
+
 use crate::{
-    DynMatchFailure, Format, Formatter, MatchBase, MatchFailure, MatchNeg, MatchPos, MatchResult,
-    Matcher, ResultFormat,
+    DynMatchFailure, MatchBase, MatchFailure, MatchNeg, MatchPos, MatchResult, Matcher,
+    ResultFormat,
 };
 
 #[derive(Debug)]
 pub struct NotFormat(MatchFailure<DynMatchFailure>);
 
-impl Format for NotFormat {
-    fn fmt(&self, _: &mut Formatter) {
+impl fmt::Display for NotFormat {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         todo!()
     }
 }
