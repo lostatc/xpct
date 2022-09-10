@@ -28,19 +28,19 @@ impl<T> AllAssertion<T> {
     }
 }
 
-pub struct AllMatcher<In, Out>(Box<dyn FnOnce(AllAssertion<In>) -> Result<AllAssertion<Out>, MatchError>>);
+pub struct AllMatcher<'a, In, Out>(Box<dyn FnOnce(AllAssertion<In>) -> Result<AllAssertion<Out>, MatchError> + 'a>);
 
-impl<In, Out> AllMatcher<In, Out> {
-    pub fn new(block: impl FnOnce(AllAssertion<In>) -> Result<AllAssertion<Out>, MatchError> + 'static) -> Self {
+impl<'a, In, Out> AllMatcher<'a, In, Out> {
+    pub fn new(block: impl FnOnce(AllAssertion<In>) -> Result<AllAssertion<Out>, MatchError> + 'a) -> Self {
         Self(Box::new(block))
     }
 }
 
-impl<In, Out> MatchBase for AllMatcher<In, Out> {
+impl<'a, In, Out> MatchBase for AllMatcher<'a, In, Out> {
     type In = In;
 }
 
-impl<In, Out> MatchPos for AllMatcher<In, Out> {
+impl<'a, In, Out> MatchPos for AllMatcher<'a, In, Out> {
     type PosOut = Out;
     type PosFail = DynMatchFailure;
 
@@ -56,7 +56,7 @@ impl<In, Out> MatchPos for AllMatcher<In, Out> {
     }
 }
 
-impl<In, Out> MatchNeg for AllMatcher<In, Out> {
+impl<'a, In, Out> MatchNeg for AllMatcher<'a, In, Out> {
     type NegOut = ();
     type NegFail = ();
 
@@ -76,7 +76,7 @@ impl<In, Out> MatchNeg for AllMatcher<In, Out> {
 pub struct AllFormat(MatchFailure<DynMatchFailure, ()>);
 
 impl Format for AllFormat {
-    fn fmt(&self, _: &mut Formatter) -> std::fmt::Result {
+    fn fmt(&self, _: &mut Formatter) {
         todo!()
     }
 }
@@ -90,12 +90,12 @@ impl ResultFormat for AllFormat {
     }
 }
 
-pub fn all<In, Out>(
-    block: impl FnOnce(AllAssertion<In>) -> Result<AllAssertion<Out>, MatchError> + 'static,
-) -> Matcher<In, Out, ()>
+pub fn all<'a, In, Out>(
+    block: impl FnOnce(AllAssertion<In>) -> Result<AllAssertion<Out>, MatchError> + 'a,
+) -> Matcher<'a, In, Out, ()>
 where
-    In: 'static,
-    Out: 'static,
+    In: 'a,
+    Out: 'a,
 {
     Matcher::new::<AllFormat, _>(AllMatcher::new(block))
 }

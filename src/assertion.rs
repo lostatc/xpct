@@ -15,12 +15,10 @@ fn fail<AssertFmt>(ctx: AssertFmt::Context, error: MatchError) -> !
 where
     AssertFmt: AssertionFormat,
 {
-    let error = AssertFmt::new(ctx, error);
+    let format = AssertFmt::new(ctx, error);
     let mut formatter = Formatter::new();
 
-    error
-        .fmt(&mut formatter)
-        .expect("Failed to format error message.");
+    format.fmt(&mut formatter);
 
     panic!("{}", formatter.as_str());
 }

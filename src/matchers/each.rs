@@ -129,25 +129,25 @@ where
     }
 }
 
-pub struct EachMatcher<T>(Box<dyn FnOnce(&mut EachContext<T>) -> Result<(), MatchError>>);
+pub struct EachMatcher<'a, T>(Box<dyn FnOnce(&mut EachContext<T>) -> Result<(), MatchError> + 'a>);
 
-impl<T> fmt::Debug for EachMatcher<T> {
+impl<'a, T> fmt::Debug for EachMatcher<'a, T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_tuple("EachMatcher").finish()
     }
 }
 
-impl<T> EachMatcher<T> {
-    pub fn new(block: impl FnOnce(&mut EachContext<T>) -> Result<(), MatchError> + 'static) -> Self {
+impl<'a, T> EachMatcher<'a, T> {
+    pub fn new(block: impl FnOnce(&mut EachContext<T>) -> Result<(), MatchError> + 'a) -> Self {
         Self(Box::new(block))
     }
 }
 
-impl<T> MatchBase for EachMatcher<T> {
+impl<'a, T> MatchBase for EachMatcher<'a, T> {
     type In = T;
 }
 
-impl<T> MatchPos for EachMatcher<T> {
+impl<'a, T> MatchPos for EachMatcher<'a, T> {
     type PosOut = T;
     type PosFail = DynMatchFailure;
 
@@ -165,7 +165,7 @@ impl<T> MatchPos for EachMatcher<T> {
     }
 }
 
-impl<T> MatchNeg for EachMatcher<T> {
+impl<'a, T> MatchNeg for EachMatcher<'a, T> {
     type NegOut = T;
     type NegFail = ();
 
@@ -187,7 +187,7 @@ impl<T> MatchNeg for EachMatcher<T> {
 pub struct EachFormat(MatchFailure<DynMatchFailure, ()>);
 
 impl Format for EachFormat {
-    fn fmt(&self, _: &mut Formatter) -> std::fmt::Result {
+    fn fmt(&self, _: &mut Formatter) {
         todo!()
     }
 }
@@ -201,11 +201,11 @@ impl ResultFormat for EachFormat {
     }
 }
 
-pub fn each<T>(
-    block: impl FnOnce(&mut EachContext<T>) -> Result<(), MatchError> + 'static,
-) -> Matcher<T, T>
+pub fn each<'a, T>(
+    block: impl FnOnce(&mut EachContext<T>) -> Result<(), MatchError> + 'a,
+) -> Matcher<'a, T, T>
 where
-    T: 'static,
+    T: 'a,
 {
     Matcher::new::<EachFormat, _>(EachMatcher::new(block))
 }

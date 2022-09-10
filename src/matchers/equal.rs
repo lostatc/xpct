@@ -10,16 +10,12 @@ pub struct Mismatch<Actual, Expected> {
 pub struct MismatchFormat<Actual, Expected>(MatchFailure<Mismatch<Actual, Expected>>);
 
 impl<Actual, Expected> Format for MismatchFormat<Actual, Expected> {
-    fn fmt(&self, _: &mut Formatter) -> std::fmt::Result {
+    fn fmt(&self, _: &mut Formatter) {
         todo!()
     }
 }
 
-impl<Actual, Expected> ResultFormat for MismatchFormat<Actual, Expected>
-where
-    Actual: 'static,
-    Expected: 'static,
-{
+impl<Actual, Expected> ResultFormat for MismatchFormat<Actual, Expected> {
     type Pos = Mismatch<Actual, Expected>;
     type Neg = Mismatch<Actual, Expected>;
 
@@ -58,10 +54,10 @@ where
     }
 }
 
-pub fn equal<Actual, Expected>(expected: Expected) -> Matcher<Actual, Actual>
+pub fn equal<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
 where
-    Actual: PartialEq<Expected> + Eq + 'static,
-    Expected: 'static,
+    Actual: PartialEq<Expected> + Eq + 'a,
+    Expected: 'a,
 {
     Matcher::simple::<MismatchFormat<Actual, Expected>, _>(EqualMatcher::new(expected))
 }

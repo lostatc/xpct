@@ -1,15 +1,14 @@
 use std::borrow::Cow;
-use std::fmt;
 
 #[derive(Debug, Clone)]
-pub struct IndentWriter<T> {
-    inner: T,
+pub struct IndentWriter {
+    inner: String,
     indent: u32,
     prefix: Option<Cow<'static, str>>,
     newline: bool,
 }
 
-impl<T> IndentWriter<T> {
+impl IndentWriter {
     const PREFIX_CACHE: [&'static str; 32] = [
         " ",
         "  ",
@@ -45,13 +44,17 @@ impl<T> IndentWriter<T> {
         "                                ",
     ];
 
-    pub fn new(inner: T) -> Self {
+    pub fn new(inner: String) -> Self {
         Self {
             inner,
             indent: 0,
             prefix: None,
             newline: true,
         }
+    }
+
+    pub fn into_inner(self) -> String {
+        self.inner
     }
 
     pub fn indent(&self) -> u32 {
@@ -68,68 +71,49 @@ impl<T> IndentWriter<T> {
             _ => self.prefix = Some(Cow::Owned(" ".repeat(indent as usize))),
         }
     }
-}
 
-impl<T> IndentWriter<T>
-where
-    T: AsRef<str>,
-{
-    pub fn as_str(&self) -> &str {
-        self.inner.as_ref()
-    }
-}
-
-impl<T> AsRef<str> for IndentWriter<T>
-where
-    T: AsRef<str>,
-{
-    fn as_ref(&self) -> &str {
-        self.inner.as_ref()
-    }
-}
-
-impl<T> fmt::Write for IndentWriter<T>
-where
-    T: fmt::Write,
-{
-    fn write_str(&mut self, s: &str) -> fmt::Result {
+    pub fn write_str(&mut self, s: &str) {
         if s.len() == 0 {
-            return Ok(());
+            return;
         }
 
         if let Some(prefix) = &self.prefix {
             for (i, line) in s.lines().enumerate() {
                 if i > 0 {
-                    self.inner.write_char('\n')?;
+                    self.inner.push('\n');
                 }
 
                 if !line.is_empty() {
-                    self.inner.write_str(&prefix)?;
+                    self.inner.push_str(&prefix);
                 }
 
-                self.inner.write_str(line)?;
+                self.inner.push_str(line);
             }
 
             self.newline = s.ends_with('\n');
             if self.newline {
-                self.inner.write_char('\n')?;
+                self.inner.push('\n');
             }
-
-            Ok(())
         } else {
-            self.inner.write_str(s)
+            self.inner.push_str(s);
         }
     }
 
-    fn write_char(&mut self, c: char) -> fmt::Result {
+    pub fn write_char(&mut self, c: char) {
         match &self.prefix {
             Some(prefix) if self.newline => {
-                self.inner.write_str(&prefix)?;
+                self.inner.push_str(&prefix);
             }
             _ => {}
         }
 
         self.newline = c == '\n';
-        self.inner.write_char(c)
+        self.inner.push(c)
+    }
+}
+
+impl AsRef<str> for IndentWriter {
+    fn as_ref(&self) -> &str {
+        self.inner.as_ref()
     }
 }

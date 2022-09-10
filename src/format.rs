@@ -1,16 +1,24 @@
-use std::fmt;
+use std::fmt; 
 
 use super::context::AssertionContext;
 use super::indent::IndentWriter;
 use super::result::{MatchError, MatchFailure};
 
 pub trait Format {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result;
+    fn fmt(&self, f: &mut Formatter);
+}
+
+impl fmt::Display for dyn Format {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut formatter = Formatter::new();
+        self.fmt(&mut formatter);
+        f.write_str(formatter.as_str())
+    }
 }
 
 #[derive(Debug)]
 pub struct Formatter {
-    msg: IndentWriter<String>,
+    msg: IndentWriter,
 }
 
 impl Formatter {
@@ -20,8 +28,12 @@ impl Formatter {
         }
     }
 
-    pub fn as_str(&self) -> &str {
-        self.msg.as_str()
+    pub(super) fn into_inner(self) -> String {
+        self.msg.into_inner()
+    }
+
+    pub(super) fn as_str(&self) -> &str {
+        self.msg.as_ref()
     }
 
     pub fn indent(&self) -> u32 {
@@ -31,25 +43,17 @@ impl Formatter {
     pub fn set_indent(&mut self, indent: u32) {
         self.msg.set_indent(indent);
     }
-}
 
-impl fmt::Write for Formatter {
-    fn write_str(&mut self, s: &str) -> fmt::Result {
-        self.msg.write_str(s)
+    pub fn write_str(&mut self, s: &str) {
+        self.msg.write_str(s);
     }
 
-    fn write_char(&mut self, c: char) -> fmt::Result {
-        self.msg.write_char(c)
+    pub fn write_char(&mut self, c: char) {
+        self.msg.write_char(c);
     }
 }
 
-impl AsRef<str> for Formatter {
-    fn as_ref(&self) -> &str {
-        self.msg.as_str()
-    }
-}
-
-pub trait ResultFormat: Format + 'static {
+pub trait ResultFormat: Format {
     type Pos;
     type Neg;
 
@@ -68,7 +72,7 @@ pub struct DefaultAssertionFormat {
 }
 
 impl Format for DefaultAssertionFormat {
-    fn fmt(&self, _: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, _: &mut Formatter) {
         todo!()
     }
 }

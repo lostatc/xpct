@@ -1,5 +1,3 @@
-use core::fmt;
-
 use super::format::{Format, Formatter, ResultFormat};
 
 #[derive(Debug)]
@@ -24,26 +22,23 @@ impl<Pos, Neg> MatchFailure<Pos, Neg> {
     }
 }
 
-pub struct DynMatchFailure(Box<dyn Format>);
+#[derive(Debug)]
+pub struct DynMatchFailure(String);
 
 impl DynMatchFailure {
     pub fn new<Fmt, PosFail, NegFail>(fail: MatchFailure<PosFail, NegFail>) -> Self
     where
         Fmt: ResultFormat<Pos = PosFail, Neg = NegFail>,
     {
-        Self(Box::new(Fmt::new(fail)))
-    }
-}
-
-impl fmt::Debug for DynMatchFailure {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_tuple("MatchFailure").finish()
+        let mut formatter = Formatter::new();
+        Fmt::new(fail).fmt(&mut formatter);
+        Self(formatter.into_inner())
     }
 }
 
 impl Format for DynMatchFailure {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        self.0.fmt(f)
+    fn fmt(&self, f: &mut Formatter) {
+        f.write_str(self.0.as_str());
     }
 }
 
