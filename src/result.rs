@@ -36,11 +36,11 @@ impl<Pos, Neg> MatchFailure<Pos, Neg> {
 pub struct DynMatchFailure(String);
 
 impl DynMatchFailure {
-    pub fn new<Fmt, PosFail, NegFail>(fail: MatchFailure<PosFail, NegFail>) -> Self
+    pub fn new<Fmt, PosFail, NegFail>(fail: MatchFailure<PosFail, NegFail>, format: Fmt) -> Self
     where
         Fmt: ResultFormat<Pos = PosFail, Neg = NegFail>,
     {
-        Self(Fmt::new(fail).to_string())
+        Self(format.fmt(fail))
     }
 }
 

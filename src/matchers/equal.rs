@@ -1,37 +1,9 @@
-use std::fmt;
-
-use crate::{MatchFailure, Matcher, ResultFormat, SimpleMatch};
+use crate::SimpleMatch;
 
 #[derive(Debug)]
 pub struct Mismatch<Actual, Expected> {
     pub actual: Actual,
     pub expected: Expected,
-}
-
-#[derive(Debug)]
-pub struct EqualFormat<Actual, Expected>(MatchFailure<Mismatch<Actual, Expected>>);
-
-impl<Actual, Expected> fmt::Display for EqualFormat<Actual, Expected>
-where
-    Actual: fmt::Debug,
-    Expected: fmt::Debug,
-{
-    fn fmt(&self, _: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!()
-    }
-}
-
-impl<Actual, Expected> ResultFormat for EqualFormat<Actual, Expected>
-where
-    Actual: fmt::Debug,
-    Expected: fmt::Debug,
-{
-    type Pos = Mismatch<Actual, Expected>;
-    type Neg = Mismatch<Actual, Expected>;
-
-    fn new(fail: MatchFailure<Self::Pos, Self::Neg>) -> Self {
-        Self(fail)
-    }
 }
 
 pub struct EqualMatcher<Expected> {
@@ -62,10 +34,14 @@ where
     }
 }
 
+#[cfg(feature = "fmt")]
+use {super::format::EqualFormat, crate::Matcher};
+
+#[cfg(feature = "fmt")]
 pub fn equal<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
 where
-    Actual: PartialEq<Expected> + Eq + fmt::Debug + 'a,
-    Expected: fmt::Debug + 'a,
+    Actual: PartialEq<Expected> + Eq + 'a,
+    Expected: 'a,
 {
-    Matcher::simple::<EqualFormat<Actual, Expected>, _>(EqualMatcher::new(expected))
+    Matcher::simple(EqualMatcher::new(expected), EqualFormat::new())
 }

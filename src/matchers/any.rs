@@ -1,50 +1,12 @@
 use std::fmt;
 
 use crate::{
-    DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchFailure, MatchNeg, MatchPos,
-    MatchResult, Matcher, ResultFormat,
+    DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchNeg, MatchPos, MatchResult,
 };
 
-#[derive(Debug)]
-pub struct AllFailures(pub Vec<DynMatchFailure>);
+pub type AllFailures = Vec<DynMatchFailure>;
 
-impl fmt::Display for AllFailures {
-    fn fmt(&self, _: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!()
-    }
-}
-
-#[derive(Debug)]
-pub struct SomeFailures(pub Vec<Option<DynMatchFailure>>);
-
-impl fmt::Display for SomeFailures {
-    fn fmt(&self, _: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!();
-    }
-}
-
-impl SomeFailures {
-    pub fn has_any(&self) -> bool {
-        self.0.iter().any(Option::is_none)
-    }
-
-    pub fn has_all(&self) -> bool {
-        self.0.iter().all(Option::is_none)
-    }
-
-    pub fn count(&self) -> usize {
-        self.0.iter().filter(|item| item.is_none()).count()
-    }
-
-    pub fn filter_into(self) -> AllFailures {
-        AllFailures(
-            self.0
-                .into_iter()
-                .filter_map(std::convert::identity)
-                .collect(),
-        )
-    }
-}
+pub type SomeFailures = Vec<Option<DynMatchFailure>>;
 
 #[derive(Debug)]
 enum AnyAssertionState {
@@ -54,7 +16,7 @@ enum AnyAssertionState {
 
 impl AnyAssertionState {
     fn new() -> Self {
-        Self::Ok(SomeFailures(Vec::new()))
+        Self::Ok(Vec::new())
     }
 }
 
@@ -73,10 +35,10 @@ impl<'a, T> BaseAnyAssertion<'a, T> {
         if let AnyAssertionState::Ok(failures) = self.state {
             match Box::new(matcher).match_pos(self.value) {
                 Ok(MatchResult::Success(_)) => {
-                    failures.0.push(None);
+                    failures.push(None);
                 }
                 Ok(MatchResult::Fail(result)) => {
-                    failures.0.push(Some(result));
+                    failures.push(Some(result));
                 }
                 Err(error) => {
                     *self.state = AnyAssertionState::Err(error);
@@ -89,10 +51,10 @@ impl<'a, T> BaseAnyAssertion<'a, T> {
         if let AnyAssertionState::Ok(failures) = self.state {
             match Box::new(matcher).match_neg(self.value) {
                 Ok(MatchResult::Success(_)) => {
-                    failures.0.push(None);
+                    failures.push(None);
                 }
                 Ok(MatchResult::Fail(result)) => {
-                    failures.0.push(Some(result));
+                    failures.push(Some(result));
                 }
                 Err(error) => {
                     *self.state = AnyAssertionState::Err(error);
@@ -257,10 +219,15 @@ impl<'a, T> MatchPos for AnyMatcher<'a, T> {
 
         match ctx.state {
             AnyAssertionState::Ok(failures) => {
-                if failures.has_any() {
+                if failures.iter().any(Option::is_none) {
                     Ok(MatchResult::Success(ctx.value))
                 } else {
-                    Ok(MatchResult::Fail(failures.filter_into()))
+                    Ok(MatchResult::Fail(
+                        failures
+                            .into_iter()
+                            .filter_map(std::convert::identity)
+                            .collect(),
+                    ))
                 }
             }
             AnyAssertionState::Err(error) => Err(error),
@@ -282,7 +249,7 @@ impl<'a, T> MatchNeg for AnyMatcher<'a, T> {
 
         match ctx.state {
             AnyAssertionState::Ok(failures) => {
-                if failures.has_any() {
+                if failures.iter().any(Option::is_none) {
                     Ok(MatchResult::Fail(failures))
                 } else {
                     Ok(MatchResult::Success(ctx.value))
@@ -293,27 +260,13 @@ impl<'a, T> MatchNeg for AnyMatcher<'a, T> {
     }
 }
 
-#[derive(Debug)]
-pub struct AnyFormat(MatchFailure<AllFailures, SomeFailures>);
+#[cfg(feature = "fmt")]
+use {super::format::AnyFormat, crate::Matcher};
 
-impl fmt::Display for AnyFormat {
-    fn fmt(&self, _: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!();
-    }
-}
-
-impl ResultFormat for AnyFormat {
-    type Pos = AllFailures;
-    type Neg = SomeFailures;
-
-    fn new(fail: MatchFailure<Self::Pos, Self::Neg>) -> Self {
-        Self(fail)
-    }
-}
-
+#[cfg(feature = "fmt")]
 pub fn any<'a, T>(block: impl Fn(&mut AnyContext<T>) + 'a) -> Matcher<'a, T, T>
 where
     T: 'a,
 {
-    Matcher::new::<AnyFormat, _>(AnyMatcher::new(block))
+    Matcher::new(AnyMatcher::new(block), AnyFormat)
 }

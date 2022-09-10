@@ -1,8 +1,7 @@
 use crate::{
-    DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchError, MatchFailure, MatchNeg,
-    MatchPos, MatchResult, Matcher, ResultFormat,
+    DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchError, MatchNeg, MatchPos,
+    MatchResult,
 };
-use std::fmt;
 
 pub struct AllAssertion<T> {
     value: T,
@@ -86,24 +85,10 @@ impl<'a, In, Out> MatchNeg for AllMatcher<'a, In, Out> {
     }
 }
 
-#[derive(Debug)]
-pub struct AllFormat(MatchFailure<DynMatchFailure, ()>);
+#[cfg(feature = "fmt")]
+use {super::format::AllFormat, crate::Matcher};
 
-impl fmt::Display for AllFormat {
-    fn fmt(&self, _: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!()
-    }
-}
-
-impl ResultFormat for AllFormat {
-    type Pos = DynMatchFailure;
-    type Neg = ();
-
-    fn new(fail: MatchFailure<Self::Pos, Self::Neg>) -> Self {
-        Self(fail)
-    }
-}
-
+#[cfg(feature = "fmt")]
 pub fn all<'a, In, Out>(
     block: impl FnOnce(AllAssertion<In>) -> Result<AllAssertion<Out>, MatchError> + 'a,
 ) -> Matcher<'a, In, Out, ()>
@@ -111,5 +96,5 @@ where
     In: 'a,
     Out: 'a,
 {
-    Matcher::new::<AllFormat, _>(AllMatcher::new(block))
+    Matcher::new(AllMatcher::new(block), AllFormat)
 }

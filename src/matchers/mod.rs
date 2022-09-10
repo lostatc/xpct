@@ -2,16 +2,29 @@ mod all;
 mod any;
 mod each;
 mod equal;
+mod format;
 mod not;
 
-pub use all::{all, AllAssertion, AllFormat, AllMatcher};
+#[cfg(feature = "fmt")]
+pub use {
+    all::all,
+    any::any,
+    each::each,
+    equal::equal,
+    format::{
+        AllFailuresFormat, AllFormat, AnyFormat, EachFormat, EqualFormat, NotFormat,
+        SomeFailuresFormat,
+    },
+    not::not,
+};
+
+pub use all::{AllAssertion, AllMatcher};
 pub use any::{
-    any, AllFailures, AnyContext, AnyFormat, ByRefAnyAssertion, ClonedAnyAssertion,
-    CopiedAnyAssertion, SomeFailures,
+    AllFailures, AnyContext, AnyMatcher, ByRefAnyAssertion, ClonedAnyAssertion, CopiedAnyAssertion,
+    SomeFailures,
 };
 pub use each::{
-    each, ByRefEachAssertion, ClonedEachAssertion, CopiedEachAssertion, EachContext, EachFormat,
-    EachMatcher,
+    ByRefEachAssertion, ClonedEachAssertion, CopiedEachAssertion, EachContext, EachMatcher,
 };
-pub use equal::{equal, EqualFormat, EqualMatcher, Mismatch};
-pub use not::{not, NotFormat, NotMatcher};
+pub use equal::{EqualMatcher, Mismatch};
+pub use not::NotMatcher;

@@ -1,6 +1,4 @@
-use crate::format::AssertionFailure;
-
-use super::format::AssertionFormat;
+use super::format::{AssertionFailure, AssertionFormat};
 use super::matcher::{DynMatchNeg, DynMatchPos};
 use super::result::{MatchError, MatchResult};
 
@@ -10,14 +8,15 @@ where
     AssertFmt: AssertionFormat,
 {
     value: T,
+    format: AssertFmt,
     ctx: AssertFmt::Context,
 }
 
-fn fail<AssertFmt>(ctx: AssertFmt::Context, error: MatchError) -> !
+fn fail<Context, AssertFmt>(ctx: Context, error: MatchError, format: AssertFmt) -> !
 where
-    AssertFmt: AssertionFormat,
+    AssertFmt: AssertionFormat<Context = Context>,
 {
-    panic!("\n{}", AssertFmt::new(AssertionFailure { ctx, error }));
+    panic!("{}", format.fmt(AssertionFailure { ctx, error }));
 }
 
 impl<T, AssertFmt> Assertion<T, AssertFmt>
@@ -31,10 +30,11 @@ where
         match Box::new(matcher).match_pos(self.value) {
             Ok(MatchResult::Success(out)) => Assertion {
                 value: out,
+                format: self.format,
                 ctx: self.ctx,
             },
-            Ok(MatchResult::Fail(result)) => fail::<AssertFmt>(self.ctx, MatchError::Fail(result)),
-            Err(error) => fail::<AssertFmt>(self.ctx, MatchError::Err(error)),
+            Ok(MatchResult::Fail(result)) => fail(self.ctx, MatchError::Fail(result), self.format),
+            Err(error) => fail(self.ctx, MatchError::Err(error), self.format),
         }
     }
 
@@ -45,10 +45,11 @@ where
         match Box::new(matcher).match_neg(self.value) {
             Ok(MatchResult::Success(out)) => Assertion {
                 value: out,
+                format: self.format,
                 ctx: self.ctx,
             },
-            Ok(MatchResult::Fail(result)) => fail::<AssertFmt>(self.ctx, MatchError::Fail(result)),
-            Err(error) => fail::<AssertFmt>(self.ctx, MatchError::Err(error)),
+            Ok(MatchResult::Fail(result)) => fail(self.ctx, MatchError::Fail(result), self.format),
+            Err(error) => fail(self.ctx, MatchError::Err(error), self.format),
         }
     }
 
@@ -68,15 +69,29 @@ where
         block(&mut self.ctx);
         self
     }
+
+    pub fn fmt(&self) -> &AssertFmt {
+        &self.format
+    }
+
+    pub fn fmt_mut(&mut self) -> &mut AssertFmt {
+        &mut self.format
+    }
+
+    pub fn with_fmt(mut self, block: impl FnOnce(&mut AssertFmt)) -> Self {
+        block(&mut self.format);
+        self
+    }
 }
 
 pub fn expect<T, AssertFmt>(actual: T) -> Assertion<T, AssertFmt>
 where
-    AssertFmt: AssertionFormat,
+    AssertFmt: AssertionFormat + Default,
     AssertFmt::Context: Default,
 {
     Assertion {
         value: actual,
+        format: Default::default(),
         ctx: Default::default(),
     }
 }

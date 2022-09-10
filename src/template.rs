@@ -1,6 +1,5 @@
 #![cfg(feature = "handlebars")]
 
-use std::fmt;
 use std::sync::Mutex;
 
 use handlebars::{Handlebars, HelperDef};
@@ -14,35 +13,35 @@ static HANDLEBARS_REGISTRY: Lazy<Mutex<Handlebars>> = Lazy::new(|| {
     Mutex::new(registry)
 });
 
-pub struct HandlebarsFormat<Data>(Data);
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct HandlebarsTemplate {
+    name: String,
+}
 
-impl<Data> HandlebarsFormat<Data> {
-    const TEMPLATE_NAME: &'static str = concat!(env!("CARGO_CRATE_NAME"), "-formatter");
+impl HandlebarsTemplate {
+    pub fn new(name: &str, template: impl AsRef<str>) -> Self {
+        HANDLEBARS_REGISTRY
+            .lock()
+            .unwrap()
+            .register_template_string(name, template.as_ref())
+            .expect("failed to parse handlebars template");
+        Self {
+            name: name.to_string(),
+        }
+    }
 
-    pub fn new(template: impl AsRef<str>, data: Data) -> anyhow::Result<Self> {
-        let mut registry = HANDLEBARS_REGISTRY.lock().unwrap();
-        registry.register_template_string(Self::TEMPLATE_NAME, template)?;
-        Ok(Self(data))
+    pub fn render<T: Serialize>(&self, data: &T) -> String {
+        HANDLEBARS_REGISTRY
+            .lock()
+            .unwrap()
+            .render(self.name.as_ref(), data)
+            .expect("failed to render handlebars template")
     }
 
     pub fn register_helper(name: &str, def: Box<dyn HelperDef + Send + Sync + 'static>) {
-        let mut registry = HANDLEBARS_REGISTRY.lock().unwrap();
-        registry.register_helper(name, def);
-    }
-}
-
-impl<Data> fmt::Display for HandlebarsFormat<Data>
-where
-    Data: Serialize,
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(
-            HANDLEBARS_REGISTRY
-                .lock()
-                .unwrap()
-                .render(Self::TEMPLATE_NAME, &self.0)
-                .expect("failed to render handlebars template")
-                .as_str(),
-        )
+        HANDLEBARS_REGISTRY
+            .lock()
+            .unwrap()
+            .register_helper(name, def);
     }
 }

@@ -17,12 +17,15 @@ pub use matcher::{
 pub use result::{DynMatchFailure, MatchError, MatchFailure, MatchResult};
 
 #[cfg(feature = "handlebars")]
-pub use template::HandlebarsFormat;
+pub use template::HandlebarsTemplate;
 
 #[cfg(feature = "fmt")]
 pub use format::DefaultAssertionFormat;
 
 pub mod prelude {
-    pub use crate::expect;
-    pub use crate::matchers::{all, any, each, equal, not};
+    #[cfg(feature = "fmt")]
+    pub use {
+        crate::expect,
+        crate::matchers::{all, any, each, equal, not},
+    };
 }

@@ -1,6 +1,6 @@
 use crate::{
-    DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchError, MatchFailure, MatchNeg,
-    MatchPos, MatchResult, Matcher, ResultFormat,
+    DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchError, MatchNeg, MatchPos,
+    MatchResult,
 };
 use std::fmt;
 
@@ -185,29 +185,15 @@ impl<'a, T> MatchNeg for EachMatcher<'a, T> {
     }
 }
 
-#[derive(Debug)]
-pub struct EachFormat(MatchFailure<DynMatchFailure, ()>);
+#[cfg(feature = "fmt")]
+use {super::format::EachFormat, crate::Matcher};
 
-impl fmt::Display for EachFormat {
-    fn fmt(&self, _: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!()
-    }
-}
-
-impl ResultFormat for EachFormat {
-    type Pos = DynMatchFailure;
-    type Neg = ();
-
-    fn new(fail: MatchFailure<Self::Pos, Self::Neg>) -> Self {
-        Self(fail)
-    }
-}
-
+#[cfg(feature = "fmt")]
 pub fn each<'a, T>(
     block: impl FnOnce(&mut EachContext<T>) -> Result<(), MatchError> + 'a,
 ) -> Matcher<'a, T, T>
 where
     T: 'a,
 {
-    Matcher::new::<EachFormat, _>(EachMatcher::new(block))
+    Matcher::new(EachMatcher::new(block), EachFormat)
 }

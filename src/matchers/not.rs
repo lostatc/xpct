@@ -1,27 +1,4 @@
-use std::fmt;
-
-use crate::{
-    DynMatchFailure, MatchBase, MatchFailure, MatchNeg, MatchPos, MatchResult, Matcher,
-    ResultFormat,
-};
-
-#[derive(Debug)]
-pub struct NotFormat(MatchFailure<DynMatchFailure>);
-
-impl fmt::Display for NotFormat {
-    fn fmt(&self, _: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!()
-    }
-}
-
-impl ResultFormat for NotFormat {
-    type Pos = DynMatchFailure;
-    type Neg = DynMatchFailure;
-
-    fn new(fail: MatchFailure<Self::Pos, Self::Neg>) -> Self {
-        Self(fail)
-    }
-}
+use crate::{DynMatchFailure, MatchBase, MatchNeg, MatchPos, MatchResult, Matcher};
 
 #[derive(Debug)]
 pub struct NotMatcher<'a, In, PosOut, NegOut>(Matcher<'a, In, PosOut, NegOut>);
@@ -60,6 +37,10 @@ impl<'a, In, PosOut, NegOut> MatchNeg for NotMatcher<'a, In, PosOut, NegOut> {
     }
 }
 
+#[cfg(feature = "fmt")]
+use super::format::NotFormat;
+
+#[cfg(feature = "fmt")]
 pub fn not<'a, In, PosOut, NegOut>(
     matcher: Matcher<'a, In, PosOut, NegOut>,
 ) -> Matcher<In, NegOut, PosOut>
@@ -68,5 +49,5 @@ where
     PosOut: 'a,
     NegOut: 'a,
 {
-    Matcher::new::<NotFormat, _>(NotMatcher::new(matcher))
+    Matcher::new(NotMatcher::new(matcher), NotFormat)
 }
