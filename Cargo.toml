@@ -1,6 +1,7 @@
 [package]
 name = "xpct"
 version = "0.1.0"
+description = "An extensible assertions library"
 edition = "2021"
 authors = ["Wren Powell <wrentpowell@gmail.com>"]
 homepage = "https://github.com/lostatc/xpct"
@@ -8,6 +9,8 @@ repository = "https://github.com/lostatc/xpct"
 documentation = "https://docs.rs/xpct"
 readme = "README.md"
 license = "MIT"
+keywords = ["testing", "assertions"]
+categories = ["development-tools", "development-tools::testing"]
 
 [dependencies]
 anyhow = "1.0"
