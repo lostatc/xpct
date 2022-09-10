@@ -97,5 +97,5 @@ where
     In: 'static,
     Out: 'static,
 {
-    Matcher::new::<_, AllFormat>(AllMatcher::new(block))
+    Matcher::new::<AllFormat, _>(AllMatcher::new(block))
 }

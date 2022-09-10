@@ -1,3 +1,4 @@
+use std::borrow::Borrow;
 use std::fmt;
 use std::marker::PhantomData;
 
@@ -28,13 +29,19 @@ pub trait MatchNeg: MatchBase {
     ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>>;
 }
 
-pub trait SimpleMatch {
-    type Value;
+pub trait Match: MatchPos + MatchNeg {}
+
+impl<T> Match for T
+where
+    T: MatchPos + MatchNeg,
+{}
+
+pub trait SimpleMatch<Actual> {
     type Fail;
 
-    fn matches(&mut self, actual: &Self::Value) -> anyhow::Result<bool>;
+    fn matches(&mut self, actual: &Actual) -> anyhow::Result<bool>;
 
-    fn fail(self, actual: Self::Value) -> Self::Fail;
+    fn fail(self, actual: Actual) -> Self::Fail;
 }
 
 pub trait DynMatchPos: MatchBase {
@@ -57,13 +64,18 @@ pub trait DynMatchNeg: MatchBase {
 
 pub trait DynMatch: DynMatchPos + DynMatchNeg {}
 
-struct InnerMatcher<M, Fmt: ResultFormat> {
+impl<T> DynMatch for T
+where
+    T: DynMatchPos + DynMatchNeg,
+{}
+
+struct DynMatchAdapter<M, Fmt: ResultFormat> {
     matcher: M,
     result_fmt: PhantomData<Fmt>,
 }
 
-impl<M, Fmt: ResultFormat> InnerMatcher<M, Fmt> {
-    pub fn new(matcher: M) -> Self {
+impl<M, Fmt: ResultFormat> DynMatchAdapter<M, Fmt> {
+    fn new(matcher: M) -> Self {
         Self {
             matcher,
             result_fmt: PhantomData,
@@ -71,7 +83,7 @@ impl<M, Fmt: ResultFormat> InnerMatcher<M, Fmt> {
     }
 }
 
-impl<M, Fmt> MatchBase for InnerMatcher<M, Fmt>
+impl<M, Fmt> MatchBase for DynMatchAdapter<M, Fmt>
 where
     M: MatchBase,
     Fmt: ResultFormat,
@@ -79,7 +91,7 @@ where
     type In = M::In;
 }
 
-impl<M, Fmt> DynMatchPos for InnerMatcher<M, Fmt>
+impl<M, Fmt> DynMatchPos for DynMatchAdapter<M, Fmt>
 where
     M: MatchPos,
     Fmt: ResultFormat<Pos = M::PosFail>,
@@ -98,7 +110,7 @@ where
     }
 }
 
-impl<M, Fmt> DynMatchNeg for InnerMatcher<M, Fmt>
+impl<M, Fmt> DynMatchNeg for DynMatchAdapter<M, Fmt>
 where
     M: MatchNeg,
     Fmt: ResultFormat<Neg = M::NegFail>,
@@ -117,52 +129,65 @@ where
     }
 }
 
-impl<M, Fmt> DynMatch for InnerMatcher<M, Fmt>
+struct SimpleMatchAdapter<M, Actual>
 where
-    M: MatchPos + MatchNeg,
-    Fmt: ResultFormat<Pos = M::PosFail, Neg = M::NegFail>,
+    M: SimpleMatch<Actual>,
 {
+    inner: M,
+    marker: PhantomData<Actual>,
 }
 
-impl<T> MatchBase for T
+impl<M, Actual> SimpleMatchAdapter<M, Actual>
 where
-    T: SimpleMatch,
+    M: SimpleMatch<Actual>,
 {
-    type In = <Self as SimpleMatch>::Value;
+    fn new(inner: M) -> Self {
+        Self {
+            inner,
+            marker: PhantomData,
+        }
+    }
 }
 
-impl<T> MatchPos for T
+impl<M, Actual> MatchBase for SimpleMatchAdapter<M, Actual>
 where
-    T: SimpleMatch,
+    M: SimpleMatch<Actual>,
 {
-    type PosOut = <Self as SimpleMatch>::Value;
-    type PosFail = <Self as SimpleMatch>::Fail;
+    type In = Actual;
+}
+
+impl<M, Actual> MatchPos for SimpleMatchAdapter<M, Actual>
+where
+    M: SimpleMatch<Actual>,
+{
+    type PosOut = Actual;
+    type PosFail = M::Fail;
 
     fn match_pos(
         mut self,
         actual: Self::In,
     ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
-        match self.matches(&actual) {
+        match self.inner.matches(actual.borrow()) {
             Ok(true) => Ok(MatchResult::Success(actual)),
-            Ok(false) => Ok(MatchResult::Fail(self.fail(actual))),
+            Ok(false) => Ok(MatchResult::Fail(self.inner.fail(actual))),
             Err(error) => Err(error),
         }
     }
 }
 
-impl<T> MatchNeg for T
+impl<M, Actual> MatchNeg for SimpleMatchAdapter<M, Actual>
 where
-    T: SimpleMatch,
+    M: SimpleMatch<Actual>,
 {
-    type NegOut = <T as SimpleMatch>::Value;
-    type NegFail = <T as SimpleMatch>::Fail;
+    type NegOut = Actual;
+    type NegFail = M::Fail;
 
     fn match_neg(
         mut self,
         actual: Self::In,
     ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>> {
-        match self.matches(&actual) {
-            Ok(true) => Ok(MatchResult::Fail(self.fail(actual))),
+        match self.inner.matches(actual.borrow()) {
+            Ok(true) => Ok(MatchResult::Fail(self.inner.fail(actual))),
             Ok(false) => Ok(MatchResult::Success(actual)),
             Err(error) => Err(error),
         }
@@ -180,17 +205,29 @@ impl<In, PosOut, NegOut> fmt::Debug for Matcher<In, PosOut, NegOut> {
 }
 
 impl<In, PosOut, NegOut> Matcher<In, PosOut, NegOut> {
-    pub fn new<M, Fmt>(matcher: M) -> Self
+    pub fn new<Fmt, M>(matcher: M) -> Self
     where
-        M: MatchBase<In = In> + MatchPos<PosOut = PosOut> + MatchNeg<NegOut = NegOut> + 'static,
+        M: Match<In = In, PosOut = PosOut, NegOut = NegOut> + 'static,
         Fmt: ResultFormat<Pos = M::PosFail, Neg = M::NegFail>,
     {
-        Self(Box::new(InnerMatcher::<_, Fmt>::new(matcher)))
+        Self(Box::new(DynMatchAdapter::<_, Fmt>::new(matcher)))
     }
 
     pub fn into_box(self) -> BoxMatcher<In, PosOut, NegOut> {
         self.0
     }
+}
+
+impl<Actual> Matcher<Actual, Actual> {
+    pub fn simple<Fmt, M>(matcher: M) -> Self
+    where
+        M: SimpleMatch<Actual> + 'static,
+        Fmt: ResultFormat<Pos = M::Fail, Neg = M::Fail>,
+        Actual: 'static,
+    {
+        Self::new::<Fmt, _>(SimpleMatchAdapter::new(matcher))
+    }
+
 }
 
 impl<In, PosOut, NegOut> MatchBase for Matcher<In, PosOut, NegOut> {
@@ -219,6 +256,3 @@ impl<In, PosOut, NegOut> DynMatchNeg for Matcher<In, PosOut, NegOut>
         self.0.match_neg(actual)
     }
 }
-
-
-impl<In, PosOut, NegOut> DynMatch for Matcher<In, PosOut, NegOut> {}

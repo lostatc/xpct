@@ -278,5 +278,5 @@ pub fn any<T>(
 where
     T: 'static,
 {
-    Matcher::new::<_, AnyFormat>(AnyMatcher::new(block))
+    Matcher::new::<AnyFormat, _>(AnyMatcher::new(block))
 }

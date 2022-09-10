@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use crate::{MatchFailure, Format, Formatter, ResultFormat, Matcher, SimpleMatch};
 
 #[derive(Debug)]
@@ -30,32 +28,29 @@ where
     }
 }
 
-pub struct EqualMatcher<Actual, Expected> {
+pub struct EqualMatcher<Expected> {
     expected: Expected,
-    actual: PhantomData<Actual>,
 }
 
-impl<Actual, Expected> EqualMatcher<Actual, Expected> {
+impl<Expected> EqualMatcher<Expected> {
     pub fn new(expected: Expected) -> Self {
         Self {
             expected,
-            actual: PhantomData,
         }
     }
 }
 
-impl<Actual, Expected> SimpleMatch for EqualMatcher<Actual, Expected>
+impl<Expected, Actual> SimpleMatch<Actual> for EqualMatcher<Expected>
 where
-    for<'a> &'a Actual: PartialEq<Expected> + Eq,
+    Actual: PartialEq<Expected> + Eq,
 {
-    type Value = Actual;
     type Fail = Mismatch<Actual, Expected>;
 
-    fn matches(&mut self, actual: &Self::Value) -> anyhow::Result<bool> {
-        Ok(actual == self.expected)
+    fn matches(&mut self, actual: &Actual) -> anyhow::Result<bool> {
+        Ok(actual == &self.expected)
     }
 
-    fn fail(self, actual: Self::Value) -> Self::Fail {
+    fn fail(self, actual: Actual) -> Self::Fail {
         Mismatch {
             actual,
             expected: self.expected,
@@ -65,8 +60,8 @@ where
 
 pub fn equal<Actual, Expected>(expected: Expected) -> Matcher<Actual, Actual>
 where
-    for<'a> &'a Actual: PartialEq<Expected> + Eq + 'static,
+    Actual: PartialEq<Expected> + Eq + 'static,
     Expected: 'static,
 {
-    Matcher::new::<_, MismatchFormat<Actual, Expected>>(EqualMatcher::new(expected))
+    Matcher::simple::<MismatchFormat<Actual, Expected>, _>(EqualMatcher::new(expected))
 }

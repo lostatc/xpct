@@ -64,5 +64,5 @@ where
     PosOut: 'static,
     NegOut: 'static,
 {
-    Matcher::new::<_, NotFormat>(NotMatcher::new(matcher))
+    Matcher::new::<NotFormat, _>(NotMatcher::new(matcher))
 }
