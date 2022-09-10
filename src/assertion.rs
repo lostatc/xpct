@@ -1,6 +1,6 @@
-use super::format::{AssertionFailure, AssertionFormat};
+use super::format::AssertionFormat;
 use super::matcher::{DynMatchNeg, DynMatchPos};
-use super::result::{MatchError, MatchResult};
+use super::result::{AssertionFailure, MatchError, MatchResult};
 
 #[derive(Debug)]
 pub struct Assertion<T, AssertFmt>

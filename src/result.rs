@@ -47,11 +47,17 @@ impl AsRef<str> for DynMatchFailure {
 
 impl fmt::Display for DynMatchFailure {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(self.0.as_str())
+        f.write_str(self.as_ref())
     }
 }
 
 impl std::error::Error for DynMatchFailure {}
+
+#[derive(Debug)]
+pub struct AssertionFailure<Context> {
+    pub ctx: Context,
+    pub error: MatchError,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MatchResult<Success, Fail> {

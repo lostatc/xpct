@@ -1,7 +1,6 @@
 #[cfg(feature = "fmt")]
 use super::context::AssertionContext;
-
-use super::result::{MatchError, MatchFailure};
+use super::result::{AssertionFailure, MatchFailure};
 
 pub trait Format {
     type Value;
@@ -12,12 +11,6 @@ pub trait Format {
 pub trait ResultFormat: Format<Value = MatchFailure<Self::Pos, Self::Neg>> {
     type Pos;
     type Neg;
-}
-
-#[derive(Debug)]
-pub struct AssertionFailure<Context> {
-    pub ctx: Context,
-    pub error: MatchError,
 }
 
 pub trait AssertionFormat: Format<Value = AssertionFailure<Self::Context>> {
