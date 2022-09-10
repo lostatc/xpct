@@ -1,4 +1,7 @@
-use crate::{DynMatchPos, MatchError, MatchResult, DynMatchNeg, MatchPos, DynMatchFailure, MatchBase, MatchNeg, MatchFailure, Format, Formatter, ResultFormat, Matcher};
+use crate::{
+    DynMatchFailure, DynMatchNeg, DynMatchPos, Format, Formatter, MatchBase, MatchError,
+    MatchFailure, MatchNeg, MatchPos, MatchResult, Matcher, ResultFormat,
+};
 
 pub struct AllAssertion<T> {
     value: T,
@@ -11,7 +14,10 @@ impl<T> AllAssertion<T> {
 }
 
 impl<T> AllAssertion<T> {
-    pub fn to<Out>(self, matcher: impl DynMatchPos<In = T, PosOut = Out>) -> Result<AllAssertion<Out>, MatchError> {
+    pub fn to<Out>(
+        self,
+        matcher: impl DynMatchPos<In = T, PosOut = Out>,
+    ) -> Result<AllAssertion<Out>, MatchError> {
         match Box::new(matcher).match_pos(self.value) {
             Ok(MatchResult::Success(out)) => Ok(AllAssertion::new(out)),
             Ok(MatchResult::Fail(fail)) => Err(MatchError::Fail(fail)),
@@ -19,7 +25,10 @@ impl<T> AllAssertion<T> {
         }
     }
 
-    pub fn to_not<Out>(self, matcher: impl DynMatchNeg<In = T, NegOut = Out>) -> Result<AllAssertion<Out>, MatchError> {
+    pub fn to_not<Out>(
+        self,
+        matcher: impl DynMatchNeg<In = T, NegOut = Out>,
+    ) -> Result<AllAssertion<Out>, MatchError> {
         match Box::new(matcher).match_neg(self.value) {
             Ok(MatchResult::Success(out)) => Ok(AllAssertion::new(out)),
             Ok(MatchResult::Fail(fail)) => Err(MatchError::Fail(fail)),
@@ -28,10 +37,14 @@ impl<T> AllAssertion<T> {
     }
 }
 
-pub struct AllMatcher<'a, In, Out>(Box<dyn FnOnce(AllAssertion<In>) -> Result<AllAssertion<Out>, MatchError> + 'a>);
+pub struct AllMatcher<'a, In, Out>(
+    Box<dyn FnOnce(AllAssertion<In>) -> Result<AllAssertion<Out>, MatchError> + 'a>,
+);
 
 impl<'a, In, Out> AllMatcher<'a, In, Out> {
-    pub fn new(block: impl FnOnce(AllAssertion<In>) -> Result<AllAssertion<Out>, MatchError> + 'a) -> Self {
+    pub fn new(
+        block: impl FnOnce(AllAssertion<In>) -> Result<AllAssertion<Out>, MatchError> + 'a,
+    ) -> Self {
         Self(Box::new(block))
     }
 }

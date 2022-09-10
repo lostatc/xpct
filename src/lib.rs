@@ -13,12 +13,11 @@ pub use assertion::{expect, Assertion};
 pub use context::{AssertionContext, FileLocation};
 pub use format::{AssertionFormat, DefaultAssertionFormat, Format, Formatter, ResultFormat};
 pub use matcher::{
-    DynMatch, MatchBase, MatchNeg, DynMatchNeg, MatchPos, DynMatchPos,
-    Matcher, BoxMatcher
+    BoxMatcher, DynMatch, DynMatchNeg, DynMatchPos, MatchBase, MatchNeg, MatchPos, Matcher,
 };
-pub use result::{MatchError, MatchFailure, DynMatchFailure, MatchResult};
+pub use result::{DynMatchFailure, MatchError, MatchFailure, MatchResult};
 
 pub mod prelude {
     pub use crate::expect;
-    pub use crate::matchers::{not, any, all, each, equal};
+    pub use crate::matchers::{all, any, each, equal, not};
 }

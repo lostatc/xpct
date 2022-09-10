@@ -1,4 +1,4 @@
-use crate::{MatchFailure, Format, Formatter, ResultFormat, Matcher, SimpleMatch};
+use crate::{Format, Formatter, MatchFailure, Matcher, ResultFormat, SimpleMatch};
 
 #[derive(Debug)]
 pub struct Mismatch<Actual, Expected> {
@@ -30,9 +30,7 @@ pub struct EqualMatcher<Expected> {
 
 impl<Expected> EqualMatcher<Expected> {
     pub fn new(expected: Expected) -> Self {
-        Self {
-            expected,
-        }
+        Self { expected }
     }
 }
 

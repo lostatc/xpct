@@ -3,7 +3,7 @@ use std::fmt;
 use std::marker::PhantomData;
 
 use super::format::ResultFormat;
-use super::result::{DynMatchFailure, MatchResult, MatchFailure};
+use super::result::{DynMatchFailure, MatchFailure, MatchResult};
 
 pub trait MatchBase {
     type In;
@@ -31,10 +31,7 @@ pub trait MatchNeg: MatchBase {
 
 pub trait Match: MatchPos + MatchNeg {}
 
-impl<T> Match for T
-where
-    T: MatchPos + MatchNeg,
-{}
+impl<T> Match for T where T: MatchPos + MatchNeg {}
 
 pub trait SimpleMatch<Actual> {
     type Fail;
@@ -64,10 +61,7 @@ pub trait DynMatchNeg: MatchBase {
 
 pub trait DynMatch: DynMatchPos + DynMatchNeg {}
 
-impl<T> DynMatch for T
-where
-    T: DynMatchPos + DynMatchNeg,
-{}
+impl<T> DynMatch for T where T: DynMatchPos + DynMatchNeg {}
 
 struct DynMatchAdapter<M, Fmt: ResultFormat> {
     matcher: M,
@@ -104,7 +98,9 @@ where
     ) -> anyhow::Result<MatchResult<Self::PosOut, DynMatchFailure>> {
         match self.matcher.match_pos(actual) {
             Ok(MatchResult::Success(out)) => Ok(MatchResult::Success(out)),
-            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(DynMatchFailure::new::<Fmt, _, _>(MatchFailure::Pos(result)))),
+            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(
+                DynMatchFailure::new::<Fmt, _, _>(MatchFailure::Pos(result)),
+            )),
             Err(error) => Err(error),
         }
     }
@@ -123,7 +119,9 @@ where
     ) -> anyhow::Result<MatchResult<Self::NegOut, DynMatchFailure>> {
         match self.matcher.match_neg(actual) {
             Ok(MatchResult::Success(out)) => Ok(MatchResult::Success(out)),
-            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(DynMatchFailure::new::<Fmt, _, _>(MatchFailure::Neg(result)))),
+            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(
+                DynMatchFailure::new::<Fmt, _, _>(MatchFailure::Neg(result)),
+            )),
             Err(error) => Err(error),
         }
     }
@@ -194,7 +192,8 @@ where
     }
 }
 
-pub type BoxMatcher<'a, In, PosOut, NegOut> = Box<dyn DynMatch<In = In, PosOut = PosOut, NegOut = NegOut> + 'a>;
+pub type BoxMatcher<'a, In, PosOut, NegOut> =
+    Box<dyn DynMatch<In = In, PosOut = PosOut, NegOut = NegOut> + 'a>;
 
 pub struct Matcher<'a, In, PosOut, NegOut = PosOut>(BoxMatcher<'a, In, PosOut, NegOut>);
 
@@ -227,7 +226,6 @@ impl<'a, Actual> Matcher<'a, Actual, Actual> {
     {
         Self::new::<Fmt, _>(SimpleMatchAdapter::new(matcher))
     }
-
 }
 
 impl<'a, In, PosOut, NegOut> MatchBase for Matcher<'a, In, PosOut, NegOut> {
@@ -245,8 +243,7 @@ impl<'a, In, PosOut, NegOut> DynMatchPos for Matcher<'a, In, PosOut, NegOut> {
     }
 }
 
-impl<'a, In, PosOut, NegOut> DynMatchNeg for Matcher<'a, In, PosOut, NegOut>
-{
+impl<'a, In, PosOut, NegOut> DynMatchNeg for Matcher<'a, In, PosOut, NegOut> {
     type NegOut = NegOut;
 
     fn match_neg(

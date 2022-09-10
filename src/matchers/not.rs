@@ -1,6 +1,6 @@
 use crate::{
-    Format, Formatter, MatchNeg, MatchPos, MatchBase, DynMatchFailure, MatchResult, Matcher,
-    ResultFormat, MatchFailure,
+    DynMatchFailure, Format, Formatter, MatchBase, MatchFailure, MatchNeg, MatchPos, MatchResult,
+    Matcher, ResultFormat,
 };
 
 #[derive(Debug)]
@@ -58,7 +58,9 @@ impl<'a, In, PosOut, NegOut> MatchNeg for NotMatcher<'a, In, PosOut, NegOut> {
     }
 }
 
-pub fn not<'a, In, PosOut, NegOut>(matcher: Matcher<'a, In, PosOut, NegOut>) -> Matcher<In, NegOut, PosOut>
+pub fn not<'a, In, PosOut, NegOut>(
+    matcher: Matcher<'a, In, PosOut, NegOut>,
+) -> Matcher<In, NegOut, PosOut>
 where
     In: 'a,
     PosOut: 'a,

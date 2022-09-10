@@ -1,4 +1,4 @@
-use std::fmt; 
+use std::fmt;
 
 use super::context::AssertionContext;
 use super::indent::IndentWriter;

@@ -1,8 +1,8 @@
 use std::fmt;
 
 use crate::{
-    DynMatchNeg, DynMatchPos, Format, Formatter, Matcher, MatchNeg, MatchPos, MatchBase, DynMatchFailure, MatchResult,
-    ResultFormat, MatchFailure,
+    DynMatchFailure, DynMatchNeg, DynMatchPos, Format, Formatter, MatchBase, MatchFailure,
+    MatchNeg, MatchPos, MatchResult, Matcher, ResultFormat,
 };
 
 pub type AllFailures = Vec<DynMatchFailure>;
@@ -43,7 +43,7 @@ impl<'a, T> BaseAnyAssertion<'a, T> {
                 }
                 Err(error) => {
                     *self.state = AnyAssertionState::Err(error);
-                },
+                }
             }
         }
     }
@@ -59,7 +59,7 @@ impl<'a, T> BaseAnyAssertion<'a, T> {
                 }
                 Err(error) => {
                     *self.state = AnyAssertionState::Err(error);
-                },
+                }
             }
         }
     }
@@ -148,7 +148,10 @@ pub struct AnyContext<T> {
 
 impl<T> AnyContext<T> {
     fn new(value: T) -> Self {
-        AnyContext { value, state: AnyAssertionState::new() }
+        AnyContext {
+            value,
+            state: AnyAssertionState::new(),
+        }
     }
 }
 
@@ -216,16 +219,18 @@ impl<'a, T> MatchPos for AnyMatcher<'a, T> {
         (self.0)(&mut ctx);
 
         match ctx.state {
-            AnyAssertionState::Ok(failures) => if failures.iter().any(Option::is_none) {
-                Ok(MatchResult::Success(ctx.value))
-            } else {
-                Ok(MatchResult::Fail(
-                    failures
-                        .into_iter()
-                        .filter_map(std::convert::identity)
-                        .collect(),
-                ))
-            },
+            AnyAssertionState::Ok(failures) => {
+                if failures.iter().any(Option::is_none) {
+                    Ok(MatchResult::Success(ctx.value))
+                } else {
+                    Ok(MatchResult::Fail(
+                        failures
+                            .into_iter()
+                            .filter_map(std::convert::identity)
+                            .collect(),
+                    ))
+                }
+            }
             AnyAssertionState::Err(error) => Err(error),
         }
     }
@@ -244,11 +249,13 @@ impl<'a, T> MatchNeg for AnyMatcher<'a, T> {
         (self.0)(&mut ctx);
 
         match ctx.state {
-            AnyAssertionState::Ok(failures) => if failures.iter().any(Option::is_none) {
-                Ok(MatchResult::Fail(failures))
-            } else {
-                Ok(MatchResult::Success(ctx.value))
-            },
+            AnyAssertionState::Ok(failures) => {
+                if failures.iter().any(Option::is_none) {
+                    Ok(MatchResult::Fail(failures))
+                } else {
+                    Ok(MatchResult::Success(ctx.value))
+                }
+            }
             AnyAssertionState::Err(error) => Err(error),
         }
     }
@@ -272,9 +279,7 @@ impl ResultFormat for AnyFormat {
     }
 }
 
-pub fn any<'a, T>(
-    block: impl Fn(&mut AnyContext<T>) + 'a,
-) -> Matcher<'a, T, T>
+pub fn any<'a, T>(block: impl Fn(&mut AnyContext<T>) + 'a) -> Matcher<'a, T, T>
 where
     T: 'a,
 {

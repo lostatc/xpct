@@ -1,5 +1,8 @@
+use crate::{
+    DynMatchFailure, DynMatchNeg, DynMatchPos, Format, Formatter, MatchBase, MatchError,
+    MatchFailure, MatchNeg, MatchPos, MatchResult, Matcher, ResultFormat,
+};
 use std::fmt;
-use crate::{DynMatchPos, MatchResult, MatchError, DynMatchNeg, MatchBase, MatchPos, DynMatchFailure, MatchNeg, Format, Formatter, MatchFailure, ResultFormat, Matcher};
 
 #[derive(Debug)]
 struct BaseEachAssertion<T> {
@@ -19,7 +22,10 @@ impl<T> BaseEachAssertion<T> {
         }
     }
 
-    fn to_not<Out>(self, matcher: impl DynMatchNeg<In = T, NegOut = Out>) -> Result<(), MatchError> {
+    fn to_not<Out>(
+        self,
+        matcher: impl DynMatchNeg<In = T, NegOut = Out>,
+    ) -> Result<(), MatchError> {
         match Box::new(matcher).match_neg(self.value) {
             Ok(MatchResult::Success(_)) => Ok(()),
             Ok(MatchResult::Fail(fail)) => Err(MatchError::Fail(fail)),
@@ -101,9 +107,7 @@ impl<T> EachContext<T> {
 
 impl<T> EachContext<T> {
     pub fn by_ref(&mut self) -> ByRefEachAssertion<T> {
-        ByRefEachAssertion {
-            value: &self.value,
-        }
+        ByRefEachAssertion { value: &self.value }
     }
 }
 
@@ -112,9 +116,7 @@ where
     T: Copy,
 {
     pub fn copied(&mut self) -> CopiedEachAssertion<T> {
-        CopiedEachAssertion {
-            value: self.value,
-        }
+        CopiedEachAssertion { value: self.value }
     }
 }
 
