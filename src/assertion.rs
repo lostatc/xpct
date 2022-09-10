@@ -81,6 +81,7 @@ where
     }
 }
 
+#[cfg(feature = "fmt")]
 #[macro_export]
 macro_rules! expect {
     ($actual:expr) => {

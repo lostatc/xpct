@@ -1,6 +1,8 @@
+#[cfg(feature = "handlebars")]
 use serde::Serialize;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "handlebars", derive(Serialize))]
 pub struct FileLocation {
     pub file: String,
     pub line: u32,
@@ -8,7 +10,8 @@ pub struct FileLocation {
 }
 
 #[non_exhaustive]
-#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "handlebars", derive(Serialize))]
 pub struct AssertionContext {
     pub location: Option<FileLocation>,
     pub expr: Option<String>,
