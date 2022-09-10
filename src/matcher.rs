@@ -192,7 +192,7 @@ where
     }
 }
 
-pub type BoxMatcher<'a, In, PosOut, NegOut> =
+pub type BoxMatcher<'a, In, PosOut, NegOut = PosOut> =
     Box<dyn DynMatch<In = In, PosOut = PosOut, NegOut = NegOut> + 'a>;
 
 pub struct Matcher<'a, In, PosOut, NegOut = PosOut>(BoxMatcher<'a, In, PosOut, NegOut>);
