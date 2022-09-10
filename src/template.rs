@@ -1,10 +1,10 @@
 #![cfg(feature = "fmt")]
 
 use std::sync::Mutex;
+use std::collections::HashMap;
 
 use handlebars::Handlebars;
 use once_cell::sync::Lazy;
-use serde::Serialize;
 
 static HANDLEBARS_REGISTRY: Lazy<Mutex<Handlebars>> = Lazy::new(|| {
     let mut registry = Handlebars::new();
@@ -30,7 +30,7 @@ impl HandlebarsTemplate {
         }
     }
 
-    pub fn render<T: Serialize>(&self, data: &T) -> String {
+    pub fn render(&self, data: &HashMap<&str, &str>) -> String {
         HANDLEBARS_REGISTRY
             .lock()
             .unwrap()
