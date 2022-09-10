@@ -1,19 +1,9 @@
-use std::fmt;
-
 use super::context::AssertionContext;
 use super::indent::IndentWriter;
 use super::result::{MatchError, MatchFailure};
 
 pub trait Format {
     fn fmt(&self, f: &mut Formatter);
-}
-
-impl fmt::Display for dyn Format {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut formatter = Formatter::new();
-        self.fmt(&mut formatter);
-        f.write_str(formatter.as_str())
-    }
 }
 
 #[derive(Debug)]
@@ -66,6 +56,7 @@ pub trait AssertionFormat: Format {
     fn new(ctx: Self::Context, error: MatchError) -> Self;
 }
 
+#[derive(Debug)]
 pub struct DefaultAssertionFormat {
     ctx: AssertionContext,
     error: MatchError,

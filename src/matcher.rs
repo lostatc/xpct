@@ -29,10 +29,6 @@ pub trait MatchNeg: MatchBase {
     ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>>;
 }
 
-pub trait Match: MatchPos + MatchNeg {}
-
-impl<T> Match for T where T: MatchPos + MatchNeg {}
-
 pub trait SimpleMatch<Actual> {
     type Fail;
 
@@ -63,6 +59,7 @@ pub trait DynMatch: DynMatchPos + DynMatchNeg {}
 
 impl<T> DynMatch for T where T: DynMatchPos + DynMatchNeg {}
 
+#[derive(Debug)]
 struct DynMatchAdapter<M, Fmt: ResultFormat> {
     matcher: M,
     result_fmt: PhantomData<Fmt>,
@@ -127,6 +124,7 @@ where
     }
 }
 
+#[derive(Debug)]
 struct SimpleMatchAdapter<M, Actual>
 where
     M: SimpleMatch<Actual>,
@@ -206,7 +204,7 @@ impl<'a, In, PosOut, NegOut> fmt::Debug for Matcher<'a, In, PosOut, NegOut> {
 impl<'a, In, PosOut, NegOut> Matcher<'a, In, PosOut, NegOut> {
     pub fn new<Fmt, M>(matcher: M) -> Self
     where
-        M: Match<In = In, PosOut = PosOut, NegOut = NegOut> + 'a,
+        M: MatchBase<In = In> + MatchPos<PosOut = PosOut> + MatchNeg<NegOut = NegOut> + 'a,
         Fmt: ResultFormat<Pos = M::PosFail, Neg = M::NegFail> + 'a,
     {
         Self(Box::new(DynMatchAdapter::<_, Fmt>::new(matcher)))
@@ -252,18 +250,4 @@ impl<'a, In, PosOut, NegOut> DynMatchNeg for Matcher<'a, In, PosOut, NegOut> {
     ) -> anyhow::Result<MatchResult<Self::NegOut, DynMatchFailure>> {
         self.0.match_neg(actual)
     }
-}
-
-#[macro_export]
-macro_rules! success {
-    ($success:expr) => {
-        return std::result::Result::Ok($crate::MatchResult::Success($success))
-    };
-}
-
-#[macro_export]
-macro_rules! fail {
-    ($fail:expr) => {
-        return std::result::Result::Ok($crate::MatchResult::Fail($fail))
-    };
 }

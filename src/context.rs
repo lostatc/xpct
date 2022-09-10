@@ -6,7 +6,7 @@ pub struct FileLocation {
 }
 
 #[non_exhaustive]
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct AssertionContext {
     pub location: Option<FileLocation>,
     pub expr: Option<String>,
