@@ -1,12 +1,8 @@
 use std::fmt;
 
-#[cfg(feature = "handlebars")]
-use serde::Serialize;
-
 use super::format::ResultFormat;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "handlebars", derive(Serialize))]
 pub enum MatchFailure<Pos, Neg = Pos> {
     // We were expecting the matcher to succeed but it failed.
     Pos(Pos),
@@ -32,7 +28,6 @@ impl<Pos, Neg> MatchFailure<Pos, Neg> {
 }
 
 #[derive(Debug)]
-#[cfg_attr(feature = "handlebars", derive(Serialize))]
 pub struct DynMatchFailure(String);
 
 impl DynMatchFailure {
@@ -110,16 +105,6 @@ impl std::error::Error for MatchError {
             MatchError::Fail(_) => None,
             MatchError::Err(error) => error.source(),
         }
-    }
-}
-
-#[cfg(feature = "handlebars")]
-impl Serialize for MatchError {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.to_string().as_str())
     }
 }
 
