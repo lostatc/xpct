@@ -1,5 +1,6 @@
 use std::fmt;
 
+use crate::fmt::indexed_list;
 use crate::{
     DynMatchFailure, DynMatchNeg, DynMatchPos, Format, Formatter, MatchBase, MatchFailure,
     MatchNeg, MatchPos, MatchResult, Matcher, ResultFormat,
@@ -10,17 +11,7 @@ pub struct AllFailures(pub Vec<DynMatchFailure>);
 
 impl Format for AllFailures {
     fn fmt(&self, f: &mut Formatter) {
-        let digits = self.0.len().to_string().len();
-        let new_indent = f.indent() + digits as u32 + 4;
-
-        for (i, fail) in self.0.iter().enumerate() {
-            f.set_indent(0);
-            f.write_str(format!("[{:0digits$}]  ", i, digits = digits));
-            f.set_indent(new_indent);
-            f.write_fmt(fail);
-            f.writeln();
-            f.writeln();
-        }
+        indexed_list(f, self.0.iter().map(AsRef::as_ref));
     }
 }
 
@@ -29,23 +20,13 @@ pub struct SomeFailures(pub Vec<Option<DynMatchFailure>>);
 
 impl Format for SomeFailures {
     fn fmt(&self, f: &mut Formatter) {
-        let digits = self.0.len().to_string().len();
-        let new_indent = f.indent() + digits as u32 + 4;
-
-        for (i, maybe_fail) in self.0.iter().enumerate() {
-            f.set_indent(0);
-            f.write_str(format!("[{:0digits$}]  ", i, digits = digits));
-            f.set_indent(new_indent);
-
-            if let Some(fail) = maybe_fail {
-                f.write_fmt(fail);
-            } else {
-                f.write_str("<matched>");
-            }
-
-            f.writeln();
-            f.writeln();
-        }
+        indexed_list(
+            f,
+            self.0.iter().map(|maybe_fail| match maybe_fail {
+                Some(fail) => fail.as_ref(),
+                None => "<matched>",
+            }),
+        );
     }
 }
 
@@ -328,7 +309,7 @@ impl Format for AnyFormat {
             MatchFailure::Pos(failures) => {
                 f.write_str("Expected at least one of these to match, but none did:");
                 f.writeln();
-                f.indent_by(2);
+                f.set_indent(2);
                 f.write_fmt(failures);
             }
             MatchFailure::Neg(failures) => {
@@ -337,7 +318,7 @@ impl Format for AnyFormat {
                     failures.count(),
                 ));
                 f.writeln();
-                f.indent_by(2);
+                f.set_indent(2);
                 f.write_fmt(failures);
             }
         }

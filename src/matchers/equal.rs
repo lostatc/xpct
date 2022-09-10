@@ -1,5 +1,6 @@
 use std::fmt;
 
+use crate::fmt::{labeled_mismatch, LabeledMismatch};
 use crate::{Format, Formatter, MatchFailure, Matcher, ResultFormat, SimpleMatch};
 
 #[derive(Debug)]
@@ -18,32 +19,22 @@ where
 {
     fn fmt(&self, f: &mut Formatter) {
         match &self.0 {
-            MatchFailure::Pos(mismatch) => {
-                f.write_str("Expected:");
-                f.writeln();
-                f.indent_by(2);
-                f.write_str(&format!("{:?}", mismatch.actual));
-                f.writeln();
-                f.dedent_by(2);
-                f.write_str("To equal:");
-                f.writeln();
-                f.indent_by(2);
-                f.write_str(&format!("{:?}", mismatch.expected));
-                f.writeln();
-            }
-            MatchFailure::Neg(mismatch) => {
-                f.write_str("Expected:");
-                f.writeln();
-                f.indent_by(2);
-                f.write_str(&format!("{:?}", mismatch.actual));
-                f.writeln();
-                f.dedent_by(2);
-                f.write_str("To not equal:");
-                f.writeln();
-                f.indent_by(2);
-                f.write_str(&format!("{:?}", mismatch.expected));
-                f.writeln();
-            }
+            MatchFailure::Pos(mismatch) => labeled_mismatch(
+                f,
+                LabeledMismatch {
+                    expected_label: "Expected:",
+                    actual_label: "To equal:",
+                    mismatch,
+                },
+            ),
+            MatchFailure::Neg(mismatch) => labeled_mismatch(
+                f,
+                LabeledMismatch {
+                    expected_label: "Expected:",
+                    actual_label: "To not equal:",
+                    mismatch,
+                },
+            ),
         }
     }
 }

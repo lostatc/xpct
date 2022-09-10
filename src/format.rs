@@ -11,6 +11,12 @@ pub struct Formatter {
     msg: IndentWriter,
 }
 
+pub fn format(fmt: &impl Format) -> String {
+    let mut formatter = Formatter::new();
+    fmt.fmt(&mut formatter);
+    formatter.into_inner()
+}
+
 impl Formatter {
     pub(super) fn new() -> Self {
         Self {
@@ -32,14 +38,6 @@ impl Formatter {
 
     pub fn set_indent(&mut self, indent: u32) {
         self.msg.set_indent(indent);
-    }
-
-    pub fn indent_by(&mut self, by: u32) {
-        self.msg.set_indent(self.msg.indent() + by);
-    }
-
-    pub fn dedent_by(&mut self, by: u32) {
-        self.msg.set_indent(self.msg.indent() - by);
     }
 
     pub fn write_fmt(&mut self, fmt: &impl Format) {
@@ -85,22 +83,24 @@ impl Format for DefaultAssertionFormat {
         match (&self.ctx.location, &self.ctx.expr) {
             (Some(location), Some(expr)) => {
                 f.write_str(&format!(
-                    "[{}:{}:{}] {}\n",
+                    "[{}:{}:{}] {}",
                     location.file, location.line, location.column, expr
                 ));
             }
             (Some(location), None) => {
                 f.write_str(&format!(
-                    "[{}:{}:{}]\n",
+                    "[{}:{}:{}]",
                     location.file, location.line, location.column
                 ));
             }
             (None, Some(expr)) => {
-                f.write_str(&format!("{}\n", expr));
+                f.write_str(&format!("{}", expr));
             }
             _ => {}
         }
 
+        f.writeln();
+        f.set_indent(2);
         f.write_str(&self.error.to_string());
     }
 }

@@ -31,13 +31,17 @@ impl<Pos, Neg> MatchFailure<Pos, Neg> {
 pub struct DynMatchFailure(String);
 
 impl DynMatchFailure {
-    pub(super) fn new<Fmt, PosFail, NegFail>(fail: MatchFailure<PosFail, NegFail>) -> Self
+    pub fn new<Fmt, PosFail, NegFail>(fail: MatchFailure<PosFail, NegFail>) -> Self
     where
         Fmt: ResultFormat<Pos = PosFail, Neg = NegFail>,
     {
-        let mut formatter = Formatter::new();
-        Fmt::new(fail).fmt(&mut formatter);
-        Self(formatter.into_inner())
+        Self(crate::format(&Fmt::new(fail)))
+    }
+}
+
+impl AsRef<str> for DynMatchFailure {
+    fn as_ref(&self) -> &str {
+        self.0.as_ref()
     }
 }
 

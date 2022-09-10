@@ -1,4 +1,4 @@
-use super::format::{AssertionFormat, Formatter};
+use super::format::AssertionFormat;
 use super::matcher::{DynMatchNeg, DynMatchPos};
 use super::result::{MatchError, MatchResult};
 
@@ -15,12 +15,7 @@ fn fail<AssertFmt>(ctx: AssertFmt::Context, error: MatchError) -> !
 where
     AssertFmt: AssertionFormat,
 {
-    let format = AssertFmt::new(ctx, error);
-    let mut formatter = Formatter::new();
-
-    format.fmt(&mut formatter);
-
-    panic!("\n{}", formatter.as_str());
+    panic!("\n{}", crate::format(&AssertFmt::new(ctx, error)));
 }
 
 impl<T, AssertFmt> Assertion<T, AssertFmt>
