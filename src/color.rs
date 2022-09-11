@@ -14,6 +14,10 @@ bitflags! {
 }
 
 impl TextStyle {
+    pub fn reset(&mut self) {
+        *self &= TextStyle::empty();
+    }
+
     fn into_term(&self, spec: &mut termcolor::ColorSpec) {
         spec.set_bold(self.contains(Self::BOLD));
         spec.set_intense(self.contains(Self::INTENSE));
@@ -57,7 +61,6 @@ impl TerminalColor {
     }
 }
 
-#[non_exhaustive]
 #[derive(Debug, Clone, Default, PartialEq, Eq, Hash)]
 pub struct TextColor {
     pub fg: Option<TerminalColor>,
@@ -83,7 +86,6 @@ impl TextColor {
     }
 }
 
-#[non_exhaustive]
 #[derive(Debug, Clone, Default, PartialEq, Eq, Hash)]
 pub struct OutputStyle {
     pub style: TextStyle,
@@ -92,7 +94,7 @@ pub struct OutputStyle {
 
 impl OutputStyle {
     pub fn reset(&mut self) {
-        self.style = TextStyle::empty();
+        self.style.reset();
         self.color.reset();
     }
 
@@ -103,13 +105,5 @@ impl OutputStyle {
         self.color.into_term(&mut spec);
 
         spec
-    }
-}
-
-pub(super) fn color_choice() -> termcolor::ColorChoice {
-    if atty::is(atty::Stream::Stderr) {
-        termcolor::ColorChoice::Auto
-    } else {
-        termcolor::ColorChoice::Never
     }
 }

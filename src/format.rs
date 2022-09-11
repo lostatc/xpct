@@ -37,10 +37,18 @@ impl OutputStream {
     }
 }
 
-#[derive(Debug)]
-pub struct Formatter {
-    prev: Vec<OutputSegment>,
-    current: OutputSegment,
+#[cfg(feature = "color")]
+fn color_choice(stream: OutputStream) -> termcolor::ColorChoice {
+    let atty_stream = match stream {
+        OutputStream::Stdout => atty::Stream::Stdout,
+        OutputStream::Stderr => atty::Stream::Stderr,
+    };
+
+    if atty::is(atty_stream) {
+        termcolor::ColorChoice::Auto
+    } else {
+        termcolor::ColorChoice::Never
+    }
 }
 
 #[derive(Debug)]
@@ -64,12 +72,11 @@ impl FormattedOutput {
     pub fn print(&self, stream: OutputStream) -> io::Result<()> {
         use std::io::Write;
 
-        use super::color::color_choice;
         use termcolor::{BufferWriter as ColorWriter, WriteColor};
 
         let writer = match stream {
-            OutputStream::Stdout => ColorWriter::stdout(color_choice()),
-            OutputStream::Stderr => ColorWriter::stderr(color_choice()),
+            OutputStream::Stdout => ColorWriter::stdout(color_choice(stream)),
+            OutputStream::Stderr => ColorWriter::stderr(color_choice(stream)),
         };
 
         let mut buffer = writer.buffer();
@@ -105,6 +112,12 @@ impl fmt::Display for FormattedOutput {
 
         Ok(())
     }
+}
+
+#[derive(Debug)]
+pub struct Formatter {
+    prev: Vec<OutputSegment>,
+    current: OutputSegment,
 }
 
 impl Formatter {
