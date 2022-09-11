@@ -10,7 +10,7 @@ use super::color::OutputStyle;
 
 #[derive(Debug, Default)]
 struct OutputSegment {
-    buf: Vec<u8>,
+    buf: String,
     #[cfg(feature = "color")]
     style: OutputStyle,
 }
@@ -63,11 +63,11 @@ impl Formatter {
 
         for segment in &self.prev {
             buffer.set_color(&segment.style.into_term())?;
-            buffer.write_all(&segment.buf)?;
+            buffer.write_all(segment.buf.as_bytes())?;
         }
 
         buffer.set_color(&self.current.style.into_term())?;
-        buffer.write_all(&self.current.buf)?;
+        buffer.write_all(self.current.buf.as_bytes())?;
 
         writer.print(&buffer)
     }
@@ -80,10 +80,10 @@ impl Formatter {
         };
 
         for segment in &self.prev {
-            output.write_all(&segment.buf)?;
+            output.write_all(segment.buf.as_bytes())?;
         }
 
-        output.write_all(&self.current.buf)?;
+        output.write_all(self.current.buf.as_bytes())?;
 
         output.flush()
     }
@@ -97,7 +97,7 @@ impl Formatter {
 
     pub fn set_style(&mut self, style: OutputStyle) {
         self.prev.push(std::mem::replace(&mut self.current, OutputSegment {
-            buf: Vec::new(),
+            buf: String::new(),
             style,
         }));
     }
@@ -109,34 +109,14 @@ impl Formatter {
     }
 }
 
-impl io::Write for Formatter {
-    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        self.current.buf.write(buf)
-    }
-
-    fn write_vectored(&mut self, bufs: &[io::IoSlice<'_>]) -> io::Result<usize> {
-        self.current.buf.write_vectored(bufs)
-    }
-
-    fn write_all(&mut self, buf: &[u8]) -> io::Result<()> {
-        self.current.buf.write_all(buf)
-    }
-
-    fn flush(&mut self) -> io::Result<()> {
-        self.current.buf.flush()
-    }
-}
-
 impl fmt::Write for Formatter {
     fn write_str(&mut self, s: &str) -> fmt::Result {
-        self.current.buf.extend(s.bytes());
+        self.current.buf.push_str(s);
         Ok(())
     }
 
     fn write_char(&mut self, c: char) -> fmt::Result {
-        let mut buf = [0u8; std::mem::size_of::<char>()];
-        let encoded = c.encode_utf8(&mut buf);
-        self.current.buf.extend(encoded.as_bytes());
+        self.current.buf.push(c);
         Ok(())
     }
 }
@@ -144,10 +124,10 @@ impl fmt::Write for Formatter {
 impl fmt::Display for Formatter {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for segment in &self.prev {
-            f.write_str(String::from_utf8_lossy(&segment.buf).as_ref())?;
+            f.write_str(&segment.buf)?;
         }
 
-        f.write_str(String::from_utf8_lossy(&self.current.buf).as_ref())
+        f.write_str(&self.current.buf)
     }
 }
 
