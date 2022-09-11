@@ -1,6 +1,6 @@
 use std::fmt;
 
-use super::format::ResultFormat;
+use super::format::{Formatter, FormatReader, ResultFormat};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MatchFailure<Pos, Neg = Pos> {
@@ -28,26 +28,28 @@ impl<Pos, Neg> MatchFailure<Pos, Neg> {
 }
 
 #[derive(Debug)]
-pub struct DynMatchFailure(String);
+pub struct DynMatchFailure(Formatter);
 
 impl DynMatchFailure {
     pub fn new<Fmt, PosFail, NegFail>(fail: MatchFailure<PosFail, NegFail>, format: Fmt) -> Self
     where
         Fmt: ResultFormat<Pos = PosFail, Neg = NegFail>,
     {
-        Self(format.fmt(fail))
+        let mut output = Formatter::new();
+        format.fmt(&mut output, fail);
+        Self(output)
     }
 }
 
-impl AsRef<str> for DynMatchFailure {
-    fn as_ref(&self) -> &str {
-        self.0.as_ref()
+impl From<DynMatchFailure> for FormatReader {
+    fn from(fail: DynMatchFailure) -> Self {
+        Self::new(fail.0)
     }
 }
 
 impl fmt::Display for DynMatchFailure {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(self.as_ref())
+        self.0.fmt(f)
     }
 }
 
@@ -99,7 +101,7 @@ pub enum MatchError {
 impl fmt::Display for MatchError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            MatchError::Fail(fail) => fmt::Display::fmt(fail, f),
+            MatchError::Fail(fail) => fail.fmt(f),
             MatchError::Err(error) => error.fmt(f),
         }
     }

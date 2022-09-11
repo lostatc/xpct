@@ -1,4 +1,4 @@
-use super::format::AssertionFormat;
+use super::format::{OutputStream, Formatter, AssertionFormat};
 use super::matcher::{DynMatchNeg, DynMatchPos};
 use super::result::{AssertionFailure, MatchError, MatchResult};
 
@@ -16,7 +16,10 @@ fn fail<Context, AssertFmt>(ctx: Context, error: MatchError, format: AssertFmt) 
 where
     AssertFmt: AssertionFormat<Context = Context>,
 {
-    panic!("{}", format.fmt(AssertionFailure { ctx, error }));
+    let mut output = Formatter::new();
+    format.fmt(&mut output, AssertionFailure { ctx, error });
+    output.write_to(OutputStream::Stderr).expect("failed to write output to stderr");
+    panic!();
 }
 
 impl<T, AssertFmt> Assertion<T, AssertFmt>

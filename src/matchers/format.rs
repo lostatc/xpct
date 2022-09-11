@@ -2,7 +2,7 @@
 
 use std::marker::PhantomData;
 
-use crate::{format::Format, DynMatchFailure, MatchFailure, ResultFormat};
+use crate::{Format, Formatter, DynMatchFailure, MatchFailure, ResultFormat};
 
 use super::{AllFailures, Mismatch, SomeFailures};
 
@@ -11,7 +11,7 @@ pub struct AllFailuresFormat;
 impl Format for AllFailuresFormat {
     type Value = AllFailures;
 
-    fn fmt(&self, _: Self::Value) -> String {
+    fn fmt(&self, _: &mut Formatter, _: Self::Value) {
         todo!()
     }
 }
@@ -21,7 +21,7 @@ pub struct SomeFailuresFormat;
 impl Format for SomeFailuresFormat {
     type Value = SomeFailures;
 
-    fn fmt(&self, _: Self::Value) -> String {
+    fn fmt(&self, _: &mut Formatter, _: Self::Value) {
         todo!()
     }
 }
@@ -32,7 +32,7 @@ pub struct AnyFormat;
 impl Format for AnyFormat {
     type Value = MatchFailure<AllFailures, SomeFailures>;
 
-    fn fmt(&self, _: Self::Value) -> String {
+    fn fmt(&self, _: &mut Formatter, _: Self::Value) {
         todo!()
     }
 }
@@ -48,7 +48,7 @@ pub struct AllFormat;
 impl Format for AllFormat {
     type Value = MatchFailure<DynMatchFailure, ()>;
 
-    fn fmt(&self, _: Self::Value) -> String {
+    fn fmt(&self, _: &mut Formatter, _: Self::Value) {
         todo!()
     }
 }
@@ -64,7 +64,7 @@ pub struct EachFormat;
 impl Format for EachFormat {
     type Value = MatchFailure<DynMatchFailure, ()>;
 
-    fn fmt(&self, _: Self::Value) -> String {
+    fn fmt(&self, _: &mut Formatter, _: Self::Value) {
         todo!()
     }
 }
@@ -96,7 +96,7 @@ impl<Actual, Expected> EqualFormat<Actual, Expected> {
 impl<Actual, Expected> Format for EqualFormat<Actual, Expected> {
     type Value = MatchFailure<Mismatch<Actual, Expected>>;
 
-    fn fmt(&self, _: Self::Value) -> String {
+    fn fmt(&self, _: &mut Formatter, _: Self::Value) {
         todo!()
     }
 }
@@ -112,7 +112,7 @@ pub struct NotFormat;
 impl Format for NotFormat {
     type Value = MatchFailure<DynMatchFailure>;
 
-    fn fmt(&self, _: Self::Value) -> String {
+    fn fmt(&self, _: &mut Formatter, _: Self::Value) {
         todo!()
     }
 }
