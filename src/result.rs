@@ -1,6 +1,6 @@
 use std::fmt;
 
-use super::format::{Formatter, FormatReader, ResultFormat};
+use super::format::{FormattedOutput, ResultFormat};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MatchFailure<Pos, Neg = Pos> {
@@ -28,22 +28,20 @@ impl<Pos, Neg> MatchFailure<Pos, Neg> {
 }
 
 #[derive(Debug)]
-pub struct DynMatchFailure(Formatter);
+pub struct DynMatchFailure(FormattedOutput);
 
 impl DynMatchFailure {
     pub fn new<Fmt, PosFail, NegFail>(fail: MatchFailure<PosFail, NegFail>, format: Fmt) -> Self
     where
         Fmt: ResultFormat<Pos = PosFail, Neg = NegFail>,
     {
-        let mut output = Formatter::new();
-        format.fmt(&mut output, fail);
-        Self(output)
+        Self(FormattedOutput::new(fail, format))
     }
 }
 
-impl From<DynMatchFailure> for FormatReader {
+impl From<DynMatchFailure> for FormattedOutput {
     fn from(fail: DynMatchFailure) -> Self {
-        Self::new(fail.0)
+        fail.0
     }
 }
 

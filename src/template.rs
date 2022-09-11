@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use handlebars::Handlebars;
 use once_cell::sync::Lazy;
 
-static HANDLEBARS_REGISTRY: Lazy<Mutex<Handlebars>> = Lazy::new(|| {
+static REGISTRY: Lazy<Mutex<Handlebars>> = Lazy::new(|| {
     let mut registry = Handlebars::new();
     registry.set_strict_mode(true);
     registry.register_escape_fn(handlebars::no_escape);
@@ -20,7 +20,7 @@ pub struct HandlebarsTemplate {
 
 impl HandlebarsTemplate {
     pub fn new(name: &str, template: impl AsRef<str>) -> Self {
-        HANDLEBARS_REGISTRY
+        REGISTRY
             .lock()
             .unwrap()
             .register_template_string(name, template.as_ref())
@@ -31,7 +31,7 @@ impl HandlebarsTemplate {
     }
 
     pub fn render(&self, data: &HashMap<&str, &str>) -> String {
-        HANDLEBARS_REGISTRY
+        REGISTRY
             .lock()
             .unwrap()
             .render(self.name.as_ref(), data)
