@@ -1,6 +1,9 @@
 #![cfg(feature = "color")]
 
 use bitflags::bitflags;
+use termcolor::BufferWriter as ColorWriter;
+
+use super::OutputStream;
 
 bitflags! {
     #[derive(Default)]
@@ -105,5 +108,25 @@ impl OutputStyle {
         self.color.into_term(&mut spec);
 
         spec
+    }
+}
+
+fn color_choice(stream: OutputStream) -> termcolor::ColorChoice {
+    let atty_stream = match stream {
+        OutputStream::Stdout => atty::Stream::Stdout,
+        OutputStream::Stderr => atty::Stream::Stderr,
+    };
+
+    if atty::is(atty_stream) {
+        termcolor::ColorChoice::Auto
+    } else {
+        termcolor::ColorChoice::Never
+    }
+}
+
+pub(super) fn color_writer(stream: OutputStream) -> ColorWriter {
+    match stream {
+        OutputStream::Stdout => ColorWriter::stdout(color_choice(stream)),
+        OutputStream::Stderr => ColorWriter::stderr(color_choice(stream)),
     }
 }
