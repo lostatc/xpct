@@ -34,7 +34,7 @@ pub mod prelude {
     pub use crate::matchers::{all, any, each, equal, not};
 }
 
-assert_impl_all!(Formatter: std::fmt::Debug, std::fmt::Write);
+assert_impl_all!(Formatter: std::fmt::Debug);
 assert_impl_all!(FormattedOutput: std::fmt::Debug, std::fmt::Display);
 assert_obj_safe!(
     DynMatchPos<In = (), PosOut = ()>,

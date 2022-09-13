@@ -26,6 +26,14 @@ impl Formatter {
         }
     }
 
+    pub fn write_str(&mut self, s: impl AsRef<str>) {
+        self.current.buf.push_str(s.as_ref());
+    }
+
+    pub fn write_char(&mut self, c: char) {
+        self.current.buf.push(c);
+    }
+
     pub fn write_fmt(&mut self, output: impl Into<FormattedOutput>) {
         let formatted = output.into();
         let new_current = OutputSegment {
@@ -55,20 +63,6 @@ impl Formatter {
         let mut new_style = self.current.style.clone();
         block(&mut new_style);
         self.set_style(new_style);
-    }
-}
-
-impl fmt::Write for Formatter {
-    fn write_str(&mut self, s: &str) -> fmt::Result {
-        self.current.buf.write_str(s)
-    }
-
-    fn write_char(&mut self, c: char) -> fmt::Result {
-        self.current.buf.write_char(c)
-    }
-
-    fn write_fmt(self: &mut Self, args: fmt::Arguments<'_>) -> fmt::Result {
-        self.current.buf.write_fmt(args)
     }
 }
 

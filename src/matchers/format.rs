@@ -2,7 +2,7 @@
 
 use std::borrow::Cow;
 use std::convert::Infallible;
-use std::fmt::{self, Write};
+use std::fmt;
 use std::marker::PhantomData;
 
 use crate::{DynMatchFailure, Format, Formatter, MatchFailure, ResultFormat};
@@ -170,16 +170,16 @@ impl<'a> WhyFormat<'a> {
 
 impl<'a> Format for WhyFormat<'a> {
     type Value = MatchFailure<DynMatchFailure>;
-    type Error = fmt::Error;
+    type Error = Infallible;
 
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
         match self.reason {
             WhyFormatReason::Eager(reason) => {
-                f.write_str(reason.as_ref())?;
+                f.write_str(reason.as_ref());
             }
             WhyFormatReason::Lazy(func) => {
                 let reason = (func)();
-                f.write_str(reason.as_ref())?;
+                f.write_str(reason.as_ref());
             }
         };
 
