@@ -40,13 +40,13 @@ pub struct FormattedOutput {
 }
 
 impl FormattedOutput {
-    pub fn new<Value, Fmt>(value: Value, format: Fmt) -> Self
+    pub fn new<Value, Fmt>(value: Value, format: Fmt) -> Result<Self, Fmt::Error>
     where
         Fmt: Format<Value = Value>,
     {
         let mut formatter = Formatter::new();
-        format.fmt(&mut formatter, value);
-        Self { buf: formatter.buf }
+        format.fmt(&mut formatter, value)?;
+        Ok(Self { buf: formatter.buf })
     }
 
     pub fn print(&self, stream: OutputStream) -> io::Result<()> {

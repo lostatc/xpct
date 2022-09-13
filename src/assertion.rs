@@ -1,4 +1,4 @@
-use super::format::{OutputStream, FormattedOutput, AssertionFormat};
+use super::format::{AssertionFormat, FormattedOutput, OutputStream};
 use super::matcher::{DynMatchNeg, DynMatchPos};
 use super::result::{AssertionFailure, MatchError, MatchResult};
 
@@ -17,7 +17,10 @@ where
     AssertFmt: AssertionFormat<Context = Context>,
 {
     let output = FormattedOutput::new(AssertionFailure { ctx, error }, format);
-    output.print(OutputStream::Stderr).expect("failed to write output to stderr");
+    output
+        .expect("failed to format matcher failure output")
+        .print(OutputStream::Stderr)
+        .expect("failed to write output to stderr");
     panic!();
 }
 

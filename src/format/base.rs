@@ -1,4 +1,5 @@
 use crate::{AssertionFailure, MatchFailure};
+use std::error::Error;
 
 #[cfg(not(feature = "color"))]
 use super::formatter::Formatter;
@@ -30,8 +31,9 @@ impl OutputStream {
 
 pub trait Format {
     type Value;
+    type Error: Error + Send + Sync + 'static;
 
-    fn fmt(&self, f: &mut Formatter, value: Self::Value);
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error>;
 }
 
 pub trait ResultFormat: Format<Value = MatchFailure<Self::Pos, Self::Neg>> {

@@ -11,6 +11,19 @@ pub enum MatchFailure<Pos, Neg = Pos> {
     Neg(Neg),
 }
 
+impl<Pos, Neg> Into<FormattedOutput> for MatchFailure<Pos, Neg>
+where
+    Pos: Into<FormattedOutput>,
+    Neg: Into<FormattedOutput>,
+{
+    fn into(self) -> FormattedOutput {
+        match self {
+            MatchFailure::Pos(fail) => fail.into(),
+            MatchFailure::Neg(fail) => fail.into(),
+        }
+    }
+}
+
 impl<Pos, Neg> MatchFailure<Pos, Neg> {
     pub fn is_pos(&self) -> bool {
         match self {
@@ -31,11 +44,14 @@ impl<Pos, Neg> MatchFailure<Pos, Neg> {
 pub struct DynMatchFailure(FormattedOutput);
 
 impl DynMatchFailure {
-    pub fn new<Fmt, PosFail, NegFail>(fail: MatchFailure<PosFail, NegFail>, format: Fmt) -> Self
+    pub fn new<Fmt, PosFail, NegFail>(
+        fail: MatchFailure<PosFail, NegFail>,
+        format: Fmt,
+    ) -> Result<Self, Fmt::Error>
     where
         Fmt: ResultFormat<Pos = PosFail, Neg = NegFail>,
     {
-        Self(FormattedOutput::new(fail, format))
+        Ok(Self(FormattedOutput::new(fail, format)?))
     }
 }
 

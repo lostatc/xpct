@@ -186,7 +186,7 @@ impl<'a, T> MatchNeg for EachMatcher<'a, T> {
 }
 
 #[cfg(feature = "fmt")]
-use {super::format::EachFormat, crate::Matcher};
+use crate::Matcher;
 
 #[cfg(feature = "fmt")]
 pub fn each<'a, T>(
@@ -195,5 +195,7 @@ pub fn each<'a, T>(
 where
     T: 'a,
 {
+    use super::EachFormat;
+
     Matcher::new(EachMatcher::new(block), EachFormat)
 }

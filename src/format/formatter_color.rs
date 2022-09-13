@@ -78,15 +78,15 @@ pub struct FormattedOutput {
 }
 
 impl FormattedOutput {
-    pub fn new<Value, Fmt>(value: Value, format: Fmt) -> Self
+    pub fn new<Value, Fmt>(value: Value, format: Fmt) -> Result<Self, Fmt::Error>
     where
         Fmt: Format<Value = Value>,
     {
         let mut formatter = Formatter::new();
-        format.fmt(&mut formatter, value);
+        format.fmt(&mut formatter, value)?;
         let mut segments = formatter.prev;
         segments.push(formatter.current);
-        Self { segments }
+        Ok(Self { segments })
     }
 
     pub fn print(&self, stream: OutputStream) -> io::Result<()> {

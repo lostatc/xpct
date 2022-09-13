@@ -35,7 +35,7 @@ where
 }
 
 #[cfg(feature = "fmt")]
-use {super::format::EqualFormat, crate::Matcher};
+use crate::Matcher;
 
 #[cfg(feature = "fmt")]
 pub fn equal<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
@@ -43,5 +43,7 @@ where
     Actual: PartialEq<Expected> + Eq + 'a,
     Expected: 'a,
 {
+    use super::EqualFormat;
+
     Matcher::simple(EqualMatcher::new(expected), EqualFormat::new())
 }

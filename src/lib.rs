@@ -1,3 +1,6 @@
+// TODO: Remove
+#![allow(dead_code)]
+
 pub mod matchers;
 
 mod assertion;

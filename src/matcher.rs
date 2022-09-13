@@ -95,7 +95,7 @@ where
             Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(DynMatchFailure::new(
                 MatchFailure::Pos(result),
                 self.format,
-            ))),
+            )?)),
             Err(error) => Err(error),
         }
     }
@@ -117,7 +117,7 @@ where
             Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(DynMatchFailure::new(
                 MatchFailure::Neg(result),
                 self.format,
-            ))),
+            )?)),
             Err(error) => Err(error),
         }
     }

@@ -4,6 +4,7 @@ mod each;
 mod equal;
 mod format;
 mod not;
+mod why;
 
 #[cfg(feature = "fmt")]
 pub use {
@@ -11,11 +12,14 @@ pub use {
     any::any,
     each::each,
     equal::equal,
-    format::{
-        AllFailuresFormat, AllFormat, AnyFormat, EachFormat, EqualFormat, NotFormat,
-        SomeFailuresFormat,
-    },
     not::not,
+    why::{why, why_lazy},
+};
+
+#[cfg(feature = "fmt")]
+pub use format::{
+    AllFailuresFormat, AllFormat, AnyFormat, EachFormat, EqualFormat, NotFormat,
+    SomeFailuresFormat, WhyFormat,
 };
 
 pub use all::{AllAssertion, AllMatcher};

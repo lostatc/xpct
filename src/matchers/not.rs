@@ -38,9 +38,6 @@ impl<'a, In, PosOut, NegOut> MatchNeg for NotMatcher<'a, In, PosOut, NegOut> {
 }
 
 #[cfg(feature = "fmt")]
-use super::format::NotFormat;
-
-#[cfg(feature = "fmt")]
 pub fn not<'a, In, PosOut, NegOut>(
     matcher: Matcher<'a, In, PosOut, NegOut>,
 ) -> Matcher<In, NegOut, PosOut>
@@ -49,5 +46,7 @@ where
     PosOut: 'a,
     NegOut: 'a,
 {
+    use super::NotFormat;
+
     Matcher::new(NotMatcher::new(matcher), NotFormat)
 }

@@ -86,7 +86,7 @@ impl<'a, In, Out> MatchNeg for AllMatcher<'a, In, Out> {
 }
 
 #[cfg(feature = "fmt")]
-use {super::format::AllFormat, crate::Matcher};
+use crate::Matcher;
 
 #[cfg(feature = "fmt")]
 pub fn all<'a, In, Out>(
@@ -96,5 +96,7 @@ where
     In: 'a,
     Out: 'a,
 {
+    use super::AllFormat;
+
     Matcher::new(AllMatcher::new(block), AllFormat)
 }
