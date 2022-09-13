@@ -3,8 +3,7 @@
 use std::fmt;
 use std::io::{self, Write};
 
-use super::color::color_writer;
-use super::{Format, OutputStream, OutputStyle};
+use super::{color::color_writer, indent::indent, Format, OutputStream, OutputStyle};
 
 #[derive(Debug, Default)]
 struct OutputSegment {
@@ -81,6 +80,14 @@ impl FormattedOutput {
         let mut segments = formatter.prev;
         segments.push(formatter.current);
         Ok(Self { segments })
+    }
+
+    pub fn indent(&mut self, spaces: u32) {
+        for segment in &mut self.segments {
+            if let Some(indented) = indent(&segment.buf, spaces) {
+                segment.buf = indented;
+            }
+        }
     }
 
     pub fn print(&self, stream: OutputStream) -> io::Result<()> {

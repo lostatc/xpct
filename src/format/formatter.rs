@@ -3,7 +3,7 @@
 use std::fmt;
 use std::io::{self, Write};
 
-use super::{Format, OutputStream};
+use super::{indent::indent, Format, OutputStream};
 
 #[derive(Debug)]
 pub struct Formatter {
@@ -41,6 +41,12 @@ impl FormattedOutput {
         let mut formatter = Formatter::new();
         format.fmt(&mut formatter, value)?;
         Ok(Self { buf: formatter.buf })
+    }
+
+    pub fn indent(&mut self, spaces: u32) {
+        if let Some(indented) = indent(&self.buf, spaces) {
+            self.buf = indented;
+        }
     }
 
     pub fn print(&self, stream: OutputStream) -> io::Result<()> {

@@ -3,6 +3,7 @@ mod base;
 mod color;
 mod formatter;
 mod formatter_color;
+mod indent;
 
 pub use base::{AssertionFormat, Format, OutputStream, ResultFormat};
 
