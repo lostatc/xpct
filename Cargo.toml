@@ -14,7 +14,6 @@ categories = ["development-tools", "development-tools::testing"]
 
 [dependencies]
 anyhow = "1.0"
-static_assertions = "1.1.0"
 atty = { version = "0.2", optional = true }
 termcolor = { version = "1.1", optional = true }
 handlebars = { version = "4.3", optional = true }

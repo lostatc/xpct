@@ -10,8 +10,6 @@ mod matcher;
 mod result;
 mod template;
 
-use static_assertions::{assert_impl_all, assert_obj_safe};
-
 pub use assertion::{expect, Assertion};
 pub use context::{AssertionContext, FileLocation};
 pub use matcher::{
@@ -33,11 +31,3 @@ pub mod prelude {
     pub use crate::expect;
     pub use crate::matchers::{all, any, each, equal, not};
 }
-
-assert_impl_all!(Formatter: std::fmt::Debug);
-assert_impl_all!(FormattedOutput: std::fmt::Debug, std::fmt::Display);
-assert_obj_safe!(
-    DynMatchPos<In = (), PosOut = ()>,
-    DynMatchNeg<In = (), NegOut = ()>,
-    DynMatch<In = (), PosOut = (), NegOut = ()>,
-);
