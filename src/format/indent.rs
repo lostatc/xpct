@@ -1,39 +1,6 @@
 use std::borrow::Cow;
 
-const PREFIX_CACHE: [&'static str; 32] = [
-    " ",
-    "  ",
-    "   ",
-    "    ",
-    "     ",
-    "      ",
-    "       ",
-    "        ",
-    "         ",
-    "          ",
-    "           ",
-    "            ",
-    "             ",
-    "              ",
-    "               ",
-    "                ",
-    "                 ",
-    "                  ",
-    "                   ",
-    "                    ",
-    "                     ",
-    "                      ",
-    "                       ",
-    "                        ",
-    "                         ",
-    "                          ",
-    "                           ",
-    "                            ",
-    "                             ",
-    "                              ",
-    "                               ",
-    "                                ",
-];
+const PREFIX_CACHE: &'static str = "                                ";
 
 pub(super) fn indent<'a>(s: &'a str, spaces: u32) -> Option<String> {
     // We know that we'll need more than `s.len()` bytes for the output, but we don't know exactly
@@ -42,7 +9,7 @@ pub(super) fn indent<'a>(s: &'a str, spaces: u32) -> Option<String> {
 
     let prefix = match spaces as usize {
         i if i == 0 => return None,
-        i if i < PREFIX_CACHE.len() => Cow::Borrowed(PREFIX_CACHE[i - 1]),
+        i if i < PREFIX_CACHE.len() => Cow::Borrowed(&PREFIX_CACHE[..i]),
         i => Cow::Owned(" ".repeat(i as usize)),
     };
 
