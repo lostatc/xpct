@@ -25,9 +25,3 @@ pub use format::{OutputStyle, TerminalColor, TextColor, TextStyle};
 
 #[cfg(feature = "fmt")]
 pub use format::DefaultAssertionFormat;
-
-#[cfg(feature = "fmt")]
-pub mod prelude {
-    pub use crate::expect;
-    pub use crate::matchers::{all, any, each, equal, not};
-}
