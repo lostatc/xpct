@@ -52,21 +52,13 @@ impl ResultFormat for AnyFormat {
 pub struct AllFormat;
 
 impl Format for AllFormat {
-    type Value = MatchFailure<DynMatchFailure, ()>;
+    type Value = MatchFailure<DynMatchFailure, Infallible>;
     type Error = Infallible;
 
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
         match value {
-            MatchFailure::Pos(fail) => {
-                f.set_style(style::bad());
-                f.write_str("Expected all of these to pass:\n");
-                f.reset_style();
-                f.write_fmt(fail.into_fmt().indented(style::indent_len()));
-            }
-            MatchFailure::Neg(_) => {
-                f.set_style(style::bad());
-                f.write_str("Expected none of these to pass:\n");
-            }
+            MatchFailure::Pos(fail) => f.write_fmt(fail.into_fmt()),
+            _ => unreachable!(),
         }
 
         Ok(())
@@ -75,7 +67,29 @@ impl Format for AllFormat {
 
 impl ResultFormat for AllFormat {
     type Pos = DynMatchFailure;
-    type Neg = ();
+    type Neg = Infallible;
+}
+
+#[derive(Debug)]
+pub struct NoneFormat;
+
+impl Format for NoneFormat {
+    type Value = MatchFailure<DynMatchFailure, Infallible>;
+    type Error = Infallible;
+
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
+        match value {
+            MatchFailure::Pos(fail) => f.write_fmt(fail.into_fmt()),
+            _ => unreachable!(),
+        }
+
+        Ok(())
+    }
+}
+
+impl ResultFormat for NoneFormat {
+    type Pos = DynMatchFailure;
+    type Neg = Infallible;
 }
 
 #[derive(Debug)]

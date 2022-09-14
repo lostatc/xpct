@@ -2,6 +2,7 @@ mod all;
 mod any;
 mod each;
 mod equal;
+mod none;
 mod not;
 mod why;
 
@@ -14,6 +15,7 @@ pub use {
     any::any,
     each::each,
     equal::equal,
+    none::none,
     not::not,
     why::{why, why_lazy},
 };
@@ -28,6 +30,7 @@ pub mod matcher {
         ByRefEachAssertion, ClonedEachAssertion, CopiedEachAssertion, EachContext, EachMatcher,
     };
     pub use super::equal::{EqualMatcher, Mismatch};
+    pub use super::none::{NoneAssertion, NoneMatcher};
     pub use super::not::NotMatcher;
     pub use super::why::WhyMatcher;
 }

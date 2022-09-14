@@ -1,7 +1,10 @@
 use crate::core::{
     DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchError, MatchPos, MatchResult,
 };
+use std::any::type_name;
+use std::fmt;
 
+#[derive(Debug)]
 pub struct AllAssertion<T> {
     value: T,
 }
@@ -39,6 +42,16 @@ impl<T> AllAssertion<T> {
 pub struct AllMatcher<'a, In, Out>(
     Box<dyn FnOnce(AllAssertion<In>) -> Result<AllAssertion<Out>, MatchError> + 'a>,
 );
+
+impl<'a, In, Out> fmt::Debug for AllMatcher<'a, In, Out> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("AllMatcher")
+            .field(&type_name::<
+                Box<dyn FnOnce(AllAssertion<In>) -> Result<AllAssertion<Out>, MatchError> + 'a>,
+            >())
+            .finish()
+    }
+}
 
 impl<'a, In, Out> AllMatcher<'a, In, Out> {
     pub fn new(

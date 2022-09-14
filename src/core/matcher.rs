@@ -1,3 +1,4 @@
+use std::any::type_name;
 use std::borrow::Borrow;
 use std::fmt;
 use std::marker::PhantomData;
@@ -199,7 +200,9 @@ pub struct Matcher<'a, In, PosOut, NegOut = PosOut>(BoxMatch<'a, In, PosOut, Neg
 
 impl<'a, In, PosOut, NegOut> fmt::Debug for Matcher<'a, In, PosOut, NegOut> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_tuple("Matcher").finish()
+        f.debug_tuple("Matcher")
+            .field(&type_name::<BoxMatch<'a, In, PosOut, NegOut>>())
+            .finish()
     }
 }
 
@@ -258,7 +261,9 @@ pub struct PosMatcher<'a, In, PosOut>(BoxMatchPos<'a, In, PosOut>);
 
 impl<'a, In, PosOut> fmt::Debug for PosMatcher<'a, In, PosOut> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_tuple("PosMatcher").finish()
+        f.debug_tuple("PosMatcher")
+            .field(&type_name::<BoxMatchPos<'a, In, PosOut>>())
+            .finish()
     }
 }
 
@@ -295,7 +300,9 @@ pub struct NegMatcher<'a, In, NegOut>(BoxMatchNeg<'a, In, NegOut>);
 
 impl<'a, In, NegOut> fmt::Debug for NegMatcher<'a, In, NegOut> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_tuple("NegMatcher").finish()
+        f.debug_tuple("NegMatcher")
+            .field(&type_name::<BoxMatchNeg<'a, In, NegOut>>())
+            .finish()
     }
 }
 
