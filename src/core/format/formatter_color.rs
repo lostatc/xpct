@@ -82,6 +82,10 @@ impl FormattedOutput {
     }
 
     fn indented_inner(self, spaces: u32, hanging: bool) -> Self {
+        if spaces == 0 {
+            return self;
+        }
+
         let mut styles = Vec::with_capacity(self.segments.len());
         let mut buffers = Vec::with_capacity(self.segments.len());
 

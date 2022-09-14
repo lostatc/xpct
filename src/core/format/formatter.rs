@@ -3,7 +3,7 @@
 use std::fmt;
 use std::io::{self, Write};
 
-use super::{indent::indent, Format, OutputStream};
+use super::{strings::indent, Format, OutputStream};
 
 #[derive(Debug)]
 pub struct Formatter {
@@ -43,10 +43,20 @@ impl FormattedOutput {
         Ok(Self { buf: formatter.buf })
     }
 
-    pub fn indent(&mut self, spaces: u32) {
+    pub fn indented(mut self, spaces: u32) -> Self {
         if spaces > 0 {
-            self.buf = indent(&self.buf, spaces).into();
+            self.buf = indent(&self.buf, spaces, false).into();
         }
+
+        self
+    }
+
+    pub fn indented_hanging(mut self, spaces: u32) -> Self {
+        if spaces > 0 {
+            self.buf = indent(&self.buf, spaces, true).into();
+        }
+
+        self
     }
 
     pub fn print(&self, stream: OutputStream) -> io::Result<()> {
