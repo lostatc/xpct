@@ -1,5 +1,3 @@
-use std::fmt;
-
 use crate::core::SimpleMatch;
 
 #[derive(Debug)]
@@ -37,7 +35,7 @@ where
 }
 
 #[cfg(feature = "fmt")]
-use crate::core::Matcher;
+use {crate::core::Matcher, std::fmt};
 
 #[cfg(feature = "fmt")]
 pub fn equal<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>

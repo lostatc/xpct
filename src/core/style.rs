@@ -1,3 +1,5 @@
+#![cfg(feature = "color")]
+
 use super::{OutputStyle, TerminalColor, TextColor, TextStyle};
 
 pub const fn indent() -> &'static str {

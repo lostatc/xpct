@@ -29,4 +29,5 @@ pub mod matcher {
     };
     pub use super::equal::{EqualMatcher, Mismatch};
     pub use super::not::NotMatcher;
+    pub use super::why::WhyMatcher;
 }
