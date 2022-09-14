@@ -9,8 +9,8 @@ pub(super) mod style;
 pub use format::*;
 
 pub use matcher::{
-    BoxMatcher, DynMatch, DynMatchNeg, DynMatchPos, MatchBase, MatchNeg, MatchPos, Matcher,
-    SimpleMatch,
+    BoxMatch, BoxMatchNeg, BoxMatchPos, DynMatch, DynMatchNeg, DynMatchPos, MatchBase, MatchNeg,
+    MatchPos, Matcher, NegMatcher, PosMatcher, SimpleMatch,
 };
 
 pub use result::{AssertionFailure, DynMatchFailure, MatchError, MatchFailure, MatchResult};

@@ -188,10 +188,14 @@ where
     }
 }
 
-pub type BoxMatcher<'a, In, PosOut, NegOut = PosOut> =
+pub type BoxMatch<'a, In, PosOut, NegOut = PosOut> =
     Box<dyn DynMatch<In = In, PosOut = PosOut, NegOut = NegOut> + 'a>;
 
-pub struct Matcher<'a, In, PosOut, NegOut = PosOut>(BoxMatcher<'a, In, PosOut, NegOut>);
+pub type BoxMatchPos<'a, In, PosOut> = Box<dyn DynMatchPos<In = In, PosOut = PosOut> + 'a>;
+
+pub type BoxMatchNeg<'a, In, NegOut> = Box<dyn DynMatchNeg<In = In, NegOut = NegOut> + 'a>;
+
+pub struct Matcher<'a, In, PosOut, NegOut = PosOut>(BoxMatch<'a, In, PosOut, NegOut>);
 
 impl<'a, In, PosOut, NegOut> fmt::Debug for Matcher<'a, In, PosOut, NegOut> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -208,7 +212,7 @@ impl<'a, In, PosOut, NegOut> Matcher<'a, In, PosOut, NegOut> {
         Self(Box::new(DynMatchAdapter::new(matcher, format)))
     }
 
-    pub fn into_box(self) -> BoxMatcher<'a, In, PosOut, NegOut> {
+    pub fn into_box(self) -> BoxMatch<'a, In, PosOut, NegOut> {
         self.0
     }
 }
@@ -240,6 +244,80 @@ impl<'a, In, PosOut, NegOut> DynMatchPos for Matcher<'a, In, PosOut, NegOut> {
 }
 
 impl<'a, In, PosOut, NegOut> DynMatchNeg for Matcher<'a, In, PosOut, NegOut> {
+    type NegOut = NegOut;
+
+    fn match_neg(
+        self: Box<Self>,
+        actual: Self::In,
+    ) -> anyhow::Result<MatchResult<Self::NegOut, DynMatchFailure>> {
+        self.0.match_neg(actual)
+    }
+}
+
+pub struct PosMatcher<'a, In, PosOut>(BoxMatchPos<'a, In, PosOut>);
+
+impl<'a, In, PosOut> fmt::Debug for PosMatcher<'a, In, PosOut> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("PosMatcher").finish()
+    }
+}
+
+impl<'a, In, PosOut> PosMatcher<'a, In, PosOut> {
+    pub fn new<M, Fmt>(matcher: M, format: Fmt) -> Self
+    where
+        M: MatchBase<In = In> + MatchPos<PosOut = PosOut> + 'a,
+        Fmt: ResultFormat<Pos = M::PosFail> + 'a,
+    {
+        Self(Box::new(DynMatchAdapter::new(matcher, format)))
+    }
+
+    pub fn into_box(self) -> BoxMatchPos<'a, In, PosOut> {
+        self.0
+    }
+}
+
+impl<'a, In, PosOut> MatchBase for PosMatcher<'a, In, PosOut> {
+    type In = In;
+}
+
+impl<'a, In, PosOut> DynMatchPos for PosMatcher<'a, In, PosOut> {
+    type PosOut = PosOut;
+
+    fn match_pos(
+        self: Box<Self>,
+        actual: Self::In,
+    ) -> anyhow::Result<MatchResult<Self::PosOut, DynMatchFailure>> {
+        self.0.match_pos(actual)
+    }
+}
+
+pub struct NegMatcher<'a, In, NegOut>(BoxMatchNeg<'a, In, NegOut>);
+
+impl<'a, In, NegOut> fmt::Debug for NegMatcher<'a, In, NegOut> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("NegMatcher").finish()
+    }
+}
+
+impl<'a, In, NegOut> NegMatcher<'a, In, NegOut> {
+    pub fn new<M, Fmt>(matcher: M, format: Fmt) -> Self
+    where
+        M: MatchBase<In = In> + MatchNeg<NegOut = NegOut> + 'a,
+        Fmt: ResultFormat<Neg = M::NegFail> + 'a,
+    {
+        Self(Box::new(DynMatchAdapter::new(matcher, format)))
+    }
+
+    pub fn into_box(self) -> BoxMatchNeg<'a, In, NegOut> {
+        self.0
+    }
+}
+
+impl<'a, In, NegOut> MatchBase for NegMatcher<'a, In, NegOut> {
+    type In = In;
+}
+
+impl<'a, In, NegOut> DynMatchNeg for NegMatcher<'a, In, NegOut> {
     type NegOut = NegOut;
 
     fn match_neg(

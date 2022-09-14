@@ -1,6 +1,5 @@
 use crate::core::{
-    DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchError, MatchNeg, MatchPos,
-    MatchResult,
+    DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchError, MatchPos, MatchResult,
 };
 
 pub struct AllAssertion<T> {
@@ -69,34 +68,18 @@ impl<'a, In, Out> MatchPos for AllMatcher<'a, In, Out> {
     }
 }
 
-impl<'a, In, Out> MatchNeg for AllMatcher<'a, In, Out> {
-    type NegOut = ();
-    type NegFail = ();
-
-    fn match_neg(
-        self,
-        actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>> {
-        match (self.0)(AllAssertion::new(actual)) {
-            Ok(_) => Ok(MatchResult::Fail(())),
-            Err(MatchError::Fail(_)) => Ok(MatchResult::Success(())),
-            Err(MatchError::Err(error)) => Err(error),
-        }
-    }
-}
-
 #[cfg(feature = "fmt")]
-use crate::core::Matcher;
+use crate::core::PosMatcher;
 
 #[cfg(feature = "fmt")]
 pub fn all<'a, In, Out>(
     block: impl FnOnce(AllAssertion<In>) -> Result<AllAssertion<Out>, MatchError> + 'a,
-) -> Matcher<'a, In, Out, ()>
+) -> PosMatcher<'a, In, Out>
 where
     In: 'a,
     Out: 'a,
 {
     use super::format::AllFormat;
 
-    Matcher::new(AllMatcher::new(block), AllFormat)
+    PosMatcher::new(AllMatcher::new(block), AllFormat)
 }

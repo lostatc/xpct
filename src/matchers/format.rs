@@ -55,8 +55,21 @@ impl Format for AllFormat {
     type Value = MatchFailure<DynMatchFailure, ()>;
     type Error = Infallible;
 
-    fn fmt(self, _: &mut Formatter, _: Self::Value) -> Result<(), Self::Error> {
-        todo!()
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
+        match value {
+            MatchFailure::Pos(fail) => {
+                f.set_style(style::bad());
+                f.write_str("Expected all of these to pass:\n");
+                f.reset_style();
+                f.write_fmt(fail.into_fmt().indented(style::indent_len()));
+            }
+            MatchFailure::Neg(_) => {
+                f.set_style(style::bad());
+                f.write_str("Expected none of these to pass:\n");
+            }
+        }
+
+        Ok(())
     }
 }
 
