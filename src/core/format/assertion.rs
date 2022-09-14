@@ -2,7 +2,7 @@
 
 use std::convert::Infallible;
 
-use super::{indent::indent, AssertionFormat, Format, Formatter};
+use super::{strings::indent, AssertionFormat, Format, Formatter};
 use crate::core::{style, AssertionContext, AssertionFailure, MatchError};
 
 #[derive(Debug, Default)]
@@ -34,9 +34,7 @@ impl Format for DefaultAssertionFormat {
         f.reset_style();
 
         match value.error {
-            MatchError::Fail(fail) => {
-                f.write_fmt(fail.into_fmt().indented(style::indent_len()));
-            }
+            MatchError::Fail(fail) => f.write_fmt(fail.into_fmt().indented(style::indent_len())),
             MatchError::Err(error) => f.write_str(&indent(&error.to_string(), style::indent_len())),
         }
 

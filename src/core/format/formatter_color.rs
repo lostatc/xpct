@@ -3,7 +3,8 @@
 use std::fmt;
 use std::io::{self, Write};
 
-use super::{color::color_writer, indent::indent, Format, OutputStream, OutputStyle};
+use super::strings::indent_vec;
+use super::{color::color_writer, Format, OutputStream, OutputStyle};
 
 #[derive(Debug, Default)]
 struct OutputSegment {
@@ -80,19 +81,30 @@ impl FormattedOutput {
         Ok(Self { segments })
     }
 
-    pub fn indent(&mut self, spaces: u32) {
-        if spaces == 0 {
-            return;
+    fn indented_inner(self, spaces: u32, hanging: bool) -> Self {
+        let mut styles = Vec::with_capacity(self.segments.len());
+        let mut buffers = Vec::with_capacity(self.segments.len());
+
+        for segment in self.segments {
+            styles.push(segment.style);
+            buffers.push(segment.buf);
         }
 
-        for segment in &mut self.segments {
-            segment.buf = indent(&segment.buf, spaces).into();
+        Self {
+            segments: indent_vec(buffers, spaces, hanging)
+                .into_iter()
+                .zip(styles)
+                .map(|(buf, style)| OutputSegment { buf, style })
+                .collect(),
         }
     }
 
-    pub fn indented(mut self, spaces: u32) -> Self {
-        self.indent(spaces);
-        self
+    pub fn indented(self, spaces: u32) -> Self {
+        self.indented_inner(spaces, false)
+    }
+
+    pub fn indented_hanging(self, spaces: u32) -> Self {
+        self.indented_inner(spaces, true)
     }
 
     pub fn print(&self, stream: OutputStream) -> io::Result<()> {

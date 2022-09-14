@@ -15,8 +15,17 @@ impl Format for AllFailuresFormat {
     type Value = AllFailures;
     type Error = Infallible;
 
-    fn fmt(self, _: &mut Formatter, _: Self::Value) -> Result<(), Self::Error> {
-        todo!()
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
+        let padding = value.len().to_string().len();
+        let indent = padding as u32 + 4;
+
+        for (i, fail) in value.into_iter().enumerate() {
+            f.set_style(style::important());
+            f.write_str(&format!("[{:0pad$}]  ", i, pad = padding));
+            f.write_fmt(fail.into_fmt().indented_hanging(indent));
+        }
+
+        Ok(())
     }
 }
 
@@ -38,8 +47,11 @@ impl Format for AnyFormat {
     type Value = MatchFailure<AllFailures, SomeFailures>;
     type Error = Infallible;
 
-    fn fmt(self, _: &mut Formatter, _: Self::Value) -> Result<(), Self::Error> {
-        todo!()
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
+        match value {
+            MatchFailure::Pos(fail) => AllFailuresFormat.fmt(f, fail),
+            MatchFailure::Neg(fail) => SomeFailuresFormat.fmt(f, fail),
+        }
     }
 }
 
