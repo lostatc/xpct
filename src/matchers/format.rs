@@ -211,6 +211,8 @@ impl<'a> Format for WhyFormat<'a> {
     type Error = Infallible;
 
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
+        f.set_style(style::info());
+
         match self.reason {
             WhyFormatReason::Eager(reason) => {
                 f.write_str(reason.as_ref());
@@ -221,6 +223,8 @@ impl<'a> Format for WhyFormat<'a> {
             }
         };
 
+        f.reset_style();
+        f.write_char('\n');
         f.write_fmt(value);
 
         Ok(())
