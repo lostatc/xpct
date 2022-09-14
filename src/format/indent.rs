@@ -5,14 +5,16 @@ const PREFIX_CACHE: &'static str =
     "                                                                ";
 
 /// Indent each line by the given number of spaces.
-///
-/// This returns `None` if `spaces` is 0.
-pub(super) fn indent(s: &str, spaces: u32) -> Option<String> {
+pub fn indent<'a>(s: &'a str, spaces: u32) -> Cow<'a, str> {
     let prefix = match spaces as usize {
-        i if i == 0 => return None,
+        i if i == 0 => return Cow::Borrowed(s),
         i if i < PREFIX_CACHE.len() => Cow::Borrowed(&PREFIX_CACHE[..i]),
         i => Cow::Owned(" ".repeat(i as usize)),
     };
+
+    if s.is_empty() {
+        return Cow::Borrowed("");
+    }
 
     // We know that we'll need more than `s.len()` bytes for the output, but we don't know exactly
     // how many without counting LF characters, which is expensive.
@@ -33,7 +35,7 @@ pub(super) fn indent(s: &str, spaces: u32) -> Option<String> {
     // over-allocated.
     result.shrink_to_fit();
 
-    Some(result)
+    Cow::Owned(result)
 }
 
 /// Remove common leading whitespace from each line.
@@ -104,20 +106,21 @@ mod tests {
     #[test]
     fn indent_when_the_indent_len_is_zero() {
         let actual = "line 1\nline 2\n line 3";
-        assert_eq!(indent(actual, 0), None);
+        let expected = Cow::Borrowed(actual);
+        assert_eq!(indent(actual, 0), expected);
     }
 
     #[test]
     fn indent_when_the_indent_len_is_non_zero() {
         let actual = indented_string(&[1, 2, 3]);
-        let expected = Some(indented_string(&[5, 6, 7]));
+        let expected = Cow::<'_, str>::Owned(indented_string(&[5, 6, 7]));
         assert_eq!(indent(&actual, 4), expected);
     }
 
     #[test]
     fn indent_when_there_is_no_trailing_newline() {
         let actual = " line 1\n line 2\n line 3";
-        let expected = Some(String::from("   line 1\n   line 2\n   line 3"));
+        let expected = Cow::<'_, str>::Owned(String::from("   line 1\n   line 2\n   line 3"));
         assert_eq!(indent(&actual, 2), expected);
     }
 

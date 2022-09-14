@@ -44,8 +44,8 @@ impl FormattedOutput {
     }
 
     pub fn indent(&mut self, spaces: u32) {
-        if let Some(indented) = indent(&self.buf, spaces) {
-            self.buf = indented;
+        if spaces > 0 {
+            self.buf = indent(&self.buf, spaces).into();
         }
     }
 

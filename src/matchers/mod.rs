@@ -18,7 +18,7 @@ pub use {
 
 #[cfg(feature = "fmt")]
 pub use format::{
-    AllFailuresFormat, AllFormat, AnyFormat, EachFormat, EqualFormat, NotFormat,
+    AllFailuresFormat, AllFormat, AnyFormat, EachFormat, EqualFormat, FailFormat,
     SomeFailuresFormat, WhyFormat,
 };
 

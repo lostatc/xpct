@@ -5,7 +5,7 @@ use std::convert::Infallible;
 use std::fmt;
 use std::marker::PhantomData;
 
-use crate::{DynMatchFailure, Format, Formatter, MatchFailure, ResultFormat};
+use crate::{format::style, DynMatchFailure, Format, Formatter, MatchFailure, ResultFormat};
 
 use super::{AllFailures, Mismatch, SomeFailures};
 
@@ -87,47 +87,85 @@ pub struct EqualFormat<Actual, Expected> {
     marker: PhantomData<(Actual, Expected)>,
 }
 
-impl<Actual, Expected> Default for EqualFormat<Actual, Expected> {
-    fn default() -> Self {
+impl<Actual, Expected> EqualFormat<Actual, Expected> {
+    pub fn new() -> Self {
         Self {
             marker: PhantomData,
         }
     }
 }
 
-impl<Actual, Expected> EqualFormat<Actual, Expected> {
-    pub fn new() -> Self {
-        Default::default()
-    }
-}
-
-impl<Actual, Expected> Format for EqualFormat<Actual, Expected> {
+impl<Actual, Expected> Format for EqualFormat<Actual, Expected>
+where
+    Actual: fmt::Debug,
+    Expected: fmt::Debug,
+{
     type Value = MatchFailure<Mismatch<Actual, Expected>>;
     type Error = Infallible;
 
-    fn fmt(self, _: &mut Formatter, _: Self::Value) -> Result<(), Self::Error> {
-        todo!()
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
+        match value {
+            MatchFailure::Pos(mismatch) => {
+                f.set_style(style::important());
+                f.write_str("Expected:\n");
+
+                f.set_style(style::bad());
+                f.write_str(format!("{}{:?}\n", style::indent(), mismatch.expected));
+
+                f.set_style(style::important());
+                f.write_str("to equal:\n");
+
+                f.set_style(style::bad());
+                f.write_str(format!("{}{:?}\n", style::indent(), mismatch.actual));
+            }
+            MatchFailure::Neg(mismatch) => {
+                f.set_style(style::important());
+                f.write_str("Expected:\n");
+
+                f.set_style(style::bad());
+                f.write_str(format!("{}{:?}\n", style::indent(), mismatch.expected));
+
+                f.set_style(style::important());
+                f.write_str("to not equal:\n");
+
+                f.set_style(style::bad());
+                f.write_str(format!("{}{:?}\n", style::indent(), mismatch.actual));
+            }
+        }
+
+        Ok(())
     }
 }
 
-impl<Actual, Expected> ResultFormat for EqualFormat<Actual, Expected> {
+impl<Actual, Expected> ResultFormat for EqualFormat<Actual, Expected>
+where
+    Actual: fmt::Debug,
+    Expected: fmt::Debug,
+{
     type Pos = Mismatch<Actual, Expected>;
     type Neg = Mismatch<Actual, Expected>;
 }
 
 #[derive(Debug)]
-pub struct NotFormat;
+pub struct FailFormat;
 
-impl Format for NotFormat {
+impl Format for FailFormat {
     type Value = MatchFailure<DynMatchFailure>;
     type Error = Infallible;
 
-    fn fmt(self, _: &mut Formatter, _: Self::Value) -> Result<(), Self::Error> {
-        todo!()
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
+        let fail = match value {
+            MatchFailure::Pos(fail) => fail,
+            MatchFailure::Neg(fail) => fail,
+        };
+
+        f.write_fmt(fail.into_fmt());
+
+        Ok(())
     }
 }
 
-impl ResultFormat for NotFormat {
+impl ResultFormat for FailFormat {
     type Pos = DynMatchFailure;
     type Neg = DynMatchFailure;
 }

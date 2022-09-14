@@ -53,6 +53,10 @@ impl DynMatchFailure {
     {
         Ok(Self(FormattedOutput::new(fail, format)?))
     }
+
+    pub fn into_fmt(self) -> FormattedOutput {
+        self.0
+    }
 }
 
 impl From<DynMatchFailure> for FormattedOutput {

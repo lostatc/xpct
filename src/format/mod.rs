@@ -5,7 +5,11 @@ mod formatter;
 mod formatter_color;
 mod indent;
 
+pub mod style;
+
 pub use base::{AssertionFormat, Format, OutputStream, ResultFormat};
+
+pub use indent::dedent;
 
 #[cfg(feature = "color")]
 pub use {

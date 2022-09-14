@@ -58,10 +58,8 @@ impl Formatter {
         ));
     }
 
-    pub fn with_style(&mut self, block: impl FnOnce(&mut OutputStyle)) {
-        let mut new_style = self.current.style.clone();
-        block(&mut new_style);
-        self.set_style(new_style);
+    pub fn reset_style(&mut self) {
+        self.set_style(Default::default());
     }
 }
 
@@ -83,11 +81,18 @@ impl FormattedOutput {
     }
 
     pub fn indent(&mut self, spaces: u32) {
-        for segment in &mut self.segments {
-            if let Some(indented) = indent(&segment.buf, spaces) {
-                segment.buf = indented;
-            }
+        if spaces == 0 {
+            return;
         }
+
+        for segment in &mut self.segments {
+            segment.buf = indent(&segment.buf, spaces).into();
+        }
+    }
+
+    pub fn indented(mut self, spaces: u32) -> Self {
+        self.indent(spaces);
+        self
     }
 
     pub fn print(&self, stream: OutputStream) -> io::Result<()> {

@@ -46,7 +46,7 @@ where
     PosOut: 'a,
     NegOut: 'a,
 {
-    use super::NotFormat;
+    use super::FailFormat;
 
-    Matcher::new(NotMatcher::new(matcher), NotFormat)
+    Matcher::new(NotMatcher::new(matcher), FailFormat)
 }

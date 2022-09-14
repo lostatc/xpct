@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::SimpleMatch;
 
 #[derive(Debug)]
@@ -40,8 +42,8 @@ use crate::Matcher;
 #[cfg(feature = "fmt")]
 pub fn equal<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
 where
-    Actual: PartialEq<Expected> + Eq + 'a,
-    Expected: 'a,
+    Actual: fmt::Debug + PartialEq<Expected> + Eq + 'a,
+    Expected: fmt::Debug + 'a,
 {
     use super::EqualFormat;
 
