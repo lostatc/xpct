@@ -1,6 +1,3 @@
-// TODO: Remove
-#![allow(dead_code)]
-
 mod matchers;
 
 pub mod core;

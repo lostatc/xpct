@@ -3,7 +3,6 @@ mod context;
 mod format;
 mod matcher;
 mod result;
-mod template;
 
 pub(super) mod style;
 
