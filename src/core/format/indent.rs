@@ -5,7 +5,7 @@ const PREFIX_CACHE: &'static str =
     "                                                                ";
 
 /// Indent each line by the given number of spaces.
-pub fn indent<'a>(s: &'a str, spaces: u32) -> Cow<'a, str> {
+pub(super) fn indent<'a>(s: &'a str, spaces: u32) -> Cow<'a, str> {
     let prefix = match spaces as usize {
         i if i == 0 => return Cow::Borrowed(s),
         i if i < PREFIX_CACHE.len() => Cow::Borrowed(&PREFIX_CACHE[..i]),
@@ -42,7 +42,7 @@ pub fn indent<'a>(s: &'a str, spaces: u32) -> Cow<'a, str> {
 ///
 /// This function will look at each non-empty line and remove the maximum amount of whitespace that
 /// can be removed from all lines.
-pub fn dedent<'a>(s: &'a str) -> Cow<'a, str> {
+pub(super) fn dedent<'a>(s: &'a str) -> Cow<'a, str> {
     let mut prefix_len = s.len();
     let mut num_lines = 0;
 

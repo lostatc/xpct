@@ -1,4 +1,4 @@
-use crate::{
+use crate::core::{
     DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchError, MatchNeg, MatchPos,
     MatchResult,
 };
@@ -86,7 +86,7 @@ impl<'a, In, Out> MatchNeg for AllMatcher<'a, In, Out> {
 }
 
 #[cfg(feature = "fmt")]
-use crate::Matcher;
+use crate::core::Matcher;
 
 #[cfg(feature = "fmt")]
 pub fn all<'a, In, Out>(
@@ -96,7 +96,7 @@ where
     In: 'a,
     Out: 'a,
 {
-    use super::AllFormat;
+    use super::format::AllFormat;
 
     Matcher::new(AllMatcher::new(block), AllFormat)
 }

@@ -1,5 +1,6 @@
-use crate::{AssertionFailure, MatchFailure};
 use std::error::Error;
+
+use crate::core::{AssertionFailure, MatchFailure};
 
 #[cfg(not(feature = "color"))]
 use super::formatter::Formatter;

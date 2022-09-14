@@ -2,11 +2,8 @@
 
 use std::convert::Infallible;
 
-use crate::{AssertionContext, AssertionFailure};
-
-use crate::format::style;
-
 use super::{indent::indent, AssertionFormat, Format, Formatter};
+use crate::core::{style, AssertionContext, AssertionFailure, MatchError};
 
 #[derive(Debug, Default)]
 pub struct DefaultAssertionFormat;
@@ -37,12 +34,10 @@ impl Format for DefaultAssertionFormat {
         f.reset_style();
 
         match value.error {
-            crate::MatchError::Fail(fail) => {
+            MatchError::Fail(fail) => {
                 f.write_fmt(fail.into_fmt().indented(style::indent_len()));
             }
-            crate::MatchError::Err(error) => {
-                f.write_str(&indent(&error.to_string(), style::indent_len()))
-            }
+            MatchError::Err(error) => f.write_str(&indent(&error.to_string(), style::indent_len())),
         }
 
         f.write_char('\n');

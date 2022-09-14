@@ -2,9 +2,11 @@ mod all;
 mod any;
 mod each;
 mod equal;
-mod format;
 mod not;
 mod why;
+
+#[cfg(feature = "fmt")]
+pub mod format;
 
 #[cfg(feature = "fmt")]
 pub use {
@@ -16,19 +18,15 @@ pub use {
     why::{why, why_lazy},
 };
 
-#[cfg(feature = "fmt")]
-pub use format::{
-    AllFailuresFormat, AllFormat, AnyFormat, EachFormat, EqualFormat, FailFormat,
-    SomeFailuresFormat, WhyFormat,
-};
-
-pub use all::{AllAssertion, AllMatcher};
-pub use any::{
-    AllFailures, AnyContext, AnyMatcher, ByRefAnyAssertion, ClonedAnyAssertion, CopiedAnyAssertion,
-    SomeFailures,
-};
-pub use each::{
-    ByRefEachAssertion, ClonedEachAssertion, CopiedEachAssertion, EachContext, EachMatcher,
-};
-pub use equal::{EqualMatcher, Mismatch};
-pub use not::NotMatcher;
+pub mod matcher {
+    pub use super::all::{AllAssertion, AllMatcher};
+    pub use super::any::{
+        AllFailures, AnyContext, AnyMatcher, ByRefAnyAssertion, ClonedAnyAssertion,
+        CopiedAnyAssertion, SomeFailures,
+    };
+    pub use super::each::{
+        ByRefEachAssertion, ClonedEachAssertion, CopiedEachAssertion, EachContext, EachMatcher,
+    };
+    pub use super::equal::{EqualMatcher, Mismatch};
+    pub use super::not::NotMatcher;
+}

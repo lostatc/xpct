@@ -1,4 +1,4 @@
-use crate::{DynMatchFailure, MatchBase, MatchNeg, MatchPos, MatchResult, Matcher};
+use crate::core::{DynMatchFailure, MatchBase, MatchNeg, MatchPos, MatchResult, Matcher};
 
 #[derive(Debug)]
 pub struct WhyMatcher<'a, In, PosOut, NegOut>(Matcher<'a, In, PosOut, NegOut>);
@@ -50,7 +50,7 @@ where
     PosOut: 'a,
     NegOut: 'a,
 {
-    use super::WhyFormat;
+    use super::format::WhyFormat;
 
     Matcher::new(WhyMatcher::new(matcher), WhyFormat::new(reason))
 }
@@ -65,7 +65,7 @@ where
     PosOut: 'a,
     NegOut: 'a,
 {
-    use super::WhyFormat;
+    use super::format::WhyFormat;
 
     Matcher::new(WhyMatcher::new(matcher), WhyFormat::lazy(reason))
 }

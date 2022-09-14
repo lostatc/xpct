@@ -1,27 +1,10 @@
 // TODO: Remove
 #![allow(dead_code)]
 
-pub mod matchers;
+mod matchers;
 
-mod assertion;
-mod context;
-mod format;
-mod matcher;
-mod result;
-mod template;
+pub mod core;
 
-pub use assertion::{expect, Assertion};
-pub use context::{AssertionContext, FileLocation};
-pub use matcher::{
-    BoxMatcher, DynMatch, DynMatchNeg, DynMatchPos, MatchBase, MatchNeg, MatchPos, Matcher,
-    SimpleMatch,
-};
-pub use result::{AssertionFailure, DynMatchFailure, MatchError, MatchFailure, MatchResult};
-
-pub use format::{AssertionFormat, Format, FormattedOutput, Formatter, OutputStream, ResultFormat};
-
-#[cfg(feature = "color")]
-pub use format::{OutputStyle, TerminalColor, TextColor, TextStyle};
-
-#[cfg(feature = "fmt")]
-pub use format::DefaultAssertionFormat;
+pub use matchers::format;
+pub use matchers::matcher;
+pub use matchers::*;

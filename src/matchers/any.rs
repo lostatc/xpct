@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::{
+use crate::core::{
     DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchNeg, MatchPos, MatchResult,
 };
 
@@ -261,14 +261,14 @@ impl<'a, T> MatchNeg for AnyMatcher<'a, T> {
 }
 
 #[cfg(feature = "fmt")]
-use crate::Matcher;
+use crate::core::Matcher;
 
 #[cfg(feature = "fmt")]
 pub fn any<'a, T>(block: impl Fn(&mut AnyContext<T>) + 'a) -> Matcher<'a, T, T>
 where
     T: 'a,
 {
-    use super::AnyFormat;
+    use super::format::AnyFormat;
 
     Matcher::new(AnyMatcher::new(block), AnyFormat)
 }

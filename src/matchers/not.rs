@@ -1,4 +1,4 @@
-use crate::{DynMatchFailure, MatchBase, MatchNeg, MatchPos, MatchResult, Matcher};
+use crate::core::{DynMatchFailure, MatchBase, MatchNeg, MatchPos, MatchResult, Matcher};
 
 #[derive(Debug)]
 pub struct NotMatcher<'a, In, PosOut, NegOut>(Matcher<'a, In, PosOut, NegOut>);
@@ -46,7 +46,7 @@ where
     PosOut: 'a,
     NegOut: 'a,
 {
-    use super::FailFormat;
+    use super::format::FailFormat;
 
     Matcher::new(NotMatcher::new(matcher), FailFormat)
 }

@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::SimpleMatch;
+use crate::core::SimpleMatch;
 
 #[derive(Debug)]
 pub struct Mismatch<Actual, Expected> {
@@ -37,7 +37,7 @@ where
 }
 
 #[cfg(feature = "fmt")]
-use crate::Matcher;
+use crate::core::Matcher;
 
 #[cfg(feature = "fmt")]
 pub fn equal<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
@@ -45,7 +45,7 @@ where
     Actual: fmt::Debug + PartialEq<Expected> + Eq + 'a,
     Expected: fmt::Debug + 'a,
 {
-    use super::EqualFormat;
+    use super::format::EqualFormat;
 
     Matcher::simple(EqualMatcher::new(expected), EqualFormat::new())
 }

@@ -1,4 +1,4 @@
-use crate::{OutputStyle, TerminalColor, TextColor, TextStyle};
+use super::{OutputStyle, TerminalColor, TextColor, TextStyle};
 
 pub const fn indent() -> &'static str {
     "    "

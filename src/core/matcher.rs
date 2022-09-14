@@ -2,8 +2,7 @@ use std::borrow::Borrow;
 use std::fmt;
 use std::marker::PhantomData;
 
-use super::format::ResultFormat;
-use super::result::{DynMatchFailure, MatchFailure, MatchResult};
+use super::{DynMatchFailure, MatchFailure, MatchResult, ResultFormat};
 
 pub trait MatchBase {
     type In;

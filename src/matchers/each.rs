@@ -1,4 +1,4 @@
-use crate::{
+use crate::core::{
     DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchError, MatchNeg, MatchPos,
     MatchResult,
 };
@@ -186,7 +186,7 @@ impl<'a, T> MatchNeg for EachMatcher<'a, T> {
 }
 
 #[cfg(feature = "fmt")]
-use crate::Matcher;
+use crate::core::Matcher;
 
 #[cfg(feature = "fmt")]
 pub fn each<'a, T>(
@@ -195,7 +195,7 @@ pub fn each<'a, T>(
 where
     T: 'a,
 {
-    use super::EachFormat;
+    use super::format::EachFormat;
 
     Matcher::new(EachMatcher::new(block), EachFormat)
 }

@@ -1,6 +1,7 @@
-use super::format::{AssertionFormat, FormattedOutput, OutputStream};
-use super::matcher::{DynMatchNeg, DynMatchPos};
-use super::result::{AssertionFailure, MatchError, MatchResult};
+use super::{
+    AssertionFailure, AssertionFormat, DynMatchNeg, DynMatchPos, FormattedOutput, MatchError,
+    MatchResult, OutputStream,
+};
 
 #[derive(Debug)]
 pub struct Assertion<T, AssertFmt>
@@ -105,7 +106,7 @@ where
 #[macro_export]
 macro_rules! expect {
     ($actual:expr) => {
-        expect::<_, $crate::DefaultAssertionFormat>($actual).with_ctx(|ctx| {
+        $crate::core::expect::<_, $crate::core::DefaultAssertionFormat>($actual).with_ctx(|ctx| {
             ctx.expr = Some(String::from(stringify!($actual)));
             ctx.location = Some($crate::file_location!());
         })

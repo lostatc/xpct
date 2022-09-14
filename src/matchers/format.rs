@@ -5,9 +5,9 @@ use std::convert::Infallible;
 use std::fmt;
 use std::marker::PhantomData;
 
-use crate::{format::style, DynMatchFailure, Format, Formatter, MatchFailure, ResultFormat};
+use crate::core::{style, DynMatchFailure, Format, Formatter, MatchFailure, ResultFormat};
 
-use super::{AllFailures, Mismatch, SomeFailures};
+use super::matcher::{AllFailures, Mismatch, SomeFailures};
 
 pub struct AllFailuresFormat;
 
