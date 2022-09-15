@@ -13,6 +13,7 @@ impl Format for DefaultAssertionFormat {
     type Error = Infallible;
 
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
+        f.write_char('\n');
         f.set_style(style::info());
 
         match (value.ctx.location, value.ctx.expr) {
