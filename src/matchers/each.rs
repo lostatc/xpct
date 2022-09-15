@@ -184,18 +184,3 @@ impl<'a, T> MatchNeg for EachMatcher<'a, T> {
         }
     }
 }
-
-#[cfg(feature = "fmt")]
-use crate::core::Matcher;
-
-#[cfg(feature = "fmt")]
-pub fn each<'a, T>(
-    block: impl FnOnce(&mut EachContext<T>) -> Result<(), MatchError> + 'a,
-) -> Matcher<'a, T, T>
-where
-    T: 'a,
-{
-    use super::format::EachFormat;
-
-    Matcher::new(EachMatcher::new(block), EachFormat)
-}

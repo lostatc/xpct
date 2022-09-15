@@ -1,9 +1,8 @@
-mod matchers;
-
 pub mod core;
+pub mod matchers;
 
 #[cfg(feature = "fmt")]
-pub use matchers::format;
+pub mod format;
 
-pub use matchers::matcher;
-pub use matchers::*;
+#[cfg(feature = "fmt")]
+pub use format::{all, any, each, equal, none, not, why};

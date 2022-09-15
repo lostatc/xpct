@@ -36,36 +36,3 @@ impl<'a, In, PosOut, NegOut> MatchNeg for WhyMatcher<'a, In, PosOut, NegOut> {
         self.0.into_box().match_neg(actual)
     }
 }
-
-#[cfg(feature = "fmt")]
-use std::borrow::Cow;
-
-#[cfg(feature = "fmt")]
-pub fn why<'a, In, PosOut, NegOut>(
-    matcher: Matcher<'a, In, PosOut, NegOut>,
-    reason: impl Into<Cow<'a, str>>,
-) -> Matcher<In, PosOut, NegOut>
-where
-    In: 'a,
-    PosOut: 'a,
-    NegOut: 'a,
-{
-    use super::format::WhyFormat;
-
-    Matcher::new(WhyMatcher::new(matcher), WhyFormat::new(reason))
-}
-
-#[cfg(feature = "fmt")]
-pub fn why_lazy<'a, In, PosOut, NegOut>(
-    matcher: Matcher<'a, In, PosOut, NegOut>,
-    reason: impl FnOnce() -> Cow<'a, str> + 'a,
-) -> Matcher<In, PosOut, NegOut>
-where
-    In: 'a,
-    PosOut: 'a,
-    NegOut: 'a,
-{
-    use super::format::WhyFormat;
-
-    Matcher::new(WhyMatcher::new(matcher), WhyFormat::lazy(reason))
-}

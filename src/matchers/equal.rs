@@ -33,17 +33,3 @@ where
         }
     }
 }
-
-#[cfg(feature = "fmt")]
-use {crate::core::Matcher, std::fmt};
-
-#[cfg(feature = "fmt")]
-pub fn equal<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
-where
-    Actual: fmt::Debug + PartialEq<Expected> + Eq + 'a,
-    Expected: fmt::Debug + 'a,
-{
-    use super::format::EqualFormat;
-
-    Matcher::simple(EqualMatcher::new(expected), EqualFormat::new())
-}

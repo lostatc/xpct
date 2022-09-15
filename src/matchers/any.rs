@@ -259,16 +259,3 @@ impl<'a, T> MatchNeg for AnyMatcher<'a, T> {
         }
     }
 }
-
-#[cfg(feature = "fmt")]
-use crate::core::Matcher;
-
-#[cfg(feature = "fmt")]
-pub fn any<'a, T>(block: impl Fn(&mut AnyContext<T>) + 'a) -> Matcher<'a, T, T>
-where
-    T: 'a,
-{
-    use super::format::AnyFormat;
-
-    Matcher::new(AnyMatcher::new(block), AnyFormat)
-}

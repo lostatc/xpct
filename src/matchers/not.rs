@@ -36,17 +36,3 @@ impl<'a, In, PosOut, NegOut> MatchNeg for NotMatcher<'a, In, PosOut, NegOut> {
         self.0.into_box().match_pos(actual)
     }
 }
-
-#[cfg(feature = "fmt")]
-pub fn not<'a, In, PosOut, NegOut>(
-    matcher: Matcher<'a, In, PosOut, NegOut>,
-) -> Matcher<In, NegOut, PosOut>
-where
-    In: 'a,
-    PosOut: 'a,
-    NegOut: 'a,
-{
-    use super::format::FailFormat;
-
-    Matcher::new(NotMatcher::new(matcher), FailFormat)
-}

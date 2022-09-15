@@ -80,19 +80,3 @@ impl<'a, In, Out> MatchPos for AllMatcher<'a, In, Out> {
         }
     }
 }
-
-#[cfg(feature = "fmt")]
-use crate::core::PosMatcher;
-
-#[cfg(feature = "fmt")]
-pub fn all<'a, In, Out>(
-    block: impl FnOnce(AllAssertion<In>) -> Result<AllAssertion<Out>, MatchError> + 'a,
-) -> PosMatcher<'a, In, Out>
-where
-    In: 'a,
-    Out: 'a,
-{
-    use super::format::AllFormat;
-
-    PosMatcher::new(AllMatcher::new(block), AllFormat)
-}

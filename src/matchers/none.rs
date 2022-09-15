@@ -81,19 +81,3 @@ impl<'a, In, Out> MatchPos for NoneMatcher<'a, In, Out> {
         }
     }
 }
-
-#[cfg(feature = "fmt")]
-use crate::core::PosMatcher;
-
-#[cfg(feature = "fmt")]
-pub fn none<'a, In, Out>(
-    block: impl FnOnce(NoneAssertion<In>) -> Result<NoneAssertion<Out>, MatchError> + 'a,
-) -> PosMatcher<'a, In, Out>
-where
-    In: 'a,
-    Out: 'a,
-{
-    use super::format::NoneFormat;
-
-    PosMatcher::new(NoneMatcher::new(block), NoneFormat)
-}
