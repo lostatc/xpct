@@ -52,7 +52,7 @@ impl TerminalColor {
         match self {
             Self::Black => Color::Black,
             Self::Red => Color::Red,
-            Self::Green => Color::Red,
+            Self::Green => Color::Green,
             Self::Yellow => Color::Yellow,
             Self::Blue => Color::Blue,
             Self::Magenta => Color::Magenta,

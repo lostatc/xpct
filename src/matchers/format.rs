@@ -16,13 +16,29 @@ impl Format for AllFailuresFormat {
     type Error = Infallible;
 
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
-        let padding = value.len().to_string().len();
-        let indent = padding as u32 + 4;
+        f.set_style(style::important());
+        f.write_str("Expected none of these to fail:\n");
+        f.reset_style();
+
+        let padding_len = value.len().to_string().len();
+        let failure_indent = style::indent_len() + padding_len as u32 + 4;
 
         for (i, fail) in value.into_iter().enumerate() {
-            f.set_style(style::important());
-            f.write_str(&format!("[{:0pad$}]  ", i, pad = padding));
-            f.write_fmt(fail.into_fmt().indented_hanging(indent));
+            f.set_style(style::index());
+            f.write_str(&format!(
+                "{}[{:0pad$}]  ",
+                style::indent(),
+                i,
+                pad = padding_len
+            ));
+            f.reset_style();
+
+            f.set_style(style::bad());
+            f.write_str("<failed>\n");
+            f.reset_style();
+
+            f.write_fmt(fail.into_fmt().indented(failure_indent));
+            f.write_char('\n');
         }
 
         Ok(())
@@ -35,8 +51,43 @@ impl Format for SomeFailuresFormat {
     type Value = SomeFailures;
     type Error = Infallible;
 
-    fn fmt(self, _: &mut Formatter, _: Self::Value) -> Result<(), Self::Error> {
-        todo!()
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
+        f.set_style(style::important());
+        f.write_str("Expected all of these to fail:\n");
+        f.reset_style();
+
+        let padding_len = value.len().to_string().len();
+        let failure_indent = style::indent_len() + padding_len as u32 + 4;
+
+        for (i, maybe_fail) in value.into_iter().enumerate() {
+            f.set_style(style::index());
+            f.write_str(&format!(
+                "{}[{:0pad$}]  ",
+                style::indent(),
+                i,
+                pad = padding_len
+            ));
+            f.reset_style();
+
+            match maybe_fail {
+                Some(fail) => {
+                    f.set_style(style::good());
+                    f.write_str("<failed>\n");
+                    f.reset_style();
+
+                    f.write_fmt(fail.into_fmt().indented(failure_indent));
+                }
+                None => {
+                    f.set_style(style::bad());
+                    f.write_str("<matched>\n");
+                    f.reset_style();
+                }
+            }
+
+            f.write_char('\n');
+        }
+
+        Ok(())
     }
 }
 
@@ -251,6 +302,8 @@ impl<'a> Format for WhyFormat<'a> {
 
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
         f.set_style(style::info());
+        f.write_str(style::INFO_SYMBOL);
+        f.write_str(" ");
 
         match self.reason {
             WhyFormatReason::Eager(reason) => {

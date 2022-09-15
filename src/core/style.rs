@@ -2,6 +2,8 @@
 
 use super::{OutputStyle, TerminalColor, TextColor, TextStyle};
 
+pub const INFO_SYMBOL: &'static str = "\u{1f6c8}";
+
 pub const fn indent() -> &'static str {
     "    "
 }
@@ -32,6 +34,26 @@ pub fn bad() -> OutputStyle {
         style: TextStyle::BOLD,
         color: TextColor {
             fg: Some(TerminalColor::Red),
+            bg: None,
+        },
+    }
+}
+
+pub fn good() -> OutputStyle {
+    OutputStyle {
+        style: TextStyle::BOLD,
+        color: TextColor {
+            fg: Some(TerminalColor::Green),
+            bg: None,
+        },
+    }
+}
+
+pub fn index() -> OutputStyle {
+    OutputStyle {
+        style: Default::default(),
+        color: TextColor {
+            fg: Some(TerminalColor::Yellow),
             bg: None,
         },
     }
