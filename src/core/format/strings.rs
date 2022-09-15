@@ -5,7 +5,7 @@ const PREFIX_CACHE: &'static str =
 
 #[cfg(feature = "color")]
 mod with_color {
-    use super::get_prefix;
+    use super::whitespace;
     use std::ops::Range;
 
     // Find the first LF or CRLF linebreak in the given string.
@@ -47,7 +47,7 @@ mod with_color {
             return segments.into_iter().collect();
         }
 
-        let prefix = get_prefix(spaces as usize);
+        let prefix = whitespace(spaces as usize);
 
         let mut new_segments = Vec::new();
 
@@ -106,9 +106,35 @@ mod with_color {
 }
 
 #[cfg(feature = "color")]
-pub(super) use with_color::*;
+pub use with_color::*;
 
-fn get_prefix<'a>(spaces: usize) -> Cow<'a, str> {
+#[cfg(feature = "fmt")]
+mod with_fmt {
+    use std::borrow::Cow;
+
+    pub fn int_len(n: usize, base: u32) -> u32 {
+        let mut power = base as usize;
+        let mut count = 1;
+        while n >= power {
+            count += 1;
+            if let Some(new_power) = power.checked_mul(base as usize) {
+                power = new_power;
+            } else {
+                break;
+            }
+        }
+        count
+    }
+
+    pub fn pad_int(n: usize, longest: usize, base: u32) -> Cow<'static, str> {
+        super::whitespace((int_len(longest, base) - int_len(n, base)) as usize)
+    }
+}
+
+#[cfg(feature = "fmt")]
+pub use with_fmt::*;
+
+pub fn whitespace<'a>(spaces: usize) -> Cow<'a, str> {
     match spaces as usize {
         i if i < PREFIX_CACHE.len() => Cow::Borrowed(&PREFIX_CACHE[..i]),
         i => Cow::Owned(" ".repeat(i as usize)),
@@ -116,12 +142,12 @@ fn get_prefix<'a>(spaces: usize) -> Cow<'a, str> {
 }
 
 /// Indent each line by the given number of spaces.
-pub(super) fn indent<'a>(s: &'a str, spaces: u32, hanging: bool) -> Cow<'a, str> {
+pub fn indent<'a>(s: &'a str, spaces: u32, hanging: bool) -> Cow<'a, str> {
     if s.is_empty() || spaces == 0 {
         return Cow::Borrowed(s);
     }
 
-    let prefix = get_prefix(spaces as usize);
+    let prefix = whitespace(spaces as usize);
 
     // We know that we'll need more than `s.len()` bytes for the output, but we don't know exactly
     // how many without counting LF characters, which is expensive.

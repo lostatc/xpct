@@ -5,7 +5,7 @@ use std::convert::Infallible;
 use std::fmt;
 use std::marker::PhantomData;
 
-use crate::core::{style, DynMatchFailure, Format, Formatter, MatchFailure, ResultFormat};
+use crate::core::{strings, style, DynMatchFailure, Format, Formatter, MatchFailure, ResultFormat};
 
 use super::matcher::{AllFailures, Mismatch, SomeFailures};
 
@@ -20,16 +20,16 @@ impl Format for AllFailuresFormat {
         f.write_str("Expected none of these to fail:\n");
         f.reset_style();
 
-        let padding_len = value.len().to_string().len();
-        let failure_indent = style::indent_len() + padding_len as u32 + 4;
+        let num_failures = value.len();
+        let failure_indent = style::indent_len() + strings::int_len(num_failures, 10) + 4;
 
         for (i, fail) in value.into_iter().enumerate() {
             f.set_style(style::index());
             f.write_str(&format!(
-                "{}[{:0pad$}]  ",
+                "{}{}[{}]  ",
                 style::indent(),
+                strings::pad_int(i, num_failures, 10),
                 i,
-                pad = padding_len
             ));
             f.reset_style();
 
@@ -57,16 +57,16 @@ impl Format for SomeFailuresFormat {
         f.write_str("Expected all of these to fail:\n");
         f.reset_style();
 
-        let padding_len = value.len().to_string().len();
-        let failure_indent = style::indent_len() + padding_len as u32 + 4;
+        let num_failures = value.len();
+        let failure_indent = style::indent_len() + strings::int_len(num_failures, 10) + 4;
 
         for (i, maybe_fail) in value.into_iter().enumerate() {
             f.set_style(style::index());
             f.write_str(&format!(
-                "{}[{:0pad$}]  ",
+                "{}{}[{}]  ",
                 style::indent(),
+                strings::pad_int(i, num_failures, 10),
                 i,
-                pad = padding_len
             ));
             f.reset_style();
 

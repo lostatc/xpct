@@ -3,7 +3,8 @@ mod base;
 mod color;
 mod formatter;
 mod formatter_color;
-mod strings;
+
+pub mod strings;
 
 pub use base::{AssertionFormat, Format, OutputStream, ResultFormat};
 
