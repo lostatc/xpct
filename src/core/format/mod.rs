@@ -9,11 +9,10 @@ pub(crate) mod style;
 
 pub use base::{AssertionFormat, Format, OutputStream, ResultFormat};
 
+pub use color::{OutputStyle, TerminalColor, TextColor, TextStyle};
+
 #[cfg(feature = "color")]
-pub use {
-    color::{OutputStyle, TerminalColor, TextColor, TextStyle},
-    formatter_color::{FormattedOutput, Formatter},
-};
+pub use formatter_color::{FormattedOutput, Formatter};
 
 #[cfg(not(feature = "color"))]
 pub use formatter::{FormattedOutput, Formatter};

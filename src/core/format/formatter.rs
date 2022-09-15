@@ -3,16 +3,21 @@
 use std::fmt;
 use std::io::{self, Write};
 
-use super::{strings::indent, Format, OutputStream};
+use super::color::OutputStyle;
+use super::{strings, Format, OutputStream};
 
 #[derive(Debug)]
 pub struct Formatter {
     buf: String,
+    style: OutputStyle,
 }
 
 impl Formatter {
     fn new() -> Self {
-        Self { buf: String::new() }
+        Self {
+            buf: String::new(),
+            style: Default::default(),
+        }
     }
 
     pub fn write_str(&mut self, s: impl AsRef<str>) {
@@ -25,6 +30,18 @@ impl Formatter {
 
     pub fn write_fmt(&mut self, output: impl Into<FormattedOutput>) {
         self.buf.push_str(&output.into().buf);
+    }
+
+    pub fn style(&self) -> &OutputStyle {
+        &self.style
+    }
+
+    pub fn set_style(&mut self, style: OutputStyle) {
+        self.style = style;
+    }
+
+    pub fn reset_style(&mut self) {
+        self.style = Default::default();
     }
 }
 
@@ -45,7 +62,7 @@ impl FormattedOutput {
 
     pub fn indented(mut self, spaces: u32) -> Self {
         if spaces > 0 {
-            self.buf = indent(&self.buf, spaces, false).into();
+            self.buf = strings::indent(&self.buf, spaces, false).into();
         }
 
         self

@@ -1,4 +1,4 @@
-#![cfg(feature = "color")]
+#![cfg(feature = "fmt")]
 
 use super::{OutputStyle, TerminalColor, TextColor, TextStyle};
 

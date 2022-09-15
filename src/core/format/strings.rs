@@ -108,6 +108,47 @@ mod with_color {
 #[cfg(feature = "color")]
 pub use with_color::*;
 
+mod no_color {
+    use std::borrow::Cow;
+
+    use super::whitespace;
+
+    /// Indent each line by the given number of spaces.
+    pub fn indent<'a>(s: &'a str, spaces: u32, hanging: bool) -> Cow<'a, str> {
+        if s.is_empty() || spaces == 0 {
+            return Cow::Borrowed(s);
+        }
+
+        let prefix = whitespace(spaces as usize);
+
+        // We know that we'll need more than `s.len()` bytes for the output, but we don't know exactly
+        // how many without counting LF characters, which is expensive.
+        let mut result = String::with_capacity(s.len() * 2);
+
+        for (i, line) in s.lines().enumerate() {
+            if !hanging || i != 0 {
+                result.push_str(prefix.as_ref());
+            }
+
+            result.push_str(line);
+            result.push('\n');
+        }
+
+        // If the input doesn't end with a newline, don't add one.
+        if !s.ends_with('\n') {
+            result.truncate(result.len() - 1);
+        }
+
+        // We most likely over-allocated.
+        result.shrink_to_fit();
+
+        Cow::Owned(result)
+    }
+}
+
+#[cfg(any(feature = "fmt", not(feature = "color")))]
+pub use no_color::*;
+
 #[cfg(feature = "fmt")]
 mod with_fmt {
     use std::borrow::Cow;
@@ -141,39 +182,7 @@ pub fn whitespace<'a>(spaces: usize) -> Cow<'a, str> {
     }
 }
 
-/// Indent each line by the given number of spaces.
-pub fn indent<'a>(s: &'a str, spaces: u32, hanging: bool) -> Cow<'a, str> {
-    if s.is_empty() || spaces == 0 {
-        return Cow::Borrowed(s);
-    }
-
-    let prefix = whitespace(spaces as usize);
-
-    // We know that we'll need more than `s.len()` bytes for the output, but we don't know exactly
-    // how many without counting LF characters, which is expensive.
-    let mut result = String::with_capacity(s.len() * 2);
-
-    for (i, line) in s.lines().enumerate() {
-        if !hanging || i != 0 {
-            result.push_str(prefix.as_ref());
-        }
-
-        result.push_str(line);
-        result.push('\n');
-    }
-
-    // If the input doesn't end with a newline, don't add one.
-    if !s.ends_with('\n') {
-        result.truncate(result.len() - 1);
-    }
-
-    // We most likely over-allocated.
-    result.shrink_to_fit();
-
-    Cow::Owned(result)
-}
-
-#[cfg(test)]
+#[cfg(all(test, not(feature = "color")))]
 mod tests {
     use super::*;
 

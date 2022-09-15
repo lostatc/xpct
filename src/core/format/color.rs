@@ -1,9 +1,7 @@
-#![cfg(feature = "color")]
-
 use bitflags::bitflags;
-use termcolor::BufferWriter as ColorWriter;
 
-use super::OutputStream;
+#[cfg(feature = "color")]
+use {super::OutputStream, termcolor::BufferWriter as ColorWriter};
 
 bitflags! {
     #[derive(Default)]
@@ -21,6 +19,7 @@ impl TextStyle {
         *self &= TextStyle::empty();
     }
 
+    #[cfg(feature = "color")]
     fn into_term(&self, spec: &mut termcolor::ColorSpec) {
         spec.set_bold(self.contains(Self::BOLD));
         spec.set_intense(self.contains(Self::INTENSE));
@@ -46,6 +45,7 @@ pub enum TerminalColor {
 }
 
 impl TerminalColor {
+    #[cfg(feature = "color")]
     fn into_term(&self) -> termcolor::Color {
         use termcolor::Color;
 
@@ -76,6 +76,7 @@ impl TextColor {
         self.bg = None;
     }
 
+    #[cfg(feature = "color")]
     fn into_term(&self, spec: &mut termcolor::ColorSpec) {
         match &self.fg {
             Some(color) => spec.set_fg(Some(color.into_term())),
@@ -101,6 +102,7 @@ impl OutputStyle {
         self.color.reset();
     }
 
+    #[cfg(feature = "color")]
     pub(super) fn into_term(&self) -> termcolor::ColorSpec {
         let mut spec = termcolor::ColorSpec::new();
 
@@ -111,6 +113,7 @@ impl OutputStyle {
     }
 }
 
+#[cfg(feature = "color")]
 fn color_choice(stream: OutputStream) -> termcolor::ColorChoice {
     let atty_stream = match stream {
         OutputStream::Stdout => atty::Stream::Stdout,
@@ -124,6 +127,7 @@ fn color_choice(stream: OutputStream) -> termcolor::ColorChoice {
     }
 }
 
+#[cfg(feature = "color")]
 pub(super) fn color_writer(stream: OutputStream) -> ColorWriter {
     match stream {
         OutputStream::Stdout => ColorWriter::stdout(color_choice(stream)),
