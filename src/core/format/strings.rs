@@ -8,6 +8,16 @@ mod with_color {
     use super::get_prefix;
     use std::ops::Range;
 
+    // Find the first LF or CRLF linebreak in the given string.
+    //
+    // This returns the bytes range of the linebreak characters, not the byte range of the line
+    // between the linebreaks.
+    //
+    // If no linebreak was found, this returns `None`.
+    //
+    // ```
+    // assert_eq!(find_linebreak("abc\r\ndef"), Some(3..5));
+    // ```
     fn find_linebreak<'a>(s: &'a str) -> Option<Range<usize>> {
         let mut chars = s.char_indices();
 
@@ -28,87 +38,6 @@ mod with_color {
         None
     }
 
-    struct Line<'a> {
-        s: &'a str,
-        has_trailing: bool,
-    }
-
-    impl<'a> Line<'a> {
-        pub fn as_str(&self) -> &str {
-            self.s
-        }
-
-        pub fn has_trailing(&self) -> bool {
-            self.has_trailing
-        }
-    }
-
-    #[derive(Debug, Clone, Copy)]
-    enum LinebreakState {
-        BeforeFirst,
-        AfterLast,
-        Between,
-    }
-
-    struct Lines<'a> {
-        s: &'a str,
-        pos: usize,
-        state: LinebreakState,
-    }
-
-    impl<'a> Iterator for Lines<'a> {
-        type Item = Line<'a>;
-
-        fn next(&mut self) -> Option<Self::Item> {
-            match (self.state, find_linebreak(&self.s[self.pos..])) {
-                (LinebreakState::BeforeFirst, Some(next_linebreak)) => {
-                    let range = 0..next_linebreak.start;
-                    self.pos = next_linebreak.end;
-                    self.state = LinebreakState::Between;
-
-                    Some(Line {
-                        s: &self.s[range],
-                        has_trailing: next_linebreak.end == self.s.len(),
-                    })
-                }
-                (LinebreakState::BeforeFirst, None) => {
-                    self.state = LinebreakState::AfterLast;
-
-                    Some(Line {
-                        s: &self.s,
-                        has_trailing: false,
-                    })
-                }
-                (LinebreakState::Between, None) => {
-                    self.state = LinebreakState::AfterLast;
-
-                    Some(Line {
-                        s: &self.s[self.pos..],
-                        has_trailing: false,
-                    })
-                }
-                (LinebreakState::Between, Some(next_linebreak)) => {
-                    let range = self.pos..next_linebreak.start;
-                    self.pos = next_linebreak.end;
-
-                    Some(Line {
-                        s: &self.s[range],
-                        has_trailing: next_linebreak.end == self.s.len(),
-                    })
-                }
-                _ => None,
-            }
-        }
-    }
-
-    fn iter_lines<'a>(s: &'a str) -> Lines {
-        Lines {
-            s,
-            pos: 0,
-            state: LinebreakState::BeforeFirst,
-        }
-    }
-
     pub fn indent_vec<'a>(
         segments: impl IntoIterator<Item = String>,
         spaces: u32,
@@ -121,33 +50,53 @@ mod with_color {
         let prefix = get_prefix(spaces as usize);
 
         let mut new_segments = Vec::new();
-        let mut current_line = String::new();
-        let mut is_first_line = true;
+
+        // Whether the next write should be adding indentation.
+        let mut needs_indented = !hanging;
 
         for segment in segments.into_iter() {
             if segment.is_empty() {
+                // This segment is empty, so no need for indentation.
                 new_segments.push(segment);
                 continue;
             }
 
-            let mut new_segment = String::new();
+            let mut pos = 0;
 
-            for line in iter_lines(&segment) {
-                current_line.push_str(line.as_str());
+            // We know that we'll need more than `segment.len()` bytes for the output, but we don't
+            // know exactly how many yet.
+            let mut new_segment = String::with_capacity(segment.len() * 2);
 
-                if line.has_trailing() && !current_line.is_empty() {
-                    if !hanging || !is_first_line {
+            // Iterate over linebreaks (LF or CRLF) in the segment.
+            while let Some(linebreak) = find_linebreak(&segment[pos..]) {
+                if pos == linebreak.start {
+                    // This is a blank line and should not be indented.
+                    new_segment.push('\n');
+                } else {
+                    if needs_indented {
                         new_segment.push_str(&prefix);
                     }
 
-                    is_first_line = false;
-
-                    new_segment.push_str(&current_line);
+                    new_segment.push_str(&segment[pos..linebreak.start]);
                     new_segment.push('\n');
-
-                    current_line.clear();
                 }
+
+                needs_indented = true;
+                pos += linebreak.end;
             }
+
+            if pos < segment.len() - 1 {
+                // There are characters between the last linebreak and the end of the segment.
+                if needs_indented {
+                    new_segment.push_str(&prefix);
+                    needs_indented = false;
+                }
+
+                new_segment.push_str(&segment[pos..]);
+            }
+
+            // We most likely over-allocated.
+            new_segment.shrink_to_fit();
 
             new_segments.push(new_segment);
         }
@@ -192,8 +141,7 @@ pub(super) fn indent<'a>(s: &'a str, spaces: u32, hanging: bool) -> Cow<'a, str>
         result.truncate(result.len() - 1);
     }
 
-    // Unless the string was small and the amount of indentation was large, we most likely
-    // over-allocated.
+    // We most likely over-allocated.
     result.shrink_to_fit();
 
     Cow::Owned(result)
