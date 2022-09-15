@@ -33,9 +33,10 @@ impl Format for AllFailuresFormat {
             ));
             f.reset_style();
 
-            f.set_style(style::bad());
-            f.write_str("<failed>\n");
+            f.set_style(style::failure());
+            f.write_str("FAILED");
             f.reset_style();
+            f.write_char('\n');
 
             f.write_fmt(fail.into_fmt().indented(failure_indent));
             f.write_char('\n');
@@ -71,16 +72,18 @@ impl Format for SomeFailuresFormat {
 
             match maybe_fail {
                 Some(fail) => {
-                    f.set_style(style::good());
-                    f.write_str("<failed>\n");
+                    f.set_style(style::success());
+                    f.write_str("FAILED");
                     f.reset_style();
+                    f.write_char('\n');
 
                     f.write_fmt(fail.into_fmt().indented(failure_indent));
                 }
                 None => {
-                    f.set_style(style::bad());
-                    f.write_str("<matched>\n");
+                    f.set_style(style::failure());
+                    f.write_str("MATCHED");
                     f.reset_style();
+                    f.write_char('\n');
                 }
             }
 

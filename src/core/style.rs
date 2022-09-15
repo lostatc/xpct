@@ -39,9 +39,29 @@ pub fn bad() -> OutputStyle {
     }
 }
 
+pub fn failure() -> OutputStyle {
+    OutputStyle {
+        style: TextStyle::BOLD | TextStyle::UNDERLINE,
+        color: TextColor {
+            fg: Some(TerminalColor::Red),
+            bg: None,
+        },
+    }
+}
+
 pub fn good() -> OutputStyle {
     OutputStyle {
         style: TextStyle::BOLD,
+        color: TextColor {
+            fg: Some(TerminalColor::Green),
+            bg: None,
+        },
+    }
+}
+
+pub fn success() -> OutputStyle {
+    OutputStyle {
+        style: TextStyle::BOLD | TextStyle::UNDERLINE,
         color: TextColor {
             fg: Some(TerminalColor::Green),
             bg: None,
