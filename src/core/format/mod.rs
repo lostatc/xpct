@@ -4,7 +4,8 @@ mod color;
 mod formatter;
 mod formatter_color;
 
-pub mod strings;
+pub(crate) mod strings;
+pub(crate) mod style;
 
 pub use base::{AssertionFormat, Format, OutputStream, ResultFormat};
 

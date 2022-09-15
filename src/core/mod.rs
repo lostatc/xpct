@@ -4,8 +4,6 @@ mod format;
 mod matcher;
 mod result;
 
-pub(super) mod style;
-
 pub use format::*;
 
 pub use matcher::{
