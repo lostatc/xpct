@@ -20,7 +20,7 @@ impl<Expected, Actual> SimpleMatch<Actual> for EqualMatcher<Expected>
 where
     Actual: PartialEq<Expected> + Eq,
 {
-    type Fail = Mismatch<Actual, Expected>;
+    type Fail = Mismatch<Expected, Actual>;
 
     fn matches(&mut self, actual: &Actual) -> anyhow::Result<bool> {
         Ok(actual == &self.expected)
@@ -28,8 +28,8 @@ where
 
     fn fail(self, actual: Actual) -> Self::Fail {
         Mismatch {
-            actual,
-            expected: self.expected,
+            actual: self.expected,
+            expected: actual,
         }
     }
 }
