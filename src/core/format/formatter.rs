@@ -51,14 +51,6 @@ impl FormattedOutput {
         self
     }
 
-    pub fn indented_hanging(mut self, spaces: u32) -> Self {
-        if spaces > 0 {
-            self.buf = indent(&self.buf, spaces, true).into();
-        }
-
-        self
-    }
-
     pub fn print(&self, stream: OutputStream) -> io::Result<()> {
         match stream {
             OutputStream::Stdout => {

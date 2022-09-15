@@ -107,10 +107,6 @@ impl FormattedOutput {
         self.indented_inner(spaces, false)
     }
 
-    pub fn indented_hanging(self, spaces: u32) -> Self {
-        self.indented_inner(spaces, true)
-    }
-
     pub fn print(&self, stream: OutputStream) -> io::Result<()> {
         use termcolor::WriteColor;
 
