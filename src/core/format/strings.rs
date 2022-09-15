@@ -77,7 +77,7 @@ mod with_color {
                         new_segment.push_str(&prefix);
                     }
 
-                    new_segment.push_str(&segment[pos..linebreak.start]);
+                    new_segment.push_str(&segment[pos..pos + linebreak.start]);
                     new_segment.push('\n');
                 }
 
@@ -85,7 +85,7 @@ mod with_color {
                 pos += linebreak.end;
             }
 
-            if pos < segment.len() - 1 {
+            if pos <= segment.len() - 1 {
                 // There are characters between the last linebreak and the end of the segment.
                 if needs_indented {
                     new_segment.push_str(&prefix);
