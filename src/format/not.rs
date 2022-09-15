@@ -27,6 +27,7 @@ impl ResultFormat for FailFormat {
     type Neg = DynMatchFailure;
 }
 
+#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn not<'a, In, PosOut, NegOut>(
     matcher: Matcher<'a, In, PosOut, NegOut>,
 ) -> Matcher<In, NegOut, PosOut>

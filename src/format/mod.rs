@@ -1,4 +1,5 @@
 #![cfg(feature = "fmt")]
+#![cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 
 mod all;
 mod any;
@@ -8,10 +9,20 @@ mod none;
 mod not;
 mod why;
 
-pub use all::{all, AllFormat};
-pub use any::{any, AllFailuresFormat, AnyFormat, SomeFailuresFormat};
-pub use each::{each, EachFormat};
-pub use equal::{equal, EqualFormat};
-pub use none::{none, NoneFormat};
-pub use not::{not, FailFormat};
-pub use why::{why, why_lazy, WhyFormat};
+pub use all::AllFormat;
+pub use any::{AllFailuresFormat, AnyFormat, SomeFailuresFormat};
+pub use each::EachFormat;
+pub use equal::EqualFormat;
+pub use none::NoneFormat;
+pub use not::FailFormat;
+pub use why::WhyFormat;
+
+pub(crate) mod matchers {
+    pub use super::all::all;
+    pub use super::any::any;
+    pub use super::each::each;
+    pub use super::equal::equal;
+    pub use super::none::none;
+    pub use super::not::not;
+    pub use super::why::{why, why_lazy};
+}

@@ -108,6 +108,7 @@ impl ResultFormat for AnyFormat {
     type Neg = SomeFailures;
 }
 
+#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn any<'a, T>(block: impl Fn(&mut AnyContext<T>) + 'a) -> Matcher<'a, T, T>
 where
     T: 'a,

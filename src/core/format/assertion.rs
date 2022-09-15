@@ -1,8 +1,6 @@
-#![cfg(feature = "fmt")]
-
 use std::convert::Infallible;
 
-use super::{strings::indent, AssertionFormat, Format, Formatter};
+use super::{strings, AssertionFormat, Format, Formatter};
 use crate::core::{style, AssertionContext, AssertionFailure, MatchError};
 
 #[derive(Debug, Default)]
@@ -36,9 +34,11 @@ impl Format for DefaultAssertionFormat {
 
         match value.error {
             MatchError::Fail(fail) => f.write_fmt(fail.into_fmt().indented(style::indent_len())),
-            MatchError::Err(error) => {
-                f.write_str(&indent(&error.to_string(), style::indent_len(), false))
-            }
+            MatchError::Err(error) => f.write_str(&strings::indent(
+                &error.to_string(),
+                style::indent_len(),
+                false,
+            )),
         }
 
         f.write_char('\n');

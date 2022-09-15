@@ -27,6 +27,7 @@ impl ResultFormat for AllFormat {
     type Neg = Infallible;
 }
 
+#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn all<'a, In, Out>(
     block: impl FnOnce(AllAssertion<In>) -> Result<AllAssertion<Out>, MatchError> + 'a,
 ) -> PosMatcher<'a, In, Out>

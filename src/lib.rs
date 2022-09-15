@@ -1,3 +1,5 @@
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 pub mod core;
 pub mod matchers;
 
@@ -5,4 +7,4 @@ pub mod matchers;
 pub mod format;
 
 #[cfg(feature = "fmt")]
-pub use format::{all, any, each, equal, none, not, why};
+pub use format::matchers::*;

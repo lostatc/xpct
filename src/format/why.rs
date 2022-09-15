@@ -73,6 +73,7 @@ impl<'a> ResultFormat for WhyFormat<'a> {
     type Neg = DynMatchFailure;
 }
 
+#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn why<'a, In, PosOut, NegOut>(
     matcher: Matcher<'a, In, PosOut, NegOut>,
     reason: impl Into<Cow<'a, str>>,
@@ -85,6 +86,7 @@ where
     Matcher::new(WhyMatcher::new(matcher), WhyFormat::new(reason))
 }
 
+#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn why_lazy<'a, In, PosOut, NegOut>(
     matcher: Matcher<'a, In, PosOut, NegOut>,
     reason: impl FnOnce() -> Cow<'a, str> + 'a,

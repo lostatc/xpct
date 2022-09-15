@@ -27,6 +27,7 @@ impl ResultFormat for NoneFormat {
     type Neg = Infallible;
 }
 
+#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn none<'a, In, Out>(
     block: impl FnOnce(NoneAssertion<In>) -> Result<NoneAssertion<Out>, MatchError> + 'a,
 ) -> PosMatcher<'a, In, Out>

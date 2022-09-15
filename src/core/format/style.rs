@@ -1,4 +1,4 @@
-#![cfg(feature = "fmt")]
+#![allow(dead_code)]
 
 use super::{OutputStyle, TerminalColor, TextColor, TextStyle};
 

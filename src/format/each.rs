@@ -22,6 +22,7 @@ impl ResultFormat for EachFormat {
     type Neg = ();
 }
 
+#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn each<'a, T>(
     block: impl FnOnce(&mut EachContext<T>) -> Result<(), MatchError> + 'a,
 ) -> Matcher<'a, T, T>
