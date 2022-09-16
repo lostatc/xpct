@@ -1,8 +1,6 @@
 use std::fmt;
 
-use crate::core::{
-    DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchNeg, MatchPos, MatchResult,
-};
+use crate::core::{DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchPos, MatchResult};
 
 pub type AllFailures = Vec<DynMatchFailure>;
 
@@ -228,31 +226,6 @@ impl<'a, T> MatchPos for AnyMatcher<'a, T> {
                             .filter_map(std::convert::identity)
                             .collect(),
                     ))
-                }
-            }
-            AnyAssertionState::Err(error) => Err(error),
-        }
-    }
-}
-
-impl<'a, T> MatchNeg for AnyMatcher<'a, T> {
-    type NegOut = T;
-    type NegFail = SomeFailures;
-
-    fn match_neg(
-        self,
-        actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>> {
-        let mut ctx = AnyContext::new(actual);
-
-        (self.0)(&mut ctx);
-
-        match ctx.state {
-            AnyAssertionState::Ok(failures) => {
-                if failures.iter().any(Option::is_none) {
-                    Ok(MatchResult::Fail(failures))
-                } else {
-                    Ok(MatchResult::Success(ctx.value))
                 }
             }
             AnyAssertionState::Err(error) => Err(error),

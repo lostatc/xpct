@@ -5,15 +5,13 @@ mod all;
 mod any;
 mod each;
 mod equal;
-mod none;
 mod not;
 mod why;
 
 pub use all::AllFormat;
-pub use any::{AllFailuresFormat, AnyFormat, SomeFailuresFormat};
-pub use each::EachFormat;
+pub use any::{AllFailuresFormat, AnyFormat};
+pub use each::{EachFormat, SomeFailuresFormat};
 pub use equal::EqualFormat;
-pub use none::NoneFormat;
 pub use not::FailFormat;
 pub use why::WhyFormat;
 
@@ -22,7 +20,6 @@ pub(crate) mod matchers {
     pub use super::any::any;
     pub use super::each::each;
     pub use super::equal::equal;
-    pub use super::none::none;
     pub use super::not::not;
     pub use super::why::{why, why_lazy};
 }

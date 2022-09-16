@@ -1,35 +1,62 @@
-use crate::core::{
-    DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchError, MatchNeg, MatchPos,
-    MatchResult,
-};
+use std::any::type_name;
 use std::fmt;
 
+use crate::core::{DynMatchNeg, DynMatchPos, MatchBase, MatchPos, MatchResult};
+
+use super::SomeFailures;
+
 #[derive(Debug)]
-struct BaseEachAssertion<T> {
-    value: T,
+enum EachAssertionState {
+    Ok(SomeFailures),
+    Err(anyhow::Error),
 }
 
-impl<T> BaseEachAssertion<T> {
-    fn new(value: T) -> Self {
-        Self { value }
+impl EachAssertionState {
+    fn new() -> Self {
+        Self::Ok(Vec::new())
+    }
+}
+
+#[derive(Debug)]
+struct BaseEachAssertion<'a, T> {
+    value: T,
+    state: &'a mut EachAssertionState,
+}
+
+impl<'a, T> BaseEachAssertion<'a, T> {
+    fn new(value: T, state: &'a mut EachAssertionState) -> Self {
+        Self { value, state }
     }
 
-    fn to<Out>(self, matcher: impl DynMatchPos<In = T, PosOut = Out>) -> Result<(), MatchError> {
-        match Box::new(matcher).match_pos(self.value) {
-            Ok(MatchResult::Success(_)) => Ok(()),
-            Ok(MatchResult::Fail(fail)) => Err(MatchError::Fail(fail)),
-            Err(error) => Err(MatchError::Err(error)),
+    fn to<Out>(self, matcher: impl DynMatchPos<In = T, PosOut = Out>) {
+        if let EachAssertionState::Ok(failures) = self.state {
+            match Box::new(matcher).match_pos(self.value) {
+                Ok(MatchResult::Success(_)) => {
+                    failures.push(None);
+                }
+                Ok(MatchResult::Fail(result)) => {
+                    failures.push(Some(result));
+                }
+                Err(error) => {
+                    *self.state = EachAssertionState::Err(error);
+                }
+            }
         }
     }
 
-    fn to_not<Out>(
-        self,
-        matcher: impl DynMatchNeg<In = T, NegOut = Out>,
-    ) -> Result<(), MatchError> {
-        match Box::new(matcher).match_neg(self.value) {
-            Ok(MatchResult::Success(_)) => Ok(()),
-            Ok(MatchResult::Fail(fail)) => Err(MatchError::Fail(fail)),
-            Err(error) => Err(MatchError::Err(error)),
+    fn to_not<Out>(self, matcher: impl DynMatchNeg<In = T, NegOut = Out>) {
+        if let EachAssertionState::Ok(failures) = self.state {
+            match Box::new(matcher).match_neg(self.value) {
+                Ok(MatchResult::Success(_)) => {
+                    failures.push(None);
+                }
+                Ok(MatchResult::Fail(result)) => {
+                    failures.push(Some(result));
+                }
+                Err(error) => {
+                    *self.state = EachAssertionState::Err(error);
+                }
+            }
         }
     }
 }
@@ -37,77 +64,99 @@ impl<T> BaseEachAssertion<T> {
 #[derive(Debug)]
 pub struct ByRefEachAssertion<'a, T> {
     value: &'a T,
+    state: &'a mut EachAssertionState,
 }
 
 impl<'a, T> ByRefEachAssertion<'a, T>
 where
     T: 'a,
 {
-    pub fn to(self, matcher: impl DynMatchPos<In = &'a T>) -> Result<Self, MatchError> {
-        BaseEachAssertion::new(self.value).to(matcher)?;
-        Ok(self)
+    pub fn to(self, matcher: impl DynMatchPos<In = &'a T>) -> Self {
+        let assertion = BaseEachAssertion::new(self.value, self.state);
+        assertion.to(matcher);
+        self
     }
 
-    pub fn to_not(self, matcher: impl DynMatchNeg<In = &'a T>) -> Result<Self, MatchError> {
-        BaseEachAssertion::new(self.value).to_not(matcher)?;
-        Ok(self)
+    pub fn to_not(self, matcher: impl DynMatchNeg<In = &'a T>) -> Self {
+        let assertion = BaseEachAssertion::new(self.value, self.state);
+        assertion.to_not(matcher);
+        self
     }
+
+    pub fn done(self) {}
 }
 
 #[derive(Debug)]
-pub struct CopiedEachAssertion<T> {
+pub struct CopiedEachAssertion<'a, T> {
     value: T,
+    state: &'a mut EachAssertionState,
 }
 
-impl<T> CopiedEachAssertion<T>
+impl<'a, T> CopiedEachAssertion<'a, T>
 where
-    T: Copy,
+    T: Copy + 'a,
 {
-    pub fn to(self, matcher: impl DynMatchPos<In = T>) -> Result<Self, MatchError> {
-        BaseEachAssertion::new(self.value).to(matcher)?;
-        Ok(self)
+    pub fn to(self, matcher: impl DynMatchPos<In = T>) -> Self {
+        let assertion = BaseEachAssertion::new(self.value, self.state);
+        assertion.to(matcher);
+        self
     }
 
-    pub fn to_not(self, matcher: impl DynMatchNeg<In = T>) -> Result<Self, MatchError> {
-        BaseEachAssertion::new(self.value).to_not(matcher)?;
-        Ok(self)
+    pub fn to_not(self, matcher: impl DynMatchNeg<In = T>) -> Self {
+        let assertion = BaseEachAssertion::new(self.value, self.state);
+        assertion.to_not(matcher);
+        self
     }
+
+    pub fn done(self) {}
 }
 
 #[derive(Debug)]
-pub struct ClonedEachAssertion<T> {
+pub struct ClonedEachAssertion<'a, T> {
     value: T,
+    state: &'a mut EachAssertionState,
 }
 
-impl<T> ClonedEachAssertion<T>
+impl<'a, T> ClonedEachAssertion<'a, T>
 where
-    T: Clone,
+    T: Clone + 'a,
 {
-    pub fn to(self, matcher: impl DynMatchPos<In = T>) -> Result<Self, MatchError> {
-        BaseEachAssertion::new(self.value.clone()).to(matcher)?;
-        Ok(self)
+    pub fn to(self, matcher: impl DynMatchPos<In = T>) -> Self {
+        let assertion = BaseEachAssertion::new(self.value.clone(), self.state);
+        assertion.to(matcher);
+        self
     }
 
-    pub fn to_not(self, matcher: impl DynMatchNeg<In = T>) -> Result<Self, MatchError> {
-        BaseEachAssertion::new(self.value.clone()).to_not(matcher)?;
-        Ok(self)
+    pub fn to_not(self, matcher: impl DynMatchNeg<In = T>) -> Self {
+        let assertion = BaseEachAssertion::new(self.value.clone(), self.state);
+        assertion.to_not(matcher);
+        self
     }
+
+    pub fn done(self) {}
 }
 
 #[derive(Debug)]
 pub struct EachContext<T> {
     value: T,
+    state: EachAssertionState,
 }
 
 impl<T> EachContext<T> {
     fn new(value: T) -> Self {
-        EachContext { value }
+        EachContext {
+            value,
+            state: EachAssertionState::new(),
+        }
     }
 }
 
 impl<T> EachContext<T> {
     pub fn by_ref(&mut self) -> ByRefEachAssertion<T> {
-        ByRefEachAssertion { value: &self.value }
+        ByRefEachAssertion {
+            value: &self.value,
+            state: &mut self.state,
+        }
     }
 }
 
@@ -116,7 +165,10 @@ where
     T: Copy,
 {
     pub fn copied(&mut self) -> CopiedEachAssertion<T> {
-        CopiedEachAssertion { value: self.value }
+        CopiedEachAssertion {
+            value: self.value,
+            state: &mut self.state,
+        }
     }
 }
 
@@ -127,20 +179,23 @@ where
     pub fn cloned(&mut self) -> ClonedEachAssertion<T> {
         ClonedEachAssertion {
             value: self.value.clone(),
+            state: &mut self.state,
         }
     }
 }
 
-pub struct EachMatcher<'a, T>(Box<dyn FnOnce(&mut EachContext<T>) -> Result<(), MatchError> + 'a>);
+pub struct EachMatcher<'a, T>(Box<dyn FnOnce(&mut EachContext<T>) + 'a>);
 
 impl<'a, T> fmt::Debug for EachMatcher<'a, T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_tuple("EachMatcher").finish()
+        f.debug_tuple("EachMatcher")
+            .field(&type_name::<Box<dyn FnOnce(&mut EachContext<T>) + 'a>>())
+            .finish()
     }
 }
 
 impl<'a, T> EachMatcher<'a, T> {
-    pub fn new(block: impl FnOnce(&mut EachContext<T>) -> Result<(), MatchError> + 'a) -> Self {
+    pub fn new(block: impl FnOnce(&mut EachContext<T>) + 'a) -> Self {
         Self(Box::new(block))
     }
 }
@@ -151,7 +206,7 @@ impl<'a, T> MatchBase for EachMatcher<'a, T> {
 
 impl<'a, T> MatchPos for EachMatcher<'a, T> {
     type PosOut = T;
-    type PosFail = DynMatchFailure;
+    type PosFail = SomeFailures;
 
     fn match_pos(
         self,
@@ -159,28 +214,17 @@ impl<'a, T> MatchPos for EachMatcher<'a, T> {
     ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
         let mut ctx = EachContext::new(actual);
 
-        match (self.0)(&mut ctx) {
-            Ok(_) => Ok(MatchResult::Success(ctx.value)),
-            Err(MatchError::Fail(fail)) => Ok(MatchResult::Fail(fail)),
-            Err(MatchError::Err(error)) => Err(error),
-        }
-    }
-}
+        (self.0)(&mut ctx);
 
-impl<'a, T> MatchNeg for EachMatcher<'a, T> {
-    type NegOut = T;
-    type NegFail = ();
-
-    fn match_neg(
-        self,
-        actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>> {
-        let mut ctx = EachContext::new(actual);
-
-        match (self.0)(&mut ctx) {
-            Ok(_) => Ok(MatchResult::Fail(())),
-            Err(MatchError::Fail(_)) => Ok(MatchResult::Success(ctx.value)),
-            Err(MatchError::Err(error)) => Err(error),
+        match ctx.state {
+            EachAssertionState::Ok(failures) => {
+                if failures.iter().any(Option::is_none) {
+                    Ok(MatchResult::Fail(failures))
+                } else {
+                    Ok(MatchResult::Success(ctx.value))
+                }
+            }
+            EachAssertionState::Err(error) => Err(error),
         }
     }
 }
