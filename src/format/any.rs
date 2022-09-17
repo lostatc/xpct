@@ -32,7 +32,7 @@ impl Format for AllFailuresFormat {
             f.reset_style();
 
             f.set_style(style::failure());
-            f.write_str("FAILED");
+            f.write_str(style::FAILED_MSG);
             f.reset_style();
             f.write_char('\n');
 
@@ -68,7 +68,7 @@ where
 
         match value {
             MatchFailure::Pos(fail) => {
-                f.write_fmt(FormattedOutput::new(fail, self.inner)?.indented(style::indent_len()))
+                f.write_fmt(FormattedOutput::new(fail, self.inner)?.indented(style::indent_len(1)))
             }
             MatchFailure::Neg(_) => unreachable!(),
         };

@@ -30,10 +30,10 @@ impl Format for DefaultAssertionFormat {
         f.reset_style();
 
         match value.error {
-            MatchError::Fail(fail) => f.write_fmt(fail.into_fmt().indented(style::indent_len())),
+            MatchError::Fail(fail) => f.write_fmt(fail.into_fmt().indented(style::indent_len(1))),
             MatchError::Err(error) => f.write_str(&strings::indent(
                 &error.to_string(),
-                style::indent_len(),
+                style::indent_len(1),
                 false,
             )),
         }

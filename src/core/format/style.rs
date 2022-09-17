@@ -1,15 +1,20 @@
 #![allow(dead_code)]
 
-use super::{Color, OutputStyle, TextColor, TextStyle};
+use std::borrow::Cow;
+
+use super::{strings, Color, OutputStyle, TextColor, TextStyle};
 
 pub const INFO_SYMBOL: &'static str = "\u{1f6c8}";
+pub const MATCHED_MSG: &'static str = "MATCHED";
+pub const FAILED_MSG: &'static str = "FAILED";
+pub const INDENT_LEN: u32 = 4;
 
-pub const fn indent() -> &'static str {
-    "    "
+pub fn indent(levels: u32) -> Cow<'static, str> {
+    strings::whitespace((INDENT_LEN * levels) as usize)
 }
 
-pub const fn indent_len() -> u32 {
-    indent().len() as u32
+pub fn indent_len(levels: u32) -> u32 {
+    INDENT_LEN * levels
 }
 
 pub fn important() -> OutputStyle {

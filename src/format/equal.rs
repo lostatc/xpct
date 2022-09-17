@@ -37,26 +37,26 @@ where
                 f.write_str("Expected:\n");
 
                 f.set_style(style::bad());
-                f.write_str(format!("{}{:?}\n", style::indent(), mismatch.expected));
+                f.write_str(format!("{}{:?}\n", style::indent(1), mismatch.expected));
 
                 f.set_style(style::important());
                 f.write_str("to equal:\n");
 
                 f.set_style(style::bad());
-                f.write_str(format!("{}{:?}\n", style::indent(), mismatch.actual));
+                f.write_str(format!("{}{:?}\n", style::indent(1), mismatch.actual));
             }
             MatchFailure::Neg(mismatch) => {
                 f.set_style(style::important());
                 f.write_str("Expected:\n");
 
                 f.set_style(style::bad());
-                f.write_str(format!("{}{:?}\n", style::indent(), mismatch.expected));
+                f.write_str(format!("{}{:?}\n", style::indent(1), mismatch.expected));
 
                 f.set_style(style::important());
                 f.write_str("to not equal:\n");
 
                 f.set_style(style::bad());
-                f.write_str(format!("{}{:?}\n", style::indent(), mismatch.actual));
+                f.write_str(format!("{}{:?}\n", style::indent(1), mismatch.actual));
             }
         }
 
