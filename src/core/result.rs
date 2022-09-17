@@ -137,13 +137,17 @@ impl std::error::Error for MatchError {
 #[macro_export]
 macro_rules! success {
     ($success:expr) => {
-        return std::result::Result::Ok($crate::MatchResult::Success($success.into()))
+        return ::std::result::Result::Ok($crate::core::MatchResult::Success(
+            ::std::convert::Into::into($success),
+        ))
     };
 }
 
 #[macro_export]
 macro_rules! fail {
     ($fail:expr) => {
-        return std::result::Result::Ok($crate::MatchResult::Fail($fail.into()))
+        return ::std::result::Result::Ok($crate::core::MatchResult::Fail(
+            ::std::convert::Into::into($fail),
+        ))
     };
 }

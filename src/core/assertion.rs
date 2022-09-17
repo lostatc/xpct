@@ -103,8 +103,9 @@ where
 macro_rules! expect {
     ($actual:expr) => {
         $crate::core::expect::<_, $crate::core::DefaultAssertionFormat>($actual).with_ctx(|ctx| {
-            ctx.expr = Some(String::from(stringify!($actual)));
-            ctx.location = Some($crate::file_location!());
+            ctx.expr =
+                ::std::option::Option::Some(::std::string::String::from(stringify!($actual)));
+            ctx.location = ::std::option::Option::Some($crate::file_location!());
         })
     };
 }

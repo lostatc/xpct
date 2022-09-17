@@ -16,7 +16,7 @@ pub struct AssertionContext {
 macro_rules! file_location {
     () => {
         $crate::core::FileLocation {
-            file: String::from(file!()),
+            file: ::std::string::String::from(file!()),
             line: line!(),
             column: column!(),
         }

@@ -84,12 +84,12 @@ macro_rules! fields {
         }
     ) => {
         |input: $struct_type| {
-            Ok(std::collections::HashMap::from([$(
+            ::std::result::Result::Ok(::std::collections::HashMap::from([$(
                 (
                     stringify!($field_name),
-                    match $crate::core::DynMatchPos::match_pos(Box::new($matcher), input.$field_name)? {
-                        $crate::core::MatchResult::Success(_) => None,
-                        $crate::core::MatchResult::Fail(fail) => Some(fail),
+                    match $crate::core::DynMatchPos::match_pos(::std::boxed::Box::new($matcher), input.$field_name)? {
+                        $crate::core::MatchResult::Success(_) => ::std::option::Option::None,
+                        $crate::core::MatchResult::Fail(fail) => ::std::option::Option::Some(fail),
                     },
                 ),
             )+]))
