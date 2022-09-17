@@ -1,4 +1,4 @@
-use crate::core::{DynMatchFailure, Format, Formatter, MatchFailure, Matcher, ResultFormat};
+use crate::core::{DynMatchFailure, Format, Formatter, MatchFailure, Matcher};
 use crate::matchers::NotMatcher;
 
 #[non_exhaustive]
@@ -24,11 +24,6 @@ impl Format for FailFormat {
 
         Ok(())
     }
-}
-
-impl ResultFormat for FailFormat {
-    type Pos = DynMatchFailure;
-    type Neg = DynMatchFailure;
 }
 
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]

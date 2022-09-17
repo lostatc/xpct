@@ -1,8 +1,6 @@
 use std::convert::Infallible;
 
-use crate::core::{
-    strings, style, Format, FormattedOutput, Formatter, MatchFailure, PosMatcher, ResultFormat,
-};
+use crate::core::{strings, style, Format, FormattedOutput, Formatter, MatchFailure, PosMatcher};
 use crate::matchers::{AllFailures, AnyContext, AnyMatcher};
 
 #[non_exhaustive]
@@ -75,14 +73,6 @@ where
 
         Ok(())
     }
-}
-
-impl<Fmt> ResultFormat for AnyFormat<Fmt>
-where
-    Fmt: Format<Value = AllFailures>,
-{
-    type Pos = AllFailures;
-    type Neg = Infallible;
 }
 
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]

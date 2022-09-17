@@ -1,8 +1,6 @@
 use std::convert::Infallible;
 
-use crate::core::{
-    DynMatchFailure, Format, Formatter, MatchError, MatchFailure, PosMatcher, ResultFormat,
-};
+use crate::core::{DynMatchFailure, Format, Formatter, MatchError, MatchFailure, PosMatcher};
 use crate::matchers::{AllAssertion, AllMatcher};
 
 #[non_exhaustive]
@@ -26,11 +24,6 @@ impl Format for AllFormat {
 
         Ok(())
     }
-}
-
-impl ResultFormat for AllFormat {
-    type Pos = DynMatchFailure;
-    type Neg = Infallible;
 }
 
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]

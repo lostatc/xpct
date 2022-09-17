@@ -1,4 +1,4 @@
-use super::{strings, AssertionFormat, Format, Formatter};
+use super::{strings, Format, Formatter};
 use crate::core::{style, AssertionContext, AssertionFailure, MatchError};
 
 #[derive(Debug, Default)]
@@ -42,8 +42,4 @@ impl Format for DefaultAssertionFormat {
 
         Ok(())
     }
-}
-
-impl AssertionFormat for DefaultAssertionFormat {
-    type Context = AssertionContext;
 }

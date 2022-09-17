@@ -1,9 +1,7 @@
 use std::any::type_name;
 use std::convert::Infallible;
 
-use crate::core::{
-    style, Format, FormattedOutput, Formatter, MatchFailure, PosMatcher, ResultFormat,
-};
+use crate::core::{style, Format, FormattedOutput, Formatter, MatchFailure, PosMatcher};
 use crate::matchers::{ByFieldMatcher, ByMatchMode, FailuresByField};
 
 #[derive(Debug)]
@@ -92,14 +90,6 @@ where
 
         Ok(())
     }
-}
-
-impl<Fmt> ResultFormat for ByFieldMatcherFormat<Fmt>
-where
-    Fmt: Format<Value = FailuresByField>,
-{
-    type Pos = FailuresByField;
-    type Neg = Infallible;
 }
 
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]

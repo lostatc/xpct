@@ -1,7 +1,7 @@
 use std::fmt;
 use std::marker::PhantomData;
 
-use crate::core::{style, Format, Formatter, MatchFailure, Matcher, ResultFormat};
+use crate::core::{style, Format, Formatter, MatchFailure, Matcher};
 use crate::matchers::{EqualMatcher, Mismatch};
 
 #[derive(Debug)]
@@ -62,15 +62,6 @@ where
 
         Ok(())
     }
-}
-
-impl<Actual, Expected> ResultFormat for EqualFormat<Actual, Expected>
-where
-    Actual: fmt::Debug,
-    Expected: fmt::Debug,
-{
-    type Pos = Mismatch<Actual, Expected>;
-    type Neg = Mismatch<Actual, Expected>;
 }
 
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]

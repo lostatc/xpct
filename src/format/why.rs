@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 use std::fmt;
 
-use crate::core::{style, DynMatchFailure, Format, Formatter, MatchFailure, Matcher, ResultFormat};
+use crate::core::{style, DynMatchFailure, Format, Formatter, MatchFailure, Matcher};
 
 enum WhyFormatReason<'a> {
     Eager(Cow<'a, str>),
@@ -63,11 +63,6 @@ impl<'a> Format for WhyFormat<'a> {
 
         Ok(())
     }
-}
-
-impl<'a> ResultFormat for WhyFormat<'a> {
-    type Pos = DynMatchFailure;
-    type Neg = DynMatchFailure;
 }
 
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]

@@ -1,4 +1,4 @@
-use crate::core::{style, Format, MatchFailure, Matcher, ResultFormat};
+use crate::core::{style, Format, MatchFailure, Matcher};
 use crate::matchers::{BeFalseMatcher, BeTrueMatcher};
 
 #[non_exhaustive]
@@ -26,11 +26,6 @@ impl Format for BeTrueFormat {
     }
 }
 
-impl ResultFormat for BeTrueFormat {
-    type Pos = ();
-    type Neg = ();
-}
-
 #[non_exhaustive]
 #[derive(Debug, Default)]
 pub struct BeFalseFormat;
@@ -54,11 +49,6 @@ impl Format for BeFalseFormat {
 
         Ok(())
     }
-}
-
-impl ResultFormat for BeFalseFormat {
-    type Pos = ();
-    type Neg = ();
 }
 
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
