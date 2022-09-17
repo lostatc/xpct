@@ -1,9 +1,7 @@
 use std::borrow::Cow;
-use std::convert::Infallible;
 use std::fmt;
 
 use crate::core::{style, DynMatchFailure, Format, Formatter, MatchFailure, Matcher, ResultFormat};
-use crate::matchers::WhyMatcher;
 
 enum WhyFormatReason<'a> {
     Eager(Cow<'a, str>),
@@ -43,9 +41,8 @@ impl<'a> WhyFormat<'a> {
 
 impl<'a> Format for WhyFormat<'a> {
     type Value = MatchFailure<DynMatchFailure>;
-    type Error = Infallible;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
         f.set_style(style::info());
         f.write_str(style::INFO_SYMBOL);
         f.write_str(" ");
@@ -83,7 +80,7 @@ where
     PosOut: 'a,
     NegOut: 'a,
 {
-    Matcher::new(WhyMatcher::new(matcher), WhyFormat::new(reason))
+    Matcher::wrap(matcher, WhyFormat::new(reason))
 }
 
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
@@ -96,5 +93,5 @@ where
     PosOut: 'a,
     NegOut: 'a,
 {
-    Matcher::new(WhyMatcher::new(matcher), WhyFormat::lazy(reason))
+    Matcher::wrap(matcher, WhyFormat::lazy(reason))
 }

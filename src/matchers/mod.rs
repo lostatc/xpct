@@ -3,7 +3,6 @@ mod any;
 mod each;
 mod equal;
 mod not;
-mod why;
 
 pub use all::{AllAssertion, AllMatcher};
 pub use any::{
@@ -15,4 +14,3 @@ pub use each::{
 };
 pub use equal::{EqualMatcher, Mismatch};
 pub use not::NotMatcher;
-pub use why::WhyMatcher;

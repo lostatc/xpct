@@ -3,6 +3,7 @@ mod context;
 mod format;
 mod matcher;
 mod result;
+mod wrap;
 
 pub use format::*;
 

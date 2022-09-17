@@ -47,7 +47,7 @@ impl DynMatchFailure {
     pub fn new<Fmt, PosFail, NegFail>(
         fail: MatchFailure<PosFail, NegFail>,
         format: Fmt,
-    ) -> Result<Self, Fmt::Error>
+    ) -> anyhow::Result<Self>
     where
         Fmt: ResultFormat<Pos = PosFail, Neg = NegFail>,
     {

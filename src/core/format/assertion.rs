@@ -1,5 +1,3 @@
-use std::convert::Infallible;
-
 use super::{strings, AssertionFormat, Format, Formatter};
 use crate::core::{style, AssertionContext, AssertionFailure, MatchError};
 
@@ -8,9 +6,8 @@ pub struct DefaultAssertionFormat;
 
 impl Format for DefaultAssertionFormat {
     type Value = AssertionFailure<AssertionContext>;
-    type Error = Infallible;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
         f.write_char('\n');
         f.set_style(style::info());
 

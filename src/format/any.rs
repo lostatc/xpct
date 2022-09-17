@@ -5,13 +5,20 @@ use crate::core::{
 };
 use crate::matchers::{AllFailures, AnyContext, AnyMatcher};
 
+#[non_exhaustive]
+#[derive(Debug, Default)]
 pub struct AllFailuresFormat;
+
+impl AllFailuresFormat {
+    pub fn new() -> Self {
+        Self
+    }
+}
 
 impl Format for AllFailuresFormat {
     type Value = AllFailures;
-    type Error = Infallible;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
         let num_failures = value.len();
         let failure_indent = strings::int_len(num_failures, 10) + 4;
 
@@ -37,22 +44,32 @@ impl Format for AllFailuresFormat {
     }
 }
 
-#[derive(Debug)]
-pub struct AnyFormat;
+#[derive(Debug, Default)]
+pub struct AnyFormat<Fmt> {
+    inner: Fmt,
+}
 
-impl Format for AnyFormat {
+impl<Fmt> AnyFormat<Fmt> {
+    pub fn new(inner: Fmt) -> Self {
+        Self { inner }
+    }
+}
+
+impl<Fmt> Format for AnyFormat<Fmt>
+where
+    Fmt: Format<Value = AllFailures>,
+{
     type Value = MatchFailure<AllFailures, Infallible>;
-    type Error = Infallible;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
         f.set_style(style::important());
         f.write_str("Expected at least one of these to match:\n");
         f.reset_style();
 
         match value {
-            MatchFailure::Pos(fail) => f.write_fmt(
-                FormattedOutput::new(fail, AllFailuresFormat)?.indented(style::indent_len()),
-            ),
+            MatchFailure::Pos(fail) => {
+                f.write_fmt(FormattedOutput::new(fail, self.inner)?.indented(style::indent_len()))
+            }
             MatchFailure::Neg(_) => unreachable!(),
         };
 
@@ -60,7 +77,10 @@ impl Format for AnyFormat {
     }
 }
 
-impl ResultFormat for AnyFormat {
+impl<Fmt> ResultFormat for AnyFormat<Fmt>
+where
+    Fmt: Format<Value = AllFailures>,
+{
     type Pos = AllFailures;
     type Neg = Infallible;
 }
@@ -70,5 +90,8 @@ pub fn any<'a, T>(block: impl Fn(&mut AnyContext<T>) + 'a) -> PosMatcher<'a, T, 
 where
     T: 'a,
 {
-    PosMatcher::new(AnyMatcher::new(block), AnyFormat)
+    PosMatcher::new(
+        AnyMatcher::new(block),
+        AnyFormat::<AllFailuresFormat>::default(),
+    )
 }

@@ -1,16 +1,20 @@
-use std::convert::Infallible;
-
 use crate::core::{DynMatchFailure, Format, Formatter, MatchFailure, Matcher, ResultFormat};
 use crate::matchers::NotMatcher;
 
-#[derive(Debug)]
+#[non_exhaustive]
+#[derive(Debug, Default)]
 pub struct FailFormat;
+
+impl FailFormat {
+    pub fn new() -> Self {
+        Self
+    }
+}
 
 impl Format for FailFormat {
     type Value = MatchFailure<DynMatchFailure>;
-    type Error = Infallible;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
         let fail = match value {
             MatchFailure::Pos(fail) => fail,
             MatchFailure::Neg(fail) => fail,
@@ -36,5 +40,5 @@ where
     PosOut: 'a,
     NegOut: 'a,
 {
-    Matcher::new(NotMatcher::new(matcher), FailFormat)
+    Matcher::new(NotMatcher::new(matcher), FailFormat::new())
 }

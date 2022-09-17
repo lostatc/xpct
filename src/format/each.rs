@@ -5,13 +5,20 @@ use crate::core::{
 };
 use crate::matchers::{EachContext, EachMatcher, SomeFailures};
 
+#[non_exhaustive]
+#[derive(Debug, Default)]
 pub struct SomeFailuresFormat;
+
+impl SomeFailuresFormat {
+    pub fn new() -> Self {
+        Self
+    }
+}
 
 impl Format for SomeFailuresFormat {
     type Value = SomeFailures;
-    type Error = Infallible;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
         let num_failures = value.len();
         let failure_indent = strings::int_len(num_failures, 10) + 4;
 
@@ -48,22 +55,32 @@ impl Format for SomeFailuresFormat {
     }
 }
 
-#[derive(Debug)]
-pub struct EachFormat;
+#[derive(Debug, Default)]
+pub struct EachFormat<Fmt> {
+    inner: Fmt,
+}
 
-impl Format for EachFormat {
+impl<Fmt> EachFormat<Fmt> {
+    pub fn new(inner: Fmt) -> Self {
+        Self { inner }
+    }
+}
+
+impl<Fmt> Format for EachFormat<Fmt>
+where
+    Fmt: Format<Value = SomeFailures>,
+{
     type Value = MatchFailure<SomeFailures, Infallible>;
-    type Error = Infallible;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
         f.set_style(style::important());
         f.write_str("Expected all of these to match:\n");
         f.reset_style();
 
         match value {
-            MatchFailure::Pos(fail) => f.write_fmt(
-                FormattedOutput::new(fail, SomeFailuresFormat)?.indented(style::indent_len()),
-            ),
+            MatchFailure::Pos(fail) => {
+                f.write_fmt(FormattedOutput::new(fail, self.inner)?.indented(style::indent_len()))
+            }
             MatchFailure::Neg(_) => unreachable!(),
         };
 
@@ -71,7 +88,10 @@ impl Format for EachFormat {
     }
 }
 
-impl ResultFormat for EachFormat {
+impl<Fmt> ResultFormat for EachFormat<Fmt>
+where
+    Fmt: Format<Value = SomeFailures>,
+{
     type Pos = SomeFailures;
     type Neg = Infallible;
 }
@@ -81,5 +101,8 @@ pub fn each<'a, T>(block: impl FnOnce(&mut EachContext<T>) + 'a) -> PosMatcher<'
 where
     T: 'a,
 {
-    PosMatcher::new(EachMatcher::new(block), EachFormat)
+    PosMatcher::new(
+        EachMatcher::new(block),
+        EachFormat::<SomeFailuresFormat>::default(),
+    )
 }

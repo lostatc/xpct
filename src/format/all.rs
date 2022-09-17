@@ -5,14 +5,20 @@ use crate::core::{
 };
 use crate::matchers::{AllAssertion, AllMatcher};
 
-#[derive(Debug)]
+#[non_exhaustive]
+#[derive(Debug, Default)]
 pub struct AllFormat;
+
+impl AllFormat {
+    pub fn new() -> Self {
+        Self
+    }
+}
 
 impl Format for AllFormat {
     type Value = MatchFailure<DynMatchFailure, Infallible>;
-    type Error = Infallible;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
         match value {
             MatchFailure::Pos(fail) => f.write_fmt(fail.into_fmt()),
             _ => unreachable!(),
@@ -35,5 +41,5 @@ where
     In: 'a,
     Out: 'a,
 {
-    PosMatcher::new(AllMatcher::new(block), AllFormat)
+    PosMatcher::new(AllMatcher::new(block), AllFormat::new())
 }

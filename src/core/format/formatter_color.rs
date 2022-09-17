@@ -69,7 +69,7 @@ pub struct FormattedOutput {
 }
 
 impl FormattedOutput {
-    pub fn new<Value, Fmt>(value: Value, format: Fmt) -> Result<Self, Fmt::Error>
+    pub fn new<Value, Fmt>(value: Value, format: Fmt) -> anyhow::Result<Self>
     where
         Fmt: Format<Value = Value>,
     {

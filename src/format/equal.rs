@@ -1,4 +1,3 @@
-use std::convert::Infallible;
 use std::fmt;
 use std::marker::PhantomData;
 
@@ -18,15 +17,20 @@ impl<Actual, Expected> EqualFormat<Actual, Expected> {
     }
 }
 
+impl<Actual, Expected> Default for EqualFormat<Actual, Expected> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<Actual, Expected> Format for EqualFormat<Actual, Expected>
 where
     Actual: fmt::Debug,
     Expected: fmt::Debug,
 {
     type Value = MatchFailure<Mismatch<Actual, Expected>>;
-    type Error = Infallible;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> Result<(), Self::Error> {
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
         match value {
             MatchFailure::Pos(mismatch) => {
                 f.set_style(style::important());

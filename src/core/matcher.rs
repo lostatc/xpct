@@ -3,6 +3,7 @@ use std::borrow::Borrow;
 use std::fmt;
 use std::marker::PhantomData;
 
+use super::wrap::{MatchNegWrapper, MatchPosWrapper, MatchWrapper};
 use super::{DynMatchFailure, MatchFailure, MatchResult, ResultFormat};
 
 pub trait MatchBase {
@@ -215,6 +216,16 @@ impl<'a, In, PosOut, NegOut> Matcher<'a, In, PosOut, NegOut> {
         Self(Box::new(DynMatchAdapter::new(matcher, format)))
     }
 
+    pub fn wrap<Fmt>(matcher: Matcher<'a, In, PosOut, NegOut>, format: Fmt) -> Self
+    where
+        In: 'a,
+        PosOut: 'a,
+        NegOut: 'a,
+        Fmt: ResultFormat<Pos = DynMatchFailure, Neg = DynMatchFailure> + 'a,
+    {
+        Self::new(MatchWrapper::new(matcher), format)
+    }
+
     pub fn into_box(self) -> BoxMatch<'a, In, PosOut, NegOut> {
         self.0
     }
@@ -276,6 +287,15 @@ impl<'a, In, Out> PosMatcher<'a, In, Out> {
         Self(Box::new(DynMatchAdapter::new(matcher, format)))
     }
 
+    pub fn wrap<Fmt>(matcher: PosMatcher<'a, In, Out>, format: Fmt) -> Self
+    where
+        In: 'a,
+        Out: 'a,
+        Fmt: ResultFormat<Pos = DynMatchFailure> + 'a,
+    {
+        Self::new(MatchPosWrapper::new(matcher), format)
+    }
+
     pub fn into_box(self) -> BoxMatchPos<'a, In, Out> {
         self.0
     }
@@ -313,6 +333,15 @@ impl<'a, In, Out> NegMatcher<'a, In, Out> {
         Fmt: ResultFormat<Neg = M::NegFail> + 'a,
     {
         Self(Box::new(DynMatchAdapter::new(matcher, format)))
+    }
+
+    pub fn wrap<Fmt>(matcher: NegMatcher<'a, In, Out>, format: Fmt) -> Self
+    where
+        In: 'a,
+        Out: 'a,
+        Fmt: ResultFormat<Neg = DynMatchFailure> + 'a,
+    {
+        Self::new(MatchNegWrapper::new(matcher), format)
     }
 
     pub fn into_box(self) -> BoxMatchNeg<'a, In, Out> {
