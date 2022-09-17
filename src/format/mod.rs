@@ -8,14 +8,17 @@ mod each;
 mod equal;
 mod fields;
 mod not;
+mod option;
 mod why;
 
 pub use all::AllFormat;
 pub use any::{AllFailuresFormat, AnyFormat};
+pub use boolean::BeTrueFormat;
 pub use each::{EachFormat, SomeFailuresFormat};
 pub use equal::EqualFormat;
 pub use fields::{ByFieldFormat, ByFieldMatcherFormat};
 pub use not::FailFormat;
+pub use option::BeSomeFormat;
 pub use why::WhyFormat;
 
 pub(crate) mod matchers {
@@ -26,5 +29,6 @@ pub(crate) mod matchers {
     pub use super::equal::equal;
     pub use super::fields::{match_all_fields, match_any_fields};
     pub use super::not::not;
+    pub use super::option::{be_none, be_some};
     pub use super::why::{why, why_lazy};
 }

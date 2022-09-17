@@ -31,3 +31,20 @@ where
 {
     type Context = Context;
 }
+
+#[derive(Debug, Default)]
+pub struct NegFormat<Fmt>(pub Fmt);
+
+impl<Fmt, Fail> Format for NegFormat<Fmt>
+where
+    Fmt: Format<Value = MatchFailure<Fail, Fail>>,
+{
+    type Value = Fmt::Value;
+
+    fn fmt(self, f: &mut super::Formatter, value: Self::Value) -> anyhow::Result<()> {
+        match value {
+            MatchFailure::Pos(fail) => self.0.fmt(f, MatchFailure::Neg(fail)),
+            MatchFailure::Neg(fail) => self.0.fmt(f, MatchFailure::Pos(fail)),
+        }
+    }
+}

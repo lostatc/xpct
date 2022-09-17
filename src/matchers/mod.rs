@@ -5,6 +5,7 @@ mod each;
 mod equal;
 mod fields;
 mod not;
+mod option;
 
 pub use all::{AllAssertion, AllMatcher};
 pub use any::{
@@ -18,3 +19,4 @@ pub use each::{
 pub use equal::{EqualMatcher, Mismatch};
 pub use fields::{ByFieldMatcher, ByMatchMode, FailuresByField};
 pub use not::NotMatcher;
+pub use option::{BeNoneMatcher, BeSomeMatcher};
