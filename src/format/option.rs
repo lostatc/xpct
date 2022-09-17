@@ -2,7 +2,7 @@ use std::convert::Infallible;
 
 use crate::{
     core::{style, Format, MatchFailure, Matcher, NegFormat},
-    matchers::{BeNoneMatcher, BeSomeMatcher},
+    matchers::BeSomeMatcher,
 };
 
 #[non_exhaustive]
@@ -47,5 +47,5 @@ pub fn be_none<'a, T>() -> Matcher<'a, Option<T>, Option<Infallible>, T>
 where
     T: 'a,
 {
-    Matcher::new(BeNoneMatcher::new(), BeSomeFormat::neg())
+    Matcher::neg(BeSomeMatcher::new(), BeSomeFormat::neg())
 }

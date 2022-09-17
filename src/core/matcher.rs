@@ -1,7 +1,7 @@
 use std::any::type_name;
 use std::fmt;
 
-use super::adapter::{DynMatchAdapter, SimpleMatchAdapter};
+use super::adapter::{DynMatchAdapter, NegMatchAdapter, SimpleMatchAdapter};
 use super::wrap::{MatchNegWrapper, MatchPosWrapper, MatchWrapper};
 use super::{DynMatchFailure, MatchResult, ResultFormat};
 
@@ -85,6 +85,14 @@ impl<'a, In, PosOut, NegOut> Matcher<'a, In, PosOut, NegOut> {
         Self(Box::new(DynMatchAdapter::new(matcher, format)))
     }
 
+    pub fn neg<M, Fmt>(matcher: M, format: Fmt) -> Self
+    where
+        M: MatchBase<In = In> + MatchPos<PosOut = NegOut> + MatchNeg<NegOut = PosOut> + 'a,
+        Fmt: ResultFormat<Pos = M::NegFail, Neg = M::PosFail> + 'a,
+    {
+        Matcher::new(NegMatchAdapter::new(matcher), format)
+    }
+
     pub fn wrap<Fmt>(matcher: Matcher<'a, In, PosOut, NegOut>, format: Fmt) -> Self
     where
         In: 'a,
@@ -108,6 +116,15 @@ impl<'a, Actual> Matcher<'a, Actual, Actual> {
         Actual: 'a,
     {
         Self::new(SimpleMatchAdapter::new(matcher), format)
+    }
+
+    pub fn simple_neg<M, Fmt>(matcher: M, format: Fmt) -> Self
+    where
+        M: SimpleMatch<Actual> + 'a,
+        Fmt: ResultFormat<Pos = M::Fail, Neg = M::Fail> + 'a,
+        Actual: 'a,
+    {
+        Self::neg(SimpleMatchAdapter::new(matcher), format)
     }
 }
 

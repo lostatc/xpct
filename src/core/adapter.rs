@@ -134,3 +134,51 @@ where
         }
     }
 }
+
+#[derive(Debug)]
+pub(super) struct NegMatchAdapter<M> {
+    matcher: M,
+}
+
+impl<M> NegMatchAdapter<M> {
+    pub fn new(matcher: M) -> Self {
+        Self { matcher }
+    }
+}
+
+impl<M> MatchBase for NegMatchAdapter<M>
+where
+    M: MatchBase,
+{
+    type In = M::In;
+}
+
+impl<M> MatchPos for NegMatchAdapter<M>
+where
+    M: MatchNeg,
+{
+    type PosOut = M::NegOut;
+    type PosFail = M::NegFail;
+
+    fn match_pos(
+        self,
+        actual: Self::In,
+    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
+        self.matcher.match_neg(actual)
+    }
+}
+
+impl<M> MatchNeg for NegMatchAdapter<M>
+where
+    M: MatchPos,
+{
+    type NegOut = M::PosOut;
+    type NegFail = M::PosFail;
+
+    fn match_neg(
+        self,
+        actual: Self::In,
+    ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>> {
+        self.matcher.match_pos(actual)
+    }
+}

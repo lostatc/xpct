@@ -1,5 +1,5 @@
 use crate::core::{style, Format, MatchFailure, Matcher, NegFormat};
-use crate::matchers::{BeFalseMatcher, BeTrueMatcher};
+use crate::matchers::BeTrueMatcher;
 
 #[non_exhaustive]
 #[derive(Debug, Default)]
@@ -37,5 +37,5 @@ pub fn be_true() -> Matcher<'static, bool, bool> {
 
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn be_false() -> Matcher<'static, bool, bool> {
-    Matcher::simple(BeFalseMatcher::new(), BeTrueFormat::neg())
+    Matcher::simple_neg(BeTrueMatcher::new(), BeTrueFormat::neg())
 }

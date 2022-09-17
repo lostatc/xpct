@@ -21,25 +21,3 @@ impl SimpleMatch<bool> for BeTrueMatcher {
         ()
     }
 }
-
-#[non_exhaustive]
-#[derive(Debug, Default)]
-pub struct BeFalseMatcher;
-
-impl BeFalseMatcher {
-    pub fn new() -> Self {
-        Self
-    }
-}
-
-impl SimpleMatch<bool> for BeFalseMatcher {
-    type Fail = ();
-
-    fn matches(&mut self, actual: &bool) -> anyhow::Result<bool> {
-        Ok(!actual)
-    }
-
-    fn fail(self, _: bool) -> Self::Fail {
-        ()
-    }
-}
