@@ -1,5 +1,6 @@
 mod all;
 mod any;
+mod boolean;
 mod each;
 mod equal;
 mod fields;
@@ -10,6 +11,7 @@ pub use any::{
     AllFailures, AnyContext, AnyMatcher, ByRefAnyAssertion, ClonedAnyAssertion, CopiedAnyAssertion,
     SomeFailures,
 };
+pub use boolean::{BeFalseMatcher, BeTrueMatcher};
 pub use each::{
     ByRefEachAssertion, ClonedEachAssertion, CopiedEachAssertion, EachContext, EachMatcher,
 };

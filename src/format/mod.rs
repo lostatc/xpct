@@ -3,6 +3,7 @@
 
 mod all;
 mod any;
+mod boolean;
 mod each;
 mod equal;
 mod fields;
@@ -20,6 +21,7 @@ pub use why::WhyFormat;
 pub(crate) mod matchers {
     pub use super::all::all;
     pub use super::any::any;
+    pub use super::boolean::{be_false, be_true};
     pub use super::each::each;
     pub use super::equal::equal;
     pub use super::fields::{match_all_fields, match_any_fields};
