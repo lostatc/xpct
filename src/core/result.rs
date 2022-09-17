@@ -1,6 +1,6 @@
 use std::fmt;
 
-use super::{Format, FormattedOutput, ResultFormat};
+use super::{FormattedOutput, ResultFormat};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MatchFailure<Pos, Neg = Pos> {

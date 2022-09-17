@@ -1,3 +1,4 @@
+mod adapter;
 mod assertion;
 mod context;
 mod format;
