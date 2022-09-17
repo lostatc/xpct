@@ -68,19 +68,8 @@ impl FormattedOutput {
         self
     }
 
-    pub fn print(&self, stream: OutputStream) -> io::Result<()> {
-        match stream {
-            OutputStream::Stdout => {
-                let mut stdout = io::stdout().lock();
-                stdout.write_all(self.buf.as_bytes())?;
-                stdout.flush()
-            }
-            OutputStream::Stderr => {
-                let mut stderr = io::stderr().lock();
-                stderr.write_all(self.buf.as_bytes())?;
-                stderr.flush()
-            }
-        }
+    pub fn fail(&self) -> ! {
+        panic!("{}", self);
     }
 }
 

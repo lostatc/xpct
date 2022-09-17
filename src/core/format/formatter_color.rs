@@ -1,10 +1,9 @@
 #![cfg(feature = "color")]
 
 use std::fmt;
-use std::io::{self, Write};
 
 use super::strings::indent_vec;
-use super::{color::color_writer, Format, OutputStream, OutputStyle};
+use super::{Format, OutputStyle};
 
 #[derive(Debug, Default)]
 struct OutputSegment {
@@ -107,25 +106,15 @@ impl FormattedOutput {
         self.indented_inner(spaces, false)
     }
 
-    pub fn print(&self, stream: OutputStream) -> io::Result<()> {
-        use termcolor::WriteColor;
-
-        let writer = color_writer(stream);
-        let mut buffer = writer.buffer();
-
-        for segment in &self.segments {
-            buffer.set_color(&segment.style.into_term())?;
-            buffer.write_all(segment.buf.as_bytes())?;
-        }
-
-        writer.print(&buffer)
+    pub fn fail(&self) -> ! {
+        panic!("{}", self);
     }
 }
 
 impl fmt::Display for FormattedOutput {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for segment in &self.segments {
-            f.write_str(&segment.buf)?;
+            f.write_fmt(format_args!("{}", segment.style.apply(&segment.buf)))?;
         }
 
         Ok(())

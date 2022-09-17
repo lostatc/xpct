@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use super::{OutputStyle, TerminalColor, TextColor, TextStyle};
+use super::{Color, OutputStyle, TextColor, TextStyle};
 
 pub const INFO_SYMBOL: &'static str = "\u{1f6c8}";
 
@@ -23,7 +23,7 @@ pub fn info() -> OutputStyle {
     OutputStyle {
         style: Default::default(),
         color: TextColor {
-            fg: Some(TerminalColor::Cyan),
+            fg: Some(Color::Cyan),
             bg: None,
         },
     }
@@ -33,7 +33,7 @@ pub fn bad() -> OutputStyle {
     OutputStyle {
         style: TextStyle::BOLD,
         color: TextColor {
-            fg: Some(TerminalColor::Red),
+            fg: Some(Color::Red),
             bg: None,
         },
     }
@@ -43,7 +43,7 @@ pub fn failure() -> OutputStyle {
     OutputStyle {
         style: TextStyle::BOLD | TextStyle::UNDERLINE,
         color: TextColor {
-            fg: Some(TerminalColor::Red),
+            fg: Some(Color::Red),
             bg: None,
         },
     }
@@ -53,7 +53,7 @@ pub fn good() -> OutputStyle {
     OutputStyle {
         style: TextStyle::BOLD,
         color: TextColor {
-            fg: Some(TerminalColor::Green),
+            fg: Some(Color::Green),
             bg: None,
         },
     }
@@ -63,7 +63,7 @@ pub fn success() -> OutputStyle {
     OutputStyle {
         style: TextStyle::BOLD | TextStyle::UNDERLINE,
         color: TextColor {
-            fg: Some(TerminalColor::Green),
+            fg: Some(Color::Green),
             bg: None,
         },
     }
@@ -73,7 +73,7 @@ pub fn index() -> OutputStyle {
     OutputStyle {
         style: Default::default(),
         color: TextColor {
-            fg: Some(TerminalColor::Yellow),
+            fg: Some(Color::Yellow),
             bg: None,
         },
     }

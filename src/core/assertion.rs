@@ -1,6 +1,6 @@
 use super::{
     AssertionFailure, AssertionFormat, DynMatchNeg, DynMatchPos, FormattedOutput, MatchError,
-    MatchResult, OutputStream,
+    MatchResult,
 };
 
 #[derive(Debug)]
@@ -17,12 +17,9 @@ fn fail<Context, AssertFmt>(ctx: Context, error: MatchError, format: AssertFmt) 
 where
     AssertFmt: AssertionFormat<Context = Context>,
 {
-    let output = FormattedOutput::new(AssertionFailure { ctx, error }, format);
-    output
-        .expect("failed to format matcher failure output")
-        .print(OutputStream::Stderr)
-        .expect("failed to write output to stderr");
-    panic!();
+    FormattedOutput::new(AssertionFailure { ctx, error }, format)
+        .expect("failed to format matcher output")
+        .fail();
 }
 
 impl<T, AssertFmt> Assertion<T, AssertFmt>

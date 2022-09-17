@@ -179,22 +179,22 @@ mod tests {
 
     #[test]
     fn indent_when_the_indent_len_is_zero() {
-        let actual = "line 1\nline 2\n line 3";
-        let expected = Cow::Borrowed(actual);
-        assert_eq!(indent(actual, 0, false), expected);
+        let input = "line 1\nline 2\n line 3\n";
+        let expected = Cow::Borrowed(input);
+        assert_eq!(indent(input, 0, false), expected);
     }
 
     #[test]
     fn indent_when_the_indent_len_is_non_zero() {
-        let actual = " line 1\n  line 2\n   line 3";
+        let input = " line 1\n  line 2\n   line 3\n";
         let expected = Cow::<'_, str>::Owned(String::from("   line 1\n    line 2\n     line 3\n"));
-        assert_eq!(indent(&actual, 2, false), expected);
+        assert_eq!(indent(&input, 2, false), expected);
     }
 
     #[test]
     fn indent_when_there_is_no_trailing_newline() {
-        let actual = " line 1\n line 2\n line 3";
+        let input = " line 1\n line 2\n line 3";
         let expected = Cow::<'_, str>::Owned(String::from("   line 1\n   line 2\n   line 3"));
-        assert_eq!(indent(&actual, 2, false), expected);
+        assert_eq!(indent(&input, 2, false), expected);
     }
 }
