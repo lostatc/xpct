@@ -29,7 +29,7 @@ impl<'a, T> BaseEachAssertion<'a, T> {
         Self { value, state }
     }
 
-    fn to<Out>(self, matcher: impl DynMatchPos<In = T, PosOut = Out>) {
+    fn to(self, matcher: impl DynMatchPos<In = T>) {
         if let EachAssertionState::Ok(failures) = self.state {
             match Box::new(matcher).match_pos(self.value) {
                 Ok(MatchResult::Success(_)) => {
@@ -45,7 +45,7 @@ impl<'a, T> BaseEachAssertion<'a, T> {
         }
     }
 
-    fn to_not<Out>(self, matcher: impl DynMatchNeg<In = T, NegOut = Out>) {
+    fn to_not(self, matcher: impl DynMatchNeg<In = T>) {
         if let EachAssertionState::Ok(failures) = self.state {
             match Box::new(matcher).match_neg(self.value) {
                 Ok(MatchResult::Success(_)) => {
