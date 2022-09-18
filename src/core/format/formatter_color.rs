@@ -107,7 +107,7 @@ impl FormattedOutput {
     }
 
     pub fn fail(&self) -> ! {
-        panic!("{}", self);
+        panic!("\n{}\n", self);
     }
 }
 

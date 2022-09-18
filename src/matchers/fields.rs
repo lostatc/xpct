@@ -1,10 +1,9 @@
 use std::any::type_name;
-use std::collections::HashMap;
 use std::fmt;
 
 use crate::core::{DynMatchFailure, MatchBase, MatchPos, MatchResult};
 
-pub type FailuresByField = HashMap<&'static str, Option<DynMatchFailure>>;
+pub type FailuresByField = Vec<(&'static str, Option<DynMatchFailure>)>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ByMatchMode {
@@ -56,14 +55,14 @@ impl<'a, T> MatchPos for ByFieldMatcher<'a, T> {
         let failures = (self.func)(actual)?;
         match self.mode {
             ByMatchMode::Any => {
-                if failures.values().any(Option::is_none) {
+                if failures.iter().any(|(_, fail)| fail.is_none()) {
                     Ok(MatchResult::Success(()))
                 } else {
                     Ok(MatchResult::Fail(failures))
                 }
             }
             ByMatchMode::All => {
-                if failures.values().all(Option::is_none) {
+                if failures.iter().all(|(_, fail)| fail.is_none()) {
                     Ok(MatchResult::Success(()))
                 } else {
                     Ok(MatchResult::Fail(failures))
@@ -84,7 +83,7 @@ macro_rules! fields {
         }
     ) => {
         |input: $struct_type| {
-            ::std::result::Result::Ok(::std::collections::HashMap::from([$(
+            ::std::result::Result::Ok(vec![$(
                 (
                     stringify!($field_name),
                     match $crate::core::DynMatchPos::match_pos(::std::boxed::Box::new($matcher), input.$field_name)? {
@@ -92,7 +91,7 @@ macro_rules! fields {
                         $crate::core::MatchResult::Fail(fail) => ::std::option::Option::Some(fail),
                     },
                 ),
-            )+]))
+            )+])
         }
     };
 }

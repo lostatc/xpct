@@ -40,7 +40,7 @@ impl Format for ByFieldFormat {
             }
         }
 
-        f.write_str("}\n");
+        f.write_char('}');
 
         Ok(())
     }
