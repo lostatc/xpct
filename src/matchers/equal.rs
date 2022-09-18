@@ -1,9 +1,9 @@
 use crate::core::SimpleMatch;
 
-#[derive(Debug)]
-pub struct Mismatch<Actual, Expected> {
-    pub actual: Actual,
+#[derive(Debug, Clone)]
+pub struct Mismatch<Expected, Actual> {
     pub expected: Expected,
+    pub actual: Actual,
 }
 
 pub struct EqualMatcher<Expected> {
@@ -28,8 +28,8 @@ where
 
     fn fail(self, actual: Actual) -> Self::Fail {
         Mismatch {
-            actual: self.expected,
-            expected: actual,
+            actual,
+            expected: self.expected,
         }
     }
 }

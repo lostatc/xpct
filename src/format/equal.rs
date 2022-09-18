@@ -5,25 +5,22 @@ use crate::core::{style, Format, Formatter, MatchFailure, Matcher};
 use crate::matchers::{EqualMatcher, Mismatch};
 
 #[derive(Debug)]
-pub struct EqualFormat<Actual, Expected> {
+pub struct MismatchFormat<Actual, Expected> {
     marker: PhantomData<(Actual, Expected)>,
+    pos_msg: String,
+    neg_msg: String,
 }
 
-impl<Actual, Expected> EqualFormat<Actual, Expected> {
-    pub fn new() -> Self {
+impl<Actual, Expected> MismatchFormat<Actual, Expected> {
+    pub fn new(pos_msg: impl Into<String>, neg_msg: impl Into<String>) -> Self {
         Self {
             marker: PhantomData,
+            pos_msg: pos_msg.into(),
+            neg_msg: neg_msg.into(),
         }
     }
 }
-
-impl<Actual, Expected> Default for EqualFormat<Actual, Expected> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl<Actual, Expected> Format for EqualFormat<Actual, Expected>
+impl<Actual, Expected> Format for MismatchFormat<Actual, Expected>
 where
     Actual: fmt::Debug,
     Expected: fmt::Debug,
@@ -37,28 +34,30 @@ where
                 f.write_str("Expected:\n");
 
                 f.set_style(style::bad());
-                f.write_str(format!("{}{:?}\n", style::indent(1), mismatch.expected));
+                f.write_str(format!("{}{:?}\n", style::indent(1), mismatch.actual));
 
                 f.set_style(style::important());
-                f.write_str("to equal:\n");
+                f.write_str(self.pos_msg);
+                f.write_str(":\n");
 
                 f.set_style(style::bad());
-                f.write_str(format!("{}{:?}\n", style::indent(1), mismatch.actual));
+                f.write_str(format!("{}{:?}\n", style::indent(1), mismatch.expected));
             }
             MatchFailure::Neg(mismatch) => {
                 f.set_style(style::important());
                 f.write_str("Expected:\n");
 
                 f.set_style(style::bad());
-                f.write_str(format!("{}{:?}\n", style::indent(1), mismatch.expected));
+                f.write_str(format!("{}{:?}\n", style::indent(1), mismatch.actual));
 
                 f.set_style(style::important());
-                f.write_str("to not equal:\n");
+                f.write_str(self.neg_msg);
+                f.write_str(":\n");
 
                 f.set_style(style::bad());
-                f.write_str(format!("{}{:?}\n", style::indent(1), mismatch.actual));
+                f.write_str(format!("{}{:?}\n", style::indent(1), mismatch.expected));
             }
-        }
+        };
 
         Ok(())
     }
@@ -70,5 +69,8 @@ where
     Actual: fmt::Debug + PartialEq<Expected> + Eq + 'a,
     Expected: fmt::Debug + 'a,
 {
-    Matcher::simple(EqualMatcher::new(expected), EqualFormat::new())
+    Matcher::simple(
+        EqualMatcher::new(expected),
+        MismatchFormat::new("to equal", "to not equal"),
+    )
 }

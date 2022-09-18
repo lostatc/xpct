@@ -6,6 +6,7 @@ mod equal;
 mod fields;
 mod not;
 mod option;
+mod ord;
 
 pub use all::{AllAssertion, AllMatcher};
 pub use any::{
@@ -20,3 +21,4 @@ pub use equal::{EqualMatcher, Mismatch};
 pub use fields::{ByFieldMatcher, ByMatchMode, FailuresByField};
 pub use not::NotMatcher;
 pub use option::BeSomeMatcher;
+pub use ord::{Inequality, OrdMatcher};
