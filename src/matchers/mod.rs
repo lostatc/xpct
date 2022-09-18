@@ -11,12 +11,13 @@ mod result;
 
 pub use all::{AllAssertion, AllMatcher};
 pub use any::{
-    AllFailures, AnyContext, AnyMatcher, ByRefAnyAssertion, ClonedAnyAssertion, CopiedAnyAssertion,
-    SomeFailures,
+    AllFailures, AnyContext, AnyMatcher, BorrowedAnyAssertion, ClonedAnyAssertion,
+    CopiedAnyAssertion, MappedAnyAssertion, SomeFailures,
 };
 pub use boolean::BeTrueMatcher;
 pub use each::{
-    ByRefEachAssertion, ClonedEachAssertion, CopiedEachAssertion, EachContext, EachMatcher,
+    BorrowedEachAssertion, ClonedEachAssertion, CopiedEachAssertion, EachContext, EachMatcher,
+    MappedEachAssertion,
 };
 pub use equal::{EqualMatcher, Mismatch};
 pub use fields::{FailuresByField, FieldMatchMode, FieldMatcher};

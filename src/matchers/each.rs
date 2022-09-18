@@ -1,4 +1,5 @@
 use std::any::type_name;
+use std::borrow::Borrow;
 use std::fmt;
 
 use crate::core::{DynMatchNeg, DynMatchPos, MatchBase, MatchPos, MatchResult};
@@ -63,15 +64,12 @@ impl<'a, T> BaseEachAssertion<'a, T> {
 }
 
 #[derive(Debug)]
-pub struct ByRefEachAssertion<'a, T> {
+pub struct BorrowedEachAssertion<'a, T: ?Sized> {
     value: &'a T,
     state: &'a mut EachAssertionState,
 }
 
-impl<'a, T> ByRefEachAssertion<'a, T>
-where
-    T: 'a,
-{
+impl<'a, T: ?Sized> BorrowedEachAssertion<'a, T> {
     pub fn to(self, matcher: impl DynMatchPos<In = &'a T>) -> Self {
         let assertion = BaseEachAssertion::new(self.value, self.state);
         assertion.to(matcher);
@@ -137,6 +135,41 @@ where
     pub fn done(self) {}
 }
 
+pub struct MappedEachAssertion<'b, 'a: 'b, T, In> {
+    value: &'a T,
+    state: &'a mut EachAssertionState,
+    transform: Box<dyn Fn(&'b T) -> In + 'a>,
+}
+
+impl<'b, 'a: 'b, T, In> fmt::Debug for MappedEachAssertion<'a, 'b, T, In>
+where
+    T: fmt::Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("MappedEachAssertion")
+            .field("value", &self.value)
+            .field("state", &self.state)
+            .field("transform", &type_name::<Box<dyn Fn(&T) -> In>>())
+            .finish()
+    }
+}
+
+impl<'b, 'a: 'b, T, In> MappedEachAssertion<'a, 'b, T, In> {
+    pub fn to(self, matcher: impl DynMatchPos<In = In>) -> Self {
+        let assertion = BaseEachAssertion::new((&self.transform)(&self.value), self.state);
+        assertion.to(matcher);
+        self
+    }
+
+    pub fn to_not(self, matcher: impl DynMatchNeg<In = In>) -> Self {
+        let assertion = BaseEachAssertion::new((&self.transform)(&self.value), self.state);
+        assertion.to_not(matcher);
+        self
+    }
+
+    pub fn done(self) {}
+}
+
 #[derive(Debug)]
 pub struct EachContext<T> {
     value: T,
@@ -150,13 +183,29 @@ impl<T> EachContext<T> {
             state: EachAssertionState::new(),
         }
     }
-}
 
-impl<T> EachContext<T> {
-    pub fn by_ref(&mut self) -> ByRefEachAssertion<T> {
-        ByRefEachAssertion {
+    pub fn borrow<'a, Borrowed>(&'a mut self) -> BorrowedEachAssertion<'a, Borrowed>
+    where
+        Borrowed: ?Sized,
+        T: Borrow<Borrowed>,
+    {
+        BorrowedEachAssertion {
+            value: self.value.borrow(),
+            state: &mut self.state,
+        }
+    }
+
+    pub fn map<'b, 'a: 'b, In>(
+        &'a mut self,
+        func: impl Fn(&'b T) -> In + 'a,
+    ) -> MappedEachAssertion<'a, 'b, T, In>
+    where
+        T: 'b,
+    {
+        MappedEachAssertion {
             value: &self.value,
             state: &mut self.state,
+            transform: Box::new(func),
         }
     }
 }
@@ -219,7 +268,7 @@ impl<'a, T> MatchPos for EachMatcher<'a, T> {
 
         match ctx.state {
             EachAssertionState::Ok(failures) => {
-                if failures.iter().any(Option::is_none) {
+                if failures.iter().any(Option::is_some) {
                     fail!(failures);
                 } else {
                     success!(ctx.value);

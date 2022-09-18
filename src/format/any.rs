@@ -80,11 +80,12 @@ where
 /// test all the matchers that are passed to it, it can't short-circuit. This means that it doesn't
 /// support chaining the output of one matcher into the next.
 ///
-/// Instead, this matcher owns its value and passes it to each matcher, either by reference, by
-/// cloning, or by copying. This matcher accepts a function which is passed an [`AnyContext`]. You
-/// can call methods on this context value to determine whether you want to pass the value to
-/// matchers by reference or by value, and if the latter, whether you want to clone or copy the
-/// value. From there, you can call methods like `to` and `to_not`.
+/// Instead, this matcher owns its value and passes it to each matcher, either by reference, or by
+/// value if the value is [`Clone`] or [`Copy`]. The closure you pass to this matcher accepts an
+/// [`AnyContext`], which has methods like [`borrow`][`AnyContext::borrow`],
+/// [`cloned`][`AnyContext::cloned`], [`copied`][`AnyContext::copied`], and
+/// [`map`][`AnyContext::map`] to determine how the value is passed to matchers. From there, you
+/// can call methods like `to` and `to_not`.
 ///
 /// This matcher cannot be negated, such as with [`not`]. Instead, you can just negate each of the
 /// matchers passed to it by calling `to_not` or using [`not`] on them.
@@ -97,20 +98,20 @@ where
 /// use xpct::{expect, any, equal};
 ///
 /// expect!("Martinaise").to(any(|ctx| {
-///     ctx.by_ref()
-///         .to(equal(&"The Pox"))
-///         .to(equal(&"Central Jamrock"))
-///         .to(equal(&"Martinaise"));
+///     ctx.borrow::<str>()
+///         .to(equal("The Pox"))
+///         .to(equal("Central Jamrock"))
+///         .to(equal("Martinaise"));
 /// }));
 /// ```
 ///
-/// Passing the value to matchers by value via [`Clone`]:
+/// Passing the value to matchers by value via [`Copy`]:
 ///
 /// ```
 /// use xpct::{expect, any, equal};
 ///
 /// expect!(41).to(any(|ctx| {
-///     ctx.cloned()
+///     ctx.copied()
 ///         .to(equal(41))
 ///         .to(equal(57));
 /// }));

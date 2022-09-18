@@ -1,3 +1,5 @@
+use std::any::type_name;
+use std::borrow::Borrow;
 use std::fmt;
 
 use crate::core::{DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchPos, MatchResult};
@@ -66,15 +68,12 @@ impl<'a, T> BaseAnyAssertion<'a, T> {
 }
 
 #[derive(Debug)]
-pub struct ByRefAnyAssertion<'a, T> {
+pub struct BorrowedAnyAssertion<'a, T: ?Sized> {
     value: &'a T,
     state: &'a mut AnyAssertionState,
 }
 
-impl<'a, T> ByRefAnyAssertion<'a, T>
-where
-    T: 'a,
-{
+impl<'a, T: ?Sized> BorrowedAnyAssertion<'a, T> {
     pub fn to(self, matcher: impl DynMatchPos<In = &'a T>) -> Self {
         let assertion = BaseAnyAssertion::new(self.value, self.state);
         assertion.to(matcher);
@@ -83,6 +82,41 @@ where
 
     pub fn to_not(self, matcher: impl DynMatchNeg<In = &'a T>) -> Self {
         let assertion = BaseAnyAssertion::new(self.value, self.state);
+        assertion.to_not(matcher);
+        self
+    }
+
+    pub fn done(self) {}
+}
+
+pub struct MappedAnyAssertion<'a, T, In> {
+    value: &'a T,
+    state: &'a mut AnyAssertionState,
+    transform: Box<dyn Fn(&T) -> In + 'a>,
+}
+
+impl<'a, T, In> fmt::Debug for MappedAnyAssertion<'a, T, In>
+where
+    T: fmt::Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("MappedAnyAssertion")
+            .field("value", &self.value)
+            .field("state", &self.state)
+            .field("transform", &type_name::<Box<dyn Fn(&T) -> In>>())
+            .finish()
+    }
+}
+
+impl<'a, T, In> MappedAnyAssertion<'a, T, In> {
+    pub fn to(self, matcher: impl DynMatchPos<In = In>) -> Self {
+        let assertion = BaseAnyAssertion::new((&self.transform)(&self.value), self.state);
+        assertion.to(matcher);
+        self
+    }
+
+    pub fn to_not(self, matcher: impl DynMatchNeg<In = In>) -> Self {
+        let assertion = BaseAnyAssertion::new((&self.transform)(&self.value), self.state);
         assertion.to_not(matcher);
         self
     }
@@ -153,13 +187,25 @@ impl<T> AnyContext<T> {
             state: AnyAssertionState::new(),
         }
     }
-}
 
-impl<T> AnyContext<T> {
-    pub fn by_ref(&mut self) -> ByRefAnyAssertion<T> {
-        ByRefAnyAssertion {
+    pub fn borrow<'a, Borrowed: ?Sized>(&mut self) -> BorrowedAnyAssertion<Borrowed>
+    where
+        T: Borrow<Borrowed>,
+    {
+        BorrowedAnyAssertion {
+            value: self.value.borrow(),
+            state: &mut self.state,
+        }
+    }
+
+    pub fn map<'a, In>(
+        &'a mut self,
+        func: impl Fn(&T) -> In + 'a,
+    ) -> MappedAnyAssertion<'a, T, In> {
+        MappedAnyAssertion {
             value: &self.value,
             state: &mut self.state,
+            transform: Box::new(func),
         }
     }
 }
