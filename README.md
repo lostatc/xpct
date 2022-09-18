@@ -1,7 +1,7 @@
 # xpct
 
-xpct is an assertions library for Rust. It's designed to be batteries-included
-and test framework agnostic.
+xpct is an assertions library for Rust. It's designed to be ergonomic,
+batteries-included, and test framework agnostic.
 
 xpct is highly extensible. In addition to allowing you to write custom
 matchers, it separates the logic of matchers from how they format their output,
