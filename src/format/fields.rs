@@ -93,7 +93,7 @@ where
 }
 
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
-pub fn match_all_fields<'a, T>(
+pub fn match_fields<'a, T>(
     func: impl FnOnce(T) -> anyhow::Result<FailuresByField> + 'a,
 ) -> PosMatcher<'a, T, ()>
 where
