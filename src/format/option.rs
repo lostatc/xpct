@@ -6,7 +6,7 @@ use crate::matchers::BeSomeMatcher;
 use super::MessageFormat;
 
 fn option_format() -> MessageFormat {
-    MessageFormat::new("Expected this to be Some.", "Expected this to be None")
+    MessageFormat::new("Expected this to be Some.", "Expected this to be None.")
 }
 
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]

@@ -1,6 +1,7 @@
 use crate::core::{
     DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchError, MatchPos, MatchResult,
 };
+use crate::{fail, success};
 use std::any::type_name;
 use std::fmt;
 
@@ -74,8 +75,8 @@ impl<'a, In, Out> MatchPos for AllMatcher<'a, In, Out> {
         actual: Self::In,
     ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
         match (self.0)(AllAssertion::new(actual)) {
-            Ok(assertion) => Ok(MatchResult::Success(assertion.value)),
-            Err(MatchError::Fail(fail)) => Ok(MatchResult::Fail(fail)),
+            Ok(assertion) => success!(assertion.value),
+            Err(MatchError::Fail(fail)) => fail!(fail),
             Err(MatchError::Err(error)) => Err(error),
         }
     }

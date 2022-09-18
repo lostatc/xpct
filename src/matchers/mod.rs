@@ -7,6 +7,7 @@ mod fields;
 mod not;
 mod option;
 mod ord;
+mod result;
 
 pub use all::{AllAssertion, AllMatcher};
 pub use any::{
@@ -22,3 +23,4 @@ pub use fields::{ByFieldMatcher, ByMatchMode, FailuresByField};
 pub use not::NotMatcher;
 pub use option::BeSomeMatcher;
 pub use ord::{Inequality, OrdMatcher};
+pub use result::BeOkMatcher;

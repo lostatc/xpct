@@ -10,6 +10,7 @@ mod fields;
 mod not;
 mod option;
 mod ord;
+mod result;
 mod why;
 
 pub use any::{AllFailuresFormat, HeaderFormat};
@@ -30,5 +31,6 @@ pub(crate) mod matchers {
     pub use super::not::not;
     pub use super::option::{be_none, be_some};
     pub use super::ord::{be_ge, be_gt, be_le, be_lt};
+    pub use super::result::{be_err, be_ok};
     pub use super::why::{why, why_lazy};
 }

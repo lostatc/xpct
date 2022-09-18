@@ -2,6 +2,7 @@ use std::any::type_name;
 use std::fmt;
 
 use crate::core::{DynMatchNeg, DynMatchPos, MatchBase, MatchPos, MatchResult};
+use crate::{fail, success};
 
 use super::SomeFailures;
 
@@ -219,9 +220,9 @@ impl<'a, T> MatchPos for EachMatcher<'a, T> {
         match ctx.state {
             EachAssertionState::Ok(failures) => {
                 if failures.iter().any(Option::is_none) {
-                    Ok(MatchResult::Fail(failures))
+                    fail!(failures);
                 } else {
-                    Ok(MatchResult::Success(ctx.value))
+                    success!(ctx.value);
                 }
             }
             EachAssertionState::Err(error) => Err(error),

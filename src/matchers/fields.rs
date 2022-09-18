@@ -2,6 +2,7 @@ use std::any::type_name;
 use std::fmt;
 
 use crate::core::{DynMatchFailure, MatchBase, MatchPos, MatchResult};
+use crate::{fail, success};
 
 pub type FailuresByField = Vec<(&'static str, Option<DynMatchFailure>)>;
 
@@ -56,16 +57,16 @@ impl<'a, T> MatchPos for ByFieldMatcher<'a, T> {
         match self.mode {
             ByMatchMode::Any => {
                 if failures.iter().any(|(_, fail)| fail.is_none()) {
-                    Ok(MatchResult::Success(()))
+                    success!(())
                 } else {
-                    Ok(MatchResult::Fail(failures))
+                    fail!(failures)
                 }
             }
             ByMatchMode::All => {
                 if failures.iter().all(|(_, fail)| fail.is_none()) {
-                    Ok(MatchResult::Success(()))
+                    success!(())
                 } else {
-                    Ok(MatchResult::Fail(failures))
+                    fail!(failures)
                 }
             }
         }

@@ -1,6 +1,7 @@
 use std::fmt;
 
 use crate::core::{DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchPos, MatchResult};
+use crate::{fail, success};
 
 pub type AllFailures = Vec<DynMatchFailure>;
 
@@ -218,14 +219,12 @@ impl<'a, T> MatchPos for AnyMatcher<'a, T> {
         match ctx.state {
             AnyAssertionState::Ok(failures) => {
                 if failures.iter().any(Option::is_none) {
-                    Ok(MatchResult::Success(ctx.value))
+                    success!(ctx.value);
                 } else {
-                    Ok(MatchResult::Fail(
-                        failures
-                            .into_iter()
-                            .filter_map(std::convert::identity)
-                            .collect(),
-                    ))
+                    fail!(failures
+                        .into_iter()
+                        .filter_map(std::convert::identity)
+                        .collect::<Vec<_>>());
                 }
             }
             AnyAssertionState::Err(error) => Err(error),
