@@ -4,20 +4,32 @@ use std::fmt;
 use crate::core::{DynMatchFailure, MatchBase, MatchPos, MatchResult};
 use crate::{fail, success};
 
+/// A pairing of field names to optional match failures.
+///
+/// This can be used by matchers that test each field of a struct or tuple.
 pub type FailuresByField = Vec<(&'static str, Option<DynMatchFailure>)>;
 
+/// How to match on struct fields.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum ByMatchMode {
+pub enum FieldMatchMode {
+    /// Succeed when any field matches.
     Any,
+
+    /// Succeed when all fields match.
     All,
 }
 
-pub struct ByFieldMatcher<'a, T> {
+/// A matcher for matching on fields of a struct.
+///
+/// See [`match_fields`] for details.
+///
+/// [`match_fields`]: crate::match_fields
+pub struct FieldMatcher<'a, T> {
     func: Box<dyn FnOnce(T) -> anyhow::Result<FailuresByField> + 'a>,
-    mode: ByMatchMode,
+    mode: FieldMatchMode,
 }
 
-impl<'a, T> fmt::Debug for ByFieldMatcher<'a, T> {
+impl<'a, T> fmt::Debug for FieldMatcher<'a, T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("ByFieldMatcher")
             .field(
@@ -29,9 +41,13 @@ impl<'a, T> fmt::Debug for ByFieldMatcher<'a, T> {
     }
 }
 
-impl<'a, T> ByFieldMatcher<'a, T> {
+impl<'a, T> FieldMatcher<'a, T> {
+    /// Create a new matcher.
+    ///
+    /// This accepts a function which is passed the struct and returns any failures along with
+    /// their field names. You can use the [`fields`] macro to generate a function of this type.
     pub fn new(
-        mode: ByMatchMode,
+        mode: FieldMatchMode,
         func: impl FnOnce(T) -> anyhow::Result<FailuresByField> + 'a,
     ) -> Self {
         Self {
@@ -41,11 +57,11 @@ impl<'a, T> ByFieldMatcher<'a, T> {
     }
 }
 
-impl<'a, T> MatchBase for ByFieldMatcher<'a, T> {
+impl<'a, T> MatchBase for FieldMatcher<'a, T> {
     type In = T;
 }
 
-impl<'a, T> MatchPos for ByFieldMatcher<'a, T> {
+impl<'a, T> MatchPos for FieldMatcher<'a, T> {
     type PosOut = ();
     type PosFail = FailuresByField;
 
@@ -55,14 +71,14 @@ impl<'a, T> MatchPos for ByFieldMatcher<'a, T> {
     ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
         let failures = (self.func)(actual)?;
         match self.mode {
-            ByMatchMode::Any => {
+            FieldMatchMode::Any => {
                 if failures.iter().any(|(_, fail)| fail.is_none()) {
                     success!(())
                 } else {
                     fail!(failures)
                 }
             }
-            ByMatchMode::All => {
+            FieldMatchMode::All => {
                 if failures.iter().all(|(_, fail)| fail.is_none()) {
                     success!(())
                 } else {
@@ -73,6 +89,50 @@ impl<'a, T> MatchPos for ByFieldMatcher<'a, T> {
     }
 }
 
+/// Apply matchers to multiple struct fields.
+///
+/// This macro is meant to be used with matchers like [`match_fields`] and [`match_any_fields`]. It
+/// provides a Rust-like syntax for mapping struct fields to matchers. The syntax looks like this:
+///
+/// ```
+/// # use xpct::{fields, equal, be_gt};
+/// # struct Person {
+/// #     name: String,
+/// #     age: u32,
+/// # }
+/// fields!(Person {
+///     name: equal("Jean Vicquemare"),
+///     age: be_gt(34),
+/// });
+/// ```
+///
+/// This macro also supports tuple structs; the syntax is identical, except you replace the field
+/// names with indices.
+///
+/// ```
+/// # use xpct::{fields, equal};
+/// # struct Point(u32, u32);
+/// fields!(Point {
+///     0: equal(41),
+///     1: equal(57),
+/// });
+/// ```
+///
+/// This syntax looks more like the Rust syntax for regular structs than tuple structs because it
+/// allows you to skip fields:
+///
+/// ```
+/// # use xpct::{fields, equal};
+/// # struct Point(u32, u32);
+/// fields!(Point {
+///     1: equal(57),
+/// });
+/// ```
+///
+/// This struct returns a value that can be passed to [`FieldMatcher::new`].
+///
+/// [`match_fields`]: crate::match_fields
+/// [`match_any_fields`]: crate::match_any_fields
 #[macro_export]
 macro_rules! fields {
     (
@@ -83,8 +143,8 @@ macro_rules! fields {
             $(,)?
         }
     ) => {
-        |input: $struct_type| {
-            ::std::result::Result::Ok(vec![$(
+        |input: $struct_type| -> ::anyhow::Result<::std::vec::Vec<(&::std::primitive::str, ::std::option::Option<$crate::core::DynMatchFailure>)>> {
+            ::anyhow::Result::Ok(vec![$(
                 (
                     stringify!($field_name),
                     match $crate::core::DynMatchPos::match_pos(::std::boxed::Box::new($matcher), input.$field_name)? {

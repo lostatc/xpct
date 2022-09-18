@@ -3,8 +3,10 @@ use std::fmt;
 use crate::core::{DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchPos, MatchResult};
 use crate::{fail, success};
 
+/// When all the given matchers failed.
 pub type AllFailures = Vec<DynMatchFailure>;
 
+/// When some of the given matchers failed.
 pub type SomeFailures = Vec<Option<DynMatchFailure>>;
 
 #[derive(Debug)]

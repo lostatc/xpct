@@ -19,7 +19,7 @@ pub use each::{
     ByRefEachAssertion, ClonedEachAssertion, CopiedEachAssertion, EachContext, EachMatcher,
 };
 pub use equal::{EqualMatcher, Mismatch};
-pub use fields::{ByFieldMatcher, ByMatchMode, FailuresByField};
+pub use fields::{FailuresByField, FieldMatchMode, FieldMatcher};
 pub use not::NotMatcher;
 pub use option::BeSomeMatcher;
 pub use ord::{Inequality, OrdMatcher};

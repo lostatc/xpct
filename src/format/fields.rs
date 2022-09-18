@@ -2,17 +2,19 @@ use std::any::type_name;
 use std::convert::Infallible;
 
 use crate::core::{style, Format, FormattedOutput, Formatter, MatchFailure, PosMatcher};
-use crate::matchers::{ByFieldMatcher, ByMatchMode, FailuresByField};
+use crate::matchers::{FailuresByField, FieldMatchMode, FieldMatcher};
 
+/// A formatter that formats failures for each field of a struct.
 #[derive(Debug)]
 pub struct ByFieldFormat {
     type_name: String,
 }
 
 impl ByFieldFormat {
-    pub fn new(type_name: impl AsRef<str>) -> Self {
+    /// Return a new formatter given the name of the type being matched against.
+    pub fn new(type_name: impl Into<String>) -> Self {
         Self {
-            type_name: type_name.as_ref().into(),
+            type_name: type_name.into(),
         }
     }
 }
@@ -46,24 +48,16 @@ impl Format for ByFieldFormat {
     }
 }
 
+/// A formatter for `
 #[derive(Debug)]
 pub struct ByFieldMatcherFormat<Fmt> {
     inner: Fmt,
-    mode: ByMatchMode,
+    mode: FieldMatchMode,
 }
 
 impl<Fmt> ByFieldMatcherFormat<Fmt> {
-    pub fn new(inner: Fmt, mode: ByMatchMode) -> Self {
+    pub fn new(inner: Fmt, mode: FieldMatchMode) -> Self {
         Self { inner, mode }
-    }
-}
-
-impl ByFieldMatcherFormat<ByFieldFormat> {
-    pub fn default(name: impl AsRef<str>, mode: ByMatchMode) -> Self {
-        Self {
-            inner: ByFieldFormat::new(name),
-            mode,
-        }
     }
 }
 
@@ -76,8 +70,8 @@ where
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
         f.set_style(style::important());
         f.write_str(match self.mode {
-            ByMatchMode::All => "Expected all of these to match:\n",
-            ByMatchMode::Any => "Expected at least one of these to match:\n",
+            FieldMatchMode::All => "Expected all of these to match:\n",
+            FieldMatchMode::Any => "Expected at least one of these to match:\n",
         });
         f.reset_style();
 
@@ -89,6 +83,43 @@ where
     }
 }
 
+/// Matches when all the fields of a struct match.
+///
+/// This matcher operates on a struct and allows for matching on each field separately. You'll
+/// generally want to use this matcher with the [`fields`] macro.
+///
+/// This matches when each field of the struct matches, and skipping/omitting fields does not make
+/// it fail.
+///
+/// This matcher can be used for both regular structs and tuple structs. See [`fields`] for
+/// details.
+///
+/// # Examples
+///
+/// ```should_panic
+/// use xpct::{expect, match_fields, fields, be_ge, be_some, all, equal};
+///
+/// struct Employee {
+///     name: Option<String>,
+///     age: u32,
+/// }
+///
+/// let value = Employee {
+///     name: Some(String::from("Dick Mullen")),
+///     age: 44,
+/// };
+///
+/// expect!(value).to(match_fields(fields!(
+///     Employee {
+///         name: all(|ctx| ctx
+///             .to(be_some())?
+///             .to(equal("Raphaël Ambrosius Costeau"))
+///         ),
+///         age: be_ge(44),
+///     }
+/// )));
+///
+/// ```
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn match_fields<'a, T>(
     func: impl FnOnce(T) -> anyhow::Result<FailuresByField> + 'a,
@@ -97,11 +128,15 @@ where
     T: 'a,
 {
     PosMatcher::new(
-        ByFieldMatcher::new(ByMatchMode::All, func),
-        ByFieldMatcherFormat::default(type_name::<T>(), ByMatchMode::All),
+        FieldMatcher::new(FieldMatchMode::All, func),
+        ByFieldMatcherFormat::new(ByFieldFormat::new(type_name::<T>()), FieldMatchMode::All),
     )
 }
 
+/// Matches when any of the fields of a struct match.
+///
+/// This matcher is similar to [`match_fields`], except it matches when *any* of the fields of a
+/// struct match instead of all of them.
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn match_any_fields<'a, T>(
     func: impl FnOnce(T) -> anyhow::Result<FailuresByField> + 'a,
@@ -110,7 +145,7 @@ where
     T: 'a,
 {
     PosMatcher::new(
-        ByFieldMatcher::new(ByMatchMode::Any, func),
-        ByFieldMatcherFormat::default(type_name::<T>(), ByMatchMode::Any),
+        FieldMatcher::new(FieldMatchMode::Any, func),
+        ByFieldMatcherFormat::new(ByFieldFormat::new(type_name::<T>()), FieldMatchMode::Any),
     )
 }

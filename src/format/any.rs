@@ -74,6 +74,49 @@ where
     }
 }
 
+/// Matches when any of the passed matchers match.
+///
+/// This is a matcher than can be used to compose other matchers. Because this matcher needs to
+/// test all the matchers that are passed to it, it can't short-circuit. This means that it doesn't
+/// support chaining the output of one matcher into the next.
+///
+/// Instead, this matcher owns its value and passes it to each matcher, either by reference, by
+/// cloning, or by copying. This matcher accepts a function which is passed an [`AnyContext`]. You
+/// can call methods on this context value to determine whether you want to pass the value to
+/// matchers by reference or by value, and if the latter, whether you want to clone or copy the
+/// value. From there, you can call methods like `to` and `to_not`.
+///
+/// This matcher cannot be negated, such as with [`not`]. Instead, you can just negate each of the
+/// matchers passed to it by calling `to_not` or using [`not`] on them.
+///
+/// # Examples
+///
+/// Passing the value to matchers by reference:
+///
+/// ```
+/// use xpct::{expect, any, equal};
+///
+/// expect!("Martinaise").to(any(|ctx| {
+///     ctx.by_ref()
+///         .to(equal(&"The Pox"))
+///         .to(equal(&"Central Jamrock"))
+///         .to(equal(&"Martinaise"));
+/// }));
+/// ```
+///
+/// Passing the value to matchers by value via [`Clone`]:
+///
+/// ```
+/// use xpct::{expect, any, equal};
+///
+/// expect!(41).to(any(|ctx| {
+///     ctx.cloned()
+///         .to(equal(41))
+///         .to(equal(57));
+/// }));
+/// ```
+///
+/// [`not`]: crate::not
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn any<'a, T>(block: impl Fn(&mut AnyContext<T>) + 'a) -> PosMatcher<'a, T, T>
 where

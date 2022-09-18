@@ -2,11 +2,19 @@ use crate::core::SimpleMatch;
 
 use super::Mismatch;
 
+/// Which inequality test to perform.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Inequality {
+    /// [`PartialOrd::lt`]
     Less,
+
+    /// [`PartialOrd::le`]
     LessOrEqual,
+
+    /// [`PartialOrd::gt`]
     Greater,
+
+    /// [`PartialOrd::ge`]
     GreaterOrEqual,
 }
 
