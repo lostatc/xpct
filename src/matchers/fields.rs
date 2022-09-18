@@ -129,7 +129,7 @@ impl<'a, T> MatchPos for FieldMatcher<'a, T> {
 /// });
 /// ```
 ///
-/// This struct returns a value that can be passed to [`FieldMatcher::new`].
+/// This macro returns a value that can be passed to [`FieldMatcher::new`].
 ///
 /// [`match_fields`]: crate::match_fields
 /// [`match_any_fields`]: crate::match_any_fields
