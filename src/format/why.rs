@@ -75,7 +75,7 @@ where
     PosOut: 'a,
     NegOut: 'a,
 {
-    Matcher::wrap(matcher, WhyFormat::new(reason))
+    matcher.wrapped(WhyFormat::new(reason))
 }
 
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
@@ -88,5 +88,5 @@ where
     PosOut: 'a,
     NegOut: 'a,
 {
-    Matcher::wrap(matcher, WhyFormat::lazy(reason))
+    matcher.wrapped(WhyFormat::lazy(reason))
 }

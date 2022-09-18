@@ -2,8 +2,9 @@ use std::any::type_name;
 use std::fmt;
 
 use super::{
-    BoxMatch, BoxMatchNeg, BoxMatchPos, DynMatchFailure, MatchBase, MatchNeg, MatchPos,
-    MatchResult, Matcher, NegMatcher, PosMatcher,
+    matcher::{BoxMatchNeg, NegMatcher},
+    BoxMatch, BoxMatchPos, DynMatchFailure, MatchBase, MatchNeg, MatchPos, MatchResult, Matcher,
+    PosMatcher,
 };
 
 pub(super) struct MatchWrapper<'a, In, PosOut, NegOut>(BoxMatch<'a, In, PosOut, NegOut>);

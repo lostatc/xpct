@@ -93,14 +93,14 @@ impl<'a, In, PosOut, NegOut> Matcher<'a, In, PosOut, NegOut> {
         Matcher::new(NegMatchAdapter::new(matcher), format)
     }
 
-    pub fn wrap<Fmt>(matcher: Matcher<'a, In, PosOut, NegOut>, format: Fmt) -> Self
+    pub fn wrapped<Fmt>(self, format: Fmt) -> Self
     where
         In: 'a,
         PosOut: 'a,
         NegOut: 'a,
         Fmt: ResultFormat<Pos = DynMatchFailure, Neg = DynMatchFailure> + 'a,
     {
-        Self::new(MatchWrapper::new(matcher), format)
+        Self::new(MatchWrapper::new(self), format)
     }
 
     pub fn into_box(self) -> BoxMatch<'a, In, PosOut, NegOut> {
@@ -173,13 +173,13 @@ impl<'a, In, Out> PosMatcher<'a, In, Out> {
         Self(Box::new(DynMatchAdapter::new(matcher, format)))
     }
 
-    pub fn wrap<Fmt>(matcher: PosMatcher<'a, In, Out>, format: Fmt) -> Self
+    pub fn wrapped<Fmt>(self, format: Fmt) -> Self
     where
         In: 'a,
         Out: 'a,
         Fmt: ResultFormat<Pos = DynMatchFailure> + 'a,
     {
-        Self::new(MatchPosWrapper::new(matcher), format)
+        Self::new(MatchPosWrapper::new(self), format)
     }
 
     pub fn into_box(self) -> BoxMatchPos<'a, In, Out> {
@@ -221,13 +221,13 @@ impl<'a, In, Out> NegMatcher<'a, In, Out> {
         Self(Box::new(DynMatchAdapter::new(matcher, format)))
     }
 
-    pub fn wrap<Fmt>(matcher: NegMatcher<'a, In, Out>, format: Fmt) -> Self
+    pub fn wrapped<Fmt>(self, format: Fmt) -> Self
     where
         In: 'a,
         Out: 'a,
         Fmt: ResultFormat<Neg = DynMatchFailure> + 'a,
     {
-        Self::new(MatchNegWrapper::new(matcher), format)
+        Self::new(MatchNegWrapper::new(self), format)
     }
 
     pub fn into_box(self) -> BoxMatchNeg<'a, In, Out> {
