@@ -1,6 +1,4 @@
-use std::convert::Infallible;
-
-use crate::core::{strings, style, Format, FormattedOutput, Formatter, MatchFailure, PosMatcher};
+use crate::core::{strings, style, Format, Formatter, MatchFailure, PosMatcher};
 use crate::matchers::{AllFailures, AnyContext, AnyMatcher};
 
 #[non_exhaustive]
@@ -43,35 +41,36 @@ impl Format for AllFailuresFormat {
 }
 
 #[derive(Debug, Default)]
-pub struct AnyFormat<Fmt> {
+pub struct HeaderFormat<Fmt> {
     inner: Fmt,
+    header: String,
 }
 
-impl<Fmt> AnyFormat<Fmt> {
-    pub fn new(inner: Fmt) -> Self {
-        Self { inner }
+impl<Fmt> HeaderFormat<Fmt> {
+    pub fn new(inner: Fmt, header: impl Into<String>) -> Self {
+        Self {
+            inner,
+            header: header.into(),
+        }
     }
 }
 
-impl<Fmt> Format for AnyFormat<Fmt>
+impl<Fmt> Format for HeaderFormat<Fmt>
 where
-    Fmt: Format<Value = AllFailures>,
+    Fmt: Format,
 {
-    type Value = MatchFailure<AllFailures, Infallible>;
+    type Value = MatchFailure<Fmt::Value>;
 
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
         f.set_style(style::important());
-        f.write_str("Expected at least one of these to match:\n");
+        f.write_str(self.header);
         f.reset_style();
+        f.write_char('\n');
 
         match value {
-            MatchFailure::Pos(fail) => {
-                f.write_fmt(FormattedOutput::new(fail, self.inner)?.indented(style::indent_len(1)))
-            }
-            MatchFailure::Neg(_) => unreachable!(),
-        };
-
-        Ok(())
+            MatchFailure::Pos(fail) => self.inner.fmt(f, fail),
+            MatchFailure::Neg(fail) => self.inner.fmt(f, fail),
+        }
     }
 }
 
@@ -82,6 +81,9 @@ where
 {
     PosMatcher::new(
         AnyMatcher::new(block),
-        AnyFormat::<AllFailuresFormat>::default(),
+        HeaderFormat::new(
+            AllFailuresFormat::new(),
+            "Expected at least one of these to match.",
+        ),
     )
 }

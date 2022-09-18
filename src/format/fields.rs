@@ -81,11 +81,8 @@ where
         });
         f.reset_style();
 
-        match value {
-            MatchFailure::Pos(failures) => f.write_fmt(
-                FormattedOutput::new(failures, self.inner)?.indented(style::indent_len(1)),
-            ),
-            MatchFailure::Neg(_) => unreachable!(),
+        if let MatchFailure::Pos(failures) = value {
+            FormattedOutput::new(failures, self.inner)?.indented(style::indent_len(1));
         }
 
         Ok(())

@@ -1,4 +1,4 @@
-use crate::core::{style, Format, Formatter, MatchFailure, Matcher};
+use crate::core::{style, Format, Formatter, MatchFailure, Matcher, NegFormat};
 use crate::matchers::BeTrueMatcher;
 
 #[derive(Debug)]
@@ -32,18 +32,16 @@ impl Format for MessageFormat {
     }
 }
 
+fn bool_format() -> MessageFormat {
+    MessageFormat::new("Expected this to be true.", "Expected this to be false.")
+}
+
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn be_true() -> Matcher<'static, bool, bool> {
-    Matcher::simple(
-        BeTrueMatcher::new(),
-        MessageFormat::new("Expected this to be true.", "Expected this to be false."),
-    )
+    Matcher::simple(BeTrueMatcher::new(), bool_format())
 }
 
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn be_false() -> Matcher<'static, bool, bool> {
-    Matcher::simple_neg(
-        BeTrueMatcher::new(),
-        MessageFormat::new("Expected this to be false.", "Expected this to be true."),
-    )
+    Matcher::simple_neg(BeTrueMatcher::new(), NegFormat(bool_format()))
 }

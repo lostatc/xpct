@@ -3,15 +3,15 @@ use crate::matchers::NotMatcher;
 
 #[non_exhaustive]
 #[derive(Debug, Default)]
-pub struct FailFormat;
+pub struct FailureFormat;
 
-impl FailFormat {
+impl FailureFormat {
     pub fn new() -> Self {
         Self
     }
 }
 
-impl Format for FailFormat {
+impl Format for FailureFormat {
     type Value = MatchFailure<DynMatchFailure>;
 
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
@@ -35,5 +35,5 @@ where
     PosOut: 'a,
     NegOut: 'a,
 {
-    Matcher::new(NotMatcher::new(matcher), FailFormat::new())
+    Matcher::new(NotMatcher::new(matcher), FailureFormat::new())
 }

@@ -1,7 +1,7 @@
-use std::convert::Infallible;
-
-use crate::core::{strings, style, Format, FormattedOutput, Formatter, MatchFailure, PosMatcher};
+use crate::core::{strings, style, Format, Formatter, PosMatcher};
 use crate::matchers::{EachContext, EachMatcher, SomeFailures};
+
+use super::HeaderFormat;
 
 #[non_exhaustive]
 #[derive(Debug, Default)]
@@ -53,39 +53,6 @@ impl Format for SomeFailuresFormat {
     }
 }
 
-#[derive(Debug, Default)]
-pub struct EachFormat<Fmt> {
-    inner: Fmt,
-}
-
-impl<Fmt> EachFormat<Fmt> {
-    pub fn new(inner: Fmt) -> Self {
-        Self { inner }
-    }
-}
-
-impl<Fmt> Format for EachFormat<Fmt>
-where
-    Fmt: Format<Value = SomeFailures>,
-{
-    type Value = MatchFailure<SomeFailures, Infallible>;
-
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
-        f.set_style(style::important());
-        f.write_str("Expected all of these to match:\n");
-        f.reset_style();
-
-        match value {
-            MatchFailure::Pos(fail) => {
-                f.write_fmt(FormattedOutput::new(fail, self.inner)?.indented(style::indent_len(1)))
-            }
-            MatchFailure::Neg(_) => unreachable!(),
-        };
-
-        Ok(())
-    }
-}
-
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn each<'a, T>(block: impl FnOnce(&mut EachContext<T>) + 'a) -> PosMatcher<'a, T, T>
 where
@@ -93,6 +60,6 @@ where
 {
     PosMatcher::new(
         EachMatcher::new(block),
-        EachFormat::<SomeFailuresFormat>::default(),
+        HeaderFormat::new(SomeFailuresFormat::new(), "Expected all of these to match:"),
     )
 }

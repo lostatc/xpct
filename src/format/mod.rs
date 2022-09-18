@@ -12,14 +12,12 @@ mod option;
 mod ord;
 mod why;
 
-pub use all::AllFormat;
-pub use any::{AllFailuresFormat, AnyFormat};
+pub use any::{AllFailuresFormat, HeaderFormat};
 pub use boolean::MessageFormat;
-pub use each::{EachFormat, SomeFailuresFormat};
+pub use each::SomeFailuresFormat;
 pub use equal::MismatchFormat;
 pub use fields::{ByFieldFormat, ByFieldMatcherFormat};
-pub use not::FailFormat;
-pub use option::BeSomeFormat;
+pub use not::FailureFormat;
 pub use why::WhyFormat;
 
 pub(crate) mod matchers {
