@@ -53,6 +53,57 @@ impl Format for SomeFailuresFormat {
     }
 }
 
+/// Matches when all of the passed matchers match.
+///
+/// This matcher is similar to [`all`], except it does not short-circuit and it does not chain the
+/// output of each matcher into the next. You can use matcher this when:
+///
+/// 1. You want to test all the matchers instead of just failing early and printing the first
+///    failure.
+/// 2. You want to perform multiple assertions on the same value without transforming it (like
+///    [`be_ok`] and [`be_some`] do).
+///
+/// This matcher owns its value and passes it to each matcher, either by reference, or by value if
+/// the value is [`Clone`] or [`Copy`]. The closure you pass to this matcher accepts an
+/// [`EachContext`], which has methods like [`borrow`][`EachContext::borrow`],
+/// [`cloned`][`EachContext::cloned`], [`copied`][`EachContext::copied`], and
+/// [`map`][`EachContext::map`] to determine how the value is passed to matchers. From there, you
+/// can call methods like `to` and `to_not`.
+///
+/// This matcher cannot be negated, such as with [`not`]. Instead, you can just negate each of the
+/// matchers passed to it by calling `to_not` or using [`not`] on them.
+///
+/// # Examples
+///
+/// Passing the value to matchers by reference:
+///
+/// ```
+/// use xpct::{expect, each, be_lt, be_gt};
+///
+/// expect!("Billie").to(each(|ctx| {
+///     ctx.borrow::<str>()
+///         .to(be_lt("Cuno"))
+///         .to(be_gt("Annette"));
+/// }));
+/// ```
+///
+/// Passing the value to matchers by value via [`Copy`]:
+///
+/// ```
+/// use xpct::{expect, each, be_lt, be_gt};
+///
+/// expect!(20.0).to(each(|ctx| {
+///     ctx.copied()
+///         .to(be_lt(130.0))
+///         .to(be_gt(0.40));
+/// }));
+///
+/// ```
+///
+/// [`all`]: crate::all
+/// [`not`]: crate::not
+/// [`be_ok`]: crate::be_ok
+/// [`be_some`]: crate::be_some
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn each<'a, T>(block: impl FnOnce(&mut EachContext<T>) + 'a) -> PosMatcher<'a, T, T>
 where
