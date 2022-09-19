@@ -78,6 +78,7 @@
 //! # use xpct::matchers::EqualMatcher;
 //! use std::fmt;
 //!
+//! use xpct::expect;
 //! use xpct::core::Matcher;
 //! use xpct::format::MismatchFormat;
 //!
@@ -102,6 +103,7 @@
 //! # use xpct::matchers::EqualMatcher;
 //! use std::fmt;
 //!
+//! use xpct::expect;
 //! use xpct::core::Matcher;
 //! use xpct::format::MismatchFormat;
 //!
@@ -117,6 +119,8 @@
 //!         MismatchFormat::new("to not equal", "to equal"),
 //!     )
 //! }
+//!
+//! expect!("disco").to(not_equal("not disco"));
 //! ```
 //!
 //! A major limitation of [`SimpleMatch`] is that it always returns the same value that was passed
@@ -228,6 +232,7 @@
 //! [`Matcher::simple_neg`]: crate::core::Matcher::simple_neg
 //! [`MatchPos`]: crate::core::MatchPos
 //! [`MatchNeg`]: crate::core::MatchNeg
+
 mod boolean;
 mod chain;
 mod combinator;
