@@ -2,7 +2,7 @@ use std::any::type_name;
 use std::convert::Infallible;
 
 use crate::core::{style, Format, FormattedOutput, Formatter, MatchFailure, PosMatcher};
-use crate::matchers::{FailuresByField, FieldMatchMode, FieldMatcher};
+use crate::matchers::{CombinatorMode, FailuresByField, FieldMatcher};
 
 /// A formatter that formats failures for each field of a struct.
 #[derive(Debug)]
@@ -52,11 +52,11 @@ impl Format for ByFieldFormat {
 #[derive(Debug)]
 pub struct ByFieldMatcherFormat<Fmt> {
     inner: Fmt,
-    mode: FieldMatchMode,
+    mode: CombinatorMode,
 }
 
 impl<Fmt> ByFieldMatcherFormat<Fmt> {
-    pub fn new(inner: Fmt, mode: FieldMatchMode) -> Self {
+    pub fn new(inner: Fmt, mode: CombinatorMode) -> Self {
         Self { inner, mode }
     }
 }
@@ -70,8 +70,8 @@ where
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
         f.set_style(style::important());
         f.write_str(match self.mode {
-            FieldMatchMode::All => "Expected all of these to match:\n",
-            FieldMatchMode::Any => "Expected at least one of these to match:\n",
+            CombinatorMode::All => "Expected all of these to match:\n",
+            CombinatorMode::Any => "Expected at least one of these to match:\n",
         });
         f.reset_style();
 
@@ -128,8 +128,8 @@ where
     T: 'a,
 {
     PosMatcher::new(
-        FieldMatcher::new(FieldMatchMode::All, func),
-        ByFieldMatcherFormat::new(ByFieldFormat::new(type_name::<T>()), FieldMatchMode::All),
+        FieldMatcher::new(CombinatorMode::All, func),
+        ByFieldMatcherFormat::new(ByFieldFormat::new(type_name::<T>()), CombinatorMode::All),
     )
 }
 
@@ -145,7 +145,7 @@ where
     T: 'a,
 {
     PosMatcher::new(
-        FieldMatcher::new(FieldMatchMode::Any, func),
-        ByFieldMatcherFormat::new(ByFieldFormat::new(type_name::<T>()), FieldMatchMode::Any),
+        FieldMatcher::new(CombinatorMode::Any, func),
+        ByFieldMatcherFormat::new(ByFieldFormat::new(type_name::<T>()), CombinatorMode::Any),
     )
 }

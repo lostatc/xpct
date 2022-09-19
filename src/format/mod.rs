@@ -14,7 +14,7 @@ mod ord;
 mod result;
 mod why;
 
-pub use any::{AllFailuresFormat, HeaderFormat};
+pub use any::HeaderFormat;
 pub use boolean::MessageFormat;
 pub use each::SomeFailuresFormat;
 pub use equal::MismatchFormat;

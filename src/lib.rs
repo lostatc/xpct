@@ -122,7 +122,7 @@
 //! matchers in different ways:
 //!
 //! ```
-//! use xpct::{expect, any, equal, be_none, matchers::EachContext};
+//! use xpct::{expect, any, equal, be_none};
 //!
 //! fn necktie_kind() -> Option<String> {
 //!     None

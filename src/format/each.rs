@@ -1,5 +1,5 @@
 use crate::core::{strings, style, Format, Formatter, PosMatcher};
-use crate::matchers::{EachContext, EachMatcher, SomeFailures};
+use crate::matchers::{CombinatorContext, CombinatorMatcher, CombinatorMode, SomeFailures};
 
 use super::HeaderFormat;
 
@@ -105,12 +105,12 @@ impl Format for SomeFailuresFormat {
 /// [`be_ok`]: crate::be_ok
 /// [`be_some`]: crate::be_some
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
-pub fn each<'a, T>(block: impl FnOnce(&mut EachContext<T>) + 'a) -> PosMatcher<'a, T, T>
+pub fn each<'a, T>(block: impl FnOnce(&mut CombinatorContext<T>) + 'a) -> PosMatcher<'a, T, T>
 where
     T: 'a,
 {
     PosMatcher::new(
-        EachMatcher::new(block),
+        CombinatorMatcher::new(CombinatorMode::All, block),
         HeaderFormat::new(SomeFailuresFormat::new(), "Expected all of these to match:"),
     )
 }

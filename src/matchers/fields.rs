@@ -4,20 +4,12 @@ use std::fmt;
 use crate::core::{DynMatchFailure, MatchBase, MatchPos, MatchResult};
 use crate::{fail, success};
 
+use super::CombinatorMode;
+
 /// A pairing of field names to optional match failures.
 ///
 /// This can be used by matchers that test each field of a struct or tuple.
 pub type FailuresByField = Vec<(&'static str, Option<DynMatchFailure>)>;
-
-/// How to match on struct fields.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum FieldMatchMode {
-    /// Succeed when any field matches.
-    Any,
-
-    /// Succeed when all fields match.
-    All,
-}
 
 /// A matcher for matching on fields of a struct.
 ///
@@ -26,12 +18,12 @@ pub enum FieldMatchMode {
 /// [`match_fields`]: crate::match_fields
 pub struct FieldMatcher<'a, T> {
     func: Box<dyn FnOnce(T) -> anyhow::Result<FailuresByField> + 'a>,
-    mode: FieldMatchMode,
+    mode: CombinatorMode,
 }
 
 impl<'a, T> fmt::Debug for FieldMatcher<'a, T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("ByFieldMatcher")
+        f.debug_struct("FieldMatcher")
             .field(
                 "func",
                 &type_name::<Box<dyn FnOnce(T) -> anyhow::Result<FailuresByField> + 'a>>(),
@@ -47,7 +39,7 @@ impl<'a, T> FieldMatcher<'a, T> {
     /// This accepts a function which is passed the struct and returns any failures along with
     /// their field names. You can use the [`fields`] macro to generate a function of this type.
     pub fn new(
-        mode: FieldMatchMode,
+        mode: CombinatorMode,
         func: impl FnOnce(T) -> anyhow::Result<FailuresByField> + 'a,
     ) -> Self {
         Self {
@@ -71,14 +63,14 @@ impl<'a, T> MatchPos for FieldMatcher<'a, T> {
     ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
         let failures = (self.func)(actual)?;
         match self.mode {
-            FieldMatchMode::Any => {
+            CombinatorMode::Any => {
                 if failures.iter().any(|(_, fail)| fail.is_none()) {
                     success!(())
                 } else {
                     fail!(failures)
                 }
             }
-            FieldMatchMode::All => {
+            CombinatorMode::All => {
                 if failures.iter().all(|(_, fail)| fail.is_none()) {
                     success!(())
                 } else {
