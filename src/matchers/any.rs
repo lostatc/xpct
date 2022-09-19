@@ -89,13 +89,13 @@ impl<'a, T: ?Sized> BorrowedAnyAssertion<'a, T> {
     pub fn done(self) {}
 }
 
-pub struct MappedAnyAssertion<'a, T, In> {
-    value: &'a T,
-    state: &'a mut AnyAssertionState,
-    transform: Box<dyn Fn(&T) -> In + 'a>,
+pub struct MappedAnyAssertion<'a, 'b, T, In> {
+    value: &'b T,
+    state: &'b mut AnyAssertionState,
+    transform: Box<dyn Fn(&'a T) -> In + 'b>,
 }
 
-impl<'a, T, In> fmt::Debug for MappedAnyAssertion<'a, T, In>
+impl<'a, 'b, T, In> fmt::Debug for MappedAnyAssertion<'a, 'b, T, In>
 where
     T: fmt::Debug,
 {
@@ -108,7 +108,7 @@ where
     }
 }
 
-impl<'a, T, In> MappedAnyAssertion<'a, T, In> {
+impl<'a, 'b: 'a, T, In> MappedAnyAssertion<'a, 'b, T, In> {
     pub fn to(self, matcher: impl DynMatchPos<In = In>) -> Self {
         let assertion = BaseAnyAssertion::new((&self.transform)(&self.value), self.state);
         assertion.to(matcher);
@@ -198,10 +198,10 @@ impl<T> AnyContext<T> {
         }
     }
 
-    pub fn map<'a, In>(
-        &'a mut self,
-        func: impl Fn(&T) -> In + 'a,
-    ) -> MappedAnyAssertion<'a, T, In> {
+    pub fn map<'a, 'b: 'a, In>(
+        &'b mut self,
+        func: impl Fn(&'a T) -> In + 'b,
+    ) -> MappedAnyAssertion<'a, 'b, T, In> {
         MappedAnyAssertion {
             value: &self.value,
             state: &mut self.state,

@@ -135,13 +135,13 @@ where
     pub fn done(self) {}
 }
 
-pub struct MappedEachAssertion<'b, 'a: 'b, T, In> {
-    value: &'a T,
-    state: &'a mut EachAssertionState,
-    transform: Box<dyn Fn(&'b T) -> In + 'a>,
+pub struct MappedEachAssertion<'a, 'b: 'a, T, In> {
+    value: &'b T,
+    state: &'b mut EachAssertionState,
+    transform: Box<dyn Fn(&'a T) -> In + 'b>,
 }
 
-impl<'b, 'a: 'b, T, In> fmt::Debug for MappedEachAssertion<'a, 'b, T, In>
+impl<'a, 'b, T, In> fmt::Debug for MappedEachAssertion<'a, 'b, T, In>
 where
     T: fmt::Debug,
 {
@@ -154,7 +154,7 @@ where
     }
 }
 
-impl<'b, 'a: 'b, T, In> MappedEachAssertion<'a, 'b, T, In> {
+impl<'a, 'b, T, In> MappedEachAssertion<'a, 'b, T, In> {
     pub fn to(self, matcher: impl DynMatchPos<In = In>) -> Self {
         let assertion = BaseEachAssertion::new((&self.transform)(&self.value), self.state);
         assertion.to(matcher);
@@ -195,13 +195,10 @@ impl<T> EachContext<T> {
         }
     }
 
-    pub fn map<'b, 'a: 'b, In>(
-        &'a mut self,
-        func: impl Fn(&'b T) -> In + 'a,
-    ) -> MappedEachAssertion<'a, 'b, T, In>
-    where
-        T: 'b,
-    {
+    pub fn map<'a, 'b: 'a, In>(
+        &'b mut self,
+        func: impl Fn(&'a T) -> In + 'b,
+    ) -> MappedEachAssertion<'a, 'b, T, In> {
         MappedEachAssertion {
             value: &self.value,
             state: &mut self.state,
