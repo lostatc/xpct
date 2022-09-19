@@ -4,11 +4,11 @@ use super::{
 };
 
 #[derive(Debug)]
-pub struct Assertion<T, AssertFmt>
+pub struct Assertion<In, AssertFmt>
 where
     AssertFmt: AssertionFormat,
 {
-    value: T,
+    value: In,
     format: AssertFmt,
     ctx: AssertFmt::Context,
 }
@@ -22,13 +22,13 @@ where
         .fail();
 }
 
-impl<T, AssertFmt> Assertion<T, AssertFmt>
+impl<In, AssertFmt> Assertion<In, AssertFmt>
 where
     AssertFmt: AssertionFormat,
 {
     pub fn to<Out>(
         self,
-        matcher: impl DynMatchPos<In = T, PosOut = Out>,
+        matcher: impl DynMatchPos<In = In, PosOut = Out>,
     ) -> Assertion<Out, AssertFmt> {
         match Box::new(matcher).match_pos(self.value) {
             Ok(MatchResult::Success(out)) => Assertion {
@@ -43,7 +43,7 @@ where
 
     pub fn to_not<Out>(
         self,
-        matcher: impl DynMatchNeg<In = T, NegOut = Out>,
+        matcher: impl DynMatchNeg<In = In, NegOut = Out>,
     ) -> Assertion<Out, AssertFmt> {
         match Box::new(matcher).match_neg(self.value) {
             Ok(MatchResult::Success(out)) => Assertion {
@@ -56,7 +56,7 @@ where
         }
     }
 
-    pub fn into_inner(self) -> T {
+    pub fn into_inner(self) -> In {
         self.value
     }
 
@@ -87,7 +87,7 @@ where
     }
 }
 
-pub fn expect<T, AssertFmt>(actual: T) -> Assertion<T, AssertFmt>
+pub fn expect<In, AssertFmt>(actual: In) -> Assertion<In, AssertFmt>
 where
     AssertFmt: AssertionFormat + Default,
     AssertFmt::Context: Default,
