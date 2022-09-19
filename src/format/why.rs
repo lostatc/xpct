@@ -14,7 +14,7 @@ impl<'a> fmt::Debug for WhyFormatReason<'a> {
             Self::Eager(reason) => f.debug_tuple("Eager").field(reason).finish(),
             Self::Lazy(_) => f
                 .debug_tuple("Lazy")
-                .field(&std::any::type_name::<Box<dyn FnOnce() -> String>>())
+                .field(&std::any::type_name::<Box<dyn FnOnce() -> Cow<'a, str> + 'a>>())
                 .finish(),
         }
     }

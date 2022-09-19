@@ -2,7 +2,7 @@
 //!
 //! It's designed to be ergonomic, batteries-included, and test framework agnostic.
 //!
-//! # Tutorial
+//! # Making assertions
 //!
 //! To make an assertion, you'll usually start with the [`expect!`] macro:
 //!
@@ -66,13 +66,13 @@
 //! the [`Err`] variant instead.
 //!
 //! If you want to map a value from one type to another as part of a chain of matchers, but don't
-//! need a dedicated matcher for it, you can use the matchers [`map`] and [`map_result`] as well as
-//! [`Assertion::map`] and [`Assertion::map_result`].
+//! need a dedicated matcher for it, you can use the matchers [`map`] and [`try_map`] as well as
+//! [`Assertion::map`] and [`Assertion::try_map`].
 //!
 //! ```
 //! use std::convert::Infallible;
 //!
-//! use xpct::{expect, map, map_result, equal};
+//! use xpct::{expect, map, try_map, equal};
 //!
 //! struct Name(String);
 //!
@@ -86,9 +86,9 @@
 //!     .to(map(Result::unwrap))
 //!     .to(equal("Cuno"));
 //!
-//! // We use `map_result` for conversions that can fail.
+//! // We use `try_map` for conversions that can fail.
 //! expect!(vec![0x43, 0x75, 0x6e, 0x6f])
-//!     .map_result(|bytes| Ok(String::from_utf8(bytes)?))
+//!     .try_map(|bytes| Ok(String::from_utf8(bytes)?))
 //!     .to(equal("Cuno"));
 //! ```
 //!
@@ -173,6 +173,59 @@
 //! })));
 //! ```
 //!
+//! # Matchers
+//!
+//! ## Equality
+//!
+//! - [`equal`]
+//!
+//! ## Negating
+//!
+//! - [`not`]
+//!
+//! ## Ordering
+//!
+//! - [`be_lt`]
+//! - [`be_le`]
+//! - [`be_gt`]
+//! - [`be_ge`]
+//!
+//! ## Boolean
+//!
+//! - [`be_true`]
+//! - [`be_false`]
+//!
+//! ## Combinators
+//!
+//! - [`all`]
+//! - [`each`]
+//! - [`any`]
+//!
+//! ## Struct fields
+//!
+//! - [`match_fields`]
+//! - [`match_any_fields`]
+//!
+//! ## Adding context
+//!
+//! - [`why`]
+//! - [`why_lazy`]
+//!
+//! ## Mapping values
+//!
+//! - [`map`]
+//! - [`try_map`]
+//!
+//! ## [`Result`] values
+//!
+//! - [`be_ok`]
+//! - [`be_err`]
+//!
+//! ## [`Option`] values
+//!
+//! - [`be_some`]
+//! - [`be_none`]
+//!
 //! [`expect!`]: crate::expect
 //! [`fields!`]: crate::fields
 //! [`Assertion::to_not`]: crate::core::Assertion::to_not
@@ -180,7 +233,7 @@
 //! [`PosMatcher`]: crate::core::PosMatcher
 //! [`Assertion::into_inner`]: crate::core::Assertion::into_inner
 //! [`Assertion::map`]: crate::core::Assertion::map
-//! [`Assertion::map_result`]: crate::core::Assertion::map_result
+//! [`Assertion::try_map`]: crate::core::Assertion::try_map
 //! [`Assertion::into`]: crate::core::Assertion::into
 //! [`Assertion::try_into`]: crate::core::Assertion::try_into
 #![cfg_attr(docsrs, feature(doc_cfg))]
@@ -190,6 +243,8 @@ pub mod matchers;
 
 #[cfg(feature = "fmt")]
 pub mod format;
+
+pub use anyhow;
 
 #[cfg(feature = "fmt")]
 pub use format::matchers::*;

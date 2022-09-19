@@ -1,14 +1,14 @@
 //! The formatters provided by this crate.
 //!
-//! # Writing custom matchers
+//! # Writing custom formatters
 //!
 //! Most of the time, when writing matchers, you should be able to reuse existing formatters in
 //! this module. However, if you want to write a formatter for your custom matcher, or even to
 //! change the formatting of an existing matcher, here's how to do it.
 //!
 //! Formatters are types that implement the [`Format`] trait. Formatters have a [`Format::Value`],
-//! which is the type of the passed to them by the matcher. If you want to implement [`Format`] for
-//! use with a matcher, [`Format::Value`] must be a [`MatchFailure`].
+//! which is the type passed to them by the matcher. If you want to implement [`Format`] for use
+//! with a matcher, its [`Format::Value`] must be a [`MatchFailure`].
 //!
 //! Let's write a simple formatter that accepts a [`Mismatch`] and prints that the two values are
 //! not equal.
@@ -81,7 +81,8 @@
 //! ```
 //!
 //! Formatters also support styling the output with colors and font styles using the
-//! [`Formatter::set_style`] and [`Formatter::reset_style`] methods.
+//! [`Formatter::set_style`] and [`Formatter::reset_style`] methods. You can disable stylized
+//! terminal output by disabling the default `color` Cargo feature.
 //!
 //! If your matcher composes other matchers, it will likely pass a [`FormattedFailure`] to the
 //! formatter, which represents the formatted output of those matchers. You can use
@@ -95,6 +96,9 @@
 //! f.write_fmt(failure.into_fmt().indented(4));
 //! # }
 //! ```
+//!
+//! If you really hate the default formatters and you want to replace all the provided formatters
+//! in this module with your own, you can disable the default `fmt` Cargo feature.
 //!
 //! [`Format`]: crate::core::Format
 //! [`Format::Value`]: crate::core::Format::Value
@@ -138,7 +142,7 @@ pub(crate) mod matchers {
     pub use super::each::each;
     pub use super::equal::equal;
     pub use super::fields::{match_any_fields, match_fields};
-    pub use super::map::{map, map_result};
+    pub use super::map::{map, try_map};
     pub use super::not::not;
     pub use super::option::{be_none, be_some};
     pub use super::ord::{be_ge, be_gt, be_le, be_lt};

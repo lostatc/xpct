@@ -251,7 +251,7 @@ pub use combinator::{
 };
 pub use equal::{EqualMatcher, Mismatch};
 pub use fields::{FailuresByField, FieldMatcher};
-pub use map::{MapMatcher, MapResultMatcher};
+pub use map::{MapMatcher, TryMapMatcher};
 pub use not::NotMatcher;
 pub use option::BeSomeMatcher;
 pub use ord::{Inequality, OrdMatcher};

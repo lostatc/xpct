@@ -1,5 +1,5 @@
 use crate::core::PosMatcher;
-use crate::matchers::{MapMatcher, MapResultMatcher};
+use crate::matchers::{MapMatcher, TryMapMatcher};
 
 use super::FailureFormat;
 
@@ -14,12 +14,12 @@ where
 }
 
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
-pub fn map_result<'a, In, Out>(
+pub fn try_map<'a, In, Out>(
     func: impl FnOnce(In) -> anyhow::Result<Out> + 'a,
 ) -> PosMatcher<'a, In, Out>
 where
     In: 'a,
     Out: 'a,
 {
-    PosMatcher::new(MapResultMatcher::new(func), FailureFormat::new())
+    PosMatcher::new(TryMapMatcher::new(func), FailureFormat::new())
 }

@@ -66,7 +66,7 @@ where
         }
     }
 
-    pub fn map_result<Out>(
+    pub fn try_map<Out>(
         self,
         func: impl FnOnce(In) -> anyhow::Result<Out>,
     ) -> Assertion<Out, AssertFmt> {
