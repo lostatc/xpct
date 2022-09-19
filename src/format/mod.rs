@@ -83,15 +83,15 @@
 //! Formatters also support styling the output with colors and font styles using the
 //! [`Formatter::set_style`] and [`Formatter::reset_style`] methods.
 //!
-//! If your matcher composes other matchers, it will likely pass a [`DynMatchFailure`] to the
+//! If your matcher composes other matchers, it will likely pass a [`FormattedFailure`] to the
 //! formatter, which represents the formatted output of those matchers. You can use
 //! [`Formatter::write_fmt`] to efficiently write this to your formatter's output. You can also
-//! indent the output of the inner matcher using [`DynMatchFailure::into_fmt`] and
+//! indent the output of the inner matcher using [`FormattedFailure::into_fmt`] and
 //! [`FormattedOutput::indented`] like this:
 //!
 //! ```
-//! # use xpct::core::{Formatter, DynMatchFailure};
-//! # fn fmt(f: &mut Formatter, failure: DynMatchFailure) {
+//! # use xpct::core::{Formatter, FormattedFailure};
+//! # fn fmt(f: &mut Formatter, failure: FormattedFailure) {
 //! f.write_fmt(failure.into_fmt().indented(4));
 //! # }
 //! ```
@@ -103,8 +103,8 @@
 //! [`Formatter::write_fmt`]: crate::core::Formatter::write_fmt
 //! [`Formatter::set_style`]: crate::core::Formatter::set_style
 //! [`Formatter::reset_style`]: crate::core::Formatter::reset_style
-//! [`DynMatchFailure`]: crate::core::DynMatchFailure
-//! [`DynMatchFailure::into_fmt`]: crate::core::DynMatchFailure::into_fmt
+//! [`FormattedFailure`]: crate::core::FormattedFailure
+//! [`FormattedFailure::into_fmt`]: crate::core::FormattedFailure::into_fmt
 //! [`FormattedOutput::indented`]: crate::core::FormattedOutput::indented
 
 #![cfg(feature = "fmt")]

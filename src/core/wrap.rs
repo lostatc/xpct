@@ -3,7 +3,7 @@ use std::fmt;
 
 use super::{
     matcher::{BoxMatchNeg, NegMatcher},
-    BoxMatch, BoxMatchPos, DynMatchFailure, MatchBase, MatchNeg, MatchPos, MatchResult, Matcher,
+    BoxMatch, BoxMatchPos, FormattedFailure, MatchBase, MatchNeg, MatchPos, MatchResult, Matcher,
     PosMatcher,
 };
 
@@ -29,7 +29,7 @@ impl<'a, In, PosOut, NegOut> MatchBase for MatchWrapper<'a, In, PosOut, NegOut> 
 
 impl<'a, In, PosOut, NegOut> MatchPos for MatchWrapper<'a, In, PosOut, NegOut> {
     type PosOut = PosOut;
-    type PosFail = DynMatchFailure;
+    type PosFail = FormattedFailure;
 
     fn match_pos(
         self,
@@ -41,7 +41,7 @@ impl<'a, In, PosOut, NegOut> MatchPos for MatchWrapper<'a, In, PosOut, NegOut> {
 
 impl<'a, In, PosOut, NegOut> MatchNeg for MatchWrapper<'a, In, PosOut, NegOut> {
     type NegOut = NegOut;
-    type NegFail = DynMatchFailure;
+    type NegFail = FormattedFailure;
 
     fn match_neg(
         self,
@@ -73,7 +73,7 @@ impl<'a, In, Out> MatchBase for MatchPosWrapper<'a, In, Out> {
 
 impl<'a, In, Out> MatchPos for MatchPosWrapper<'a, In, Out> {
     type PosOut = Out;
-    type PosFail = DynMatchFailure;
+    type PosFail = FormattedFailure;
 
     fn match_pos(
         self,
@@ -105,7 +105,7 @@ impl<'a, In, Out> MatchBase for MatchNegWrapper<'a, In, Out> {
 
 impl<'a, In, Out> MatchNeg for MatchNegWrapper<'a, In, Out> {
     type NegOut = Out;
-    type NegFail = DynMatchFailure;
+    type NegFail = FormattedFailure;
 
     fn match_neg(
         self,

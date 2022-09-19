@@ -2,11 +2,11 @@ use std::any::type_name;
 use std::borrow::Borrow;
 use std::fmt;
 
-use crate::core::{DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchPos, MatchResult};
+use crate::core::{DynMatchNeg, DynMatchPos, FormattedFailure, MatchBase, MatchPos, MatchResult};
 use crate::{fail, success};
 
 /// When some of the given matchers failed.
-pub type SomeFailures = Vec<Option<DynMatchFailure>>;
+pub type SomeFailures = Vec<Option<FormattedFailure>>;
 
 /// How a combinator matcher should match.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

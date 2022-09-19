@@ -1,7 +1,7 @@
 use std::{borrow::Borrow, marker::PhantomData};
 
 use super::{
-    DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchFailure, MatchNeg, MatchPos,
+    DynMatchNeg, DynMatchPos, FormattedFailure, MatchBase, MatchFailure, MatchNeg, MatchPos,
     MatchResult, ResultFormat, SimpleMatch,
 };
 
@@ -35,10 +35,10 @@ where
     fn match_pos(
         self: Box<Self>,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, DynMatchFailure>> {
+    ) -> anyhow::Result<MatchResult<Self::PosOut, FormattedFailure>> {
         match self.matcher.match_pos(actual) {
             Ok(MatchResult::Success(out)) => Ok(MatchResult::Success(out)),
-            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(DynMatchFailure::new(
+            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(FormattedFailure::new(
                 MatchFailure::Pos(result),
                 self.format,
             )?)),
@@ -57,10 +57,10 @@ where
     fn match_neg(
         self: Box<Self>,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, DynMatchFailure>> {
+    ) -> anyhow::Result<MatchResult<Self::NegOut, FormattedFailure>> {
         match self.matcher.match_neg(actual) {
             Ok(MatchResult::Success(out)) => Ok(MatchResult::Success(out)),
-            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(DynMatchFailure::new(
+            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(FormattedFailure::new(
                 MatchFailure::Neg(result),
                 self.format,
             )?)),

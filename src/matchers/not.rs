@@ -1,4 +1,4 @@
-use crate::core::{DynMatchFailure, MatchBase, MatchNeg, MatchPos, MatchResult, Matcher};
+use crate::core::{FormattedFailure, MatchBase, MatchNeg, MatchPos, MatchResult, Matcher};
 
 #[derive(Debug)]
 pub struct NotMatcher<'a, In, PosOut, NegOut>(Matcher<'a, In, PosOut, NegOut>);
@@ -15,7 +15,7 @@ impl<'a, In, PosOut, NegOut> MatchBase for NotMatcher<'a, In, PosOut, NegOut> {
 
 impl<'a, In, PosOut, NegOut> MatchPos for NotMatcher<'a, In, PosOut, NegOut> {
     type PosOut = NegOut;
-    type PosFail = DynMatchFailure;
+    type PosFail = FormattedFailure;
 
     fn match_pos(
         self,
@@ -27,7 +27,7 @@ impl<'a, In, PosOut, NegOut> MatchPos for NotMatcher<'a, In, PosOut, NegOut> {
 
 impl<'a, In, PosOut, NegOut> MatchNeg for NotMatcher<'a, In, PosOut, NegOut> {
     type NegOut = PosOut;
-    type NegFail = DynMatchFailure;
+    type NegFail = FormattedFailure;
 
     fn match_neg(
         self,

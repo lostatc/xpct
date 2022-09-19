@@ -1,7 +1,7 @@
 use std::any::type_name;
 use std::fmt;
 
-use crate::core::{DynMatchFailure, MatchBase, MatchPos, MatchResult};
+use crate::core::{FormattedFailure, MatchBase, MatchPos, MatchResult};
 use crate::{fail, success};
 
 use super::CombinatorMode;
@@ -9,7 +9,7 @@ use super::CombinatorMode;
 /// A pairing of field names to optional match failures.
 ///
 /// This can be used by matchers that test each field of a struct or tuple.
-pub type FailuresByField = Vec<(&'static str, Option<DynMatchFailure>)>;
+pub type FailuresByField = Vec<(&'static str, Option<FormattedFailure>)>;
 
 /// A matcher for matching on fields of a struct.
 ///
@@ -145,7 +145,7 @@ macro_rules! fields {
             $(,)?
         }
     ) => {
-        |input: $struct_type| -> ::anyhow::Result<::std::vec::Vec<(&::std::primitive::str, ::std::option::Option<$crate::core::DynMatchFailure>)>> {
+        |input: $struct_type| -> ::anyhow::Result<::std::vec::Vec<(&::std::primitive::str, ::std::option::Option<$crate::core::FormattedFailure>)>> {
             ::anyhow::Result::Ok(vec![$(
                 (
                     stringify!($field_name),

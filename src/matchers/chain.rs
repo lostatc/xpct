@@ -1,5 +1,5 @@
 use crate::core::{
-    DynMatchFailure, DynMatchNeg, DynMatchPos, MatchBase, MatchError, MatchPos, MatchResult,
+    DynMatchNeg, DynMatchPos, FormattedFailure, MatchBase, MatchError, MatchPos, MatchResult,
 };
 use crate::{fail, success};
 use std::any::type_name;
@@ -94,7 +94,7 @@ impl<'a, In, Out> MatchBase for ChainMatcher<'a, In, Out> {
 
 impl<'a, In, Out> MatchPos for ChainMatcher<'a, In, Out> {
     type PosOut = Out;
-    type PosFail = DynMatchFailure;
+    type PosFail = FormattedFailure;
 
     fn match_pos(
         self,

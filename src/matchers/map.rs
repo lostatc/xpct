@@ -1,7 +1,7 @@
 use std::any::type_name;
 use std::fmt;
 
-use crate::core::{DynMatchFailure, MatchBase, MatchPos, MatchResult};
+use crate::core::{FormattedFailure, MatchBase, MatchPos, MatchResult};
 use crate::success;
 
 pub struct MapMatcher<'a, In, Out> {
@@ -33,7 +33,7 @@ impl<'a, In, Out> MatchBase for MapMatcher<'a, In, Out> {
 
 impl<'a, In, Out> MatchPos for MapMatcher<'a, In, Out> {
     type PosOut = Out;
-    type PosFail = DynMatchFailure;
+    type PosFail = FormattedFailure;
 
     fn match_pos(
         self,
@@ -72,7 +72,7 @@ impl<'a, In, Out> MatchBase for MapResultMatcher<'a, In, Out> {
 
 impl<'a, In, Out> MatchPos for MapResultMatcher<'a, In, Out> {
     type PosOut = Out;
-    type PosFail = DynMatchFailure;
+    type PosFail = FormattedFailure;
 
     fn match_pos(
         self,

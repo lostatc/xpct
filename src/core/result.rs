@@ -2,12 +2,13 @@ use std::fmt;
 
 use super::{FormattedOutput, ResultFormat};
 
+/// The result of a failed matcher.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MatchFailure<Pos, Neg = Pos> {
-    // We were expecting the matcher to succeed but it failed.
+    /// We were expecting the matcher to succeed but it failed.
     Pos(Pos),
 
-    // We were expecting the matcher to fail but it succeeded.
+    /// We were expecting the matcher to fail but it succeeded.
     Neg(Neg),
 }
 
@@ -25,6 +26,7 @@ where
 }
 
 impl<Pos, Neg> MatchFailure<Pos, Neg> {
+    /// This is a [`MatchFailure::Pos`].
     pub fn is_pos(&self) -> bool {
         match self {
             Self::Pos(_) => true,
@@ -32,6 +34,7 @@ impl<Pos, Neg> MatchFailure<Pos, Neg> {
         }
     }
 
+    /// This is a [`MatchFailure::Neg`].
     pub fn is_neg(&self) -> bool {
         match self {
             Self::Pos(_) => false,
@@ -40,10 +43,12 @@ impl<Pos, Neg> MatchFailure<Pos, Neg> {
     }
 }
 
+/// A [`MatchFailure`] which has been formatted with a [`ResultFormat`].
 #[derive(Debug)]
-pub struct DynMatchFailure(FormattedOutput);
+pub struct FormattedFailure(FormattedOutput);
 
-impl DynMatchFailure {
+impl FormattedFailure {
+    /// Create a new [`MatchFailure`] by formatting `fail` with `format`.
     pub fn new<Fmt, PosFail, NegFail>(
         fail: MatchFailure<PosFail, NegFail>,
         format: Fmt,
@@ -54,38 +59,57 @@ impl DynMatchFailure {
         Ok(Self(FormattedOutput::new(fail, format)?))
     }
 
+    /// Convert this value into a [`FormattedOutput`].
     pub fn into_fmt(self) -> FormattedOutput {
         self.0
     }
 }
 
-impl From<DynMatchFailure> for FormattedOutput {
-    fn from(fail: DynMatchFailure) -> Self {
+impl From<FormattedFailure> for FormattedOutput {
+    fn from(fail: FormattedFailure) -> Self {
         fail.0
     }
 }
 
-impl fmt::Display for DynMatchFailure {
+impl fmt::Display for FormattedFailure {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.fmt(f)
     }
 }
 
-impl std::error::Error for DynMatchFailure {}
+impl std::error::Error for FormattedFailure {}
 
+/// The result of a failed assertion.
 #[derive(Debug)]
 pub struct AssertionFailure<Context> {
+    /// A generic context value to associate with the assertion.
+    ///
+    /// This value can be use to capture context about the assertion. The provided
+    /// [`DefaultAssertionFormat`] has a `Context` value of [`AssertionContext`], which captures
+    /// the current file name, line and column number, and the stringified expression passed to
+    /// [`expect!`].
+    ///
+    /// [`DefaultAssertionFormat`]: crate::core::DefaultAssertionFormat
+    /// [`AssertionContext`]: crate::core::AssertionContext
+    /// [`exepct!`]: crate::expect
     pub ctx: Context,
+
+    /// The error that caused this assertion to fail.
     pub error: MatchError,
 }
 
+/// The result of a matcher, either `Succcess` or `Fail`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MatchResult<Success, Fail> {
+    /// The matcher matched.
     Success(Success),
+
+    /// The matcher did not match.
     Fail(Fail),
 }
 
 impl<Success, Fail> MatchResult<Success, Fail> {
+    /// This is a [`MatchResult::Success`].
     pub fn is_success(&self) -> bool {
         match self {
             MatchResult::Success(_) => true,
@@ -93,6 +117,7 @@ impl<Success, Fail> MatchResult<Success, Fail> {
         }
     }
 
+    /// This is a [`MatchResult::Fail`].
     pub fn is_fail(&self) -> bool {
         match self {
             MatchResult::Success(_) => false,
@@ -110,9 +135,16 @@ impl<Success, Fail> From<MatchResult<Success, Fail>> for Result<Success, Fail> {
     }
 }
 
+/// An error from a matcher, meaning it either failed or returned an error.
 #[derive(Debug)]
 pub enum MatchError {
-    Fail(DynMatchFailure),
+    /// The matcher failed.
+    ///
+    /// This can either mean it was expecting to match but didn't, or it was expecting to not match
+    /// but did.
+    Fail(FormattedFailure),
+
+    /// The matcher returned an error.
     Err(anyhow::Error),
 }
 
@@ -134,6 +166,12 @@ impl std::error::Error for MatchError {
     }
 }
 
+/// Return early from a matcher with [`MatchResult::Success`].
+///
+/// This can be used when implementing matchers with [`MatchPos`] and [`MatchNeg`].
+///
+/// [`MatchPos`]: crate::core::MatchPos
+/// [`MatchNeg`]: crate::core::MatchNeg
 #[macro_export]
 macro_rules! success {
     ($success:expr) => {
@@ -143,6 +181,12 @@ macro_rules! success {
     };
 }
 
+/// Return early from a matcher with [`MatchResult::Fail`].
+///
+/// This can be used when implementing matchers with [`MatchPos`] and [`MatchNeg`].
+///
+/// [`MatchPos`]: crate::core::MatchPos
+/// [`MatchNeg`]: crate::core::MatchNeg
 #[macro_export]
 macro_rules! fail {
     ($fail:expr) => {

@@ -63,12 +63,14 @@ impl Formatter {
     }
 }
 
+/// A value that has been formatted with a [formatter][`Format`].
 #[derive(Debug)]
 pub struct FormattedOutput {
     segments: Vec<OutputSegment>,
 }
 
 impl FormattedOutput {
+    /// Create a new [`FormattedOutput`] by formatting `value` with `format`.
     pub fn new<Value, Fmt>(value: Value, format: Fmt) -> anyhow::Result<Self>
     where
         Fmt: Format<Value = Value>,
@@ -102,10 +104,15 @@ impl FormattedOutput {
         }
     }
 
+    /// Return a new [`FormattedOutput`] which has been indented by the given number of spaces.
+    ///
+    /// This is helpful when writing custom matchers that compose other matchers, so you can indent
+    /// their output and include it in your matcher's output.
     pub fn indented(self, spaces: u32) -> Self {
         self.indented_inner(spaces, false)
     }
 
+    /// Panic with this output as the error message.
     pub fn fail(&self) -> ! {
         panic!("\n{}\n", self);
     }

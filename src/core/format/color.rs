@@ -4,6 +4,11 @@ use bitflags::bitflags;
 use colored::{ColoredString, Colorize};
 
 bitflags! {
+    /// The style of text in a terminal emulator.
+    ///
+    /// Note that not all styles may be supported on all platforms and by all terminal emulators. A
+    /// misconfigured `$TERM` or terminfo database can also cause text styles to not render
+    /// properly.
     #[derive(Default)]
     pub struct TextStyle: u32 {
         const BOLD = 1 << 0;
@@ -16,6 +21,7 @@ bitflags! {
 }
 
 impl TextStyle {
+    /// Reset this text style back to the default (no style).
     pub fn reset(&mut self) {
         *self &= TextStyle::empty();
     }
@@ -52,6 +58,9 @@ impl TextStyle {
     }
 }
 
+/// A color to display in a terminal emulator.
+///
+/// Note that [`Color::Rgb`] may not be supported on all platforms or by all terminal emulators.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Color {
@@ -105,13 +114,18 @@ impl Color {
     }
 }
 
+/// The color of text in a terminal emulator.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Hash)]
 pub struct TextColor {
+    /// The foreground color.
     pub fg: Option<Color>,
+
+    /// The background color.
     pub bg: Option<Color>,
 }
 
 impl TextColor {
+    /// Reset this text color back to the default (no color).
     pub fn reset(&mut self) {
         self.fg = None;
         self.bg = None;
@@ -128,6 +142,25 @@ impl TextColor {
     }
 }
 
+/// The style of text in formatted output.
+///
+/// You can apply an [`OutputStyle`] to text in a formatter using [`Formatter::set_style`].
+///
+/// # Examples
+///
+/// ```
+/// use xpct::core::{OutputStyle, TextStyle, TextColor, Color};
+///
+/// let style = OutputStyle {
+///     style: TextStyle::BOLD | TextStyle::UNDERLINE,
+///     color: TextColor {
+///         fg: Some(Color::BrightRed),
+///         bg: None,
+///     },
+/// };
+/// ```
+///
+/// [`Formatter::set_style`]: crate::core::Formatter::set_style
 #[derive(Debug, Clone, Default, PartialEq, Eq, Hash)]
 pub struct OutputStyle {
     pub style: TextStyle,
@@ -135,6 +168,7 @@ pub struct OutputStyle {
 }
 
 impl OutputStyle {
+    /// Reset this output style back to the default.
     pub fn reset(&mut self) {
         self.style.reset();
         self.color.reset();

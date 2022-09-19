@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 use std::fmt;
 
-use crate::core::{style, DynMatchFailure, Format, Formatter, MatchFailure, Matcher};
+use crate::core::{style, Format, FormattedFailure, Formatter, MatchFailure, Matcher};
 
 enum WhyFormatReason<'a> {
     Eager(Cow<'a, str>),
@@ -40,7 +40,7 @@ impl<'a> WhyFormat<'a> {
 }
 
 impl<'a> Format for WhyFormat<'a> {
-    type Value = MatchFailure<DynMatchFailure>;
+    type Value = MatchFailure<FormattedFailure>;
 
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
         f.set_style(style::info());

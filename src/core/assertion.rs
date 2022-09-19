@@ -137,6 +137,15 @@ where
     }
 }
 
+/// Make an assertion.
+///
+/// Typically you'll want to use the [`expect!`] macro instead, because it does nice things like
+/// capture the file name, line number, and the stringified expression that was passed to it.
+///
+/// However, if you want to use a custom [`AssertionFormat`], then this function allows you to do
+/// it.
+///
+/// [`expect!`]: crate::expect
 pub fn expect<In, AssertFmt>(actual: In) -> Assertion<In, AssertFmt>
 where
     AssertFmt: AssertionFormat + Default,
@@ -149,6 +158,20 @@ where
     }
 }
 
+/// Make an assertion.
+///
+/// This macro accepts an expression and returns an [`Assertion`], which allows you to make
+/// assertions on that value.
+///
+/// See the crate-level docs for more information and examples.
+///
+/// # Examples
+///
+/// ```
+/// use xpct::{expect, equal};
+///
+/// expect!("disco").to(equal("disco"));
+/// ```
 #[macro_export]
 macro_rules! expect {
     ($actual:expr) => {

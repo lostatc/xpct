@@ -1,6 +1,15 @@
 use super::{strings, Format, Formatter};
 use crate::core::{style, AssertionContext, AssertionFailure, MatchError};
 
+/// The provided implementation of [`AssertionFormat`].
+///
+/// You shouldn't ever need to implement this trait yourself, but you can if you want to customize
+/// the formatting of failed assertions. However, instead of using the [`expect!`] macro, you will
+/// need to use the [`expect`] function which allows you to specify a custom formatter.
+///
+/// [`expect!`]: crate::expect
+/// [`expect`]: crate::core::expect
+/// [`Assertionformat`]: crate::core::AssertionFormat
 #[derive(Debug, Default)]
 pub struct DefaultAssertionFormat;
 

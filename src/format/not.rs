@@ -1,4 +1,4 @@
-use crate::core::{DynMatchFailure, Format, Formatter, MatchFailure, Matcher};
+use crate::core::{Format, FormattedFailure, Formatter, MatchFailure, Matcher};
 use crate::matchers::NotMatcher;
 
 #[non_exhaustive]
@@ -12,7 +12,7 @@ impl FailureFormat {
 }
 
 impl Format for FailureFormat {
-    type Value = MatchFailure<DynMatchFailure>;
+    type Value = MatchFailure<FormattedFailure>;
 
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
         let fail = match value {
