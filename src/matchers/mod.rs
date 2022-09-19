@@ -1,5 +1,5 @@
-mod all;
 mod boolean;
+mod chain;
 mod combinator;
 mod equal;
 mod fields;
@@ -9,9 +9,11 @@ mod option;
 mod ord;
 mod result;
 
-pub use all::{AllAssertion, AllMatcher};
 pub use boolean::BeTrueMatcher;
-pub use combinator::{CombinatorContext, CombinatorMatcher, CombinatorMode, SomeFailures};
+pub use chain::{ChainAssertion, ChainMatcher};
+pub use combinator::{
+    CombinatorAssertion, CombinatorContext, CombinatorMatcher, CombinatorMode, SomeFailures,
+};
 pub use equal::{EqualMatcher, Mismatch};
 pub use fields::{FailuresByField, FieldMatcher};
 pub use map::{MapMatcher, MapResultMatcher};

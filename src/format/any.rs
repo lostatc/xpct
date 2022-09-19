@@ -44,14 +44,13 @@ where
 /// support chaining the output of one matcher into the next.
 ///
 /// Instead, this matcher owns its value and passes it to each matcher, either by reference, or by
-/// value if the value is [`Clone`] or [`Copy`]. The closure you pass to this matcher accepts an
-/// [`AnyContext`], which has methods like [`borrow`][`AnyContext::borrow`],
-/// [`cloned`][`AnyContext::cloned`], [`copied`][`AnyContext::copied`], and
-/// [`map`][`AnyContext::map`] to determine how the value is passed to matchers. From there, you
-/// can call methods like `to` and `to_not`.
+/// value if the value is [`Clone`] or [`Copy`]. The closure you pass to this matcher accepts a
+/// [`CombinatorContext`], which has methods like [`borrow`], [`cloned`] and [`copied`] to
+/// determine how the value is passed to matchers. From there, you can call [`to`] and [`to_not`]
+/// to use matchers.
 ///
 /// This matcher cannot be negated, such as with [`not`]. Instead, you can just negate each of the
-/// matchers passed to it by calling `to_not` or using [`not`] on them.
+/// matchers passed to it by calling [`to_not`] or using [`not`] on them.
 ///
 /// # Examples
 ///
@@ -81,6 +80,11 @@ where
 /// ```
 ///
 /// [`not`]: crate::not
+/// [`to`]: crate::matchers::CombinatorAssertion::to
+/// [`to_not`]: crate::matchers::CombinatorAssertion::to_not
+/// [`borrow`]: crate::matchers::CombinatorContext::borrow
+/// [`copied`]: crate::matchers::CombinatorContext::copied
+/// [`cloned`]: crate::matchers::CombinatorContext::cloned
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn any<'a, T>(block: impl Fn(&mut CombinatorContext<T>) + 'a) -> PosMatcher<'a, T, T>
 where

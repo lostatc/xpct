@@ -37,7 +37,8 @@ impl<'a, T> FieldMatcher<'a, T> {
     /// Create a new matcher.
     ///
     /// This accepts a function which is passed the struct and returns any failures along with
-    /// their field names. You can use the [`fields`] macro to generate a function of this type.
+    /// their field names. You can use the [`fields!`][crate::fields] macro to generate a function
+    /// of this type.
     pub fn new(
         mode: CombinatorMode,
         func: impl FnOnce(T) -> anyhow::Result<FailuresByField> + 'a,
@@ -87,14 +88,21 @@ impl<'a, T> MatchPos for FieldMatcher<'a, T> {
 /// provides a Rust-like syntax for mapping struct fields to matchers. The syntax looks like this:
 ///
 /// ```
-/// # use xpct::{fields, equal, be_gt};
-/// # struct Person {
-/// #     name: String,
-/// #     age: u32,
-/// # }
+/// use xpct::{fields, equal, be_ge};
+///
+/// struct Person {
+///     name: String,
+///     age: u32,
+/// }
+///
 /// fields!(Person {
 ///     name: equal("Jean Vicquemare"),
-///     age: be_gt(34),
+///     age: be_ge(34),
+/// });
+///
+/// // You can omit fields.
+/// fields!(Person {
+///     name: equal("Jean Vicquemare"),
 /// });
 /// ```
 ///
@@ -102,20 +110,22 @@ impl<'a, T> MatchPos for FieldMatcher<'a, T> {
 /// names with indices.
 ///
 /// ```
-/// # use xpct::{fields, equal};
-/// # struct Point(u32, u32);
+/// use xpct::{fields, equal};
+///
+/// struct Point(u64, u64);
+///
 /// fields!(Point {
 ///     0: equal(41),
 ///     1: equal(57),
 /// });
 /// ```
 ///
-/// This syntax looks more like the Rust syntax for regular structs than tuple structs because it
-/// allows you to skip fields:
+/// The syntax for tuple structs looks different from the Rust syntax because it makes it easy to
+/// skip fields:
 ///
 /// ```
 /// # use xpct::{fields, equal};
-/// # struct Point(u32, u32);
+/// # struct Point(u64, u64);
 /// fields!(Point {
 ///     1: equal(57),
 /// });

@@ -4,7 +4,7 @@
 //!
 //! # Tutorial
 //!
-//! To make an assertion, you'll usually start with the [`expect`] macro:
+//! To make an assertion, you'll usually start with the [`expect!`] macro:
 //!
 //! ```
 //! use xpct::{expect, equal};
@@ -30,7 +30,7 @@
 //! When you chain together multiple matchers like this, the assertion only succeeds if *all* of
 //! them match.
 //!
-//! You can also negate matchers by calling `to_not` or using the [`not`] matcher:
+//! You can also negate matchers by calling [`Assertion::to_not`] or using the [`not`] matcher:
 //!
 //! ```
 //! use xpct::{expect, equal, not};
@@ -42,21 +42,21 @@
 //!
 //! Not all matchers can be negated like this; matchers that can be negated will return a
 //! [`Matcher`], while matchers that cannot be negated will return a [`PosMatcher`]. You'll see the
-//! terms "pos" and "neg," short for *positive* and *negative*, throughout the API a lot. These
-//! refer to whether a matcher is negated (negative) or not negated (positive).
+//! terms "pos" and "neg," short for *positive* and *negative*, throughout the API. These refer to
+//! whether a matcher is negated (negative) or not negated (positive).
 //!
-//! When you chain together matchers, they pass the value you passed to `expect!` into the next
+//! When you chain together matchers, they pass the value you passed to [`expect!`] into the next
 //! matcher in the chain. Matchers can change the type of this value, which allows some matchers to
 //! do things like unwrap [`Result`] and [`Option`] types.
 //!
 //! ```
 //! use xpct::{expect, equal, be_ok};
 //!
-//! fn might_fail() -> anyhow::Result<String> {
+//! fn location() -> anyhow::Result<String> {
 //!     Ok(String::from("Whirling-in-Rags"))
 //! }
 //!
-//! expect!(might_fail())
+//! expect!(location())
 //!     .to(be_ok())
 //!     .to(equal("Whirling-in-Rags"));
 //! ```
@@ -80,19 +80,15 @@
 //!     .map(|name| name.0)
 //!     .to(equal("Cuno"));
 //!
-//! let result: Result<_, Infallible> = Ok(String::from("Cunoesse"));
+//! let name: Result<_, Infallible> = Ok(String::from("Cuno"));
 //!
-//! expect!(result)
+//! expect!(name)
 //!     .to(map(Result::unwrap))
-//!     .to(equal("Cunoesse"));
-//!
-//! fn might_fail(name: &str) -> anyhow::Result<&str> {
-//!     Ok(name)
-//! }
+//!     .to(equal("Cuno"));
 //!
 //! // We use `map_result` for conversions that can fail.
-//! expect!("Cuno")
-//!     .map_result(might_fail)
+//! expect!(vec![0x43, 0x75, 0x6e, 0x6f])
+//!     .map_result(|bytes| Ok(String::from_utf8(bytes)?))
 //!     .to(equal("Cuno"));
 //! ```
 //!
@@ -124,11 +120,12 @@
 //! ```
 //! use xpct::{expect, any, equal, be_none};
 //!
-//! fn necktie_kind() -> Option<String> {
+//! fn description() -> Option<String> {
 //!     None
 //! }
 //!
-//! expect!(necktie_kind()).to(any(|ctx| {
+//! // This is either `None` or `Some("horrific")`.
+//! expect!(description()).to(any(|ctx| {
 //!     ctx.map(Option::as_deref)
 //!         .to(be_none())
 //!         .to(equal(Some("horrific")));
@@ -148,8 +145,8 @@
 //! ));
 //! ```
 //!
-//! If you want to match on multiple fields of a struct, rather than using a separate `expect!`
-//! assertion for each field, you can use [`match_fields`] with the [`fields`] macro.
+//! If you want to match on multiple fields of a struct, rather than using a separate [`expect!`]
+//! assertion for each field, you can use [`match_fields`] with the [`fields!`] macro.
 //!
 //! ```
 //! use xpct::{expect, match_fields, fields, equal, be_none, be_ge, be_true};
@@ -158,24 +155,27 @@
 //!     name: Option<String>,
 //!     id: String,
 //!     age: u32,
-//!     is_disco: bool,
+//!     is_superstar: bool,
 //! }
 //!
 //! let value = Person {
 //!     name: None,
 //!     id: String::from("LTN-2JFR"),
 //!     age: 44,
-//!     is_disco: true,
+//!     is_superstar: true,
 //! };
 //!
 //! expect!(value).to(match_fields(fields!(Person {
 //!     name: be_none(),
 //!     id: equal("LTN-2JFR"),
 //!     age: be_ge(44),
-//!     is_disco: be_true(),
+//!     is_superstar: be_true(),
 //! })));
 //! ```
 //!
+//! [`expect!`]: crate::expect
+//! [`fields!`]: crate::fields
+//! [`Assertion::to_not`]: crate::core::Assertion::to_not
 //! [`Matcher`]: crate::core::Matcher
 //! [`PosMatcher`]: crate::core::PosMatcher
 //! [`Assertion::into_inner`]: crate::core::Assertion::into_inner

@@ -86,40 +86,42 @@ where
 /// Matches when all the fields of a struct match.
 ///
 /// This matcher operates on a struct and allows for matching on each field separately. You'll
-/// generally want to use this matcher with the [`fields`] macro.
+/// generally want to use this matcher with the [`fields!`] macro.
 ///
 /// This matches when each field of the struct matches, and skipping/omitting fields does not make
 /// it fail.
 ///
-/// This matcher can be used for both regular structs and tuple structs. See [`fields`] for
+/// This matcher can be used for both regular structs and tuple structs. See [`fields!`] for
 /// details.
 ///
 /// # Examples
 ///
-/// ```should_panic
-/// use xpct::{expect, match_fields, fields, be_ge, be_some, all, equal};
+/// ```
+/// use xpct::{expect, match_fields, fields, equal, be_some, be_gt, be_true, all};
 ///
-/// struct Employee {
+/// struct Person {
 ///     name: Option<String>,
 ///     age: u32,
+///     is_superstar: bool,
 /// }
 ///
-/// let value = Employee {
+/// let value = Person {
 ///     name: Some(String::from("Dick Mullen")),
-///     age: 44,
+///     age: 37,
+///     is_superstar: true,
 /// };
 ///
-/// expect!(value).to(match_fields(fields!(
-///     Employee {
-///         name: all(|ctx| ctx
-///             .to(be_some())?
-///             .to(equal("Raphaël Ambrosius Costeau"))
-///         ),
-///         age: be_ge(44),
-///     }
-/// )));
-///
+/// expect!(value).to(match_fields(fields!(Person {
+///     name: all(|ctx| ctx
+///         .to(be_some())?
+///         .to(equal("Dick Mullen"))
+///     ),
+///     age: be_gt(0),
+///     is_superstar: be_true(),
+/// })));
 /// ```
+///
+/// [`fields!`]: crate::fields
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn match_fields<'a, T>(
     func: impl FnOnce(T) -> anyhow::Result<FailuresByField> + 'a,
