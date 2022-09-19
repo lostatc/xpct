@@ -5,29 +5,8 @@
 //! If none of the provided matchers suit your needs, xpct allows you to write custom matchers.
 //! There are a few ways to do this.
 //!
-//! The simplest way is just to write a function that wraps existing matchers.
-//!
-//! ```
-//! use std::io;
-//!
-//! use xpct::{all, equal, be_err};
-//! use xpct::core::PosMatcher;
-//!
-//! // This matches when the `result` is an `Err` with an `ErrorKind` of `NotFound`.
-//! fn not_exist<'a, T>(result: io::Result<T>) -> PosMatcher<'a, io::Result<T>, io::ErrorKind>
-//! where
-//!     T: 'a,
-//! {
-//!     all::<'a, io::Result<T>, _>(|ctx| ctx
-//!         .to(be_err())?
-//!         .map(|error| error.kind())
-//!         .to(equal(io::ErrorKind::NotFound))
-//!     )
-//! }
-//! ```
-//!
-//! If you have a more complex use-case, you can implement the [`SimpleMatch`] trait. Here's an
-//! implementation of the [`equal`] matcher.
+//! The simplest way is to implement the [`SimpleMatch`] trait. Here's an implementation of the
+//! [`equal`] matcher.
 //!
 //! ```
 //! use xpct::core::SimpleMatch;
