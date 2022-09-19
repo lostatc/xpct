@@ -4,6 +4,7 @@ mod boolean;
 mod each;
 mod equal;
 mod fields;
+mod map;
 mod not;
 mod option;
 mod ord;
@@ -21,6 +22,7 @@ pub use each::{
 };
 pub use equal::{EqualMatcher, Mismatch};
 pub use fields::{FailuresByField, FieldMatchMode, FieldMatcher};
+pub use map::{MapMatcher, MapResultMatcher};
 pub use not::NotMatcher;
 pub use option::BeSomeMatcher;
 pub use ord::{Inequality, OrdMatcher};

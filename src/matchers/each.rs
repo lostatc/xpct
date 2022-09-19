@@ -149,7 +149,7 @@ where
         f.debug_struct("MappedEachAssertion")
             .field("value", &self.value)
             .field("state", &self.state)
-            .field("transform", &type_name::<Box<dyn Fn(&T) -> In>>())
+            .field("transform", &type_name::<Box<dyn Fn(&'a T) -> In + 'b>>())
             .finish()
     }
 }

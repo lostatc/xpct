@@ -65,7 +65,50 @@
 //! it for us! If we were to negate this matcher with [`not`], then it would return the value of
 //! the [`Err`] variant instead.
 //!
-//! You can always get the value back out at the end by calling [`Assertion::into_inner`].
+//! If you want to map a value from one type to another as part of a chain of matchers, but don't
+//! need a dedicated matcher for it, you can use the matchers [`map`] and [`map_result`] as well as
+//! [`Assertion::map`] and [`Assertion::map_result`].
+//!
+//! ```
+//! use std::convert::Infallible;
+//!
+//! use xpct::{expect, map, map_result, equal};
+//!
+//! struct Name(String);
+//!
+//! expect!(Name(String::from("Cuno")))
+//!     .map(|name| name.0)
+//!     .to(equal("Cuno"));
+//!
+//! let result: Result<_, Infallible> = Ok(String::from("Cunoesse"));
+//!
+//! expect!(result)
+//!     .to(map(Result::unwrap))
+//!     .to(equal("Cunoesse"));
+//!
+//! fn might_fail(name: &str) -> anyhow::Result<&str> {
+//!     Ok(name)
+//! }
+//!
+//! // We use `map_result` for conversions that can fail.
+//! expect!("Cuno")
+//!     .map_result(might_fail)
+//!     .to(equal("Cuno"));
+//! ```
+//!
+//! If you need to convert between types that implement [`From`] or [`TryFrom`], you can use
+//! [`Assertion::into`] and [`Assertion::try_into`].
+//!
+//! ```
+//! use xpct::{expect, equal};
+//!
+//! expect!(41u64)
+//!     .try_into::<u32>()
+//!     .to(equal(41u32));
+//! ```
+//!
+//! You can always get the value back out at the end of a chain of matchers by calling
+//! [`Assertion::into_inner`].
 //!
 //! ```
 //! use xpct::{expect, be_some};
@@ -136,6 +179,10 @@
 //! [`Matcher`]: crate::core::Matcher
 //! [`PosMatcher`]: crate::core::PosMatcher
 //! [`Assertion::into_inner`]: crate::core::Assertion::into_inner
+//! [`Assertion::map`]: crate::core::Assertion::map
+//! [`Assertion::map_result`]: crate::core::Assertion::map_result
+//! [`Assertion::into`]: crate::core::Assertion::into
+//! [`Assertion::try_into`]: crate::core::Assertion::try_into
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 pub mod core;

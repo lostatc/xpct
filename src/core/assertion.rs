@@ -1,3 +1,5 @@
+use std::convert::TryInto;
+
 use super::{
     AssertionFailure, AssertionFormat, DynMatchNeg, DynMatchPos, FormattedOutput, MatchError,
     MatchResult,
@@ -53,6 +55,54 @@ where
             },
             Ok(MatchResult::Fail(result)) => fail(self.ctx, MatchError::Fail(result), self.format),
             Err(error) => fail(self.ctx, MatchError::Err(error), self.format),
+        }
+    }
+
+    pub fn map<Out>(self, func: impl FnOnce(In) -> Out) -> Assertion<Out, AssertFmt> {
+        Assertion {
+            value: func(self.value),
+            format: self.format,
+            ctx: self.ctx,
+        }
+    }
+
+    pub fn map_result<Out>(
+        self,
+        func: impl FnOnce(In) -> anyhow::Result<Out>,
+    ) -> Assertion<Out, AssertFmt> {
+        match func(self.value) {
+            Ok(out) => Assertion {
+                value: out,
+                format: self.format,
+                ctx: self.ctx,
+            },
+            Err(error) => fail(self.ctx, MatchError::Err(error), self.format),
+        }
+    }
+
+    pub fn into<Out>(self) -> Assertion<Out, AssertFmt>
+    where
+        Out: From<In>,
+    {
+        Assertion {
+            value: self.value.into(),
+            format: self.format,
+            ctx: self.ctx,
+        }
+    }
+
+    pub fn try_into<Out>(self) -> Assertion<Out, AssertFmt>
+    where
+        Out: TryFrom<In>,
+        <Out as TryFrom<In>>::Error: std::error::Error + Send + Sync + 'static,
+    {
+        Assertion {
+            value: match self.value.try_into() {
+                Ok(out) => out,
+                Err(error) => fail(self.ctx, MatchError::Err(error.into()), self.format),
+            },
+            format: self.format,
+            ctx: self.ctx,
         }
     }
 

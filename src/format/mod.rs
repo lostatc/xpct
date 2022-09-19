@@ -7,6 +7,7 @@ mod boolean;
 mod each;
 mod equal;
 mod fields;
+mod map;
 mod not;
 mod option;
 mod ord;
@@ -28,6 +29,7 @@ pub(crate) mod matchers {
     pub use super::each::each;
     pub use super::equal::equal;
     pub use super::fields::{match_any_fields, match_fields};
+    pub use super::map::{map, map_result};
     pub use super::not::not;
     pub use super::option::{be_none, be_some};
     pub use super::ord::{be_ge, be_gt, be_le, be_lt};
