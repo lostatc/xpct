@@ -1,11 +1,12 @@
 use crate::core::SimpleMatch;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Mismatch<Expected, Actual> {
     pub expected: Expected,
     pub actual: Actual,
 }
 
+#[derive(Debug)]
 pub struct EqualMatcher<Expected> {
     expected: Expected,
 }

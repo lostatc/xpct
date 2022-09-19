@@ -1,4 +1,4 @@
-use crate::core::{style, Format, Formatter, MatchFailure, PosMatcher};
+use crate::core::{style, Format, FormattedOutput, Formatter, MatchFailure, PosMatcher};
 use crate::matchers::{CombinatorContext, CombinatorMatcher, CombinatorMode};
 
 use super::SomeFailuresFormat;
@@ -30,10 +30,14 @@ where
         f.reset_style();
         f.write_char('\n');
 
-        match value {
-            MatchFailure::Pos(fail) => self.inner.fmt(f, fail),
-            MatchFailure::Neg(fail) => self.inner.fmt(f, fail),
-        }
+        let fail = match value {
+            MatchFailure::Pos(fail) => fail,
+            MatchFailure::Neg(fail) => fail,
+        };
+
+        f.write_fmt(FormattedOutput::new(fail, self.inner)?.indented(style::indent_len(1)));
+
+        Ok(())
     }
 }
 

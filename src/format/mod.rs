@@ -1,3 +1,5 @@
+//! The formatters provided by this crate.
+
 #![cfg(feature = "fmt")]
 #![cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 
@@ -18,7 +20,7 @@ pub use any::HeaderFormat;
 pub use boolean::MessageFormat;
 pub use each::SomeFailuresFormat;
 pub use equal::MismatchFormat;
-pub use fields::{ByFieldFormat, ByFieldMatcherFormat};
+pub use fields::ByFieldFormat;
 pub use not::FailureFormat;
 pub use why::WhyFormat;
 

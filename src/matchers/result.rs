@@ -1,9 +1,7 @@
 use std::marker::PhantomData;
 
-use crate::{
-    core::{MatchBase, MatchNeg, MatchPos, MatchResult},
-    fail, success,
-};
+use crate::core::{MatchBase, MatchNeg, MatchPos, MatchResult};
+use crate::{fail, success};
 
 #[derive(Debug)]
 pub struct BeOkMatcher<T, E> {

@@ -1,8 +1,9 @@
 use std::any::type_name;
-use std::convert::Infallible;
 
-use crate::core::{style, Format, FormattedOutput, Formatter, MatchFailure, PosMatcher};
+use crate::core::{style, Format, Formatter, PosMatcher};
 use crate::matchers::{CombinatorMode, FailuresByField, FieldMatcher};
+
+use super::HeaderFormat;
 
 /// A formatter that formats failures for each field of a struct.
 #[derive(Debug)]
@@ -43,41 +44,6 @@ impl Format for ByFieldFormat {
         }
 
         f.write_char('}');
-
-        Ok(())
-    }
-}
-
-/// A formatter for `
-#[derive(Debug)]
-pub struct ByFieldMatcherFormat<Fmt> {
-    inner: Fmt,
-    mode: CombinatorMode,
-}
-
-impl<Fmt> ByFieldMatcherFormat<Fmt> {
-    pub fn new(inner: Fmt, mode: CombinatorMode) -> Self {
-        Self { inner, mode }
-    }
-}
-
-impl<Fmt> Format for ByFieldMatcherFormat<Fmt>
-where
-    Fmt: Format<Value = FailuresByField>,
-{
-    type Value = MatchFailure<FailuresByField, Infallible>;
-
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
-        f.set_style(style::important());
-        f.write_str(match self.mode {
-            CombinatorMode::All => "Expected all of these to match:\n",
-            CombinatorMode::Any => "Expected at least one of these to match:\n",
-        });
-        f.reset_style();
-
-        if let MatchFailure::Pos(failures) = value {
-            FormattedOutput::new(failures, self.inner)?.indented(style::indent_len(1));
-        }
 
         Ok(())
     }
@@ -131,7 +97,10 @@ where
 {
     PosMatcher::new(
         FieldMatcher::new(CombinatorMode::All, func),
-        ByFieldMatcherFormat::new(ByFieldFormat::new(type_name::<T>()), CombinatorMode::All),
+        HeaderFormat::new(
+            ByFieldFormat::new(type_name::<T>()),
+            "Expected all of these to match:",
+        ),
     )
 }
 
@@ -148,6 +117,9 @@ where
 {
     PosMatcher::new(
         FieldMatcher::new(CombinatorMode::Any, func),
-        ByFieldMatcherFormat::new(ByFieldFormat::new(type_name::<T>()), CombinatorMode::Any),
+        HeaderFormat::new(
+            ByFieldFormat::new(type_name::<T>()),
+            "Expected at least one of these to match:",
+        ),
     )
 }
