@@ -20,6 +20,7 @@ impl<Actual, Expected> MismatchFormat<Actual, Expected> {
         }
     }
 }
+
 impl<Actual, Expected> Format for MismatchFormat<Actual, Expected>
 where
     Actual: fmt::Debug,
