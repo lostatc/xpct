@@ -236,7 +236,9 @@
 //! [`Assertion::try_map`]: crate::core::Assertion::try_map
 //! [`Assertion::into`]: crate::core::Assertion::into
 //! [`Assertion::try_into`]: crate::core::Assertion::try_into
+
 #![cfg_attr(docsrs, feature(doc_cfg))]
+#![forbid(unsafe_code)]
 
 pub mod core;
 pub mod matchers;
