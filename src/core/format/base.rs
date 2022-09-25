@@ -10,7 +10,7 @@ pub trait Format {
     /// The value to format.
     type Value;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()>;
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()>;
 }
 
 /// A formatter for failed matchers.
@@ -79,7 +79,7 @@ where
 {
     type Value = MatchFailure<Neg, Pos>;
 
-    fn fmt(self, f: &mut super::Formatter, value: Self::Value) -> anyhow::Result<()> {
+    fn fmt(self, f: &mut super::Formatter, value: Self::Value) -> crate::Result<()> {
         match value {
             MatchFailure::Pos(fail) => self.0.fmt(f, MatchFailure::Neg(fail)),
             MatchFailure::Neg(fail) => self.0.fmt(f, MatchFailure::Pos(fail)),

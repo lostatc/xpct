@@ -12,13 +12,13 @@ pub enum MatchFailure<Pos, Neg = Pos> {
     Neg(Neg),
 }
 
-impl<Pos, Neg> Into<FormattedOutput> for MatchFailure<Pos, Neg>
+impl<Pos, Neg> From<MatchFailure<Pos, Neg>> for FormattedOutput
 where
     Pos: Into<FormattedOutput>,
     Neg: Into<FormattedOutput>,
 {
-    fn into(self) -> FormattedOutput {
-        match self {
+    fn from(fail: MatchFailure<Pos, Neg>) -> Self {
+        match fail {
             MatchFailure::Pos(fail) => fail.into(),
             MatchFailure::Neg(fail) => fail.into(),
         }
@@ -52,7 +52,7 @@ impl FormattedFailure {
     pub fn new<Fmt, PosFail, NegFail>(
         fail: MatchFailure<PosFail, NegFail>,
         format: Fmt,
-    ) -> anyhow::Result<Self>
+    ) -> crate::Result<Self>
     where
         Fmt: ResultFormat<Pos = PosFail, Neg = NegFail>,
     {
@@ -98,9 +98,9 @@ pub struct AssertionFailure<Context> {
     pub error: MatchError,
 }
 
-/// The result of a matcher, either `Succcess` or `Fail`.
+/// The outcome of a matcher, either `Succcess` or `Fail`.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum MatchResult<Success, Fail> {
+pub enum MatchOutcome<Success, Fail> {
     /// The matcher matched.
     Success(Success),
 
@@ -108,29 +108,29 @@ pub enum MatchResult<Success, Fail> {
     Fail(Fail),
 }
 
-impl<Success, Fail> MatchResult<Success, Fail> {
-    /// This is a [`MatchResult::Success`].
+impl<Success, Fail> MatchOutcome<Success, Fail> {
+    /// This is a [`MatchOutcome::Success`].
     pub fn is_success(&self) -> bool {
         match self {
-            MatchResult::Success(_) => true,
-            MatchResult::Fail(_) => false,
+            MatchOutcome::Success(_) => true,
+            MatchOutcome::Fail(_) => false,
         }
     }
 
-    /// This is a [`MatchResult::Fail`].
+    /// This is a [`MatchOutcome::Fail`].
     pub fn is_fail(&self) -> bool {
         match self {
-            MatchResult::Success(_) => false,
-            MatchResult::Fail(_) => true,
+            MatchOutcome::Success(_) => false,
+            MatchOutcome::Fail(_) => true,
         }
     }
 }
 
-impl<Success, Fail> From<MatchResult<Success, Fail>> for Result<Success, Fail> {
-    fn from(result: MatchResult<Success, Fail>) -> Self {
+impl<Success, Fail> From<MatchOutcome<Success, Fail>> for Result<Success, Fail> {
+    fn from(result: MatchOutcome<Success, Fail>) -> Self {
         match result {
-            MatchResult::Success(success) => Ok(success),
-            MatchResult::Fail(fail) => Err(fail),
+            MatchOutcome::Success(success) => Ok(success),
+            MatchOutcome::Fail(fail) => Err(fail),
         }
     }
 }
@@ -145,7 +145,7 @@ pub enum MatchError {
     Fail(FormattedFailure),
 
     /// The matcher returned an error.
-    Err(anyhow::Error),
+    Err(crate::Error),
 }
 
 impl fmt::Display for MatchError {
@@ -166,7 +166,7 @@ impl std::error::Error for MatchError {
     }
 }
 
-/// Return early from a matcher with [`MatchResult::Success`].
+/// Return early from a matcher with [`MatchOutcome::Success`].
 ///
 /// This can be used when implementing matchers with [`MatchPos`] and [`MatchNeg`].
 ///
@@ -175,13 +175,13 @@ impl std::error::Error for MatchError {
 #[macro_export]
 macro_rules! success {
     ($success:expr) => {
-        return ::std::result::Result::Ok($crate::core::MatchResult::Success(
+        return ::std::result::Result::Ok($crate::core::MatchOutcome::Success(
             ::std::convert::Into::into($success),
         ))
     };
 }
 
-/// Return early from a matcher with [`MatchResult::Fail`].
+/// Return early from a matcher with [`MatchOutcome::Fail`].
 ///
 /// This can be used when implementing matchers with [`MatchPos`] and [`MatchNeg`].
 ///
@@ -190,7 +190,7 @@ macro_rules! success {
 #[macro_export]
 macro_rules! fail {
     ($fail:expr) => {
-        return ::std::result::Result::Ok($crate::core::MatchResult::Fail(
+        return ::std::result::Result::Ok($crate::core::MatchOutcome::Fail(
             ::std::convert::Into::into($fail),
         ))
     };

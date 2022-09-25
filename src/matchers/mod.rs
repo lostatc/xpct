@@ -31,7 +31,7 @@
 //!     type Fail = Mismatch<Expected, Actual>;
 //!
 //!     // This returns `true` if the matcher matches and `false` otherwise.
-//!     fn matches(&mut self, actual: &Actual) -> anyhow::Result<bool> {
+//!     fn matches(&mut self, actual: &Actual) -> xpct::Result<bool> {
 //!         Ok(actual == &self.expected)
 //!     }
 //!
@@ -112,7 +112,7 @@
 //!
 //! use xpct::{success, fail};
 //! use xpct::format::MessageFormat;
-//! use xpct::core::{Matcher, MatchPos, MatchNeg, MatchBase, MatchResult, NegFormat};
+//! use xpct::core::{Matcher, MatchPos, MatchNeg, MatchBase, MatchOutcome, NegFormat};
 //!
 //! pub struct BeOkMatcher<T, E> {
 //!     // Matchers created by implementing `MatchPos` and `MatchNeg` will often need to use
@@ -143,15 +143,15 @@
 //!     // this a unit struct.
 //!     type PosFail = ();
 //!
-//!     // This returns `MatchResult::Success` if the matcher matches and `MatchResult::Fail`
+//!     // This returns `MatchOutcome::Success` if the matcher matches and `MatchOutcome::Fail`
 //!     // otherwise.
 //!     fn match_pos(
 //!         self,
 //!         actual: Self::In,
-//!     ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
+//!     ) -> xpct::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
 //!         match actual {
-//!             // These macros are just shortcuts for returning a `MatchResult`; you don't have to
-//!             // use them.
+//!             // These macros are just shortcuts for returning a `MatchOutcome`; you don't have
+//!             // to use them.
 //!             Ok(value) => success!(value),
 //!             Err(_) => fail!(()),
 //!         }
@@ -168,7 +168,7 @@
 //!     fn match_neg(
 //!         self,
 //!         actual: Self::In,
-//!     ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>> {
+//!     ) -> xpct::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
 //!         match actual {
 //!             Ok(_) => fail!(()),
 //!             Err(error) => success!(error),

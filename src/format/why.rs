@@ -42,7 +42,7 @@ impl<'a> WhyFormat<'a> {
 impl<'a> Format for WhyFormat<'a> {
     type Value = MatchFailure<FormattedFailure>;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         f.set_style(style::info());
         f.write_str(style::INFO_SYMBOL);
         f.write_str(" ");

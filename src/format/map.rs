@@ -15,7 +15,7 @@ where
 
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn try_map<'a, In, Out>(
-    func: impl FnOnce(In) -> anyhow::Result<Out> + 'a,
+    func: impl FnOnce(In) -> crate::Result<Out> + 'a,
 ) -> PosMatcher<'a, In, Out>
 where
     In: 'a,

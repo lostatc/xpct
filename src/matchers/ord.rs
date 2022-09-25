@@ -36,7 +36,7 @@ where
 {
     type Fail = Mismatch<Expected, Actual>;
 
-    fn matches(&mut self, actual: &Actual) -> anyhow::Result<bool> {
+    fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {
         Ok(match self.kind {
             Inequality::Less => actual < &self.expected,
             Inequality::LessOrEqual => actual <= &self.expected,

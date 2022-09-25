@@ -19,7 +19,7 @@ impl MessageFormat {
 impl Format for MessageFormat {
     type Value = MatchFailure<(), ()>;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         f.set_style(style::bad());
         f.write_str(match value {
             MatchFailure::Pos(_) => self.pos_msg,

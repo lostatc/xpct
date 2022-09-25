@@ -23,7 +23,7 @@ impl ByFieldFormat {
 impl Format for ByFieldFormat {
     type Value = FailuresByField;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         f.write_str(format!("{} {{\n", &self.type_name));
 
         for (field_name, maybe_fail) in value {
@@ -90,7 +90,7 @@ impl Format for ByFieldFormat {
 /// [`fields!`]: crate::fields
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn match_fields<'a, T>(
-    func: impl FnOnce(T) -> anyhow::Result<FailuresByField> + 'a,
+    func: impl FnOnce(T) -> crate::Result<FailuresByField> + 'a,
 ) -> PosMatcher<'a, T, ()>
 where
     T: 'a,
@@ -110,7 +110,7 @@ where
 /// struct match instead of all of them.
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn match_any_fields<'a, T>(
-    func: impl FnOnce(T) -> anyhow::Result<FailuresByField> + 'a,
+    func: impl FnOnce(T) -> crate::Result<FailuresByField> + 'a,
 ) -> PosMatcher<'a, T, ()>
 where
     T: 'a,

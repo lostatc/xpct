@@ -2,7 +2,7 @@ use std::convert::Infallible;
 use std::marker::PhantomData;
 
 use crate::{
-    core::{MatchBase, MatchNeg, MatchPos, MatchResult},
+    core::{MatchBase, MatchNeg, MatchOutcome, MatchPos},
     fail, success,
 };
 
@@ -36,7 +36,7 @@ impl<T> MatchPos for BeSomeMatcher<T> {
     fn match_pos(
         self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
+    ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
         match actual {
             Some(value) => success!(value),
             None => fail!(()),
@@ -51,7 +51,7 @@ impl<T> MatchNeg for BeSomeMatcher<T> {
     fn match_neg(
         self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>> {
+    ) -> crate::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
         match actual {
             Some(_) => fail!(()),
             None => success!(None),

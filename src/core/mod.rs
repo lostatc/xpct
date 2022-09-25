@@ -13,7 +13,7 @@ pub use matcher::{
     MatchPos, Matcher, NegMatcher, PosMatcher, SimpleMatch,
 };
 
-pub use result::{AssertionFailure, FormattedFailure, MatchError, MatchFailure, MatchResult};
+pub use result::{AssertionFailure, FormattedFailure, MatchError, MatchFailure, MatchOutcome};
 
 pub use assertion::{expect, Assertion};
 

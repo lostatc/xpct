@@ -13,7 +13,7 @@ impl BeTrueMatcher {
 impl SimpleMatch<bool> for BeTrueMatcher {
     type Fail = ();
 
-    fn matches(&mut self, actual: &bool) -> anyhow::Result<bool> {
+    fn matches(&mut self, actual: &bool) -> crate::Result<bool> {
         Ok(*actual)
     }
 

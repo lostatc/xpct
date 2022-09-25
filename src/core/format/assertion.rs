@@ -16,7 +16,7 @@ pub struct DefaultAssertionFormat;
 impl Format for DefaultAssertionFormat {
     type Value = AssertionFailure<AssertionContext>;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         f.write_char('\n');
         f.set_style(style::info());
 

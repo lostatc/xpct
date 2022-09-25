@@ -2,7 +2,7 @@ use std::any::type_name;
 use std::borrow::Borrow;
 use std::fmt;
 
-use crate::core::{DynMatchNeg, DynMatchPos, FormattedFailure, MatchBase, MatchPos, MatchResult};
+use crate::core::{DynMatchNeg, DynMatchPos, FormattedFailure, MatchBase, MatchOutcome, MatchPos};
 use crate::{fail, success};
 
 /// When some of the given matchers failed.
@@ -18,7 +18,7 @@ pub enum CombinatorMode {
     All,
 }
 
-type CombinatorState = anyhow::Result<SomeFailures>;
+type CombinatorState = crate::Result<SomeFailures>;
 
 pub struct CombinatorAssertion<'a, 'b, T, In> {
     value: &'b T,
@@ -43,10 +43,10 @@ impl<'a, 'b: 'a, T, In> CombinatorAssertion<'a, 'b, T, In> {
     pub fn to(self, matcher: impl DynMatchPos<In = In>) -> Self {
         if let Ok(failures) = self.state {
             match Box::new(matcher).match_pos((&self.transform)(self.value)) {
-                Ok(MatchResult::Success(_)) => {
+                Ok(MatchOutcome::Success(_)) => {
                     failures.push(None);
                 }
-                Ok(MatchResult::Fail(result)) => {
+                Ok(MatchOutcome::Fail(result)) => {
                     failures.push(Some(result));
                 }
                 Err(error) => {
@@ -61,10 +61,10 @@ impl<'a, 'b: 'a, T, In> CombinatorAssertion<'a, 'b, T, In> {
     pub fn to_not(self, matcher: impl DynMatchNeg<In = In>) -> Self {
         if let Ok(failures) = self.state {
             match Box::new(matcher).match_neg((self.transform)(self.value)) {
-                Ok(MatchResult::Success(_)) => {
+                Ok(MatchOutcome::Success(_)) => {
                     failures.push(None);
                 }
-                Ok(MatchResult::Fail(result)) => {
+                Ok(MatchOutcome::Fail(result)) => {
                     failures.push(Some(result));
                 }
                 Err(error) => {
@@ -169,7 +169,7 @@ impl<'a, T> MatchPos for CombinatorMatcher<'a, T> {
     fn match_pos(
         self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
+    ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
         let mut ctx = CombinatorContext::new(actual);
 
         (self.func)(&mut ctx);

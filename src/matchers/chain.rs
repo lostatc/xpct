@@ -1,5 +1,5 @@
 use crate::core::{
-    DynMatchNeg, DynMatchPos, FormattedFailure, MatchBase, MatchError, MatchPos, MatchResult,
+    DynMatchNeg, DynMatchPos, FormattedFailure, MatchBase, MatchError, MatchOutcome, MatchPos,
 };
 use crate::{fail, success};
 use std::any::type_name;
@@ -22,8 +22,8 @@ impl<In> ChainAssertion<In> {
         matcher: impl DynMatchPos<In = In, PosOut = Out>,
     ) -> Result<ChainAssertion<Out>, MatchError> {
         match Box::new(matcher).match_pos(self.value) {
-            Ok(MatchResult::Success(out)) => Ok(ChainAssertion::new(out)),
-            Ok(MatchResult::Fail(fail)) => Err(MatchError::Fail(fail)),
+            Ok(MatchOutcome::Success(out)) => Ok(ChainAssertion::new(out)),
+            Ok(MatchOutcome::Fail(fail)) => Err(MatchError::Fail(fail)),
             Err(error) => Err(MatchError::Err(error)),
         }
     }
@@ -33,8 +33,8 @@ impl<In> ChainAssertion<In> {
         matcher: impl DynMatchNeg<In = In, NegOut = Out>,
     ) -> Result<ChainAssertion<Out>, MatchError> {
         match Box::new(matcher).match_neg(self.value) {
-            Ok(MatchResult::Success(out)) => Ok(ChainAssertion::new(out)),
-            Ok(MatchResult::Fail(fail)) => Err(MatchError::Fail(fail)),
+            Ok(MatchOutcome::Success(out)) => Ok(ChainAssertion::new(out)),
+            Ok(MatchOutcome::Fail(fail)) => Err(MatchError::Fail(fail)),
             Err(error) => Err(MatchError::Err(error)),
         }
     }
@@ -45,8 +45,8 @@ impl<In> ChainAssertion<In> {
 
     pub fn map_result<Out>(
         self,
-        func: impl FnOnce(In) -> anyhow::Result<Out>,
-    ) -> anyhow::Result<ChainAssertion<Out>> {
+        func: impl FnOnce(In) -> crate::Result<Out>,
+    ) -> crate::Result<ChainAssertion<Out>> {
         Ok(ChainAssertion::new(func(self.value)?))
     }
 
@@ -57,7 +57,7 @@ impl<In> ChainAssertion<In> {
         ChainAssertion::new(self.value.into())
     }
 
-    pub fn try_into<Out>(self) -> anyhow::Result<ChainAssertion<Out>>
+    pub fn try_into<Out>(self) -> crate::Result<ChainAssertion<Out>>
     where
         Out: TryFrom<In>,
         <Out as TryFrom<In>>::Error: std::error::Error + Send + Sync + 'static,
@@ -99,7 +99,7 @@ impl<'a, In, Out> MatchPos for ChainMatcher<'a, In, Out> {
     fn match_pos(
         self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
+    ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
         match (self.0)(ChainAssertion::new(actual)) {
             Ok(assertion) => success!(assertion.value),
             Err(MatchError::Fail(fail)) => fail!(fail),

@@ -46,7 +46,7 @@
 //!
 //!     // This trait is similar to `std::fmt::Display` where you call methods on `Formatter` to
 //!     // generate the output.
-//!     fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
+//!     fn fmt(self, f: &mut Formatter, value: Self::Value) -> xpct::Result<()> {
 //!         match value {
 //!             MatchFailure::Pos(mismatch) => {
 //!                 f.write_str("Expected:\n");

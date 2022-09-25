@@ -23,7 +23,7 @@ where
 {
     type Fail = Mismatch<Expected, Actual>;
 
-    fn matches(&mut self, actual: &Actual) -> anyhow::Result<bool> {
+    fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {
         Ok(actual == &self.expected)
     }
 

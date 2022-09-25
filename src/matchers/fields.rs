@@ -1,7 +1,7 @@
 use std::any::type_name;
 use std::fmt;
 
-use crate::core::{FormattedFailure, MatchBase, MatchPos, MatchResult};
+use crate::core::{FormattedFailure, MatchBase, MatchOutcome, MatchPos};
 use crate::{fail, success};
 
 use super::CombinatorMode;
@@ -17,7 +17,7 @@ pub type FailuresByField = Vec<(&'static str, Option<FormattedFailure>)>;
 ///
 /// [`match_fields`]: crate::match_fields
 pub struct FieldMatcher<'a, T> {
-    func: Box<dyn FnOnce(T) -> anyhow::Result<FailuresByField> + 'a>,
+    func: Box<dyn FnOnce(T) -> crate::Result<FailuresByField> + 'a>,
     mode: CombinatorMode,
 }
 
@@ -26,7 +26,7 @@ impl<'a, T> fmt::Debug for FieldMatcher<'a, T> {
         f.debug_struct("FieldMatcher")
             .field(
                 "func",
-                &type_name::<Box<dyn FnOnce(T) -> anyhow::Result<FailuresByField> + 'a>>(),
+                &type_name::<Box<dyn FnOnce(T) -> crate::Result<FailuresByField> + 'a>>(),
             )
             .field("mode", &self.mode)
             .finish()
@@ -41,7 +41,7 @@ impl<'a, T> FieldMatcher<'a, T> {
     /// of this type.
     pub fn new(
         mode: CombinatorMode,
-        func: impl FnOnce(T) -> anyhow::Result<FailuresByField> + 'a,
+        func: impl FnOnce(T) -> crate::Result<FailuresByField> + 'a,
     ) -> Self {
         Self {
             func: Box::new(func),
@@ -61,7 +61,7 @@ impl<'a, T> MatchPos for FieldMatcher<'a, T> {
     fn match_pos(
         self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
+    ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
         let failures = (self.func)(actual)?;
         match self.mode {
             CombinatorMode::Any => {
@@ -145,13 +145,13 @@ macro_rules! fields {
             $(,)?
         }
     ) => {
-        |input: $struct_type| -> ::anyhow::Result<::std::vec::Vec<(&::std::primitive::str, ::std::option::Option<$crate::core::FormattedFailure>)>> {
-            ::anyhow::Result::Ok(vec![$(
+        |input: $struct_type| -> $crate::Result<::std::vec::Vec<(&::std::primitive::str, ::std::option::Option<$crate::core::FormattedFailure>)>> {
+            $crate::Result::Ok(vec![$(
                 (
                     stringify!($field_name),
                     match $crate::core::DynMatchPos::match_pos(::std::boxed::Box::new($matcher), input.$field_name)? {
-                        $crate::core::MatchResult::Success(_) => ::std::option::Option::None,
-                        $crate::core::MatchResult::Fail(fail) => ::std::option::Option::Some(fail),
+                        $crate::core::MatchOutcome::Success(_) => ::std::option::Option::None,
+                        $crate::core::MatchOutcome::Fail(fail) => ::std::option::Option::Some(fail),
                     },
                 ),
             )+])

@@ -1,8 +1,8 @@
 use std::{borrow::Borrow, marker::PhantomData};
 
 use super::{
-    DynMatchNeg, DynMatchPos, FormattedFailure, MatchBase, MatchFailure, MatchNeg, MatchPos,
-    MatchResult, ResultFormat, SimpleMatch,
+    DynMatchNeg, DynMatchPos, FormattedFailure, MatchBase, MatchFailure, MatchNeg, MatchOutcome,
+    MatchPos, ResultFormat, SimpleMatch,
 };
 
 #[derive(Debug)]
@@ -35,10 +35,10 @@ where
     fn match_pos(
         self: Box<Self>,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, FormattedFailure>> {
+    ) -> crate::Result<MatchOutcome<Self::PosOut, FormattedFailure>> {
         match self.matcher.match_pos(actual) {
-            Ok(MatchResult::Success(out)) => Ok(MatchResult::Success(out)),
-            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(FormattedFailure::new(
+            Ok(MatchOutcome::Success(out)) => Ok(MatchOutcome::Success(out)),
+            Ok(MatchOutcome::Fail(result)) => Ok(MatchOutcome::Fail(FormattedFailure::new(
                 MatchFailure::Pos(result),
                 self.format,
             )?)),
@@ -57,10 +57,10 @@ where
     fn match_neg(
         self: Box<Self>,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, FormattedFailure>> {
+    ) -> crate::Result<MatchOutcome<Self::NegOut, FormattedFailure>> {
         match self.matcher.match_neg(actual) {
-            Ok(MatchResult::Success(out)) => Ok(MatchResult::Success(out)),
-            Ok(MatchResult::Fail(result)) => Ok(MatchResult::Fail(FormattedFailure::new(
+            Ok(MatchOutcome::Success(out)) => Ok(MatchOutcome::Success(out)),
+            Ok(MatchOutcome::Fail(result)) => Ok(MatchOutcome::Fail(FormattedFailure::new(
                 MatchFailure::Neg(result),
                 self.format,
             )?)),
@@ -107,10 +107,10 @@ where
     fn match_pos(
         mut self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
+    ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
         match self.inner.matches(actual.borrow()) {
-            Ok(true) => Ok(MatchResult::Success(actual)),
-            Ok(false) => Ok(MatchResult::Fail(self.inner.fail(actual))),
+            Ok(true) => Ok(MatchOutcome::Success(actual)),
+            Ok(false) => Ok(MatchOutcome::Fail(self.inner.fail(actual))),
             Err(error) => Err(error),
         }
     }
@@ -126,10 +126,10 @@ where
     fn match_neg(
         mut self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>> {
+    ) -> crate::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
         match self.inner.matches(actual.borrow()) {
-            Ok(true) => Ok(MatchResult::Fail(self.inner.fail(actual))),
-            Ok(false) => Ok(MatchResult::Success(actual)),
+            Ok(true) => Ok(MatchOutcome::Fail(self.inner.fail(actual))),
+            Ok(false) => Ok(MatchOutcome::Success(actual)),
             Err(error) => Err(error),
         }
     }
@@ -163,7 +163,7 @@ where
     fn match_pos(
         self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
+    ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
         self.matcher.match_neg(actual)
     }
 }
@@ -178,7 +178,7 @@ where
     fn match_neg(
         self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>> {
+    ) -> crate::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
         self.matcher.match_pos(actual)
     }
 }

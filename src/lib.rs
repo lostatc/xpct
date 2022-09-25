@@ -241,12 +241,13 @@
 #![forbid(unsafe_code)]
 
 pub mod core;
+mod error;
 pub mod matchers;
 
 #[cfg(feature = "fmt")]
 pub mod format;
 
-pub use anyhow;
-
 #[cfg(feature = "fmt")]
 pub use format::matchers::*;
+
+pub use error::{Error, Result};

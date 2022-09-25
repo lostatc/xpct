@@ -25,7 +25,7 @@ use crate::matchers::{EqualMatcher, Mismatch};
 /// # impl SimpleMatch<String> for SharesPrefixMatcher {
 /// #     type Fail = Mismatch<String, String>;
 /// #
-/// #   fn matches(&mut self, actual: &String) -> anyhow::Result<bool> {
+/// #   fn matches(&mut self, actual: &String) -> xpct::Result<bool> {
 /// #       unimplemented!()
 /// #   }
 /// #
@@ -73,7 +73,7 @@ where
 {
     type Value = MatchFailure<Mismatch<Actual, Expected>>;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         match value {
             MatchFailure::Pos(mismatch) => {
                 f.set_style(style::important());

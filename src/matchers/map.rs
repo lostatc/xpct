@@ -1,7 +1,7 @@
 use std::any::type_name;
 use std::fmt;
 
-use crate::core::{FormattedFailure, MatchBase, MatchPos, MatchResult};
+use crate::core::{FormattedFailure, MatchBase, MatchOutcome, MatchPos};
 use crate::success;
 
 pub struct MapMatcher<'a, In, Out> {
@@ -38,17 +38,17 @@ impl<'a, In, Out> MatchPos for MapMatcher<'a, In, Out> {
     fn match_pos(
         self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
+    ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
         success!((self.func)(actual))
     }
 }
 
 pub struct TryMapMatcher<'a, In, Out> {
-    func: Box<dyn FnOnce(In) -> anyhow::Result<Out> + 'a>,
+    func: Box<dyn FnOnce(In) -> crate::Result<Out> + 'a>,
 }
 
 impl<'a, In, Out> TryMapMatcher<'a, In, Out> {
-    pub fn new(func: impl FnOnce(In) -> anyhow::Result<Out> + 'a) -> Self {
+    pub fn new(func: impl FnOnce(In) -> crate::Result<Out> + 'a) -> Self {
         Self {
             func: Box::new(func),
         }
@@ -60,7 +60,7 @@ impl<'a, In, Out> fmt::Debug for TryMapMatcher<'a, In, Out> {
         f.debug_struct("MapErrMatcher")
             .field(
                 "func",
-                &type_name::<Box<dyn FnOnce(In) -> anyhow::Result<Out>>>(),
+                &type_name::<Box<dyn FnOnce(In) -> crate::Result<Out>>>(),
             )
             .finish()
     }
@@ -77,7 +77,7 @@ impl<'a, In, Out> MatchPos for TryMapMatcher<'a, In, Out> {
     fn match_pos(
         self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
+    ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
         success!((self.func)(actual)?)
     }
 }

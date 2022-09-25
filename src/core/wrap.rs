@@ -3,7 +3,7 @@ use std::fmt;
 
 use super::{
     matcher::{BoxMatchNeg, NegMatcher},
-    BoxMatch, BoxMatchPos, FormattedFailure, MatchBase, MatchNeg, MatchPos, MatchResult, Matcher,
+    BoxMatch, BoxMatchPos, FormattedFailure, MatchBase, MatchNeg, MatchOutcome, MatchPos, Matcher,
     PosMatcher,
 };
 
@@ -34,7 +34,7 @@ impl<'a, In, PosOut, NegOut> MatchPos for MatchWrapper<'a, In, PosOut, NegOut> {
     fn match_pos(
         self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
+    ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
         self.0.match_pos(actual)
     }
 }
@@ -46,7 +46,7 @@ impl<'a, In, PosOut, NegOut> MatchNeg for MatchWrapper<'a, In, PosOut, NegOut> {
     fn match_neg(
         self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>> {
+    ) -> crate::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
         self.0.match_neg(actual)
     }
 }
@@ -78,7 +78,7 @@ impl<'a, In, Out> MatchPos for MatchPosWrapper<'a, In, Out> {
     fn match_pos(
         self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>> {
+    ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
         self.0.match_pos(actual)
     }
 }
@@ -110,7 +110,7 @@ impl<'a, In, Out> MatchNeg for MatchNegWrapper<'a, In, Out> {
     fn match_neg(
         self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>> {
+    ) -> crate::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
         self.0.match_neg(actual)
     }
 }

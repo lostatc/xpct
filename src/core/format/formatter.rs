@@ -50,7 +50,7 @@ pub struct FormattedOutput {
 }
 
 impl FormattedOutput {
-    pub fn new<Value, Fmt>(value: Value, format: Fmt) -> anyhow::Result<Self>
+    pub fn new<Value, Fmt>(value: Value, format: Fmt) -> crate::Result<Self>
     where
         Fmt: Format<Value = Value>,
     {

@@ -24,7 +24,7 @@ where
 {
     type Value = MatchFailure<Fmt::Value>;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         f.set_style(style::important());
         f.write_str(self.header);
         f.reset_style();

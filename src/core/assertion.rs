@@ -2,7 +2,7 @@ use std::convert::TryInto;
 
 use super::{
     AssertionFailure, AssertionFormat, DynMatchNeg, DynMatchPos, FormattedOutput, MatchError,
-    MatchResult,
+    MatchOutcome,
 };
 
 #[derive(Debug)]
@@ -33,12 +33,12 @@ where
         matcher: impl DynMatchPos<In = In, PosOut = Out>,
     ) -> Assertion<Out, AssertFmt> {
         match Box::new(matcher).match_pos(self.value) {
-            Ok(MatchResult::Success(out)) => Assertion {
+            Ok(MatchOutcome::Success(out)) => Assertion {
                 value: out,
                 format: self.format,
                 ctx: self.ctx,
             },
-            Ok(MatchResult::Fail(result)) => fail(self.ctx, MatchError::Fail(result), self.format),
+            Ok(MatchOutcome::Fail(result)) => fail(self.ctx, MatchError::Fail(result), self.format),
             Err(error) => fail(self.ctx, MatchError::Err(error), self.format),
         }
     }
@@ -48,12 +48,12 @@ where
         matcher: impl DynMatchNeg<In = In, NegOut = Out>,
     ) -> Assertion<Out, AssertFmt> {
         match Box::new(matcher).match_neg(self.value) {
-            Ok(MatchResult::Success(out)) => Assertion {
+            Ok(MatchOutcome::Success(out)) => Assertion {
                 value: out,
                 format: self.format,
                 ctx: self.ctx,
             },
-            Ok(MatchResult::Fail(result)) => fail(self.ctx, MatchError::Fail(result), self.format),
+            Ok(MatchOutcome::Fail(result)) => fail(self.ctx, MatchError::Fail(result), self.format),
             Err(error) => fail(self.ctx, MatchError::Err(error), self.format),
         }
     }
@@ -68,7 +68,7 @@ where
 
     pub fn try_map<Out>(
         self,
-        func: impl FnOnce(In) -> anyhow::Result<Out>,
+        func: impl FnOnce(In) -> crate::Result<Out>,
     ) -> Assertion<Out, AssertFmt> {
         match func(self.value) {
             Ok(out) => Assertion {

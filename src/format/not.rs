@@ -14,7 +14,7 @@ impl FailureFormat {
 impl Format for FailureFormat {
     type Value = MatchFailure<FormattedFailure>;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> anyhow::Result<()> {
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         let fail = match value {
             MatchFailure::Pos(fail) => fail,
             MatchFailure::Neg(fail) => fail,

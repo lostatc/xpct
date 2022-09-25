@@ -3,7 +3,7 @@ use std::fmt;
 
 use super::adapter::{DynMatchAdapter, NegMatchAdapter, SimpleMatchAdapter};
 use super::wrap::{MatchNegWrapper, MatchPosWrapper, MatchWrapper};
-use super::{FormattedFailure, MatchResult, ResultFormat};
+use super::{FormattedFailure, MatchOutcome, ResultFormat};
 
 pub trait MatchBase {
     type In;
@@ -16,7 +16,7 @@ pub trait MatchPos: MatchBase {
     fn match_pos(
         self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, Self::PosFail>>;
+    ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>>;
 }
 
 pub trait MatchNeg: MatchBase {
@@ -26,13 +26,13 @@ pub trait MatchNeg: MatchBase {
     fn match_neg(
         self,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, Self::NegFail>>;
+    ) -> crate::Result<MatchOutcome<Self::NegOut, Self::NegFail>>;
 }
 
 pub trait SimpleMatch<Actual> {
     type Fail;
 
-    fn matches(&mut self, actual: &Actual) -> anyhow::Result<bool>;
+    fn matches(&mut self, actual: &Actual) -> crate::Result<bool>;
 
     fn fail(self, actual: Actual) -> Self::Fail;
 }
@@ -43,7 +43,7 @@ pub trait DynMatchPos: MatchBase {
     fn match_pos(
         self: Box<Self>,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, FormattedFailure>>;
+    ) -> crate::Result<MatchOutcome<Self::PosOut, FormattedFailure>>;
 }
 
 pub trait DynMatchNeg: MatchBase {
@@ -52,7 +52,7 @@ pub trait DynMatchNeg: MatchBase {
     fn match_neg(
         self: Box<Self>,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, FormattedFailure>>;
+    ) -> crate::Result<MatchOutcome<Self::NegOut, FormattedFailure>>;
 }
 
 pub trait DynMatch: DynMatchPos + DynMatchNeg {}
@@ -138,7 +138,7 @@ impl<'a, In, PosOut, NegOut> DynMatchPos for Matcher<'a, In, PosOut, NegOut> {
     fn match_pos(
         self: Box<Self>,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, FormattedFailure>> {
+    ) -> crate::Result<MatchOutcome<Self::PosOut, FormattedFailure>> {
         self.0.match_pos(actual)
     }
 }
@@ -149,7 +149,7 @@ impl<'a, In, PosOut, NegOut> DynMatchNeg for Matcher<'a, In, PosOut, NegOut> {
     fn match_neg(
         self: Box<Self>,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, FormattedFailure>> {
+    ) -> crate::Result<MatchOutcome<Self::NegOut, FormattedFailure>> {
         self.0.match_neg(actual)
     }
 }
@@ -197,7 +197,7 @@ impl<'a, In, Out> DynMatchPos for PosMatcher<'a, In, Out> {
     fn match_pos(
         self: Box<Self>,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::PosOut, FormattedFailure>> {
+    ) -> crate::Result<MatchOutcome<Self::PosOut, FormattedFailure>> {
         self.0.match_pos(actual)
     }
 }
@@ -245,7 +245,7 @@ impl<'a, In, Out> DynMatchNeg for NegMatcher<'a, In, Out> {
     fn match_neg(
         self: Box<Self>,
         actual: Self::In,
-    ) -> anyhow::Result<MatchResult<Self::NegOut, FormattedFailure>> {
+    ) -> crate::Result<MatchOutcome<Self::NegOut, FormattedFailure>> {
         self.0.match_neg(actual)
     }
 }
