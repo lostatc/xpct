@@ -87,13 +87,12 @@
 //! If your matcher composes other matchers, it will likely pass a [`FormattedFailure`] to the
 //! formatter, which represents the formatted output of those matchers. You can use
 //! [`Formatter::write_fmt`] to efficiently write this to your formatter's output. You can also
-//! indent the output of the inner matcher using [`FormattedFailure::into_fmt`] and
-//! [`FormattedOutput::indented`] like this:
+//! indent the output of the inner matcher using [`FormattedOutput::indented`] like this:
 //!
 //! ```
-//! # use xpct::core::{Formatter, FormattedFailure};
+//! # use xpct::core::{Formatter, FormattedFailure, FormattedOutput};
 //! # fn fmt(f: &mut Formatter, failure: FormattedFailure) {
-//! f.write_fmt(failure.into_fmt().indented(4));
+//! f.write_fmt(FormattedOutput::from(failure).indented(4));
 //! # }
 //! ```
 //!
@@ -108,7 +107,6 @@
 //! [`Formatter::set_style`]: crate::core::Formatter::set_style
 //! [`Formatter::reset_style`]: crate::core::Formatter::reset_style
 //! [`FormattedFailure`]: crate::core::FormattedFailure
-//! [`FormattedFailure::into_fmt`]: crate::core::FormattedFailure::into_fmt
 //! [`FormattedOutput::indented`]: crate::core::FormattedOutput::indented
 
 #![cfg(feature = "fmt")]

@@ -58,11 +58,6 @@ impl FormattedFailure {
     {
         Ok(Self(FormattedOutput::new(fail, format)?))
     }
-
-    /// Convert this value into a [`FormattedOutput`].
-    pub fn into_fmt(self) -> FormattedOutput {
-        self.0
-    }
 }
 
 impl From<FormattedFailure> for FormattedOutput {

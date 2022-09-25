@@ -43,7 +43,7 @@ impl<In> ChainAssertion<In> {
         ChainAssertion::new(func(self.value))
     }
 
-    pub fn map_result<Out>(
+    pub fn try_map<Out>(
         self,
         func: impl FnOnce(In) -> crate::Result<Out>,
     ) -> crate::Result<ChainAssertion<Out>> {
@@ -66,16 +66,17 @@ impl<In> ChainAssertion<In> {
     }
 }
 
-pub struct ChainMatcher<'a, In, Out>(
-    Box<dyn FnOnce(ChainAssertion<In>) -> Result<ChainAssertion<Out>, MatchError> + 'a>,
-);
+type BoxChainFunc<'a, In, Out> =
+    Box<dyn FnOnce(ChainAssertion<In>) -> Result<ChainAssertion<Out>, MatchError> + 'a>;
+
+pub struct ChainMatcher<'a, In, Out> {
+    func: BoxChainFunc<'a, In, Out>,
+}
 
 impl<'a, In, Out> fmt::Debug for ChainMatcher<'a, In, Out> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_tuple("ChainMatcher")
-            .field(&type_name::<
-                Box<dyn FnOnce(ChainAssertion<In>) -> Result<ChainAssertion<Out>, MatchError> + 'a>,
-            >())
+            .field(&type_name::<BoxChainFunc<'a, In, Out>>())
             .finish()
     }
 }
@@ -84,7 +85,9 @@ impl<'a, In, Out> ChainMatcher<'a, In, Out> {
     pub fn new(
         block: impl FnOnce(ChainAssertion<In>) -> Result<ChainAssertion<Out>, MatchError> + 'a,
     ) -> Self {
-        Self(Box::new(block))
+        Self {
+            func: Box::new(block),
+        }
     }
 }
 
@@ -100,7 +103,7 @@ impl<'a, In, Out> MatchPos for ChainMatcher<'a, In, Out> {
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
-        match (self.0)(ChainAssertion::new(actual)) {
+        match (self.func)(ChainAssertion::new(actual)) {
             Ok(assertion) => success!(assertion.value),
             Err(MatchError::Fail(fail)) => fail!(fail),
             Err(MatchError::Err(error)) => Err(error),

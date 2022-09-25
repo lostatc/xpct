@@ -1,6 +1,6 @@
 use std::any::type_name;
 
-use crate::core::{style, Format, Formatter, PosMatcher};
+use crate::core::{style, Format, FormattedOutput, Formatter, PosMatcher};
 use crate::matchers::{CombinatorMode, FailuresByField, FieldMatcher};
 
 use super::HeaderFormat;
@@ -34,7 +34,7 @@ impl Format for ByFieldFormat {
                 f.write_str(style::FAILED_MSG);
                 f.reset_style();
                 f.write_char('\n');
-                f.write_fmt(fail.into_fmt().indented(style::indent_len(2)));
+                f.write_fmt(FormattedOutput::from(fail).indented(style::indent_len(2)));
             } else {
                 f.set_style(style::success());
                 f.write_str(style::MATCHED_MSG);

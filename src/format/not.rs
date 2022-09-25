@@ -20,7 +20,7 @@ impl Format for FailureFormat {
             MatchFailure::Neg(fail) => fail,
         };
 
-        f.write_fmt(fail.into_fmt());
+        f.write_fmt(fail);
 
         Ok(())
     }

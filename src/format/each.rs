@@ -1,4 +1,4 @@
-use crate::core::{strings, style, Format, Formatter, PosMatcher};
+use crate::core::{strings, style, Format, FormattedOutput, Formatter, PosMatcher};
 use crate::matchers::{CombinatorContext, CombinatorMatcher, CombinatorMode, SomeFailures};
 
 use super::HeaderFormat;
@@ -36,7 +36,7 @@ impl Format for SomeFailuresFormat {
                     f.reset_style();
                     f.write_char('\n');
 
-                    f.write_fmt(fail.into_fmt().indented(failure_indent));
+                    f.write_fmt(FormattedOutput::from(fail).indented(failure_indent));
                 }
                 None => {
                     f.set_style(style::success());
