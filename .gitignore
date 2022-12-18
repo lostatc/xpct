@@ -3,3 +3,6 @@
 /Cargo.lock
 **/*.rs.bk
 *.pdb
+
+# This is for local testing.
+/src/main.rs
