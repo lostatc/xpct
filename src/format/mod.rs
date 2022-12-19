@@ -39,7 +39,7 @@
 //!     Expected: fmt::Debug,
 //! {
 //!     // `MatchFailure` accepts two type parameters for the positive case (we expected the
-//!     // matcher to match) and the negative case (we expected the matcher to not match)
+//!     // matcher to match) and the negative case (we expected the matcher to fail)
 //!     // respectively. However, if they have the same type, you can omit the second one like
 //!     // this.
 //!     type Value = MatchFailure<Mismatch<Actual, Expected>>;

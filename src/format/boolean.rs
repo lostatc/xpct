@@ -1,23 +1,27 @@
+use std::marker::PhantomData;
+
 use crate::core::{style, Format, Formatter, MatchFailure, Matcher, NegFormat};
 use crate::matchers::BeTrueMatcher;
 
 #[derive(Debug)]
-pub struct MessageFormat {
+pub struct MessageFormat<PosFail = (), NegFail = ()> {
+    marker: PhantomData<(PosFail, NegFail)>,
     pos_msg: String,
     neg_msg: String,
 }
 
-impl MessageFormat {
+impl<PosFail, NegFail> MessageFormat<PosFail, NegFail> {
     pub fn new(pos_msg: impl Into<String>, neg_msg: impl Into<String>) -> Self {
         Self {
+            marker: PhantomData,
             pos_msg: pos_msg.into(),
             neg_msg: neg_msg.into(),
         }
     }
 }
 
-impl Format for MessageFormat {
-    type Value = MatchFailure<(), ()>;
+impl<PosFail, NegFail> Format for MessageFormat<PosFail, NegFail> {
+    type Value = MatchFailure<PosFail, NegFail>;
 
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         f.set_style(style::bad());

@@ -3,7 +3,6 @@ use crate::core::{
     MatchPos,
 };
 use crate::{fail, success};
-use std::any::type_name;
 use std::fmt;
 
 #[derive(Debug)]

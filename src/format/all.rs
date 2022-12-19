@@ -1,4 +1,4 @@
-use crate::core::{AsymmetricFormat, MatchError, Matcher};
+use crate::core::{DispatchFormat, MatchError, Matcher};
 use crate::matchers::{ChainAssertion, ChainMatcher};
 
 use super::{FailureFormat, MessageFormat};
@@ -11,7 +11,7 @@ where
     In: 'a,
     Out: 'a,
 {
-    let format = AsymmetricFormat::new(
+    let format = DispatchFormat::new(
         FailureFormat::new(),
         MessageFormat::new("", "All the matchers matched."),
     );

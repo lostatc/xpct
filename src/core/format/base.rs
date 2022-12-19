@@ -87,19 +87,29 @@ where
     }
 }
 
+/// A formatter which dispatches to different formatters depending on whether the matcher is
+/// negated or not.
+///
+/// This type is a [`ResultFormat`] that wraps two existing formatters, one for the positive case
+/// (we expected the matcher to match) and one for the negative case (we expected the matcher to
+/// fail). It dispatches to one of those formatters depending on whether the matcher is negated or
+/// not.
 #[derive(Debug)]
-pub struct AsymmetricFormat<PosFmt, NegFmt> {
+pub struct DispatchFormat<PosFmt, NegFmt> {
     pos_fmt: PosFmt,
     neg_fmt: NegFmt,
 }
 
-impl<PosFmt, NegFmt> AsymmetricFormat<PosFmt, NegFmt> {
+impl<PosFmt, NegFmt> DispatchFormat<PosFmt, NegFmt> {
+    /// Create a new [`DispatchFormat`] from two existing formatters.
+    ///
+    /// This accepts a formatter for the positive case and the negative case respectively.
     pub fn new(pos_fmt: PosFmt, neg_fmt: NegFmt) -> Self {
         Self { pos_fmt, neg_fmt }
     }
 }
 
-impl<PosFmt, NegFmt, PosFail, NegFail> Format for AsymmetricFormat<PosFmt, NegFmt>
+impl<PosFmt, NegFmt, PosFail, NegFail> Format for DispatchFormat<PosFmt, NegFmt>
 where
     PosFmt: Format<Value = MatchFailure<PosFail>>,
     NegFmt: Format<Value = MatchFailure<NegFail>>,
