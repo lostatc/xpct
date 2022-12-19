@@ -12,10 +12,7 @@ impl<'a> fmt::Debug for WhyFormatReason<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Eager(reason) => f.debug_tuple("Eager").field(reason).finish(),
-            Self::Lazy(_) => f
-                .debug_tuple("Lazy")
-                .field(&std::any::type_name::<Box<dyn FnOnce() -> Cow<'a, str> + 'a>>())
-                .finish(),
+            Self::Lazy(_) => f.debug_tuple("Lazy").finish(),
         }
     }
 }
