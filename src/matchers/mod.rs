@@ -3,10 +3,41 @@
 //! # Writing custom matchers
 //!
 //! If none of the provided matchers suit your needs, xpct allows you to write custom matchers.
-//! There are a few ways to do this.
+//! There are three ways to do this, in increasing order of complexity and flexibility:
 //!
-//! The simplest way is to implement the [`SimpleMatch`] trait. Here's an implementation of the
-//! [`equal`] matcher.
+//! 1. Compose existing matchers.
+//! 2. Implement [`SimpleMatch`].
+//! 3. Implement [`Match`].
+//!
+//! ## Composing existing matchers
+//!
+//! The simplest way to make custom matchers is to just compose existing matchers. The combinator
+//! matchers [`each`], [`any`], and [`all`] are useful for this.
+//!
+//! ```
+//! use std::fmt;
+//! use xpct::{each, be_lt, be_gt};
+//! use xpct::core::Matcher;
+//!
+//! pub fn be_between<'a, Actual, Low, High>(
+//!     low: &'a Low,
+//!     high: &'a High,
+//! ) -> Matcher<'a, Actual, Actual>
+//! where
+//!     Actual: PartialOrd<Low> + PartialOrd<High> + fmt::Debug + 'a,
+//!     Low: fmt::Debug,
+//!     High: fmt::Debug,
+//! {
+//!     each(move |ctx| {
+//!         ctx.borrow().to(be_gt(low)).to(be_lt(high));
+//!     })
+//! }
+//! ```
+//!
+//! ## Implementing [`SimpleMatch`]
+//!
+//! The next simplest way is to implement the [`SimpleMatch`] trait. Here's an implementation of
+//! the [`equal`] matcher.
 //!
 //! ```
 //! use xpct::core::SimpleMatch;
@@ -35,8 +66,8 @@
 //!         Ok(actual == &self.expected)
 //!     }
 //!
-//!     // This is called if the matcher fails, and returns a value which is sent to the formatter
-//!     // to format the output.
+//!     // This is called if and only if the matcher fails. It returns a value which is sent to the
+//!     // formatter to format the output.
 //!     fn fail(self, actual: Actual) -> Self::Fail {
 //!         Mismatch {
 //!             actual,
@@ -47,11 +78,13 @@
 //!
 //! ```
 //!
-//! To make `EqualMatcher` into a matcher, you just need to wrap it with [`Matcher::simple`]. This
-//! method also accepts the formatter which is used to format the output. Thankfully, you don't
-//! need to write the formatting logic yourself to get pretty output! Because our matcher returns a
-//! [`Mismatch`] when it fails, we can use any formatter which accepts a [`Mismatch`], like the
-//! aptly named [`MismatchFormat`].
+//! Now let's make a function to call this matcher ergonomically from tests!
+//!
+//! To make `EqualMatcher` into a `Matcher`, you just need to wrap it with [`Matcher::simple`].
+//! This method also accepts the formatter which is used to format the output. Thankfully, you
+//! don't need to write the formatting logic yourself to get pretty output! Because our matcher
+//! returns a [`Mismatch`] when it fails, we can use any formatter which accepts a [`Mismatch`],
+//! like the aptly named [`MismatchFormat`].
 //!
 //! ```
 //! # use xpct::matchers::EqualMatcher;
@@ -102,21 +135,22 @@
 //! expect!("disco").to(not_equal("not disco"));
 //! ```
 //!
-//! A major limitation of [`SimpleMatch`] is that it always returns the same value that was passed
-//! in, hence the name "simple." If you have more complex needs for your matcher, like you need it
-//! to transform the value like the [`be_some`] and [`be_ok`] matchers do, you can implement
-//! [`MatchPos`] and optionally [`MatchNeg`].
+//! ## Implementing [`Match`]
+//!
+//! The major limitation of [`SimpleMatch`] is that it always returns the same value that was
+//! passed in, hence the name "simple." If you have more complex needs for your matcher, like you
+//! need it to transform the value like the [`be_some`] and [`be_ok`] matchers do, you can
+//! implement the [`Match`] trait
 //!
 //! ```
 //! use std::marker::PhantomData;
 //!
 //! use xpct::{success, fail};
-//! use xpct::format::MessageFormat;
-//! use xpct::core::{Matcher, MatchPos, MatchNeg, MatchBase, MatchOutcome, NegFormat};
+//! use xpct::core::{Matcher, Match, MatchOutcome};
 //!
 //! pub struct BeOkMatcher<T, E> {
-//!     // Matchers created by implementing `MatchPos` and `MatchNeg` will often need to use
-//!     // `PhantomData` so they know their input and output types.
+//!     // Matchers created by implementing `Match` will often need to use `PhantomData` so they
+//!     // know their input and output types.
 //!     marker: PhantomData<(T, E)>,
 //! }
 //!
@@ -128,20 +162,23 @@
 //!     }
 //! }
 //!
-//!  // You always need to implement this trait; it's the parent trait of `MatchPos` and `MatchNeg`.
-//! impl<T, E> MatchBase for BeOkMatcher<T, E> {
+//! impl<T, E> Match for BeOkMatcher<T, E> {
 //!     // The type the matcher accepts.
 //!     type In = Result<T, E>;
-//! }
 //!
-//! impl<T, E> MatchPos for BeOkMatcher<T, E> {
-//!     // The type this matcher returns and passes to the next matcher if it matches.
+//!     // These are the types this matcher returns and passes to the next matcher if it succeeds.
+//!     // You can specify different "out" types for the positive case and the negative case. If
+//!     // we're expecting the matcher to succeed (the positive case), then it should return the
+//!     // `Ok` value. If we're expecting the matcher to fail (the negative case), then it should
+//!     // return the `Err` value.
 //!     type PosOut = T;
+//!     type NegOut = E;
 //!
-//!     // The type that is passed to the formatter if the matcher fails. Because we don't have any
-//!     // interesting information to provide other than "the value was not `Ok`", we just make
-//!     // this a unit struct.
+//!    // The these are the types that are passed to the formatter if the matcher fails. Because we
+//!    // don't have any interesting information to provide other than "the value was not `Ok`" or
+//!    // "the value was not `Err`", we just make these the unit type.
 //!     type PosFail = ();
+//!     type NegFail = ();
 //!
 //!     // This returns `MatchOutcome::Success` if the matcher matches and `MatchOutcome::Fail`
 //!     // otherwise.
@@ -150,33 +187,40 @@
 //!         actual: Self::In,
 //!     ) -> xpct::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
 //!         match actual {
-//!             // These macros are just shortcuts for returning a `MatchOutcome`; you don't have
-//!             // to use them.
-//!             Ok(value) => success!(value),
-//!             Err(_) => fail!(()),
+//!             Ok(value) => Ok(MatchOutcome::Success(value)),
+//!             Err(_) => Ok(MatchOutcome::Fail(())),
 //!         }
 //!     }
-//! }
-//!
-//! // Implementing this trait is optional. If you implement this trait, then the matcher can be
-//! // negated. The output type for the negated case can be different; in this case, it returns the
-//! // error type of the `Result`.
-//! impl<T, E> MatchNeg for BeOkMatcher<T, E> {
-//!     type NegOut = E;
-//!     type NegFail = ();
 //!
 //!     fn match_neg(
 //!         self,
 //!         actual: Self::In,
 //!     ) -> xpct::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
 //!         match actual {
+//!             // This crate provides macros as a shorthand for returning a `MatchOutcome`. You
+//!             // don't have to use them.
 //!             Ok(_) => fail!(()),
 //!             Err(error) => success!(error),
 //!         }
 //!     }
 //! }
+//! ```
 //!
-//! // `MessageFormat` is a simple formatter that just returns a static message in each case.
+//! You'll see the terms "pos" and "neg," short for *positive* and *negative*, throughout the API.
+//! These refer to whether a matcher is negated (negative) or not negated (positive).
+//!
+//! If a matcher is negated (the negative case), it means that we're expecting it to fail. If a
+//! matcher is *not* negated (the positive case), it means we're expecting it to succeed.
+//!
+//! Now let's make some functions for invoking our matcher.
+//!
+//! ```
+//! # use xpct::matchers::BeOkMatcher;
+//! use xpct::core::{Matcher, NegFormat};
+//! use xpct::format::MessageFormat;
+//!
+//! // `MessageFormat` is a simple formatter that just returns a static message in each case. It
+//! // doesn't care what the types of `PosFail` and `NegFail` are.
 //! fn result_format() -> MessageFormat {
 //!     MessageFormat::new("Expected this to be Ok.", "Expected this to be Err.")
 //! }
@@ -186,7 +230,7 @@
 //!     T: 'a,
 //!     E: 'a,
 //! {
-//!     // For matchers implemented with `MatchPos` and `MatchNeg`, you use `Matcher::new`.
+//!     // For matchers implemented with `Match`, you use `Matcher::new`.
 //!     Matcher::new(BeOkMatcher::new(), result_format())
 //! }
 //!
@@ -195,12 +239,16 @@
 //!     T: 'a,
 //!     E: 'a,
 //! {
-//!     // You can use `Matcher::neg` to negate a matcher created by implementing `MatchPos` and
-//!     // `MatchNeg`. You can use `NegFormat` to negate a formatter.
+//!     // You can use `Matcher::neg` to negate a matcher created by implementing `Match`. You can
+//!     // use `NegFormat` to negate the formatter.
 //!     Matcher::neg(BeOkMatcher::new(), NegFormat(result_format()))
 //! }
 //! ```
 //!
+//! [`Match`]: crate::core::Match
+//! [`each`]: crate::each
+//! [`any`]: crate::any
+//! [`all`]: crate::all
 //! [`be_some`]: crate::be_some
 //! [`be_ok`]: crate::be_ok
 //! [`SimpleMatch`]: crate::core::SimpleMatch
@@ -209,8 +257,6 @@
 //! [`MismatchFormat`]: crate::format::MismatchFormat
 //! [`Matcher::simple`]: crate::core::Matcher::simple
 //! [`Matcher::simple_neg`]: crate::core::Matcher::simple_neg
-//! [`MatchPos`]: crate::core::MatchPos
-//! [`MatchNeg`]: crate::core::MatchNeg
 
 mod boolean;
 mod chain;

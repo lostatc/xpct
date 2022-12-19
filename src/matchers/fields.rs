@@ -159,7 +159,8 @@ impl<'a, T> Match for FieldMatcher<'a, T> {
 /// });
 /// ```
 ///
-/// This macro returns a value that can be passed to [`FieldMatcher::new`].
+/// This macro returns a [`FieldMatcherSpec`] value that can be passed to [`match_fields`] or
+/// [`match_any_fields`].
 ///
 /// [`match_fields`]: crate::match_fields
 /// [`match_any_fields`]: crate::match_any_fields

@@ -51,8 +51,8 @@ impl Format for ByFieldFormat {
 
 /// Matches when all the fields of a struct match.
 ///
-/// This matcher operates on a struct and allows for matching on each field separately. You'll
-/// generally want to use this matcher with the [`fields!`] macro.
+/// This matcher operates on a struct and allows for matching on each field separately. This is
+/// used with the [`fields!`] macro.
 ///
 /// This matches when each field of the struct matches, and skipping/omitting fields does not make
 /// it fail.

@@ -40,11 +40,6 @@
 //! expect!(41).to(not(equal(57)));
 //! ```
 //!
-//! Not all matchers can be negated like this; matchers that can be negated will return a
-//! [`Matcher`], while matchers that cannot be negated will return a [`PosMatcher`]. You'll see the
-//! terms "pos" and "neg," short for *positive* and *negative*, throughout the API. These refer to
-//! whether a matcher is negated (negative) or not negated (positive).
-//!
 //! When you chain together matchers, they pass the value you passed to [`expect!`] into the next
 //! matcher in the chain. Matchers can change the type of this value, which allows some matchers to
 //! do things like unwrap [`Result`] and [`Option`] types.
@@ -230,7 +225,6 @@
 //! [`fields!`]: crate::fields
 //! [`Assertion::to_not`]: crate::core::Assertion::to_not
 //! [`Matcher`]: crate::core::Matcher
-//! [`PosMatcher`]: crate::core::PosMatcher
 //! [`Assertion::into_inner`]: crate::core::Assertion::into_inner
 //! [`Assertion::map`]: crate::core::Assertion::map
 //! [`Assertion::try_map`]: crate::core::Assertion::try_map
