@@ -1,4 +1,4 @@
-use crate::core::{style, Format, FormattedOutput, Formatter, MatchFailure, PosMatcher};
+use crate::core::{style, Format, FormattedOutput, Formatter, MatchFailure, Matcher};
 use crate::matchers::{CombinatorContext, CombinatorMatcher, CombinatorMode};
 
 use super::SomeFailuresFormat;
@@ -90,11 +90,11 @@ where
 /// [`copied`]: crate::matchers::CombinatorContext::copied
 /// [`cloned`]: crate::matchers::CombinatorContext::cloned
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
-pub fn any<'a, T>(block: impl Fn(&mut CombinatorContext<T>) + 'a) -> PosMatcher<'a, T, T>
+pub fn any<'a, T>(block: impl Fn(&mut CombinatorContext<T>) + 'a) -> Matcher<'a, T, T>
 where
     T: 'a,
 {
-    PosMatcher::new(
+    Matcher::new(
         CombinatorMatcher::new(CombinatorMode::Any, block),
         HeaderFormat::new(
             SomeFailuresFormat::new(),

@@ -86,3 +86,30 @@ where
         }
     }
 }
+
+#[derive(Debug)]
+pub struct AsymmetricFormat<PosFmt, NegFmt> {
+    pos_fmt: PosFmt,
+    neg_fmt: NegFmt,
+}
+
+impl<PosFmt, NegFmt> AsymmetricFormat<PosFmt, NegFmt> {
+    pub fn new(pos_fmt: PosFmt, neg_fmt: NegFmt) -> Self {
+        Self { pos_fmt, neg_fmt }
+    }
+}
+
+impl<PosFmt, NegFmt, PosFail, NegFail> Format for AsymmetricFormat<PosFmt, NegFmt>
+where
+    PosFmt: Format<Value = MatchFailure<PosFail>>,
+    NegFmt: Format<Value = MatchFailure<NegFail>>,
+{
+    type Value = MatchFailure<PosFail, NegFail>;
+
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
+        match value {
+            MatchFailure::Pos(fail) => self.pos_fmt.fmt(f, MatchFailure::Pos(fail)),
+            MatchFailure::Neg(fail) => self.neg_fmt.fmt(f, MatchFailure::Neg(fail)),
+        }
+    }
+}

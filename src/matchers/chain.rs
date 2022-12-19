@@ -1,5 +1,6 @@
 use crate::core::{
-    DynMatchNeg, DynMatchPos, FormattedFailure, MatchBase, MatchError, MatchOutcome, MatchPos,
+    DynMatchNeg, DynMatchPos, FormattedFailure, MatchBase, MatchError, MatchNeg, MatchOutcome,
+    MatchPos,
 };
 use crate::{fail, success};
 use std::any::type_name;
@@ -75,9 +76,7 @@ pub struct ChainMatcher<'a, In, Out> {
 
 impl<'a, In, Out> fmt::Debug for ChainMatcher<'a, In, Out> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_tuple("ChainMatcher")
-            .field(&type_name::<BoxChainFunc<'a, In, Out>>())
-            .finish()
+        f.debug_struct("ChainMatcher").finish_non_exhaustive()
     }
 }
 
@@ -106,6 +105,22 @@ impl<'a, In, Out> MatchPos for ChainMatcher<'a, In, Out> {
         match (self.func)(ChainAssertion::new(actual)) {
             Ok(assertion) => success!(assertion.value),
             Err(MatchError::Fail(fail)) => fail!(fail),
+            Err(MatchError::Err(error)) => Err(error),
+        }
+    }
+}
+
+impl<'a, In, Out> MatchNeg for ChainMatcher<'a, In, Out> {
+    type NegOut = ();
+    type NegFail = ();
+
+    fn match_neg(
+        self,
+        actual: Self::In,
+    ) -> crate::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
+        match (self.func)(ChainAssertion::new(actual)) {
+            Ok(_) => fail!(()),
+            Err(MatchError::Fail(_)) => success!(()),
             Err(MatchError::Err(error)) => Err(error),
         }
     }
