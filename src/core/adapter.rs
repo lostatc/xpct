@@ -1,8 +1,7 @@
 use std::{borrow::Borrow, marker::PhantomData};
 
 use super::{
-    DynMatchNeg, DynMatchPos, FormattedFailure, MatchBase, MatchFailure, MatchNeg, MatchOutcome,
-    MatchPos, ResultFormat, SimpleMatch,
+    DynMatch, FormattedFailure, Match, MatchFailure, MatchOutcome, ResultFormat, SimpleMatch,
 };
 
 #[derive(Debug)]
@@ -17,20 +16,15 @@ impl<M, Fmt: ResultFormat> DynMatchAdapter<M, Fmt> {
     }
 }
 
-impl<M, Fmt> MatchBase for DynMatchAdapter<M, Fmt>
+impl<M, Fmt> DynMatch for DynMatchAdapter<M, Fmt>
 where
-    M: MatchBase,
-    Fmt: ResultFormat,
+    M: Match,
+    Fmt: ResultFormat<Pos = M::PosFail, Neg = M::NegFail>,
 {
     type In = M::In;
-}
 
-impl<M, Fmt> DynMatchPos for DynMatchAdapter<M, Fmt>
-where
-    M: MatchPos,
-    Fmt: ResultFormat<Pos = M::PosFail>,
-{
     type PosOut = M::PosOut;
+    type NegOut = M::NegOut;
 
     fn match_pos(
         self: Box<Self>,
@@ -45,14 +39,6 @@ where
             Err(error) => Err(error),
         }
     }
-}
-
-impl<M, Fmt> DynMatchNeg for DynMatchAdapter<M, Fmt>
-where
-    M: MatchNeg,
-    Fmt: ResultFormat<Neg = M::NegFail>,
-{
-    type NegOut = M::NegOut;
 
     fn match_neg(
         self: Box<Self>,
@@ -90,19 +76,17 @@ where
     }
 }
 
-impl<M, Actual> MatchBase for SimpleMatchAdapter<M, Actual>
+impl<M, Actual> Match for SimpleMatchAdapter<M, Actual>
 where
     M: SimpleMatch<Actual>,
 {
     type In = Actual;
-}
 
-impl<M, Actual> MatchPos for SimpleMatchAdapter<M, Actual>
-where
-    M: SimpleMatch<Actual>,
-{
     type PosOut = Actual;
+    type NegOut = Actual;
+
     type PosFail = M::Fail;
+    type NegFail = M::Fail;
 
     fn match_pos(
         mut self,
@@ -114,14 +98,6 @@ where
             Err(error) => Err(error),
         }
     }
-}
-
-impl<M, Actual> MatchNeg for SimpleMatchAdapter<M, Actual>
-where
-    M: SimpleMatch<Actual>,
-{
-    type NegOut = Actual;
-    type NegFail = M::Fail;
 
     fn match_neg(
         mut self,
@@ -146,19 +122,17 @@ impl<M> NegMatchAdapter<M> {
     }
 }
 
-impl<M> MatchBase for NegMatchAdapter<M>
+impl<M> Match for NegMatchAdapter<M>
 where
-    M: MatchBase,
+    M: Match,
 {
     type In = M::In;
-}
 
-impl<M> MatchPos for NegMatchAdapter<M>
-where
-    M: MatchNeg,
-{
     type PosOut = M::NegOut;
+    type NegOut = M::PosOut;
+
     type PosFail = M::NegFail;
+    type NegFail = M::PosFail;
 
     fn match_pos(
         self,
@@ -166,14 +140,6 @@ where
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
         self.matcher.match_neg(actual)
     }
-}
-
-impl<M> MatchNeg for NegMatchAdapter<M>
-where
-    M: MatchPos,
-{
-    type NegOut = M::PosOut;
-    type NegFail = M::PosFail;
 
     fn match_neg(
         self,

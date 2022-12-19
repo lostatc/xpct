@@ -1,11 +1,16 @@
-use std::any::type_name;
 use std::fmt;
 
-use crate::core::{FormattedFailure, MatchBase, MatchOutcome, MatchPos};
+use crate::core::{FormattedFailure, Match, MatchOutcome};
 use crate::success;
 
 pub struct MapMatcher<'a, In, Out> {
     func: Box<dyn FnOnce(In) -> Out + 'a>,
+}
+
+impl<'a, In, Out> fmt::Debug for MapMatcher<'a, In, Out> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("MapMatcher").finish_non_exhaustive()
+    }
 }
 
 impl<'a, In, Out> MapMatcher<'a, In, Out> {
@@ -19,23 +24,23 @@ impl<'a, In, Out> MapMatcher<'a, In, Out> {
     }
 }
 
-impl<'a, In, Out> fmt::Debug for MapMatcher<'a, In, Out> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("MapMatcher")
-            .field("func", &type_name::<Box<dyn FnOnce(In) -> Out + 'a>>())
-            .finish()
-    }
-}
-
-impl<'a, In, Out> MatchBase for MapMatcher<'a, In, Out> {
+impl<'a, In, Out> Match for MapMatcher<'a, In, Out> {
     type In = In;
-}
 
-impl<'a, In, Out> MatchPos for MapMatcher<'a, In, Out> {
     type PosOut = Out;
+    type NegOut = Out;
+
     type PosFail = FormattedFailure;
+    type NegFail = FormattedFailure;
 
     fn match_pos(
+        self,
+        actual: Self::In,
+    ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
+        success!((self.func)(actual))
+    }
+
+    fn match_neg(
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
@@ -47,6 +52,12 @@ pub struct TryMapMatcher<'a, In, Out> {
     func: Box<dyn FnOnce(In) -> crate::Result<Out> + 'a>,
 }
 
+impl<'a, In, Out> fmt::Debug for TryMapMatcher<'a, In, Out> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("TryMapMatcher").finish_non_exhaustive()
+    }
+}
+
 impl<'a, In, Out> TryMapMatcher<'a, In, Out> {
     pub fn new(func: impl FnOnce(In) -> crate::Result<Out> + 'a) -> Self {
         Self {
@@ -55,26 +66,23 @@ impl<'a, In, Out> TryMapMatcher<'a, In, Out> {
     }
 }
 
-impl<'a, In, Out> fmt::Debug for TryMapMatcher<'a, In, Out> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("MapErrMatcher")
-            .field(
-                "func",
-                &type_name::<Box<dyn FnOnce(In) -> crate::Result<Out>>>(),
-            )
-            .finish()
-    }
-}
-
-impl<'a, In, Out> MatchBase for TryMapMatcher<'a, In, Out> {
+impl<'a, In, Out> Match for TryMapMatcher<'a, In, Out> {
     type In = In;
-}
 
-impl<'a, In, Out> MatchPos for TryMapMatcher<'a, In, Out> {
     type PosOut = Out;
+    type NegOut = Out;
+
     type PosFail = FormattedFailure;
+    type NegFail = FormattedFailure;
 
     fn match_pos(
+        self,
+        actual: Self::In,
+    ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
+        success!((self.func)(actual)?)
+    }
+
+    fn match_neg(
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {

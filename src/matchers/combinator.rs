@@ -1,10 +1,7 @@
 use std::borrow::Borrow;
 use std::fmt;
 
-use crate::core::{
-    DynMatch, DynMatchNeg, DynMatchPos, FormattedFailure, MatchBase, MatchNeg, MatchOutcome,
-    MatchPos,
-};
+use crate::core::{DynMatch, FormattedFailure, Match, MatchOutcome};
 use crate::{fail, success};
 
 /// When some of the given matchers failed.
@@ -43,7 +40,7 @@ where
 }
 
 impl<'a, 'b: 'a, T, In> CombinatorAssertion<'a, 'b, T, In> {
-    fn match_pos(self, matcher: impl DynMatchPos<In = In>) -> Self {
+    fn match_pos(self, matcher: impl DynMatch<In = In>) -> Self {
         if let Ok(failures) = self.state {
             match Box::new(matcher).match_pos((self.transform)(self.value)) {
                 Ok(MatchOutcome::Success(_)) => {
@@ -61,7 +58,7 @@ impl<'a, 'b: 'a, T, In> CombinatorAssertion<'a, 'b, T, In> {
         self
     }
 
-    fn match_neg(self, matcher: impl DynMatchNeg<In = In>) -> Self {
+    fn match_neg(self, matcher: impl DynMatch<In = In>) -> Self {
         if let Ok(failures) = self.state {
             match Box::new(matcher).match_neg((self.transform)(self.value)) {
                 Ok(MatchOutcome::Success(_)) => {
@@ -186,13 +183,14 @@ impl<'a, T> CombinatorMatcher<'a, T> {
     }
 }
 
-impl<'a, T> MatchBase for CombinatorMatcher<'a, T> {
+impl<'a, T> Match for CombinatorMatcher<'a, T> {
     type In = T;
-}
 
-impl<'a, T> MatchPos for CombinatorMatcher<'a, T> {
     type PosOut = T;
+    type NegOut = T;
+
     type PosFail = SomeFailures;
+    type NegFail = SomeFailures;
 
     fn match_pos(
         self,
@@ -220,11 +218,6 @@ impl<'a, T> MatchPos for CombinatorMatcher<'a, T> {
             (Err(error), _) => Err(error),
         }
     }
-}
-
-impl<'a, T> MatchNeg for CombinatorMatcher<'a, T> {
-    type NegOut = T;
-    type NegFail = SomeFailures;
 
     fn match_neg(
         self,

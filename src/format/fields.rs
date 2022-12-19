@@ -1,7 +1,7 @@
 use std::any::type_name;
 
-use crate::core::{style, Format, FormattedOutput, Formatter, PosMatcher};
-use crate::matchers::{CombinatorMode, FailuresByField, FieldMatcher};
+use crate::core::{style, Format, FormattedOutput, Formatter, Matcher};
+use crate::matchers::{CombinatorMode, FailuresByField, FieldMatcher, FieldMatcherSpec};
 
 use super::HeaderFormat;
 
@@ -89,14 +89,12 @@ impl Format for ByFieldFormat {
 ///
 /// [`fields!`]: crate::fields
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
-pub fn match_fields<'a, T>(
-    func: impl FnOnce(T) -> crate::Result<FailuresByField> + 'a,
-) -> PosMatcher<'a, T, ()>
+pub fn match_fields<'a, T>(spec: FieldMatcherSpec<'a, T>) -> Matcher<'a, T, ()>
 where
     T: 'a,
 {
-    PosMatcher::new(
-        FieldMatcher::new(CombinatorMode::All, func),
+    Matcher::new(
+        FieldMatcher::new(CombinatorMode::All, spec),
         HeaderFormat::new(
             ByFieldFormat::new(type_name::<T>()),
             "Expected all of these to match:",
@@ -109,14 +107,12 @@ where
 /// This matcher is similar to [`match_fields`], except it matches when *any* of the fields of a
 /// struct match instead of all of them.
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
-pub fn match_any_fields<'a, T>(
-    func: impl FnOnce(T) -> crate::Result<FailuresByField> + 'a,
-) -> PosMatcher<'a, T, ()>
+pub fn match_any_fields<'a, T>(spec: FieldMatcherSpec<'a, T>) -> Matcher<'a, T, ()>
 where
     T: 'a,
 {
-    PosMatcher::new(
-        FieldMatcher::new(CombinatorMode::Any, func),
+    Matcher::new(
+        FieldMatcher::new(CombinatorMode::Any, spec),
         HeaderFormat::new(
             ByFieldFormat::new(type_name::<T>()),
             "Expected at least one of these to match:",

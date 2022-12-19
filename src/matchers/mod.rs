@@ -229,7 +229,7 @@ pub use combinator::{
     CombinatorAssertion, CombinatorContext, CombinatorMatcher, CombinatorMode, SomeFailures,
 };
 pub use equal::{EqualMatcher, Mismatch};
-pub use fields::{FailuresByField, FieldMatcher};
+pub use fields::{FailuresByField, FieldMatcher, FieldMatcherSpec};
 pub use map::{MapMatcher, TryMapMatcher};
 pub use not::NotMatcher;
 pub use option::BeSomeMatcher;

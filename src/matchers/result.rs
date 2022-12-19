@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::core::{MatchBase, MatchNeg, MatchOutcome, MatchPos};
+use crate::core::{Match, MatchOutcome};
 use crate::{fail, success};
 
 #[derive(Debug)]
@@ -22,13 +22,14 @@ impl<T, E> Default for BeOkMatcher<T, E> {
     }
 }
 
-impl<T, E> MatchBase for BeOkMatcher<T, E> {
+impl<T, E> Match for BeOkMatcher<T, E> {
     type In = Result<T, E>;
-}
 
-impl<T, E> MatchPos for BeOkMatcher<T, E> {
     type PosOut = T;
+    type NegOut = E;
+
     type PosFail = ();
+    type NegFail = ();
 
     fn match_pos(
         self,
@@ -39,11 +40,6 @@ impl<T, E> MatchPos for BeOkMatcher<T, E> {
             Err(_) => fail!(()),
         }
     }
-}
-
-impl<T, E> MatchNeg for BeOkMatcher<T, E> {
-    type NegOut = E;
-    type NegFail = ();
 
     fn match_neg(
         self,

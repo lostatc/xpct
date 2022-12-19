@@ -1,7 +1,6 @@
-use std::any::type_name;
 use std::fmt;
 
-use crate::core::{FormattedFailure, MatchBase, MatchOutcome, MatchPos};
+use crate::core::{FormattedFailure, Match, MatchOutcome};
 use crate::{fail, success};
 
 use super::CombinatorMode;
@@ -11,58 +10,64 @@ use super::CombinatorMode;
 /// This can be used by matchers that test each field of a struct or tuple.
 pub type FailuresByField = Vec<(&'static str, Option<FormattedFailure>)>;
 
+type BoxFieldMatcherSpecFunc<'a, T> =
+    Box<dyn FnOnce(T, bool) -> crate::Result<FailuresByField> + 'a>;
+
+pub struct FieldMatcherSpec<'a, T> {
+    func: BoxFieldMatcherSpecFunc<'a, T>,
+}
+
+impl<'a, T> fmt::Debug for FieldMatcherSpec<'a, T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("FieldMatcherSpec").finish_non_exhaustive()
+    }
+}
+
+impl<'a, T> FieldMatcherSpec<'a, T> {
+    /// This is only meant to be called from the [`fields!`][crate::fields] macro.
+    #[doc(hidden)]
+    pub fn __new(func: impl FnOnce(T, bool) -> crate::Result<FailuresByField> + 'a) -> Self {
+        Self {
+            func: Box::new(func),
+        }
+    }
+}
+
 /// A matcher for matching on fields of a struct.
 ///
 /// See [`match_fields`] for details.
 ///
 /// [`match_fields`]: crate::match_fields
+#[derive(Debug)]
 pub struct FieldMatcher<'a, T> {
-    func: Box<dyn FnOnce(T) -> crate::Result<FailuresByField> + 'a>,
     mode: CombinatorMode,
-}
-
-impl<'a, T> fmt::Debug for FieldMatcher<'a, T> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("FieldMatcher")
-            .field(
-                "func",
-                &type_name::<Box<dyn FnOnce(T) -> crate::Result<FailuresByField> + 'a>>(),
-            )
-            .field("mode", &self.mode)
-            .finish()
-    }
+    spec: FieldMatcherSpec<'a, T>,
 }
 
 impl<'a, T> FieldMatcher<'a, T> {
     /// Create a new matcher.
     ///
-    /// This accepts a function which is passed the struct and returns any failures along with
-    /// their field names. You can use the [`fields!`][crate::fields] macro to generate a function
-    /// of this type.
-    pub fn new(
-        mode: CombinatorMode,
-        func: impl FnOnce(T) -> crate::Result<FailuresByField> + 'a,
-    ) -> Self {
-        Self {
-            func: Box::new(func),
-            mode,
-        }
+    /// This accepts a [`FieldMatcherSpec`], which you can generate using the
+    /// [`fields!`][crate::fields] macro.
+    pub fn new(mode: CombinatorMode, spec: FieldMatcherSpec<'a, T>) -> Self {
+        Self { spec, mode }
     }
 }
 
-impl<'a, T> MatchBase for FieldMatcher<'a, T> {
+impl<'a, T> Match for FieldMatcher<'a, T> {
     type In = T;
-}
 
-impl<'a, T> MatchPos for FieldMatcher<'a, T> {
     type PosOut = ();
+    type NegOut = ();
+
     type PosFail = FailuresByField;
+    type NegFail = FailuresByField;
 
     fn match_pos(
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
-        let failures = (self.func)(actual)?;
+        let failures = (self.spec.func)(actual, false)?;
         match self.mode {
             CombinatorMode::Any => {
                 if failures.iter().any(|(_, fail)| fail.is_none()) {
@@ -73,6 +78,29 @@ impl<'a, T> MatchPos for FieldMatcher<'a, T> {
             }
             CombinatorMode::All => {
                 if failures.iter().all(|(_, fail)| fail.is_none()) {
+                    success!(())
+                } else {
+                    fail!(failures)
+                }
+            }
+        }
+    }
+
+    fn match_neg(
+        self,
+        actual: Self::In,
+    ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
+        let failures = (self.spec.func)(actual, true)?;
+        match self.mode {
+            CombinatorMode::Any => {
+                if failures.iter().all(|(_, fail)| fail.is_none()) {
+                    success!(())
+                } else {
+                    fail!(failures)
+                }
+            }
+            CombinatorMode::All => {
+                if failures.iter().any(|(_, fail)| fail.is_none()) {
                     success!(())
                 } else {
                     fail!(failures)
@@ -145,16 +173,25 @@ macro_rules! fields {
             $(,)?
         }
     ) => {
-        |input: $struct_type| -> $crate::Result<::std::vec::Vec<(&::std::primitive::str, ::std::option::Option<$crate::core::FormattedFailure>)>> {
-            $crate::Result::Ok(vec![$(
-                (
-                    stringify!($field_name),
-                    match $crate::core::DynMatchPos::match_pos(::std::boxed::Box::new($matcher), input.$field_name)? {
-                        $crate::core::MatchOutcome::Success(_) => ::std::option::Option::None,
-                        $crate::core::MatchOutcome::Fail(fail) => ::std::option::Option::Some(fail),
-                    },
-                ),
-            )+])
-        }
+        $crate::matchers::FieldMatcherSpec::__new(
+            |input: $struct_type, negated: ::std::primitive::bool| -> $crate::Result<::std::vec::Vec<(&::std::primitive::str, ::std::option::Option<$crate::core::FormattedFailure>)>> {
+                $crate::Result::Ok(vec![$(
+                    (
+                        stringify!($field_name),
+                        if negated {
+                            match $crate::core::DynMatch::match_neg(::std::boxed::Box::new($matcher), input.$field_name)? {
+                                $crate::core::MatchOutcome::Success(_) => ::std::option::Option::None,
+                                $crate::core::MatchOutcome::Fail(fail) => ::std::option::Option::Some(fail),
+                            }
+                        } else {
+                            match $crate::core::DynMatch::match_pos(::std::boxed::Box::new($matcher), input.$field_name)? {
+                                $crate::core::MatchOutcome::Success(_) => ::std::option::Option::None,
+                                $crate::core::MatchOutcome::Fail(fail) => ::std::option::Option::Some(fail),
+                            }
+                        },
+                    ),
+                )+])
+            }
+        )
     };
 }

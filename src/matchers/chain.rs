@@ -1,7 +1,4 @@
-use crate::core::{
-    DynMatchNeg, DynMatchPos, FormattedFailure, MatchBase, MatchError, MatchNeg, MatchOutcome,
-    MatchPos,
-};
+use crate::core::{DynMatch, FormattedFailure, Match, MatchError, MatchOutcome};
 use crate::{fail, success};
 use std::fmt;
 
@@ -19,7 +16,7 @@ impl<In> ChainAssertion<In> {
 impl<In> ChainAssertion<In> {
     pub fn to<Out>(
         self,
-        matcher: impl DynMatchPos<In = In, PosOut = Out>,
+        matcher: impl DynMatch<In = In, PosOut = Out>,
     ) -> Result<ChainAssertion<Out>, MatchError> {
         match Box::new(matcher).match_pos(self.value) {
             Ok(MatchOutcome::Success(out)) => Ok(ChainAssertion::new(out)),
@@ -30,7 +27,7 @@ impl<In> ChainAssertion<In> {
 
     pub fn to_not<Out>(
         self,
-        matcher: impl DynMatchNeg<In = In, NegOut = Out>,
+        matcher: impl DynMatch<In = In, NegOut = Out>,
     ) -> Result<ChainAssertion<Out>, MatchError> {
         match Box::new(matcher).match_neg(self.value) {
             Ok(MatchOutcome::Success(out)) => Ok(ChainAssertion::new(out)),
@@ -89,13 +86,14 @@ impl<'a, In, Out> ChainMatcher<'a, In, Out> {
     }
 }
 
-impl<'a, In, Out> MatchBase for ChainMatcher<'a, In, Out> {
+impl<'a, In, Out> Match for ChainMatcher<'a, In, Out> {
     type In = In;
-}
 
-impl<'a, In, Out> MatchPos for ChainMatcher<'a, In, Out> {
     type PosOut = Out;
+    type NegOut = ();
+
     type PosFail = FormattedFailure;
+    type NegFail = ();
 
     fn match_pos(
         self,
@@ -107,11 +105,6 @@ impl<'a, In, Out> MatchPos for ChainMatcher<'a, In, Out> {
             Err(MatchError::Err(error)) => Err(error),
         }
     }
-}
-
-impl<'a, In, Out> MatchNeg for ChainMatcher<'a, In, Out> {
-    type NegOut = ();
-    type NegFail = ();
 
     fn match_neg(
         self,

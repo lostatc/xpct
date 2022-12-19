@@ -1,8 +1,7 @@
 use std::convert::TryInto;
 
 use super::{
-    AssertionFailure, AssertionFormat, DynMatchNeg, DynMatchPos, FormattedOutput, MatchError,
-    MatchOutcome,
+    AssertionFailure, AssertionFormat, DynMatch, FormattedOutput, MatchError, MatchOutcome,
 };
 
 #[derive(Debug)]
@@ -30,7 +29,7 @@ where
 {
     pub fn to<Out>(
         self,
-        matcher: impl DynMatchPos<In = In, PosOut = Out>,
+        matcher: impl DynMatch<In = In, PosOut = Out>,
     ) -> Assertion<Out, AssertFmt> {
         match Box::new(matcher).match_pos(self.value) {
             Ok(MatchOutcome::Success(out)) => Assertion {
@@ -45,7 +44,7 @@ where
 
     pub fn to_not<Out>(
         self,
-        matcher: impl DynMatchNeg<In = In, NegOut = Out>,
+        matcher: impl DynMatch<In = In, NegOut = Out>,
     ) -> Assertion<Out, AssertFmt> {
         match Box::new(matcher).match_neg(self.value) {
             Ok(MatchOutcome::Success(out)) => Assertion {

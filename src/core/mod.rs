@@ -8,10 +8,7 @@ mod wrap;
 
 pub use format::*;
 
-pub use matcher::{
-    BoxMatch, BoxMatchNeg, BoxMatchPos, DynMatch, DynMatchNeg, DynMatchPos, MatchBase, MatchNeg,
-    MatchPos, Matcher, NegMatcher, PosMatcher, SimpleMatch,
-};
+pub use matcher::{BoxMatch, DynMatch, Match, Matcher, SimpleMatch};
 
 pub use result::{AssertionFailure, FormattedFailure, MatchError, MatchFailure, MatchOutcome};
 
