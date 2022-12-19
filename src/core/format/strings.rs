@@ -1,7 +1,6 @@
 use std::borrow::Cow;
 
-const PREFIX_CACHE: &'static str =
-    "                                                                ";
+const PREFIX_CACHE: &str = "                                                                ";
 
 #[cfg(feature = "color")]
 mod with_color {
@@ -18,7 +17,7 @@ mod with_color {
     // ```
     // assert_eq!(find_linebreak("abc\r\ndef"), Some(3..5));
     // ```
-    fn find_linebreak<'a>(s: &'a str) -> Option<Range<usize>> {
+    fn find_linebreak(s: &str) -> Option<Range<usize>> {
         let mut chars = s.char_indices();
 
         loop {
@@ -38,7 +37,7 @@ mod with_color {
         None
     }
 
-    pub fn indent_vec<'a>(
+    pub fn indent_vec(
         segments: impl IntoIterator<Item = String>,
         spaces: u32,
         hanging: bool,
@@ -85,7 +84,7 @@ mod with_color {
                 pos += linebreak.end;
             }
 
-            if pos <= segment.len() - 1 {
+            if pos < segment.len() {
                 // There are characters between the last linebreak and the end of the segment.
                 if needs_indented {
                     new_segment.push_str(&prefix);
@@ -135,7 +134,7 @@ mod with_fmt {
 pub use with_fmt::*;
 
 /// Indent each line by the given number of spaces.
-pub fn indent<'a>(s: &'a str, spaces: u32, hanging: bool) -> Cow<'a, str> {
+pub fn indent(s: &str, spaces: u32, hanging: bool) -> Cow<str> {
     if s.is_empty() || spaces == 0 {
         return Cow::Borrowed(s);
     }
@@ -188,13 +187,13 @@ mod tests {
     fn indent_when_the_indent_len_is_non_zero() {
         let input = " line 1\n  line 2\n   line 3\n";
         let expected = Cow::<'_, str>::Owned(String::from("   line 1\n    line 2\n     line 3\n"));
-        assert_eq!(indent(&input, 2, false), expected);
+        assert_eq!(indent(input, 2, false), expected);
     }
 
     #[test]
     fn indent_when_there_is_no_trailing_newline() {
         let input = " line 1\n line 2\n line 3";
         let expected = Cow::<'_, str>::Owned(String::from("   line 1\n   line 2\n   line 3"));
-        assert_eq!(indent(&input, 2, false), expected);
+        assert_eq!(indent(input, 2, false), expected);
     }
 }

@@ -4,9 +4,9 @@ use std::borrow::Cow;
 
 use super::{strings, Color, OutputStyle, TextColor, TextStyle};
 
-pub const INFO_SYMBOL: &'static str = "\u{1f6c8}";
-pub const MATCHED_MSG: &'static str = "MATCHED";
-pub const FAILED_MSG: &'static str = "FAILED";
+pub const INFO_SYMBOL: &str = "\u{1f6c8}";
+pub const MATCHED_MSG: &str = "MATCHED";
+pub const FAILED_MSG: &str = "FAILED";
 pub const INDENT_LEN: u32 = 4;
 
 pub fn indent(levels: u32) -> Cow<'static, str> {

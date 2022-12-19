@@ -17,7 +17,5 @@ impl SimpleMatch<bool> for BeTrueMatcher {
         Ok(*actual)
     }
 
-    fn fail(self, _: bool) -> Self::Fail {
-        ()
-    }
+    fn fail(self, _: bool) -> Self::Fail {}
 }

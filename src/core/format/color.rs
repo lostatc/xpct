@@ -85,7 +85,7 @@ pub enum Color {
 
 #[cfg(feature = "color")]
 impl Color {
-    fn into_color(&self) -> colored::Color {
+    fn into_color(self) -> colored::Color {
         use colored::Color;
 
         match self {
@@ -105,11 +105,7 @@ impl Color {
             Self::BrightMagenta => Color::BrightMagenta,
             Self::BrightCyan => Color::BrightCyan,
             Self::BrightWhite => Color::BrightWhite,
-            Self::Rgb(r, g, b) => Color::TrueColor {
-                r: *r,
-                g: *g,
-                b: *b,
-            },
+            Self::Rgb(r, g, b) => Color::TrueColor { r, g, b },
         }
     }
 }
