@@ -13,6 +13,13 @@ pub type FailuresByField = Vec<(&'static str, Option<FormattedFailure>)>;
 type BoxFieldMatcherSpecFunc<'a, T> =
     Box<dyn FnOnce(T, bool) -> crate::Result<FailuresByField> + 'a>;
 
+/// An opaque type to be used with [`match_fields`] and [`match_any_fields`].
+///
+/// This type is returned by [`fields!`] and can be passed to [`match_fields`] and
+/// [`match_any_fields`].
+///
+/// [`match_fields`]: crate::match_fields
+/// [`match_any_fields`]: crate::match_any_fields
 pub struct FieldMatcherSpec<'a, T> {
     func: BoxFieldMatcherSpecFunc<'a, T>,
 }

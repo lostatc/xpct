@@ -69,9 +69,6 @@ impl Format for SomeFailuresFormat {
 /// determine how the value is passed to matchers. From there, you can call [`to`] and [`to_not`]
 /// to use matchers.
 ///
-/// This matcher cannot be negated, such as with [`not`]. Instead, you can just negate each of the
-/// matchers passed to it by calling [`to_not`] or using [`not`] on them.
-///
 /// # Examples
 ///
 /// Passing the value to matchers by reference:
@@ -96,7 +93,19 @@ impl Format for SomeFailuresFormat {
 ///         .to(be_lt(130.0))
 ///         .to(be_gt(0.40));
 /// }));
+/// ```
 ///
+/// If you want to format the closure as an expression instead of a statement, you can use
+/// [`done`]. This method doesn't do anything special; it just consumes `self` and returns `()`.
+///
+/// ```
+/// use xpct::{expect, each, be_lt, be_gt};
+///
+/// expect!(20.0).to(each(|ctx| ctx.copied()
+///     .to(be_lt(130.0))
+///     .to(be_gt(0.40))
+///     .done()
+/// ));
 /// ```
 ///
 /// [`all`]: crate::all
@@ -105,6 +114,7 @@ impl Format for SomeFailuresFormat {
 /// [`be_some`]: crate::be_some
 /// [`to`]: crate::matchers::CombinatorAssertion::to
 /// [`to_not`]: crate::matchers::CombinatorAssertion::to_not
+/// [`done`]: crate::matchers::CombinatorAssertion::done
 /// [`borrow`]: crate::matchers::CombinatorContext::borrow
 /// [`copied`]: crate::matchers::CombinatorContext::copied
 /// [`cloned`]: crate::matchers::CombinatorContext::cloned

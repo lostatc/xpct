@@ -53,9 +53,6 @@ where
 /// determine how the value is passed to matchers. From there, you can call [`to`] and [`to_not`]
 /// to use matchers.
 ///
-/// This matcher cannot be negated, such as with [`not`]. Instead, you can just negate each of the
-/// matchers passed to it by calling [`to_not`] or using [`not`] on them.
-///
 /// # Examples
 ///
 /// Passing the value to matchers by reference:
