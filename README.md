@@ -1,5 +1,7 @@
 # xpct
 
+🚧 This repo is under construction 🚧
+
 xpct is an assertions library for Rust. It's designed to be ergonomic,
 batteries-included, and test framework agnostic.
 
