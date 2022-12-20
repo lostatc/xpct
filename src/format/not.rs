@@ -8,25 +8,13 @@ use crate::matchers::NotMatcher;
 ///
 /// If you need to print multiple [`FormattedFailure`] values, use [`SomeFailuresFormat`].
 ///
-/// # Examples
-///
-/// ```
-/// use xpct::core::Matcher;
-/// use xpct::matchers::NotMatcher;
-/// use xpct::format::FailureFormat;
-///
-/// # use xpct::matchers::BeTrueMatcher;
-/// # use xpct::format::MessageFormat;
-/// # let inner_matcher = Matcher::simple(BeTrueMatcher::new(), MessageFormat::new("", ""));
-/// let matcher = Matcher::new(NotMatcher::new(inner_matcher), FailureFormat::new());
-/// ```
-///
 /// [`SomeFailuresFormat`]: crate::format::SomeFailuresFormat
 #[non_exhaustive]
 #[derive(Debug, Default)]
 pub struct FailureFormat;
 
 impl FailureFormat {
+    /// Create a new [`FailureFormat`].
     pub fn new() -> Self {
         Self
     }

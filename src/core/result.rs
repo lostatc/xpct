@@ -96,10 +96,10 @@ pub struct AssertionFailure<Context> {
 /// The outcome of a matcher, either `Succcess` or `Fail`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MatchOutcome<Success, Fail> {
-    /// The matcher matched.
+    /// The matcher succeeded.
     Success(Success),
 
-    /// The matcher did not match.
+    /// The matcher failed.
     Fail(Fail),
 }
 
@@ -135,8 +135,8 @@ impl<Success, Fail> From<MatchOutcome<Success, Fail>> for Result<Success, Fail> 
 pub enum MatchError {
     /// The matcher failed.
     ///
-    /// This can either mean it was expecting to match but didn't, or it was expecting to not match
-    /// but did.
+    /// This can either mean it was expecting to succeed but instead failed, or it was expecting to
+    /// fail but instead succeeded.
     Fail(FormattedFailure),
 
     /// The matcher returned an error.

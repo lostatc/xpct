@@ -1,4 +1,14 @@
 //! The formatters provided by this crate.
+//!
+//! The formatters in this module can be used to implement custom matchers without having to
+//! manually implement their formatting logic. You can use these formatters to get pretty
+//! formatting "for free."
+//!
+//! The [`Format::Value`] of a formatter tells you what failure output it accepts. For example,
+//! [`MismatchFormat`] can format any matcher that returns a [`Mismatch`].
+//!
+//! [`Format::Value`]: crate::core::Format::Value
+//! [`Mismatch`]: crate::matchers::Mismatch
 
 #![cfg(feature = "fmt")]
 #![cfg_attr(docsrs, doc(cfg(feature = "fmt")))]

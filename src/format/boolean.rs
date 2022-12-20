@@ -22,8 +22,11 @@ pub struct MessageFormat<PosFail = (), NegFail = ()> {
 }
 
 impl<PosFail, NegFail> MessageFormat<PosFail, NegFail> {
-    /// Create a new [`MessageFormat`] from the strings to print in the positive and negative
-    /// cases, respectively.
+    /// Create a new [`MessageFormat`].
+    ///
+    /// This accepts two error messages: the one to use in the *positive* case (when we were
+    /// expecting the matcher to succeed) and the one to use in the *negative* case (when we were
+    /// expecting the matcher to fail).
     pub fn new(pos_msg: impl Into<String>, neg_msg: impl Into<String>) -> Self {
         Self {
             marker: PhantomData,

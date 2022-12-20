@@ -3,7 +3,7 @@ use crate::matchers::{CombinatorContext, CombinatorMatcher, CombinatorMode, Some
 
 use super::HeaderFormat;
 
-/// A formatter which prints an array of pre-formatted [`FormattedFailure`] values.
+/// A formatter which prints a vec of pre-formatted [`FormattedFailure`] values.
 ///
 /// This formatter just writes the pre-formatted values via [`Formatter::write_fmt`]. It's mostly
 /// useful for combinator matchers which need to print the output of the matchers they compose.
@@ -17,6 +17,7 @@ use super::HeaderFormat;
 pub struct SomeFailuresFormat;
 
 impl SomeFailuresFormat {
+    /// Create a new [`SomeFailuresFormat`].
     pub fn new() -> Self {
         Self
     }
