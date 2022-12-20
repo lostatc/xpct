@@ -5,6 +5,13 @@ use std::fmt;
 use super::strings::indent_vec;
 use super::{Format, OutputStyle};
 
+// Disable colored output if stderr is not a tty.
+fn check_disable_color() {
+    if atty::isnt(atty::Stream::Stderr) {
+        colored::control::set_override(false)
+    }
+}
+
 #[derive(Debug, Default)]
 struct OutputSegment {
     buf: String,
@@ -138,6 +145,7 @@ impl FormattedOutput {
 
     /// Panic with this output as the error message.
     pub fn fail(&self) -> ! {
+        check_disable_color();
         panic!("\n{}\n", self);
     }
 }
