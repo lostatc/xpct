@@ -35,6 +35,7 @@ impl<In, AssertFmt> Assertion<In, AssertFmt>
 where
     AssertFmt: AssertionFormat,
 {
+    /// Make an assertion with the given `matcher`.
     pub fn to<Out>(
         self,
         matcher: impl DynMatch<In = In, PosOut = Out>,
@@ -50,6 +51,11 @@ where
         }
     }
 
+    /// Same as [`to`], but negated.
+    ///
+    /// This tests that the given matcher does *not* succeed.
+    ///
+    /// [`to`]: crate::core::Assertion::to
     pub fn to_not<Out>(
         self,
         matcher: impl DynMatch<In = In, NegOut = Out>,
@@ -65,6 +71,11 @@ where
         }
     }
 
+    /// Infallibly map the input value to an output value, possibly of a different type.
+    ///
+    /// This does the same thing as [`map`].
+    ///
+    /// [`map`]: crate::map
     pub fn map<Out>(self, func: impl FnOnce(In) -> Out) -> Assertion<Out, AssertFmt> {
         Assertion {
             value: func(self.value),
@@ -73,6 +84,11 @@ where
         }
     }
 
+    /// Fallibly map the input value to an output value, possibly of a different type.
+    ///
+    /// This does the same thing as [`try_map`].
+    ///
+    /// [`try_map`]: crate::map
     pub fn try_map<Out>(
         self,
         func: impl FnOnce(In) -> crate::Result<Out>,
@@ -87,6 +103,9 @@ where
         }
     }
 
+    /// Convert the input value via [`Into`].
+    ///
+    /// [`expect!`]: crate::expect
     pub fn into<Out>(self) -> Assertion<Out, AssertFmt>
     where
         Out: From<In>,
@@ -98,6 +117,9 @@ where
         }
     }
 
+    /// Same as [`into`], but with [`TryInto`].
+    ///
+    /// [`into`]: crate::core::Assertion::into
     pub fn try_into<Out>(self) -> Assertion<Out, AssertFmt>
     where
         Out: TryFrom<In>,
@@ -113,31 +135,55 @@ where
         }
     }
 
+    /// Consume this assertion and return the value passed to [`expect!`].
+    ///
+    /// If the value has been transformed by any matchers like [`be_ok`] or [`be_some`], this
+    /// returns the final value.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use xpct::{expect, be_some, equal};
+    /// let result: &str = expect!(Some("disco"))
+    ///     .to(be_some())
+    ///     .to(equal("disco"))
+    ///     .into_inner();
+    /// ```
+    ///
+    /// [`expect!`]: crate::expect
+    /// [`be_ok`]: crate::be_ok
+    /// [`be_some`]: crate::be_some
     pub fn into_inner(self) -> In {
         self.value
     }
 
+    /// Get the context value associated with this assertion.
     pub fn ctx(&self) -> &AssertFmt::Context {
         &self.ctx
     }
 
+    /// Get a mutable reference to the context value associated with this assertion.
     pub fn ctx_mut(&mut self) -> &mut AssertFmt::Context {
         &mut self.ctx
     }
 
+    /// Apply a function to change the context value associated with this function.
     pub fn with_ctx(mut self, block: impl FnOnce(&mut AssertFmt::Context)) -> Self {
         block(&mut self.ctx);
         self
     }
 
+    /// Get the formatter associated with this assertion.
     pub fn fmt(&self) -> &AssertFmt {
         &self.format
     }
 
+    /// Get a mutable reference to the formatter associated with this assertion.
     pub fn fmt_mut(&mut self) -> &mut AssertFmt {
         &mut self.format
     }
 
+    /// Apply a function to change the formatter associated with this function.
     pub fn with_fmt(mut self, block: impl FnOnce(&mut AssertFmt)) -> Self {
         block(&mut self.format);
         self

@@ -3,6 +3,10 @@ use std::marker::PhantomData;
 use crate::core::{Match, MatchOutcome};
 use crate::{fail, success};
 
+/// The matcher for [`be_ok`] and [`be_err`].
+///
+/// [`be_ok`]: crate::be_ok
+/// [`be_err`]: crate::be_err
 #[derive(Debug)]
 pub struct BeOkMatcher<T, E> {
     marker: PhantomData<(T, E)>,

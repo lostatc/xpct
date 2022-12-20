@@ -1,5 +1,8 @@
 use crate::core::{FormattedFailure, Match, MatchOutcome, Matcher};
 
+/// The matcher for [`not`]
+///
+/// [`not`]: crate::not
 #[derive(Debug)]
 pub struct NotMatcher<'a, In, PosOut, NegOut> {
     inner: Matcher<'a, In, PosOut, NegOut>,

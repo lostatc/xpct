@@ -2,18 +2,21 @@ use crate::core::{DynMatch, FormattedFailure, Match, MatchError, MatchOutcome};
 use crate::{fail, success};
 use std::fmt;
 
+/// A type used with [`ChainMatcher`] to compose assertions.
 #[derive(Debug)]
 pub struct ChainAssertion<In> {
     value: In,
 }
 
 impl<In> ChainAssertion<In> {
+    /// Create a new [`ChainAssertion`].
     fn new(value: In) -> Self {
         Self { value }
     }
 }
 
 impl<In> ChainAssertion<In> {
+    /// Make an assertion with the given `matcher`.
     pub fn to<Out>(
         self,
         matcher: impl DynMatch<In = In, PosOut = Out>,
@@ -25,6 +28,11 @@ impl<In> ChainAssertion<In> {
         }
     }
 
+    /// Same as [`to`], but negated.
+    ///
+    /// This tests that the given matcher does *not* succeed.
+    ///
+    /// [`to`]: crate::matchers::ChainAssertion::to
     pub fn to_not<Out>(
         self,
         matcher: impl DynMatch<In = In, NegOut = Out>,
@@ -36,10 +44,20 @@ impl<In> ChainAssertion<In> {
         }
     }
 
+    /// Infallibly map the input value to an output value, possibly of a different type.
+    ///
+    /// This does the same thing as [`Assertion::map`].
+    ///
+    /// [`Assertion::map`]: crate::core::Assertion::map
     pub fn map<Out>(self, func: impl FnOnce(In) -> Out) -> ChainAssertion<Out> {
         ChainAssertion::new(func(self.value))
     }
 
+    /// Fallibly map the input value to an output value, possibly of a different type.
+    ///
+    /// This does the same thing as [`Assertion::try_map`].
+    ///
+    /// [`Assertion::try_map`]: crate::core::Assertion::map
     pub fn try_map<Out>(
         self,
         func: impl FnOnce(In) -> crate::Result<Out>,
@@ -47,6 +65,9 @@ impl<In> ChainAssertion<In> {
         Ok(ChainAssertion::new(func(self.value)?))
     }
 
+    /// Convert the input value via [`Into`].
+    ///
+    /// [`expect!`]: crate::expect
     pub fn into<Out>(self) -> ChainAssertion<Out>
     where
         Out: From<In>,
@@ -54,6 +75,9 @@ impl<In> ChainAssertion<In> {
         ChainAssertion::new(self.value.into())
     }
 
+    /// Same as [`into`], but with [`TryInto`].
+    ///
+    /// [`into`]: crate::matchers::ChainAssertion::into
     pub fn try_into<Out>(self) -> crate::Result<ChainAssertion<Out>>
     where
         Out: TryFrom<In>,
@@ -66,6 +90,9 @@ impl<In> ChainAssertion<In> {
 type BoxChainFunc<'a, In, Out> =
     Box<dyn FnOnce(ChainAssertion<In>) -> Result<ChainAssertion<Out>, MatchError> + 'a>;
 
+/// The matcher for [`all`].
+///
+/// [`all`]: crate::all
 pub struct ChainMatcher<'a, In, Out> {
     func: BoxChainFunc<'a, In, Out>,
 }

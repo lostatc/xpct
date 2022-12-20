@@ -6,6 +6,10 @@ use crate::{
     fail, success,
 };
 
+/// The matcher for [`be_some`] and [`be_none`].
+///
+/// [`be_some`]: crate::be_some
+/// [`be_none`]: crate::be_none
 #[derive(Debug)]
 pub struct BeSomeMatcher<T> {
     marker: PhantomData<T>,

@@ -3,6 +3,9 @@ use std::fmt;
 use crate::core::{FormattedFailure, Match, MatchOutcome};
 use crate::success;
 
+/// The matcher for [`map`].
+///
+/// [`map`]: crate::map
 pub struct MapMatcher<'a, In, Out> {
     func: Box<dyn FnOnce(In) -> Out + 'a>,
 }
@@ -48,6 +51,9 @@ impl<'a, In, Out> Match for MapMatcher<'a, In, Out> {
     }
 }
 
+/// The matcher for [`try_map`].
+///
+/// [`try_map`]: crate::map
 pub struct TryMapMatcher<'a, In, Out> {
     func: Box<dyn FnOnce(In) -> crate::Result<Out> + 'a>,
 }

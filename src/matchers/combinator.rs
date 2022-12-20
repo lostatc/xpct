@@ -19,6 +19,7 @@ pub enum CombinatorMode {
 
 type CombinatorState = crate::Result<SomeFailures>;
 
+/// A type used with [`CombinatorMatcher`] to compose assertions.
 pub struct CombinatorAssertion<'a, 'b, T, In> {
     value: &'b T,
     state: &'b mut CombinatorState,
@@ -76,6 +77,7 @@ impl<'a, 'b: 'a, T, In> CombinatorAssertion<'a, 'b, T, In> {
         self
     }
 
+    /// Make an assertion with the given `matcher`.
     pub fn to(self, matcher: impl DynMatch<In = In>) -> Self {
         if self.negated {
             self.match_neg(matcher)
@@ -84,6 +86,11 @@ impl<'a, 'b: 'a, T, In> CombinatorAssertion<'a, 'b, T, In> {
         }
     }
 
+    /// Same as [`to`], but negated.
+    ///
+    /// This tests that the given matcher does *not* succeed.
+    ///
+    /// [`to`]: crate::matchers::CombinatorAssertion::to
     pub fn to_not(self, matcher: impl DynMatch<In = In>) -> Self {
         if self.negated {
             self.match_pos(matcher)
@@ -95,6 +102,7 @@ impl<'a, 'b: 'a, T, In> CombinatorAssertion<'a, 'b, T, In> {
     pub fn done(self) {}
 }
 
+/// A type used with [`CombinatorMatcher`] to borrow, clone, or copy the owned value.
 #[derive(Debug)]
 pub struct CombinatorContext<T> {
     value: T,
@@ -111,6 +119,7 @@ impl<T> CombinatorContext<T> {
         }
     }
 
+    /// Borrow the owned value before making assertions on it.
     pub fn borrow<Borrowed: ?Sized>(&mut self) -> CombinatorAssertion<T, &Borrowed>
     where
         T: Borrow<Borrowed>,
@@ -118,6 +127,10 @@ impl<T> CombinatorContext<T> {
         self.map(|value| value.borrow())
     }
 
+    /// Map the owned value before making assertions on it.
+    ///
+    /// This is useful if borrowing, cloning, or copying alone aren't flexible enough. One case
+    /// where this may be useful is calling methods like [`Option::as_deref`].
     pub fn map<'a, 'b: 'a, In>(
         &'b mut self,
         func: impl Fn(&'a T) -> In + 'b,
@@ -135,6 +148,7 @@ impl<T> CombinatorContext<T>
 where
     T: Copy,
 {
+    /// Copy the owned value before making assertions on it.
     pub fn copied(&mut self) -> CombinatorAssertion<T, T> {
         CombinatorAssertion {
             value: &self.value,
@@ -149,6 +163,7 @@ impl<T> CombinatorContext<T>
 where
     T: Clone,
 {
+    /// Clone the owned value before making assertions on it.
     pub fn cloned(&mut self) -> CombinatorAssertion<T, T> {
         CombinatorAssertion {
             value: &self.value,
@@ -161,6 +176,10 @@ where
 
 type BoxCombinatorFunc<'a, T> = Box<dyn FnOnce(&mut CombinatorContext<T>) + 'a>;
 
+/// The matcher for [`any`] and [`each`].
+///
+/// [`any`]: crate::any
+/// [`each`]: crate::each
 pub struct CombinatorMatcher<'a, T> {
     mode: CombinatorMode,
     func: BoxCombinatorFunc<'a, T>,

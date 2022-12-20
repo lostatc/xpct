@@ -13,7 +13,7 @@ pub type FailuresByField = Vec<(&'static str, Option<FormattedFailure>)>;
 type BoxFieldMatcherSpecFunc<'a, T> =
     Box<dyn FnOnce(T, bool) -> crate::Result<FailuresByField> + 'a>;
 
-/// An opaque type to be used with [`match_fields`] and [`match_any_fields`].
+/// An opaque type used with [`match_fields`] and [`match_any_fields`].
 ///
 /// This type is returned by [`fields!`] and can be passed to [`match_fields`] and
 /// [`match_any_fields`].
@@ -32,7 +32,8 @@ impl<'a, T> fmt::Debug for FieldMatcherSpec<'a, T> {
 }
 
 impl<'a, T> FieldMatcherSpec<'a, T> {
-    /// This is only meant to be called from the [`fields!`][crate::fields] macro.
+    /// This is only meant to be called from the [`fields!`][crate::fields] macro and IS NOT part
+    /// of the public API.
     #[doc(hidden)]
     pub fn __new(func: impl FnOnce(T, bool) -> crate::Result<FailuresByField> + 'a) -> Self {
         Self {
@@ -41,11 +42,10 @@ impl<'a, T> FieldMatcherSpec<'a, T> {
     }
 }
 
-/// A matcher for matching on fields of a struct.
-///
-/// See [`match_fields`] for details.
+/// The matcher for [`match_fields`] and [`match_any_fields`].
 ///
 /// [`match_fields`]: crate::match_fields
+/// [`match_any_fields`]: crate::match_any_fields
 #[derive(Debug)]
 pub struct FieldMatcher<'a, T> {
     mode: CombinatorMode,

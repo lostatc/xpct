@@ -2,7 +2,7 @@ use crate::core::SimpleMatch;
 
 use super::Mismatch;
 
-/// Which inequality test to perform.
+/// Which inequality test to perform with [`OrdMatcher`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Inequality {
     /// [`PartialOrd::lt`]
@@ -18,6 +18,12 @@ pub enum Inequality {
     GreaterOrEqual,
 }
 
+/// The matcher for [`be_lt`], [`be_le`], [`be_gt`], and [`be_ge`].
+///
+/// [`be_lt`]: crate::be_lt
+/// [`be_le`]: crate::be_le
+/// [`be_gt`]: crate::be_gt
+/// [`be_ge`]: crate::be_ge
 #[derive(Debug)]
 pub struct OrdMatcher<Expected> {
     expected: Expected,
