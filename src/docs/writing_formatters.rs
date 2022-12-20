@@ -12,14 +12,15 @@ to implement [`Format`] for use with a matcher, its [`Format::Value`] must be a
 [`MatchFailure`].
 
 Let's write a simple formatter that accepts a [`Mismatch`] and prints that the
-two values are not equal.
+two values are not equal. This is an example; in practice, you can just use
+[`MismatchFormat`] for this.
 
 ```
 use std::fmt;
 use std::marker::PhantomData;
 
-use xpct::core::{Format, Formatter, MatchFailure, Matcher};
-use xpct::matchers::{Mismatch, EqualMatcher};
+use xpct::core::{Format, Formatter, MatchFailure};
+use xpct::matchers::Mismatch;
 
 pub struct NotEqualFormat<Actual, Expected> {
     marker: PhantomData<(Actual, Expected)>,
@@ -27,9 +28,7 @@ pub struct NotEqualFormat<Actual, Expected> {
 
 impl<Actual, Expected> NotEqualFormat<Actual, Expected> {
     pub fn new() -> Self {
-        Self {
-            marker: PhantomData,
-        }
+        Self { marker: PhantomData }
     }
 }
 
@@ -39,14 +38,8 @@ where
     Actual: fmt::Debug,
     Expected: fmt::Debug,
 {
-    // `MatchFailure` accepts two type parameters for the positive case (we
-    // expected the matcher to match) and the negative case (we expected the
-    // matcher to fail) respectively. However, if they have the same type, you
-    // can omit the second one like this.
     type Value = MatchFailure<Mismatch<Actual, Expected>>;
 
-    // This trait is similar to `std::fmt::Display` where you call methods on
-    // `Formatter` to generate the output.
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> xpct::Result<()> {
         match value {
             MatchFailure::Pos(mismatch) => {
@@ -66,9 +59,31 @@ where
         Ok(())
     }
 }
+```
 
-// We can make our own `equal` matcher that uses our custom formatter without
-// rewriting the matcher logic; we can just reuse the existing `EqualMatcher`!
+Now that we've written a custom formatter, we can make our own [`equal`] matcher
+that uses our custom formatter without rewriting the matcher logic; we can just
+reuse the existing [`EqualMatcher`]!
+
+```
+# use std::marker::PhantomData;
+# use xpct::core::{Format, Formatter, MatchFailure};
+# use xpct::matchers::Mismatch;
+# struct NotEqualFormat<A, E>(PhantomData<(A, E)>);
+# impl<A, E> NotEqualFormat<A, E> {
+#     fn new() -> Self { NotEqualFormat(PhantomData) }
+# }
+# impl<A, E> Format for NotEqualFormat<A, E> {
+#     type Value = MatchFailure<Mismatch<A, E>>;
+#     fn fmt(self, f: &mut Formatter, value: Self::Value) -> xpct::Result<()> {
+#         Ok(())
+#     }
+# }
+use std::fmt;
+
+use xpct::core::Matcher;
+use xpct::matchers::EqualMatcher;
+
 pub fn equal<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + PartialEq<Expected> + Eq + 'a,
@@ -83,13 +98,17 @@ where
 
 Formatters also support styling the output with colors and font styles using the
 [`Formatter::set_style`] and [`Formatter::reset_style`] methods. You can disable
-stylized terminal output by disabling the default `color` Cargo feature.
+stylized terminal output by disabling the default `color` Cargo feature. This
+doesn't change the API, but does make methods like [`Formatter::set_style`] a
+no-op.
 
 If your matcher composes other matchers, it will likely pass a
 [`FormattedFailure`] to the formatter, which represents the formatted output of
 those matchers. You can use [`Formatter::write_fmt`] to efficiently write this
-to your formatter's output. You can also indent the output of the inner matcher
-using [`FormattedOutput::indented`] like this:
+to your formatter's output.
+
+You can also indent the output of the inner matcher using
+[`FormattedOutput::indented`] like this:
 
 ```
 # use xpct::core::{Formatter, FormattedFailure, FormattedOutput};
@@ -102,10 +121,13 @@ If you really hate the default formatters and you want to replace all the
 provided formatters in this module with your own, you can disable the default
 `fmt` Cargo feature.
 
+[`equal`]: crate::equal
+[`EqualMatcher`]: crate::matchers::EqualMatcher
 [`Format`]: crate::core::Format
 [`Format::Value`]: crate::core::Format::Value
 [`MatchFailure`]: crate::core::MatchFailure
 [`Mismatch`]: crate::matchers::Mismatch
+[`MismatchFormat`]: crate::format::MismatchFormat
 [`Formatter::write_fmt`]: crate::core::Formatter::write_fmt
 [`Formatter::set_style`]: crate::core::Formatter::set_style
 [`Formatter::reset_style`]: crate::core::Formatter::reset_style

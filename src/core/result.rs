@@ -3,6 +3,8 @@ use std::fmt;
 use super::{FormattedOutput, ResultFormat};
 
 /// The result of a failed matcher.
+///
+/// If the `Pos` and `Neg` type parameters are the same, you can omit the second one.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MatchFailure<Pos, Neg = Pos> {
     /// We were expecting the matcher to succeed but it failed.

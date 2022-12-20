@@ -57,17 +57,12 @@ impl<Expected, Actual> SimpleMatch<Actual> for EqualMatcher<Expected>
 where
     Actual: PartialEq<Expected> + Eq,
 {
-    // This is the type the matcher returns if it fails. This is used by the
-    // formatter to generate pretty test failure output.
     type Fail = Mismatch<Expected, Actual>;
 
-    // This returns `true` if the matcher matches and `false` otherwise.
     fn matches(&mut self, actual: &Actual) -> xpct::Result<bool> {
         Ok(actual == &self.expected)
     }
 
-    // This is called if and only if the matcher fails. It returns a value which
-    // is sent to the formatter to format the output.
     fn fail(self, actual: Actual) -> Self::Fail {
         Mismatch {
             actual,
@@ -168,24 +163,18 @@ impl<T, E> Match for BeOkMatcher<T, E> {
     // The type the matcher accepts.
     type In = Result<T, E>;
 
-    // These are the types this matcher returns and passes to the next matcher
-    // if it succeeds. You can specify different "out" types for the positive
-    // case and the negative case. If we're expecting the matcher to succeed
-    // (the positive case), then it should return the `Ok` value. If we're
-    // expecting the matcher to fail (the negative case), then it should return
-    // the `Err` value.
+    // In the positive case, this should return the `Ok` value.
     type PosOut = T;
+
+    // In the negative case, this should return the `Err` value.
     type NegOut = E;
 
-   // The these are the types that are passed to the formatter if the matcher
-   // fails. Because we don't have any interesting information to provide other
-   // than "the value was not `Ok`" or "the value was not `Err`", we just make
-   // these the unit type.
+    // Because we don't have any interesting information to provide other than
+    // "the value was not `Ok`" or "the value was not `Err`", we just make these
+    // the unit type.
     type PosFail = ();
     type NegFail = ();
 
-    // This returns `MatchOutcome::Success` if the matcher matches and
-    // `MatchOutcome::Fail` otherwise.
     fn match_pos(
         self,
         actual: Self::In,
@@ -201,7 +190,7 @@ impl<T, E> Match for BeOkMatcher<T, E> {
         actual: Self::In,
     ) -> xpct::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
         match actual {
-            // This crate provides macros as a shorthand for returning a
+            // This crate provides these macros as a shorthand for returning a
             // `MatchOutcome`. You don't have to use them.
             Ok(_) => fail!(()),
             Err(error) => success!(error),

@@ -10,6 +10,7 @@ pub trait Format {
     /// The value to format.
     type Value;
 
+    /// Format the value.
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()>;
 }
 
