@@ -18,6 +18,7 @@ type BoxFieldMatcherSpecFunc<'a, T> =
 /// This type is returned by [`fields!`] and can be passed to [`match_fields`] and
 /// [`match_any_fields`].
 ///
+/// [`fields!`]: crate::fields
 /// [`match_fields`]: crate::match_fields
 /// [`match_any_fields`]: crate::match_any_fields
 pub struct FieldMatcherSpec<'a, T> {

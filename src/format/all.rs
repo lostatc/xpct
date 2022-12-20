@@ -58,6 +58,7 @@ use super::{FailureFormat, MessageFormat};
 /// [`to`]: crate::matchers::ChainAssertion::to
 /// [`to_not`]: crate::matchers::ChainAssertion::to_not
 /// [`not`]: crate::not
+/// [`expect!`]: crate::expect
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn all<'a, In, Out>(
     block: impl FnOnce(ChainAssertion<In>) -> Result<ChainAssertion<Out>, MatchError> + 'a,

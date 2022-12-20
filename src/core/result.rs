@@ -86,7 +86,7 @@ pub struct AssertionFailure<Context> {
     ///
     /// [`DefaultAssertionFormat`]: crate::core::DefaultAssertionFormat
     /// [`AssertionContext`]: crate::core::AssertionContext
-    /// [`exepct!`]: crate::expect
+    /// [`expect!`]: crate::expect
     pub ctx: Context,
 
     /// The error that caused this assertion to fail.
