@@ -21,7 +21,7 @@ tutorial](https://docs.rs/xpct/latest/xpct/docs/tutorial/index.html).
 
 *How do you pronounce "xpct"?*
 
-However you choose pronounce it is how it's pronounced. I pronounce it like
+However you choose to pronounce it is how it's pronounced. I pronounce it like
 "expect."
 
 ## Examples
