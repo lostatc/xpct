@@ -24,15 +24,21 @@ However you choose pronounce it is how it's pronounced. I pronounce it like
 
 ## Examples
 
-```rust
+```rust,should_panic
 use xpct::{expect, equal};
 
 expect!("disco").to(equal("Disco"));
 ```
 
-![Example 1 output](./examples/example_1.png)
+```text
+[src/main.rs:6:5] = "disco"
+    Expected:
+        "disco"
+    to equal:
+        "Disco"
+```
 
-[*Plain-text transcript*](./examples/example_1.txt)
+[*Screenshot*](./examples/example_1.png)
 
 ```rust,should_panic
 use xpct::{any, equal, expect, map, not, why};
@@ -47,9 +53,21 @@ expect!(value).to(not(any(|ctx| {
 })));
 ```
 
-![Example 2 output](./examples/example_2.png)
+```text
+[src/main.rs:8:5] = value
+    Expected all of these to match:
+        [0]  MATCHED
+        
+        [1]  FAILED
+             Expected:
+                 "Disco"
+             to not equal:
+                 "Disco"
 
-[*Plain-text transcript*](./examples/example_2.txt)
+        [2]  MATCHED
+```
+
+[*Screenshot*](./examples/example_2.png)
 
 ```rust,should_panic
 use xpct::{all, be_lt, be_ok, be_some, be_true, equal, expect, fields, match_fields, why};
@@ -83,6 +101,21 @@ expect!(get_person())
     })));
 ```
 
-![Example 3 output](./examples/example_3.png)
+```text
+[src/main.rs:22:5] = get_person()
+    Expected all of these to match:
+        xpct::main::Person {
+            name: FAILED
+                🛈 this is a required field
+                Expected this to be Some(_)
+            id: MATCHED
+            age: FAILED
+                Expected:
+                    44
+                to be less than:
+                    40
+            is_superstar: MATCHED
+        }
+```
 
-[*Plain-text transcript*](./examples/example_3.txt)
+[*Screenshot*](./examples/example_3.png)
