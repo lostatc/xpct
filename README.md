@@ -3,32 +3,7 @@
 xpct is an assertions library for Rust. It's designed to be ergonomic,
 batteries-included, and test framework agnostic.
 
-```rust
-use xpct::{expect, match_fields, fields, equal, be_some, be_none, be_ge, be_true};
-
-struct Person {
-    name: Option<String>,
-    id: String,
-    age: u32,
-    is_superstar: bool,
-}
-
-let value = Some(Person {
-    name: None,
-    id: String::from("LTN-2JFR"),
-    age: 44,
-    is_superstar: true,
-});
-
-expect!(value)
-    .to(be_some())
-    .to(match_fields(fields!(Person {
-        name: be_none(),
-        id: equal("LTN-2JFR"),
-        age: be_ge(44),
-        is_superstar: be_true(),
-    })));
-```
+## About
 
 xpct is highly extensible. In addition to allowing you to write custom matchers,
 it separates the logic of matchers from how they format their output, meaning
@@ -41,3 +16,61 @@ you can:
 
 Want to get started? [Check out the
 tutorial](https://docs.rs/xpct/latest/xpct/docs/tutorial/index.html).
+
+*How do you pronounce "xpct"?*
+
+However you choose pronounce it is how it's pronounced. I pronounce it like
+"expect."
+
+## Examples
+
+```rust
+use xpct::{expect, equal};
+
+expect!("Disco").to(equal("Disco"));
+```
+
+```rust,should_panic
+use xpct::{any, equal, expect, map, not, why};
+
+let value = String::from("Disco");
+
+expect!(value).to(not(any(|ctx| {
+    ctx.borrow::<str>()
+        .to(equal("Superstar"))
+        .to(equal("Disco"))
+        .to(equal("Sorry"));
+})));
+```
+
+```rust,should_panic
+use xpct::{all, be_lt, be_ok, be_some, be_true, equal, expect, fields, match_fields, why};
+
+struct Person {
+    name: Option<String>,
+    id: String,
+    age: u32,
+    is_superstar: bool,
+}
+
+fn get_person() -> anyhow::Result<Person> {
+    Ok(Person {
+        name: None,
+        id: String::from("LTN-2JFR"),
+        age: 44,
+        is_superstar: true,
+    })
+}
+
+expect!(get_person())
+    .to(be_ok())
+    .to(match_fields(fields!(Person {
+        name: why(
+            all(|ctx| ctx.to(be_some())?.to(equal("Dick Mullen"))),
+            "this is a required field",
+        ),
+        id: equal("LTN-2JFR"),
+        age: be_lt(40),
+        is_superstar: be_true(),
+    })));
+```
