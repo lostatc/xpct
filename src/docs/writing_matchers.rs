@@ -231,20 +231,12 @@ fn result_format() -> MessageFormat {
     MessageFormat::new("Expected this to be Ok.", "Expected this to be Err.")
 }
 
-pub fn be_ok<'a, T, E>() -> Matcher<'a, Result<T, E>, T, E>
-where
-    T: 'a,
-    E: 'a,
-{
+pub fn be_ok<'a, T: 'a, E: 'a>() -> Matcher<'a, Result<T, E>, T, E> {
     // For matchers implemented with `Match`, you use `Matcher::new`.
     Matcher::new(BeOkMatcher::new(), result_format())
 }
 
-pub fn be_err<'a, T, E>() -> Matcher<'a, Result<T, E>, E, T>
-where
-    T: 'a,
-    E: 'a,
-{
+pub fn be_err<'a, T: 'a, E: 'a>() -> Matcher<'a, Result<T, E>, E, T> {
     // You can use `Matcher::neg` to negate a matcher created by implementing
     // `Match`. You can use `NegFormat` to negate the formatter.
     Matcher::neg(BeOkMatcher::new(), NegFormat(result_format()))
