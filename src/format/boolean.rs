@@ -3,6 +3,17 @@ use std::marker::PhantomData;
 use crate::core::{style, Format, Formatter, MatchFailure, Matcher, NegFormat};
 use crate::matchers::BeTrueMatcher;
 
+/// A formatter which prints a static string message.
+///
+/// # Examples
+///
+/// ```
+/// # use xpct::format::MessageFormat;
+/// let format: MessageFormat = MessageFormat::new(
+///     "Expected this to be true.",
+///     "Expected this to be false."
+/// );
+/// ```
 #[derive(Debug)]
 pub struct MessageFormat<PosFail = (), NegFail = ()> {
     marker: PhantomData<(PosFail, NegFail)>,
@@ -11,6 +22,8 @@ pub struct MessageFormat<PosFail = (), NegFail = ()> {
 }
 
 impl<PosFail, NegFail> MessageFormat<PosFail, NegFail> {
+    /// Create a new [`MessageFormat`] from the strings to print in the positive and negative
+    /// cases, respectively.
     pub fn new(pos_msg: impl Into<String>, neg_msg: impl Into<String>) -> Self {
         Self {
             marker: PhantomData,

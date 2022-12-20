@@ -3,6 +3,17 @@ use crate::matchers::{CombinatorContext, CombinatorMatcher, CombinatorMode};
 
 use super::SomeFailuresFormat;
 
+/// A formatter that adds a header to the output of another formatter.
+///
+/// # Examples
+///
+/// ```
+/// # use xpct::format::{HeaderFormat, SomeFailuresFormat};
+/// let formatter = HeaderFormat::new(
+///     SomeFailuresFormat::new(),
+///     "Expected at least one of these to match.",
+/// );
+/// ```
 #[derive(Debug, Default)]
 pub struct HeaderFormat<Fmt> {
     inner: Fmt,
@@ -10,6 +21,7 @@ pub struct HeaderFormat<Fmt> {
 }
 
 impl<Fmt> HeaderFormat<Fmt> {
+    /// Create a new [`HeaderFormat`] from the header string and inner formatter.
     pub fn new(inner: Fmt, header: impl Into<String>) -> Self {
         Self {
             inner,

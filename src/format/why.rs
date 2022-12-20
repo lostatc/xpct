@@ -17,18 +17,22 @@ impl<'a> fmt::Debug for WhyFormatReason<'a> {
     }
 }
 
+/// A formatter that prints a context string provided by [`why`] or [`why_lazy`].
 #[derive(Debug)]
 pub struct WhyFormat<'a> {
     reason: WhyFormatReason<'a>,
 }
 
 impl<'a> WhyFormat<'a> {
+    /// Create a new [`WhyFormat`] from the given string.
     pub fn new(reason: impl Into<Cow<'a, str>>) -> Self {
         Self {
             reason: WhyFormatReason::Eager(reason.into()),
         }
     }
 
+    /// Create a new [`WhyFormat`] from the given function, which will be called lazily if the
+    /// matcher fails.
     pub fn lazy(reason: impl FnOnce() -> Cow<'a, str> + 'a) -> Self {
         Self {
             reason: WhyFormatReason::Lazy(Box::new(reason)),
