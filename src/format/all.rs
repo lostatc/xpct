@@ -3,7 +3,7 @@ use crate::matchers::{ChainAssertion, ChainMatcher};
 
 use super::{FailureFormat, MessageFormat};
 
-/// Matches when all of the passed matchers match.
+/// Succeeds when all of the passed matchers succeed.
 ///
 /// This method is similar to [`each`], except it short-circuits on the first failed match and
 /// chains the output of each matcher into the next.

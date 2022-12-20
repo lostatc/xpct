@@ -53,7 +53,7 @@ where
     }
 }
 
-/// Matches when any of the passed matchers match.
+/// Succeeds when any of the passed matchers succeed.
 ///
 /// This is a matcher than can be used to compose other matchers. Because this matcher needs to
 /// test all the matchers that are passed to it, it can't short-circuit. This means that it doesn't

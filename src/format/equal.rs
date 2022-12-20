@@ -88,7 +88,7 @@ where
     }
 }
 
-/// Matches when two values are equal.
+/// Succeeds when the actual value equals the expected value.
 ///
 /// # Examples
 ///

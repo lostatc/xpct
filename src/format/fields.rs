@@ -49,13 +49,13 @@ impl Format for ByFieldFormat {
     }
 }
 
-/// Matches when all the fields of a struct match.
+/// Succeeds when all the fields of a struct succeed.
 ///
 /// This matcher operates on a struct and allows for matching on each field separately. This is
 /// used with the [`fields!`] macro.
 ///
-/// This matches when each field of the struct matches, and skipping/omitting fields does not make
-/// it fail.
+/// This succeeds when each field of the struct succeeds, and skipping/omitting fields does not
+/// make it fail.
 ///
 /// This matcher can be used for both regular structs and tuple structs. See [`fields!`] for
 /// details.
@@ -102,10 +102,10 @@ where
     )
 }
 
-/// Matches when any of the fields of a struct match.
+/// Succeeds when any of the fields of a struct succeed.
 ///
-/// This matcher is similar to [`match_fields`], except it matches when *any* of the fields of a
-/// struct match instead of all of them.
+/// This matcher is similar to [`match_fields`], except it succeeds when *any* of the fields of a
+/// struct succeed instead of all of them.
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn match_any_fields<'a, T>(spec: FieldMatcherSpec<'a, T>) -> Matcher<'a, T, ()>
 where

@@ -10,10 +10,10 @@ pub type SomeFailures = Vec<Option<FormattedFailure>>;
 /// How a combinator matcher should match.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum CombinatorMode {
-    /// Succeed when any matcher matches.
+    /// Succeed when any matcher succeeds.
     Any,
 
-    /// Succeed when all matchers match.
+    /// Succeed when all matchers succeed.
     All,
 }
 

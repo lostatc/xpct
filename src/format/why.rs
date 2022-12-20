@@ -66,6 +66,20 @@ impl<'a> Format for WhyFormat<'a> {
     }
 }
 
+/// Attaches a context string to a matcher that will appear in the failure output.
+///
+/// # Examples
+///
+/// ```
+/// use xpct::{expect, why, be_ge};
+///
+/// let index = 2_i32;
+///
+/// expect!(index).to(why(
+///     be_ge(0),
+///     "indices must be positive"
+/// ));
+/// ```
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn why<'a, In, PosOut, NegOut>(
     matcher: Matcher<'a, In, PosOut, NegOut>,
@@ -79,6 +93,29 @@ where
     matcher.wrapped(WhyFormat::new(reason))
 }
 
+/// Attaches a lazily evaluated context string to a matcher that will appear in the failure output.
+///
+/// This serves the same purpose as [`why`], except it can be used when the context value would be
+/// expensive to compute.
+///
+/// # Example
+///
+/// ```
+/// use std::borrow::Cow;
+/// use xpct::{expect, why_lazy, be_ge};
+///
+/// // Imagine this is expensive to compute.
+/// fn expensive_context() -> Cow<'static, str> {
+///     Cow::Borrowed("indices must be positive")
+/// }
+///
+/// let index = 2_i32;
+///
+/// expect!(index).to(why_lazy(
+///     be_ge(0),
+///     expensive_context
+/// ));
+/// ```
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn why_lazy<'a, In, PosOut, NegOut>(
     matcher: Matcher<'a, In, PosOut, NegOut>,

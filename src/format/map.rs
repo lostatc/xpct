@@ -7,6 +7,8 @@ use super::FailureFormat;
 ///
 /// This does the same thing as [`Assertion::map`].
 ///
+/// This matcher always succeeds, even when negated. Therefore negating it has no effect.
+///
 /// [`Assertion::map`]: crate::core::Assertion::map
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn map<'a, In, Out, F>(func: F) -> Matcher<'a, In, Out>
@@ -21,6 +23,9 @@ where
 /// Fallibly map the input value to an output value, possibly of a different type.
 ///
 /// This does the same thing as [`Assertion::try_map`].
+///
+/// This matcher always succeeds as long as the `try_into` conversion succeeds, even when negated.
+/// Therefore negating it has no effect.
 ///
 /// [`Assertion::try_map`]: crate::core::Assertion::map
 #[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
