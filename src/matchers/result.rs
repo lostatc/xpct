@@ -13,6 +13,7 @@ pub struct BeOkMatcher<T, E> {
 }
 
 impl<T, E> BeOkMatcher<T, E> {
+    /// Create a new [`BeOkMatcher`].
     pub fn new() -> Self {
         Self {
             marker: PhantomData,

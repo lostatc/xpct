@@ -19,7 +19,10 @@ use crate::core::SimpleMatch;
 /// [`be_ge`]: crate::be_ge
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Mismatch<Expected, Actual> {
+    /// The expected value.
     pub expected: Expected,
+
+    /// The actual value.
     pub actual: Actual,
 }
 

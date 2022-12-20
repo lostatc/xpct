@@ -72,4 +72,5 @@ impl From<Error> for Box<dyn StdError + Send + Sync + 'static> {
     }
 }
 
+/// A result type for [`Error`].
 pub type Result<T> = result::Result<T, Error>;

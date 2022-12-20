@@ -11,11 +11,22 @@ bitflags! {
     /// properly.
     #[derive(Default)]
     pub struct TextStyle: u32 {
+        #[allow(missing_docs)]
         const BOLD = 1 << 0;
+
+        #[allow(missing_docs)]
         const UNDERLINE = 1 << 1;
+
+        #[allow(missing_docs)]
         const DIMMED = 1 << 2;
+
+        #[allow(missing_docs)]
         const ITALIC = 1 << 3;
+
+        #[allow(missing_docs)]
         const STRIKETHROUGH = 1 << 4;
+
+        #[allow(missing_docs)]
         const REVERSED = 1 << 5;
     }
 }
@@ -62,6 +73,7 @@ impl TextStyle {
 ///
 /// Note that [`Color::Rgb`] may not be supported on all platforms or by all terminal emulators.
 #[non_exhaustive]
+#[allow(missing_docs)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Color {
     Black,
@@ -159,7 +171,10 @@ impl TextColor {
 /// [`Formatter::set_style`]: crate::core::Formatter::set_style
 #[derive(Debug, Clone, Default, PartialEq, Eq, Hash)]
 pub struct OutputStyle {
+    /// The style of the formatted text.
     pub style: TextStyle,
+
+    /// The color of the formatted text.
     pub color: TextColor,
 }
 

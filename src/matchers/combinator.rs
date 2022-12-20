@@ -99,6 +99,29 @@ impl<'a, 'b: 'a, T, In> CombinatorAssertion<'a, 'b, T, In> {
         }
     }
 
+    /// Consumes `self` and returns `()`.
+    ///
+    /// This method is a no-op; it just exists for ergonomics. See the example below.
+    ///
+    /// # Examples
+    ///
+    /// You can use this method to write the closure as an expression instead of a statement.
+    ///
+    /// ```
+    /// use xpct::{expect, each, be_lt, be_gt};
+    ///
+    /// expect!(20.0).to(each(|ctx| {
+    ///     ctx.copied()
+    ///         .to(be_lt(130.0))
+    ///         .to(be_gt(0.40));
+    /// }));
+    ///
+    /// expect!(20.0).to(each(|ctx| ctx.copied()
+    ///     .to(be_lt(130.0))
+    ///     .to(be_gt(0.40))
+    ///     .done()
+    /// ));
+    /// ```
     pub fn done(self) {}
 }
 
@@ -194,6 +217,12 @@ impl<'a, T> fmt::Debug for CombinatorMatcher<'a, T> {
 }
 
 impl<'a, T> CombinatorMatcher<'a, T> {
+    /// Create a new [`CombinatorMatcher`].
+    ///
+    /// The `mode` parameter determines whether this works like [`any`] or like [`each`].
+    ///
+    /// [`any`]: crate::any
+    /// [`each`]: crate::each
     pub fn new(mode: CombinatorMode, block: impl FnOnce(&mut CombinatorContext<T>) + 'a) -> Self {
         Self {
             mode,

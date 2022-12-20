@@ -104,6 +104,7 @@ impl<'a, In, Out> fmt::Debug for ChainMatcher<'a, In, Out> {
 }
 
 impl<'a, In, Out> ChainMatcher<'a, In, Out> {
+    /// Create a new [`ChainMatcher`].
     pub fn new(
         block: impl FnOnce(ChainAssertion<In>) -> Result<ChainAssertion<Out>, MatchError> + 'a,
     ) -> Self {

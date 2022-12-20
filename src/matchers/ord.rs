@@ -31,6 +31,9 @@ pub struct OrdMatcher<Expected> {
 }
 
 impl<Expected> OrdMatcher<Expected> {
+    /// Create a new [`OrdMatcher`].
+    ///
+    /// This accepts a `kind` which determines whether the behavior is `<`, `<=`, `>`, or `>=`.
     pub fn new(expected: Expected, kind: Inequality) -> Self {
         Self { expected, kind }
     }

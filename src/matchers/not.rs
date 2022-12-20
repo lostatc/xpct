@@ -9,6 +9,7 @@ pub struct NotMatcher<'a, In, PosOut, NegOut> {
 }
 
 impl<'a, In, PosOut, NegOut> NotMatcher<'a, In, PosOut, NegOut> {
+    /// Create a new [`NotMatcher`] that negates the given `matcher`.
     pub fn new(matcher: Matcher<'a, In, PosOut, NegOut>) -> Self {
         NotMatcher { inner: matcher }
     }

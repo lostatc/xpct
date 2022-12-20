@@ -16,6 +16,7 @@ pub struct BeSomeMatcher<T> {
 }
 
 impl<T> BeSomeMatcher<T> {
+    /// Create a new [`BeSomeMatcher`].
     pub fn new() -> Self {
         Self {
             marker: PhantomData,

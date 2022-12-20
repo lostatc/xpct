@@ -17,6 +17,7 @@ impl<'a, In, Out> fmt::Debug for MapMatcher<'a, In, Out> {
 }
 
 impl<'a, In, Out> MapMatcher<'a, In, Out> {
+    /// Create a new [`MapMatcher`].
     pub fn new<F>(func: F) -> Self
     where
         F: FnOnce(In) -> Out + 'a,
@@ -65,6 +66,7 @@ impl<'a, In, Out> fmt::Debug for TryMapMatcher<'a, In, Out> {
 }
 
 impl<'a, In, Out> TryMapMatcher<'a, In, Out> {
+    /// Create a new [`TryMapMatcher`].
     pub fn new(func: impl FnOnce(In) -> crate::Result<Out> + 'a) -> Self {
         Self {
             func: Box::new(func),
