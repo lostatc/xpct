@@ -9,6 +9,14 @@
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
 
+// Test code snippets in the README.
+
+#[cfg(doctest)]
+use doc_comment::doctest;
+
+#[cfg(doctest)]
+doctest!("../README.md");
+
 pub mod core;
 pub mod docs;
 mod error;
