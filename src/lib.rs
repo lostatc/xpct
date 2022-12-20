@@ -1,9 +1,11 @@
-//! xpct is an assertions library for Rust.
-//!
-//! It's designed to be ergonomic, batteries-included, and test framework agnostic.
-//!
-//! If you're new here, you may want to check out the [tutorial][crate::docs::tutorial] and the
-//! rest of the [user docs][crate::docs].
+/*!
+xpct is an assertions library for Rust.
+
+It's designed to be ergonomic, batteries-included, and test framework agnostic.
+
+If you're new here, you may want to check out the [tutorial][crate::docs::tutorial] and the rest of
+the [user docs][crate::docs].
+*/
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![forbid(unsafe_code)]
