@@ -27,8 +27,12 @@ However you choose pronounce it is how it's pronounced. I pronounce it like
 ```rust
 use xpct::{expect, equal};
 
-expect!("Disco").to(equal("Disco"));
+expect!("disco").to(equal("Disco"));
 ```
+
+![Example 1 output](./examples/example_1.png)
+
+[*Plain-text transcript*](./examples/example_1.txt)
 
 ```rust,should_panic
 use xpct::{any, equal, expect, map, not, why};
@@ -42,6 +46,10 @@ expect!(value).to(not(any(|ctx| {
         .to(equal("Sorry"));
 })));
 ```
+
+![Example 2 output](./examples/example_2.png)
+
+[*Plain-text transcript*](./examples/example_2.txt)
 
 ```rust,should_panic
 use xpct::{all, be_lt, be_ok, be_some, be_true, equal, expect, fields, match_fields, why};
@@ -74,3 +82,7 @@ expect!(get_person())
         is_superstar: be_true(),
     })));
 ```
+
+![Example 3 output](./examples/example_3.png)
+
+[*Plain-text transcript*](./examples/example_3.txt)

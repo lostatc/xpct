@@ -1,0 +1,11 @@
+[src/main.rs:8:5] = value
+    Expected all of these to match:
+        [0]  MATCHED
+        
+        [1]  FAILED
+             Expected:
+                 "Disco"
+             to not equal:
+                 "Disco"
+
+        [2]  MATCHED
