@@ -7,7 +7,10 @@ use crate::core::{style, AssertionContext, AssertionFailure, MatchError};
 /// the formatting of failed assertions. However, instead of using the [`expect!`] macro, you will
 /// need to use the [`expect`] function which allows you to specify a custom formatter.
 ///
-/// [`expect!`]: crate::expect
+/// This [`AssertionFormat`] implementation prints the expression that was passed to [`expect!`]
+/// along with the file name, line number, and column number.
+///
+/// [`expect!`]: crate::expect!
 /// [`expect`]: crate::core::expect
 /// [`Assertionformat`]: crate::core::AssertionFormat
 #[derive(Debug, Default)]

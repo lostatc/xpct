@@ -11,6 +11,12 @@ struct OutputSegment {
     style: OutputStyle,
 }
 
+/// Configuration for formatting with [`Format`].
+///
+/// This value is passed to [`Format::fmt`] and is used to set various options to configure how the
+/// value will be formatted.
+///
+/// [`Format::fmt`]: crate::core::Format::fmt
 #[derive(Debug)]
 pub struct Formatter {
     prev: Vec<OutputSegment>,
@@ -25,14 +31,26 @@ impl Formatter {
         }
     }
 
+    /// Write a string to the output.
     pub fn write_str(&mut self, s: impl AsRef<str>) {
         self.current.buf.push_str(s.as_ref());
     }
 
+    /// Write a `char` to the output.
     pub fn write_char(&mut self, c: char) {
         self.current.buf.push(c);
     }
 
+    /// Pass some pre-formatted output through to the output.
+    ///
+    /// This method is often used when writing formatters for matchers which compose other
+    /// matchers, such as [`not`] or [`each`]. It's used by formatters such as [`FailureFormat`]
+    /// and [`SomeFailuresFormat`].
+    ///
+    /// [`not`]: crate::not
+    /// [`each`]: crate::each
+    /// [`FailureFormat`]: crate::format::FailureFormat
+    /// [`SomeFailuresFormat`]: crate::format::SomeFailuresFormat
     pub fn write_fmt(&mut self, output: impl Into<FormattedOutput>) {
         let formatted = output.into();
         let new_current = OutputSegment {
@@ -44,10 +62,15 @@ impl Formatter {
         self.prev.extend(formatted.segments);
     }
 
+    /// Get the current [`OutputStyle`].
     pub fn style(&self) -> &OutputStyle {
         &self.current.style
     }
 
+    /// Set the current [`OutputStyle`].
+    ///
+    /// This is used to configure colors and text styles in the output. Output formatting is
+    /// stripped out when stdout is not a tty.
     pub fn set_style(&mut self, style: OutputStyle) {
         self.prev.push(std::mem::replace(
             &mut self.current,
@@ -58,6 +81,7 @@ impl Formatter {
         ));
     }
 
+    /// Reset the current colors and text styles to their defaults.
     pub fn reset_style(&mut self) {
         self.set_style(Default::default());
     }

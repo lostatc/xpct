@@ -4,6 +4,14 @@ use super::{
     AssertionFailure, AssertionFormat, DynMatch, FormattedOutput, MatchError, MatchOutcome,
 };
 
+/// An assertion; the value returned by [`expect!`].
+///
+/// This is the value returned by [`expect!`]. You can use the [`to`] and [`to_not`] methods to use
+/// matchers.
+///
+/// [`expect!`]: crate::expect
+/// [`to`]: crate::core::Assertion::to
+/// [`to_not`]: crate::core::Assertion::to_not
 #[derive(Debug)]
 pub struct Assertion<In, AssertFmt>
 where
@@ -162,7 +170,11 @@ where
 /// This macro accepts an expression and returns an [`Assertion`], which allows you to make
 /// assertions on that value.
 ///
-/// See the crate-level docs for more information and examples.
+/// See the [tutorial](crate::docs::tutorial) for examples.
+///
+/// Under the hood, this macro calls the [`expect`] function using [`DefaultAssertionFormat`]. If
+/// you want to use a custom [`AssertionFormat`] instead, you can call that function directly or
+/// write your own macro that calls it.
 ///
 /// # Examples
 ///
@@ -171,6 +183,10 @@ where
 ///
 /// expect!("disco").to(equal("disco"));
 /// ```
+///
+/// [`expect`]: crate::core::expect
+/// [`AssertionFormat`]: crate::core::AssertionFormat
+/// [`DefaultAssertionFormat`]: crate::core::DefaultAssertionFormat
 #[macro_export]
 macro_rules! expect {
     ($actual:expr) => {

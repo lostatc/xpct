@@ -1,3 +1,7 @@
+//! Core types for the library.
+//!
+//! This module contains everything that isn't a builtin matcher or formatter.
+
 mod adapter;
 mod assertion;
 mod context;
