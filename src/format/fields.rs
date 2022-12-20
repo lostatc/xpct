@@ -1,5 +1,6 @@
 use std::any::type_name;
 
+use crate::core::style::{ALL_MATCH_MSG, AT_LESAT_ONE_MATCH_MSG};
 use crate::core::{style, Format, FormattedOutput, Formatter, Matcher};
 use crate::matchers::{CombinatorMode, FailuresByField, FieldMatcher, FieldMatcherSpec};
 
@@ -97,7 +98,8 @@ where
         FieldMatcher::new(CombinatorMode::All, spec),
         HeaderFormat::new(
             ByFieldFormat::new(type_name::<T>()),
-            "Expected all of these to match:",
+            ALL_MATCH_MSG,
+            AT_LESAT_ONE_MATCH_MSG,
         ),
     )
 }
@@ -115,7 +117,8 @@ where
         FieldMatcher::new(CombinatorMode::Any, spec),
         HeaderFormat::new(
             ByFieldFormat::new(type_name::<T>()),
-            "Expected at least one of these to match:",
+            AT_LESAT_ONE_MATCH_MSG,
+            ALL_MATCH_MSG,
         ),
     )
 }

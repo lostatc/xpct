@@ -10,8 +10,8 @@ use crate::matchers::BeTrueMatcher;
 /// ```
 /// # use xpct::format::MessageFormat;
 /// let format: MessageFormat = MessageFormat::new(
-///     "Expected this to be true.",
-///     "Expected this to be false."
+///     "Expected this to be true",
+///     "Expected this to be false"
 /// );
 /// ```
 #[derive(Debug)]
@@ -53,7 +53,7 @@ impl<PosFail, NegFail> Format for MessageFormat<PosFail, NegFail> {
 }
 
 fn bool_format() -> MessageFormat {
-    MessageFormat::new("Expected this to be true.", "Expected this to be false.")
+    MessageFormat::new("Expected this to be true", "Expected this to be false")
 }
 
 /// Succeeds when the actual value is `true`.

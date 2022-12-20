@@ -1,3 +1,4 @@
+use crate::core::style::{ALL_MATCH_MSG, AT_LESAT_ONE_MATCH_MSG};
 use crate::core::{strings, style, Format, FormattedOutput, Formatter, Matcher};
 use crate::matchers::{CombinatorContext, CombinatorMatcher, CombinatorMode, SomeFailures};
 
@@ -135,6 +136,10 @@ where
 {
     Matcher::new(
         CombinatorMatcher::new(CombinatorMode::All, block),
-        HeaderFormat::new(SomeFailuresFormat::new(), "Expected all of these to match:"),
+        HeaderFormat::new(
+            SomeFailuresFormat::new(),
+            ALL_MATCH_MSG,
+            AT_LESAT_ONE_MATCH_MSG,
+        ),
     )
 }

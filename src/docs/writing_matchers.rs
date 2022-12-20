@@ -217,7 +217,7 @@ use xpct::format::MessageFormat;
 // `MessageFormat` is a simple formatter that just returns a static message in
 // each case. It doesn't care what the types of `PosFail` and `NegFail` are.
 fn result_format() -> MessageFormat {
-    MessageFormat::new("Expected this to be Ok.", "Expected this to be Err.")
+    MessageFormat::new("Expected this to be Ok(_)", "Expected this to be Err(_)")
 }
 
 pub fn be_ok<'a, T: 'a, E: 'a>() -> Matcher<'a, Result<T, E>, T, E> {

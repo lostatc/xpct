@@ -1,3 +1,4 @@
+use crate::core::style::{ALL_MATCH_MSG, AT_LESAT_ONE_MATCH_MSG};
 use crate::core::{style, Format, FormattedOutput, Formatter, MatchFailure, Matcher};
 use crate::matchers::{CombinatorContext, CombinatorMatcher, CombinatorMode};
 
@@ -11,21 +12,28 @@ use super::SomeFailuresFormat;
 /// # use xpct::format::{HeaderFormat, SomeFailuresFormat};
 /// let formatter = HeaderFormat::new(
 ///     SomeFailuresFormat::new(),
-///     "Expected at least one of these to match.",
+///     "Expected at least one of these to match:",
+///     "Expected all of these to match:",
 /// );
 /// ```
 #[derive(Debug, Default)]
 pub struct HeaderFormat<Fmt> {
     inner: Fmt,
-    header: String,
+    pos_header: String,
+    neg_header: String,
 }
 
 impl<Fmt> HeaderFormat<Fmt> {
     /// Create a new [`HeaderFormat`] from the header string and inner formatter.
-    pub fn new(inner: Fmt, header: impl Into<String>) -> Self {
+    ///
+    /// This accepts two header strings, one for the positive case and one for the negative case
+    /// respectively. The first is used normally, and the second is used when the matcher is
+    /// negated.
+    pub fn new(inner: Fmt, pos_header: impl Into<String>, neg_header: impl Into<String>) -> Self {
         Self {
             inner,
-            header: header.into(),
+            pos_header: pos_header.into(),
+            neg_header: neg_header.into(),
         }
     }
 }
@@ -38,7 +46,10 @@ where
 
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         f.set_style(style::important());
-        f.write_str(self.header);
+        match value {
+            MatchFailure::Pos(_) => f.write_str(self.pos_header),
+            MatchFailure::Neg(_) => f.write_str(self.neg_header),
+        };
         f.reset_style();
         f.write_char('\n');
 
@@ -107,7 +118,8 @@ where
         CombinatorMatcher::new(CombinatorMode::Any, block),
         HeaderFormat::new(
             SomeFailuresFormat::new(),
-            "Expected at least one of these to match.",
+            AT_LESAT_ONE_MATCH_MSG,
+            ALL_MATCH_MSG,
         ),
     )
 }

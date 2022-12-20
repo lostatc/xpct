@@ -1,3 +1,4 @@
+use crate::core::style::AT_LESAT_ONE_NOT_MATCH_MSG;
 use crate::core::{DispatchFormat, MatchError, Matcher};
 use crate::matchers::{ChainAssertion, ChainMatcher};
 
@@ -69,7 +70,7 @@ where
 {
     let format = DispatchFormat::new(
         FailureFormat::new(),
-        MessageFormat::new("", "All the matchers matched."),
+        MessageFormat::new("", AT_LESAT_ONE_NOT_MATCH_MSG),
     );
 
     Matcher::new(ChainMatcher::new(block), format)

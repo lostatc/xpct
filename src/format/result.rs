@@ -6,7 +6,7 @@ use crate::{
 use super::MessageFormat;
 
 fn result_format() -> MessageFormat {
-    MessageFormat::new("Expected this to be Ok.", "Expected this to be Err.")
+    MessageFormat::new("Expected this to be Ok(_)", "Expected this to be Err(_)")
 }
 
 /// Succeeds when the actual value is [`Ok`].

@@ -9,6 +9,10 @@ pub const MATCHED_MSG: &str = "MATCHED";
 pub const FAILED_MSG: &str = "FAILED";
 pub const INDENT_LEN: u32 = 4;
 
+pub const ALL_MATCH_MSG: &str = "Expected all of these to match:";
+pub const AT_LESAT_ONE_MATCH_MSG: &str = "Expected at least one of these to match:";
+pub const AT_LESAT_ONE_NOT_MATCH_MSG: &str = "Expected at least one of these to not match:";
+
 pub fn indent(levels: u32) -> Cow<'static, str> {
     strings::whitespace((INDENT_LEN * levels) as usize)
 }
