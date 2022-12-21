@@ -1,6 +1,8 @@
 /*!
 How to write custom matchers.
 
+[↩︎ Back to User Docs](crate::docs)
+
 If none of the provided matchers suit your needs, xpct allows you to write
 custom matchers. There are three ways to do this, in increasing order of
 complexity and flexibility:

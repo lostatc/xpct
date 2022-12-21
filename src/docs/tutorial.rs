@@ -1,6 +1,8 @@
 /*!
 A high-level tutorial on how to make assertions with xpct.
 
+[↩︎ Back to User Docs](crate::docs)
+
 To make an assertion, you'll usually start with the [`expect!`] macro:
 
 ```

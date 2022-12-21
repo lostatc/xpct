@@ -1,6 +1,8 @@
 /*!
 Documentation for the crate's cargo features.
 
+[↩︎ Back to User Docs](crate::docs)
+
 This is a list of cargo features exposed by this crate. The default features are
 suitable for most use-cases.
 

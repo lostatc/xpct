@@ -1,6 +1,8 @@
 /*!
 A list of builtin matchers.
 
+[↩︎ Back to User Docs](crate::docs)
+
 # Equality
 
 - [`equal`][crate::equal]

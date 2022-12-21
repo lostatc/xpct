@@ -1,6 +1,8 @@
 /*!
 How to write custom formatters.
 
+[↩︎ Back to User Docs](crate::docs)
+
 Most of the time, when writing matchers, you should be able to reuse existing
 formatters in this module. However, if you want to write a formatter for your
 custom matcher, or even to change the formatting of an existing matcher, here's
