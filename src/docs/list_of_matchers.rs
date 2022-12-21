@@ -53,4 +53,8 @@ A list of builtin matchers.
 
 - [`be_some`][crate::be_some]
 - [`be_none`][crate::be_none]
+
+# [`Default`] values
+
+- [`be_default`][crate::be_default]
 */
