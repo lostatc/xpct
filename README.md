@@ -1,3 +1,5 @@
+[![Tests Workflow Status (main)](https://img.shields.io/github/actions/workflow/status/lostatc/xpct/test.yaml?branch=main&label=Tests&style=for-the-badge)](https://github.com/lostatc/xpct/actions/workflows/test.yaml)
+
 # xpct
 
 🚧 This repo is under construction 🚧
