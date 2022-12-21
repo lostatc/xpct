@@ -1,6 +1,6 @@
 use std::any::type_name;
 
-use crate::core::style::{ALL_MATCH_MSG, AT_LESAT_ONE_MATCH_MSG};
+use crate::core::style::{ALL_OK_MSG, AT_LESAT_ONE_OK_MSG};
 use crate::core::{style, Format, FormattedOutput, Formatter, Matcher};
 use crate::matchers::{CombinatorMode, FailuresByField, FieldMatcher, FieldMatcherSpec};
 
@@ -38,7 +38,7 @@ impl Format for ByFieldFormat {
                 f.write_fmt(FormattedOutput::from(fail).indented(style::indent_len(2)));
             } else {
                 f.set_style(style::success());
-                f.write_str(style::MATCHED_MSG);
+                f.write_str(style::OK_MSG);
                 f.reset_style();
                 f.write_char('\n');
             }
@@ -98,8 +98,8 @@ where
         FieldMatcher::new(CombinatorMode::All, spec),
         HeaderFormat::new(
             ByFieldFormat::new(type_name::<T>()),
-            ALL_MATCH_MSG,
-            AT_LESAT_ONE_MATCH_MSG,
+            ALL_OK_MSG,
+            AT_LESAT_ONE_OK_MSG,
         ),
     )
 }
@@ -117,8 +117,8 @@ where
         FieldMatcher::new(CombinatorMode::Any, spec),
         HeaderFormat::new(
             ByFieldFormat::new(type_name::<T>()),
-            AT_LESAT_ONE_MATCH_MSG,
-            ALL_MATCH_MSG,
+            AT_LESAT_ONE_OK_MSG,
+            ALL_OK_MSG,
         ),
     )
 }

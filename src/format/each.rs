@@ -1,4 +1,4 @@
-use crate::core::style::{ALL_MATCH_MSG, AT_LESAT_ONE_MATCH_MSG};
+use crate::core::style::{ALL_OK_MSG, AT_LESAT_ONE_OK_MSG};
 use crate::core::{strings, style, Format, FormattedOutput, Formatter, Matcher};
 use crate::matchers::{CombinatorContext, CombinatorMatcher, CombinatorMode, SomeFailures};
 
@@ -51,7 +51,7 @@ impl Format for SomeFailuresFormat {
                 }
                 None => {
                     f.set_style(style::success());
-                    f.write_str(style::MATCHED_MSG);
+                    f.write_str(style::OK_MSG);
                     f.reset_style();
                     f.write_char('\n');
                 }
@@ -136,10 +136,6 @@ where
 {
     Matcher::new(
         CombinatorMatcher::new(CombinatorMode::All, block),
-        HeaderFormat::new(
-            SomeFailuresFormat::new(),
-            ALL_MATCH_MSG,
-            AT_LESAT_ONE_MATCH_MSG,
-        ),
+        HeaderFormat::new(SomeFailuresFormat::new(), ALL_OK_MSG, AT_LESAT_ONE_OK_MSG),
     )
 }

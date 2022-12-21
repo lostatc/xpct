@@ -7,9 +7,9 @@ batteries-included, and test framework agnostic.
 
 ## About
 
-xpct is highly extensible. In addition to allowing you to write custom matchers,
-it separates the logic of matchers from how they format their output, meaning
-you can:
+xpct is extensible. In addition to allowing you to write custom matchers, it
+separates the logic of matchers from how they format their output, meaning you
+can:
 
 1. Hook into existing formatters to write custom matchers with pretty output
    without having to worry about formatting.
@@ -21,7 +21,7 @@ tutorial](https://docs.rs/xpct/latest/xpct/docs/tutorial/index.html).
 
 *How do you pronounce "xpct"?*
 
-However you choose to pronounce it is how it's pronounced. I pronounce it like
+However you choose to pronounce it is how it's pronounced! I pronounce it like
 "expect."
 
 ## Examples
@@ -33,14 +33,12 @@ expect!("disco").to(equal("Disco"));
 ```
 
 ```text
-[src/main.rs:6:5] = "disco"
+[src/main.rs:4:5] = "disco"
     Expected:
         "disco"
     to equal:
         "Disco"
 ```
-
-[*Screenshot*](./examples/example_1.png)
 
 ```rust,should_panic
 use xpct::{any, equal, expect, map, not, why};
@@ -56,9 +54,9 @@ expect!(value).to(not(any(|ctx| {
 ```
 
 ```text
-[src/main.rs:8:5] = value
-    Expected all of these to match:
-        [0]  MATCHED
+[src/main.rs:6:5] = value
+    Expected all of these to be OK:
+        [0]  OK
         
         [1]  FAILED
              Expected:
@@ -66,10 +64,8 @@ expect!(value).to(not(any(|ctx| {
              to not equal:
                  "Disco"
 
-        [2]  MATCHED
+        [2]  OK
 ```
-
-[*Screenshot*](./examples/example_2.png)
 
 ```rust,should_panic
 use xpct::{all, be_lt, be_ok, be_some, be_true, equal, expect, fields, match_fields, why};
@@ -104,20 +100,18 @@ expect!(get_person())
 ```
 
 ```text
-[src/main.rs:22:5] = get_person()
-    Expected all of these to match:
+[src/main.rs:20:5] = get_person()
+    Expected all of these to be OK:
         xpct::main::Person {
             name: FAILED
                 🛈 this is a required field
                 Expected this to be Some(_)
-            id: MATCHED
+            id: OK
             age: FAILED
                 Expected:
                     44
                 to be less than:
                     40
-            is_superstar: MATCHED
+            is_superstar: OK
         }
 ```
-
-[*Screenshot*](./examples/example_3.png)

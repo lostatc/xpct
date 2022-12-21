@@ -1,4 +1,4 @@
-use crate::core::style::AT_LESAT_ONE_NOT_MATCH_MSG;
+use crate::core::style::AT_LESAT_ONE_NOT_OK_MSG;
 use crate::core::{DispatchFormat, MatchError, Matcher};
 use crate::matchers::{ChainAssertion, ChainMatcher};
 
@@ -70,7 +70,7 @@ where
 {
     let format = DispatchFormat::new(
         FailureFormat::new(),
-        MessageFormat::new("", AT_LESAT_ONE_NOT_MATCH_MSG),
+        MessageFormat::new("", AT_LESAT_ONE_NOT_OK_MSG),
     );
 
     Matcher::new(ChainMatcher::new(block), format)
