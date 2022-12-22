@@ -122,3 +122,122 @@ where
         ),
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{match_any_fields, match_fields};
+    use crate::{equal, expect, fields};
+
+    struct Value {
+        foo: String,
+        bar: u32,
+    }
+
+    #[test]
+    fn succeeds_when_all_matchers_succeed() {
+        let value = Value {
+            foo: "some string".into(),
+            bar: 1,
+        };
+
+        expect!(value).to(match_fields(fields!(Value {
+            foo: equal("some string"),
+            bar: equal(1),
+        })));
+    }
+
+    #[test]
+    fn succeeds_when_not_all_matchers_succeed() {
+        let value = Value {
+            foo: "some string".into(),
+            bar: 1,
+        };
+
+        expect!(value).to_not(match_fields(fields!(Value {
+            foo: equal("a different string"),
+            bar: equal(2),
+        })));
+    }
+
+    #[test]
+    fn succeeds_when_any_matchers_succeed() {
+        let value = Value {
+            foo: "some string".into(),
+            bar: 1,
+        };
+
+        expect!(value).to(match_any_fields(fields!(Value {
+            foo: equal("a different string"),
+            bar: equal(1),
+        })));
+    }
+
+    #[test]
+    fn succeeds_when_not_any_matchers_succeed() {
+        let value = Value {
+            foo: "some string".into(),
+            bar: 1,
+        };
+
+        expect!(value).to_not(match_any_fields(fields!(Value {
+            foo: equal("a different string"),
+            bar: equal(2),
+        })));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_all_matchers_succeed() {
+        let value = Value {
+            foo: "some string".into(),
+            bar: 1,
+        };
+
+        expect!(value).to_not(match_fields(fields!(Value {
+            foo: equal("some string"),
+            bar: equal(1),
+        })));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_not_all_matchers_succeed() {
+        let value = Value {
+            foo: "some string".into(),
+            bar: 1,
+        };
+
+        expect!(value).to(match_fields(fields!(Value {
+            foo: equal("a different string"),
+            bar: equal(2),
+        })));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_any_matchers_succeed() {
+        let value = Value {
+            foo: "some string".into(),
+            bar: 1,
+        };
+
+        expect!(value).to_not(match_any_fields(fields!(Value {
+            foo: equal("a different string"),
+            bar: equal(1),
+        })));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_not_any_matchers_succeed() {
+        let value = Value {
+            foo: "some string".into(),
+            bar: 1,
+        };
+
+        expect!(value).to(match_any_fields(fields!(Value {
+            foo: equal("a different string"),
+            bar: equal(2),
+        })));
+    }
+}

@@ -75,3 +75,31 @@ where
 
     Matcher::new(ChainMatcher::new(block), format)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::all;
+    use crate::{be_gt, be_lt, expect};
+
+    #[test]
+    fn succeeds_when_all_matchers_succeed() {
+        expect!(1).to(all(|ctx| ctx.to(be_lt(2))?.to(be_gt(0))));
+    }
+
+    #[test]
+    fn succeeds_when_not_all_matchers_succeed() {
+        expect!(1).to_not(all(|ctx| ctx.to(be_lt(0))?.to(be_gt(0))));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_all_matchers_succeed() {
+        expect!(1).to_not(all(|ctx| ctx.to(be_lt(2))?.to(be_gt(0))));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_not_all_matchers_succeed() {
+        expect!(1).to(all(|ctx| ctx.to(be_lt(0))?.to(be_gt(0))));
+    }
+}

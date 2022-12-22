@@ -139,3 +139,31 @@ where
         HeaderFormat::new(SomeFailuresFormat::new(), ALL_OK_MSG, AT_LESAT_ONE_OK_MSG),
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use super::each;
+    use crate::{be_gt, be_lt, expect};
+
+    #[test]
+    fn succeeds_when_all_matchers_succeed() {
+        expect!(1).to(each(|ctx| ctx.copied().to(be_lt(2)).to(be_gt(0)).done()));
+    }
+
+    #[test]
+    fn succeeds_when_not_all_matchers_succeed() {
+        expect!(1).to_not(each(|ctx| ctx.copied().to(be_lt(0)).to(be_gt(0)).done()));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_all_matchers_succeed() {
+        expect!(1).to_not(each(|ctx| ctx.copied().to(be_lt(2)).to(be_gt(0)).done()));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_not_all_matchers_succeed() {
+        expect!(1).to(each(|ctx| ctx.copied().to(be_lt(0)).to(be_gt(0)).done()));
+    }
+}
