@@ -73,3 +73,38 @@ where
         }
     }
 }
+
+/// The matcher for [`have_suffix`].
+///
+/// [`have_suffix`]: crate::have_suffix
+#[derive(Debug)]
+pub struct HaveSuffixMatcher<'a> {
+    suffix: Cow<'a, str>,
+}
+
+impl<'a> HaveSuffixMatcher<'a> {
+    /// Create a new [`HaveSuffixMatcher`] from the expected string prefix.
+    pub fn new(suffix: impl Into<Cow<'a, str>>) -> Self {
+        Self {
+            suffix: suffix.into(),
+        }
+    }
+}
+
+impl<'a, Actual> SimpleMatch<Actual> for HaveSuffixMatcher<'a>
+where
+    Actual: AsRef<str>,
+{
+    type Fail = Mismatch<Cow<'a, str>, Actual>;
+
+    fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {
+        Ok(actual.as_ref().ends_with(self.suffix.as_ref()))
+    }
+
+    fn fail(self, actual: Actual) -> Self::Fail {
+        Mismatch {
+            expected: self.suffix,
+            actual,
+        }
+    }
+}

@@ -49,6 +49,6 @@ pub(crate) mod matchers {
     pub use super::option::{be_none, be_some};
     pub use super::ord::{be_ge, be_gt, be_le, be_lt};
     pub use super::result::{be_err, be_ok};
-    pub use super::substr::{contain_substr, have_prefix};
+    pub use super::substr::{contain_substr, have_prefix, have_suffix};
     pub use super::why::{why, why_lazy};
 }
