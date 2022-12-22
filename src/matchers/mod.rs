@@ -26,4 +26,4 @@ pub use not::NotMatcher;
 pub use option::BeSomeMatcher;
 pub use ord::{Inequality, OrdMatcher};
 pub use result::BeOkMatcher;
-pub use substr::ContainSubstrMatcher;
+pub use substr::{ContainSubstrMatcher, HavePrefixMatcher};
