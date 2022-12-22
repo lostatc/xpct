@@ -216,8 +216,6 @@ where
 /// This macro accepts an expression and returns an [`Assertion`], which allows you to make
 /// assertions on that value.
 ///
-/// See the [tutorial](crate::docs::tutorial) for examples.
-///
 /// Under the hood, this macro calls the [`expect`] function using [`DefaultAssertionFormat`]. If
 /// you want to use a custom [`AssertionFormat`] instead, you can call that function directly or
 /// write your own macro that calls it.
