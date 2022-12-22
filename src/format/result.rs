@@ -34,3 +34,61 @@ where
 {
     Matcher::neg(BeOkMatcher::new(), NegFormat(result_format()))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{be_err, be_ok};
+    use crate::expect;
+
+    fn ok() -> Result<(), ()> {
+        Ok(())
+    }
+
+    fn err() -> Result<(), ()> {
+        Err(())
+    }
+
+    #[test]
+    fn succeeds_when_ok() {
+        expect!(ok()).to(be_ok());
+    }
+
+    #[test]
+    fn succeeds_when_not_ok() {
+        expect!(err()).to_not(be_ok());
+    }
+
+    #[test]
+    fn succeeds_when_err() {
+        expect!(err()).to(be_err());
+    }
+
+    #[test]
+    fn succeeds_when_not_err() {
+        expect!(ok()).to_not(be_err());
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_ok() {
+        expect!(ok()).to_not(be_ok());
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_not_ok() {
+        expect!(err()).to(be_ok());
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_err() {
+        expect!(err()).to_not(be_err());
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_not_err() {
+        expect!(ok()).to(be_err());
+    }
+}

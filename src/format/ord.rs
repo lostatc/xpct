@@ -62,3 +62,97 @@ where
         ),
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{be_ge, be_gt, be_le, be_lt};
+    use crate::expect;
+
+    #[test]
+    fn succeeds_when_gt() {
+        expect!(1).to(be_gt(0));
+    }
+
+    #[test]
+    fn succeeds_when_not_gt() {
+        expect!(1).to_not(be_gt(1));
+    }
+
+    #[test]
+    fn succeeds_when_ge() {
+        expect!(1).to(be_ge(1));
+    }
+
+    #[test]
+    fn succeeds_when_not_ge() {
+        expect!(1).to_not(be_ge(2));
+    }
+
+    #[test]
+    fn succeeds_when_lt() {
+        expect!(1).to(be_lt(2));
+    }
+
+    #[test]
+    fn succeeds_when_not_lt() {
+        expect!(1).to_not(be_lt(1));
+    }
+
+    #[test]
+    fn succeeds_when_le() {
+        expect!(1).to(be_le(1));
+    }
+
+    #[test]
+    fn succeeds_when_not_le() {
+        expect!(1).to_not(be_le(0));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_gt() {
+        expect!(1).to_not(be_gt(0));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_not_gt() {
+        expect!(1).to(be_gt(1));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_ge() {
+        expect!(1).to_not(be_ge(1));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_not_ge() {
+        expect!(1).to(be_ge(2));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_lt() {
+        expect!(1).to_not(be_lt(2));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_not_lt() {
+        expect!(1).to(be_lt(1));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_le() {
+        expect!(1).to_not(be_le(1));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_not_le() {
+        expect!(1).to(be_le(0));
+    }
+}

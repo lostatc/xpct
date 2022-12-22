@@ -108,3 +108,31 @@ where
         MismatchFormat::new("to equal", "to not equal"),
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use super::equal;
+    use crate::expect;
+
+    #[test]
+    fn succeeds_when_equal() {
+        expect!("some string").to(equal("some string"));
+    }
+
+    #[test]
+    fn succeeds_when_not_equal() {
+        expect!("some string").to_not(equal("a different string"));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_equal() {
+        expect!("some string").to_not(equal("some string"));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_not_equal() {
+        expect!("some string").to(equal("a different string"));
+    }
+}

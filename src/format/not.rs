@@ -51,3 +51,31 @@ where
 {
     Matcher::new(NotMatcher::new(matcher), FailureFormat::new())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::not;
+    use crate::{be_true, expect};
+
+    #[test]
+    fn succeeds_when_matcher_ok() {
+        expect!(false).to(not(be_true()));
+    }
+
+    #[test]
+    fn succeeds_when_matcher_fails() {
+        expect!(true).to_not(not(be_true()));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_matcher_ok() {
+        expect!(false).to_not(not(be_true()));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_matcher_fails() {
+        expect!(true).to(not(be_true()));
+    }
+}

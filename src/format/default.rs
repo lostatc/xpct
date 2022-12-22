@@ -26,27 +26,28 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::be_default;
     use crate::expect;
 
     #[test]
-    fn succeeds_on_default_value() {
+    fn succeeds_when_default_value() {
         expect!("").to(be_default());
+    }
+
+    #[test]
+    fn succeeds_when_not_default_value() {
+        expect!("not default").to_not(be_default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_default_value() {
+        expect!("").to_not(be_default());
     }
 
     #[test]
     #[should_panic]
     fn fails_when_not_default_value() {
         expect!("not default").to(be_default());
-    }
-    #[test]
-    #[should_panic]
-    fn fails_on_default_value() {
-        expect!("").to_not(be_default());
-    }
-
-    #[test]
-    fn succeeds_when_not_default_value() {
-        expect!("not default").to_not(be_default());
     }
 }
