@@ -11,6 +11,7 @@ mod not;
 mod option;
 mod ord;
 mod result;
+mod substr;
 
 pub use boolean::BeTrueMatcher;
 pub use chain::{ChainAssertion, ChainMatcher};
@@ -25,3 +26,4 @@ pub use not::NotMatcher;
 pub use option::BeSomeMatcher;
 pub use ord::{Inequality, OrdMatcher};
 pub use result::BeOkMatcher;
+pub use substr::ContainSubstrMatcher;
