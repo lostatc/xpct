@@ -82,26 +82,6 @@ mod tests {
     }
 
     #[test]
-    fn succeeds_when_has_prefix() {
-        expect!("foobar").to(have_prefix("foo"));
-    }
-
-    #[test]
-    fn succeeds_when_not_has_prefix() {
-        expect!("foobar").to_not(have_prefix("not a prefix"));
-    }
-
-    #[test]
-    fn succeeds_when_has_suffix() {
-        expect!("foobar").to(have_suffix("bar"));
-    }
-
-    #[test]
-    fn succceeds_when_not_has_suffix() {
-        expect!("foobar").to_not(have_suffix("not a suffix"));
-    }
-
-    #[test]
     #[should_panic]
     fn fails_when_contains_substr() {
         expect!("foobar").to_not(contain_substr("ooba"));
@@ -114,6 +94,16 @@ mod tests {
     }
 
     #[test]
+    fn succeeds_when_has_prefix() {
+        expect!("foobar").to(have_prefix("foo"));
+    }
+
+    #[test]
+    fn succeeds_when_not_has_prefix() {
+        expect!("foobar").to_not(have_prefix("not a prefix"));
+    }
+
+    #[test]
     #[should_panic]
     fn fails_when_has_prefix() {
         expect!("foobar").to_not(have_prefix("foo"));
@@ -123,6 +113,16 @@ mod tests {
     #[should_panic]
     fn fails_when_not_has_prefix() {
         expect!("foobar").to(have_prefix("not a prefix"));
+    }
+
+    #[test]
+    fn succeeds_when_has_suffix() {
+        expect!("foobar").to(have_suffix("bar"));
+    }
+
+    #[test]
+    fn succceeds_when_not_has_suffix() {
+        expect!("foobar").to_not(have_suffix("not a suffix"));
     }
 
     #[test]

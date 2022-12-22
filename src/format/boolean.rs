@@ -84,16 +84,6 @@ mod tests {
     }
 
     #[test]
-    fn succeeds_when_false() {
-        expect!(false).to(be_false());
-    }
-
-    #[test]
-    fn succeeds_when_not_false() {
-        expect!(true).to_not(be_false());
-    }
-
-    #[test]
     #[should_panic]
     fn fails_when_true() {
         expect!(true).to_not(be_true());
@@ -103,6 +93,16 @@ mod tests {
     #[should_panic]
     fn fails_when_not_true() {
         expect!(false).to(be_true());
+    }
+
+    #[test]
+    fn succeeds_when_false() {
+        expect!(false).to(be_false());
+    }
+
+    #[test]
+    fn succeeds_when_not_false() {
+        expect!(true).to_not(be_false());
     }
 
     #[test]

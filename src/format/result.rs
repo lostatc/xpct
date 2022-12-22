@@ -59,16 +59,6 @@ mod tests {
     }
 
     #[test]
-    fn succeeds_when_err() {
-        expect!(err()).to(be_err());
-    }
-
-    #[test]
-    fn succeeds_when_not_err() {
-        expect!(ok()).to_not(be_err());
-    }
-
-    #[test]
     #[should_panic]
     fn fails_when_ok() {
         expect!(ok()).to_not(be_ok());
@@ -78,6 +68,16 @@ mod tests {
     #[should_panic]
     fn fails_when_not_ok() {
         expect!(err()).to(be_ok());
+    }
+
+    #[test]
+    fn succeeds_when_err() {
+        expect!(err()).to(be_err());
+    }
+
+    #[test]
+    fn succeeds_when_not_err() {
+        expect!(ok()).to_not(be_err());
     }
 
     #[test]

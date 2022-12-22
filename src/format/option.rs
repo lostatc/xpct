@@ -57,16 +57,6 @@ mod tests {
     }
 
     #[test]
-    fn succeeds_when_none() {
-        expect!(none()).to(be_none());
-    }
-
-    #[test]
-    fn succeeds_when_not_none() {
-        expect!(some()).to_not(be_none());
-    }
-
-    #[test]
     #[should_panic]
     fn fails_when_some() {
         expect!(some()).to_not(be_some());
@@ -76,6 +66,16 @@ mod tests {
     #[should_panic]
     fn fails_when_not_some() {
         expect!(none()).to(be_some());
+    }
+
+    #[test]
+    fn succeeds_when_none() {
+        expect!(none()).to(be_none());
+    }
+
+    #[test]
+    fn succeeds_when_not_none() {
+        expect!(some()).to_not(be_none());
     }
 
     #[test]
