@@ -57,4 +57,10 @@ Builtin Matchers
 # [`Default`] values
 
 - [`be_default`][crate::be_default]
+
+# Strings
+
+- [`contain_substr`][crate::contain_substr]
+- [`have_prefix`][crate::have_prefix]
+- [`have_suffix`][crate::have_suffix]
 */
