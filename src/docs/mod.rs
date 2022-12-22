@@ -1,8 +1,8 @@
 /*!
-The xpct user docs.
+User Docs
 
 This is the xpct user documentation. If you're new here, check out the
-[tutorial][crate::docs::tutorial].
+[Tutorial][crate::docs::tutorial].
 */
 
 #![cfg(docsrs)]

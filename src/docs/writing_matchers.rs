@@ -1,5 +1,5 @@
 /*!
-How to write custom matchers.
+Writing Custom Matchers
 
 [↩︎ Back to User Docs](crate::docs)
 

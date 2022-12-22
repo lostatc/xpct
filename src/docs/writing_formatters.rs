@@ -1,5 +1,5 @@
 /*!
-How to write custom formatters.
+Writing Custom Formatters
 
 [↩︎ Back to User Docs](crate::docs)
 

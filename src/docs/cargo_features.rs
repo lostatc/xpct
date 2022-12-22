@@ -1,5 +1,5 @@
 /*!
-Documentation for the crate's cargo features.
+Cargo Features
 
 [↩︎ Back to User Docs](crate::docs)
 

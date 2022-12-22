@@ -1,5 +1,5 @@
 /*!
-A high-level tutorial on how to make assertions with xpct.
+Tutorial
 
 [↩︎ Back to User Docs](crate::docs)
 
