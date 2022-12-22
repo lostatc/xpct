@@ -1,5 +1,37 @@
 # Contributing
 
+## Tests
+
+Matchers, even trivial ones, should have basic tests written to guard against
+regressions. Generally, each matcher should have at least four tests written for
+it:
+
+```rust,no_run
+#[test]
+fn succeeds_when_foo() {
+    // The matcher should succeed when is not negated.
+}
+
+#[test]
+fn succeeds_when_not_foo() {
+    // The matcher should succeed when is negated.
+}
+
+#[test]
+#[should_panic]
+fn fails_when_foo() {
+    // The matcher should fail when it is negated.
+}
+
+#[test]
+#[should_panic]
+fn fails_when_not_foo() {
+    // The matcher should fail when it is not negated.
+}
+```
+
+See the tests for the `equals` matcher for an example.
+
 ## Docs
 
 When building the documentation locally, markers that identify which features
