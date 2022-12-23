@@ -1,5 +1,4 @@
 #![cfg(feature = "regex")]
-#![cfg_attr(docsrs, doc(cfg(feature = "regex")))]
 
 use regex::Regex;
 

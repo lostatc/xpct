@@ -3,8 +3,7 @@ Cargo Features
 
 [↩︎ Back to User Docs](crate::docs)
 
-This is a list of cargo features exposed by this crate. The default features are
-suitable for most use-cases.
+This is a list of cargo features exposed by this crate.
 
 - `regex`: Enables the [`match_regex`] matcher, which requires additional
 dependencies.

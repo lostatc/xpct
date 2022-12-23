@@ -7,7 +7,7 @@ If you're new here, you may want to check out the [Tutorial][crate::docs::tutori
 the [User Docs][crate::docs].
 */
 
-#![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
 

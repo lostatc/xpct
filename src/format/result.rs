@@ -13,7 +13,6 @@ fn result_format() -> MessageFormat {
 ///
 /// If this matcher succeeds, it unwraps the [`Ok`] value. When negated, it behaves like
 /// [`be_err`].
-#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn be_ok<'a, T, E>() -> Matcher<'a, Result<T, E>, T, E>
 where
     T: 'a,
@@ -26,7 +25,6 @@ where
 ///
 /// If this matcher succeeds, it unwraps the [`Err`] value. When negated, it behaves like
 /// [`be_ok`].
-#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn be_err<'a, T, E>() -> Matcher<'a, Result<T, E>, E, T>
 where
     T: 'a,

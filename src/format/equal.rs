@@ -97,7 +97,6 @@ where
 ///
 /// expect!(Some("oblivion")).to(equal(Some("oblivion")));
 /// ```
-#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn equal<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + PartialEq<Expected> + Eq + 'a,

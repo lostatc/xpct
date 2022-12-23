@@ -89,7 +89,6 @@ impl Format for ByFieldFormat {
 /// ```
 ///
 /// [`fields!`]: crate::fields
-#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn match_fields<'a, T>(spec: FieldMatcherSpec<'a, T>) -> Matcher<'a, T, ()>
 where
     T: 'a,
@@ -108,7 +107,6 @@ where
 ///
 /// This matcher is similar to [`match_fields`], except it succeeds when *any* of the fields of a
 /// struct succeed instead of all of them.
-#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn match_any_fields<'a, T>(spec: FieldMatcherSpec<'a, T>) -> Matcher<'a, T, ()>
 where
     T: 'a,

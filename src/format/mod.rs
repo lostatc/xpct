@@ -11,7 +11,6 @@
 //! [`Mismatch`]: crate::matchers::Mismatch
 
 #![cfg(feature = "fmt")]
-#![cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 
 mod all;
 mod any;

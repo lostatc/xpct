@@ -80,7 +80,6 @@ impl<'a> Format for WhyFormat<'a> {
 ///     "indices must be positive"
 /// ));
 /// ```
-#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn why<'a, In, PosOut, NegOut>(
     matcher: Matcher<'a, In, PosOut, NegOut>,
     reason: impl Into<Cow<'a, str>>,
@@ -116,7 +115,6 @@ where
 ///     expensive_context
 /// ));
 /// ```
-#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn why_lazy<'a, In, PosOut, NegOut>(
     matcher: Matcher<'a, In, PosOut, NegOut>,
     reason: impl FnOnce() -> Cow<'a, str> + 'a,

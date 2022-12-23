@@ -15,7 +15,6 @@ use super::MismatchFormat;
 ///
 /// expect!("foobar").to(contain_substr("ooba"));
 /// ```
-#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn contain_substr<'a, Actual>(substr: impl Into<Cow<'a, str>>) -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + AsRef<str> + 'a,
@@ -35,7 +34,6 @@ where
 ///
 /// expect!("foobar").to(have_prefix("foo"));
 /// ```
-#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn have_prefix<'a, Actual>(prefix: impl Into<Cow<'a, str>>) -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + AsRef<str> + 'a,
@@ -55,7 +53,6 @@ where
 ///
 /// expect!("foobar").to(have_suffix("bar"));
 /// ```
-#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn have_suffix<'a, Actual>(suffix: impl Into<Cow<'a, str>>) -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + AsRef<str> + 'a,

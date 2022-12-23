@@ -13,7 +13,6 @@ use super::MismatchFormat;
 ///
 /// expect!("").to(be_default());
 /// ```
-#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn be_default<'a, Actual>() -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + Default + PartialEq<Actual> + Eq + 'a,

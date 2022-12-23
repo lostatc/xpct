@@ -40,7 +40,6 @@ impl Format for FailureFormat {
 /// This does the same thing as [`Assertion::to_not`].
 ///
 /// [`Assertion::to_not`]: crate::core::Assertion::to_not
-#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn not<'a, In, PosOut, NegOut>(
     matcher: Matcher<'a, In, PosOut, NegOut>,
 ) -> Matcher<'a, In, NegOut, PosOut>

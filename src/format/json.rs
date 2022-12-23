@@ -1,5 +1,4 @@
 #![cfg(feature = "json")]
-#![cfg_attr(docsrs, doc(cfg(all(feature = "fmt", feature = "json"))))]
 
 use std::borrow::Cow;
 use std::fmt;

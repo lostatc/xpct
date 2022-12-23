@@ -1,5 +1,4 @@
 #![cfg(feature = "regex")]
-#![cfg_attr(docsrs, doc(cfg(all(feature = "fmt", feature = "regex"))))]
 
 use std::fmt;
 

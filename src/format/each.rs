@@ -129,7 +129,6 @@ impl Format for SomeFailuresFormat {
 /// [`borrow`]: crate::matchers::CombinatorContext::borrow
 /// [`copied`]: crate::matchers::CombinatorContext::copied
 /// [`cloned`]: crate::matchers::CombinatorContext::cloned
-#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn each<'a, T>(block: impl FnOnce(&mut CombinatorContext<T>) + 'a) -> Matcher<'a, T, T>
 where
     T: 'a,

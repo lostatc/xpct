@@ -13,7 +13,6 @@ fn option_format() -> MessageFormat {
 ///
 /// If this matcher succeeds, it unwraps the [`Some`] value. When negated, it behaves like
 /// [`be_none`].
-#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn be_some<'a, T>() -> Matcher<'a, Option<T>, T, Option<Infallible>>
 where
     T: 'a,
@@ -25,7 +24,6 @@ where
 ///
 /// If this matcher succeeds, it converts the value to `Option<Infallible>`. When negated, it
 /// behaves like [`be_some`].
-#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn be_none<'a, T>() -> Matcher<'a, Option<T>, Option<Infallible>, T>
 where
     T: 'a,

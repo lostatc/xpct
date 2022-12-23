@@ -57,13 +57,11 @@ fn bool_format() -> MessageFormat {
 }
 
 /// Succeeds when the actual value is `true`.
-#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn be_true() -> Matcher<'static, bool, bool> {
     Matcher::simple(BeTrueMatcher::new(), bool_format())
 }
 
 /// Succeeds when the actual value is `false`.
-#[cfg_attr(docsrs, doc(cfg(feature = "fmt")))]
 pub fn be_false() -> Matcher<'static, bool, bool> {
     Matcher::simple_neg(BeTrueMatcher::new(), NegFormat(bool_format()))
 }
