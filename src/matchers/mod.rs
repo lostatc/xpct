@@ -33,7 +33,7 @@ pub use fields::{FailuresByField, FieldMatcher, FieldMatcherSpec};
 #[cfg(feature = "json")]
 pub use json::MatchJsonMatcher;
 pub use len::{HaveLenMatcher, Len};
-pub use map::{MapMatcher, TryMapMatcher};
+pub use map::{IterMapMatcher, IterTryMapMatcher, MapMatcher, TryMapMatcher};
 pub use not::NotMatcher;
 pub use option::BeSomeMatcher;
 pub use ord::{Inequality, OrdMatcher};

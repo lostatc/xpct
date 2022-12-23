@@ -51,7 +51,7 @@ pub(crate) mod matchers {
     pub use super::every::every;
     pub use super::fields::{match_any_fields, match_fields};
     pub use super::len::{be_empty, have_len};
-    pub use super::map::{map, try_map};
+    pub use super::map::{iter_map, iter_try_map, map, try_map};
     pub use super::not::not;
     pub use super::option::{be_none, be_some};
     pub use super::ord::{be_ge, be_gt, be_le, be_lt};

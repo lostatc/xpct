@@ -43,6 +43,8 @@ Builtin Matchers
 
 - [`map`][crate::map]
 - [`try_map`][crate::try_map]
+- [`iter_map`][crate::iter_map]
+- [`iter_try_map`][crate::iter_try_map]
 
 # [`Result`] values
 
