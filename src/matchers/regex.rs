@@ -1,4 +1,5 @@
 #![cfg(feature = "regex")]
+#![cfg_attr(docsrs, doc(cfg(feature = "regex")))]
 
 use regex::Regex;
 
@@ -15,7 +16,7 @@ pub struct MatchRegexMatcher {
 }
 
 impl MatchRegexMatcher {
-    /// Create a new [`MatchRegexMatcher`] from the expected substring.
+    /// Create a new [`MatchRegexMatcher`] from the expected regex.
     ///
     /// If the given regex is invalid, the matcher will return an error.
     pub fn new(regex: &str) -> Self {

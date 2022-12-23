@@ -20,6 +20,7 @@ mod default;
 mod each;
 mod equal;
 mod fields;
+mod json;
 mod map;
 mod not;
 mod option;
@@ -52,6 +53,9 @@ pub(crate) mod matchers {
     pub use super::result::{be_err, be_ok};
     pub use super::substr::{contain_substr, have_prefix, have_suffix};
     pub use super::why::{why, why_lazy};
+
+    #[cfg(feature = "json")]
+    pub use super::json::match_json;
 
     #[cfg(feature = "regex")]
     pub use super::regex::match_regex;
