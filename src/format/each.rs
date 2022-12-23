@@ -64,7 +64,7 @@ impl Format for SomeFailuresFormat {
     }
 }
 
-/// Succeeds when all of the passed matchers succeed.
+/// Succeeds when each of the passed matchers succeeds.
 ///
 /// This matcher is similar to [`all`], except it does not short-circuit and it does not chain the
 /// output of each matcher into the next. You can use matcher this when:

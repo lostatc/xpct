@@ -66,15 +66,14 @@ where
 
 /// Succeeds when any of the passed matchers succeed.
 ///
-/// This is a matcher than can be used to compose other matchers. Because this matcher needs to
-/// test all the matchers that are passed to it, it can't short-circuit. This means that it doesn't
-/// support chaining the output of one matcher into the next.
+/// This is a matcher than can be used to compose other matchers. This matcher doesn't
+/// short-circuit; it tests all the matchers that are passed to it.
 ///
-/// Instead, this matcher owns its value and passes it to each matcher, either by reference, or by
-/// value if the value is [`Clone`] or [`Copy`]. The closure you pass to this matcher accepts a
-/// [`CombinatorContext`], which has methods like [`borrow`], [`cloned`] and [`copied`] to
-/// determine how the value is passed to matchers. From there, you can call [`to`] and [`to_not`]
-/// to use matchers.
+/// This matcher doesn't chain the output of each matcher into the next. Instead, it owns its value
+/// and passes it to each matcher, either by reference, or by value if the value is [`Clone`] or
+/// [`Copy`]. The closure you pass to this matcher accepts a [`CombinatorContext`], which has
+/// methods like [`borrow`], [`cloned`] and [`copied`] to determine how the value is passed to
+/// matchers. From there, you can call [`to`] and [`to_not`] to use matchers.
 ///
 /// # Examples
 ///
