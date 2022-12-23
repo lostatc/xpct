@@ -5,7 +5,7 @@ use std::ops::{Range, RangeFrom, RangeInclusive, RangeTo, RangeToInclusive};
 
 use crate::core::SimpleMatch;
 
-use super::Mismatch;
+use super::{Len, Mismatch};
 
 /// A collection that supports testing for membership.
 pub trait Contains<T: ?Sized> {
@@ -213,6 +213,45 @@ where
             .expected
             .iter()
             .all(|expected| actual.contains(expected)))
+    }
+
+    fn fail(self, actual: Actual) -> Self::Fail {
+        Mismatch {
+            expected: self.expected,
+            actual,
+        }
+    }
+}
+
+/// The matcher for [`consist_of`].
+///
+/// [`consist_of`]: crate::consist_of
+#[derive(Debug)]
+pub struct ConsistOfMatcher<T> {
+    expected: Vec<T>,
+}
+
+impl<T> ConsistOfMatcher<T> {
+    /// Create a new [`ConsistOfMatcher`] from the expected elements.
+    pub fn new(elements: impl Into<Vec<T>>) -> Self {
+        Self {
+            expected: elements.into(),
+        }
+    }
+}
+
+impl<T, Actual> SimpleMatch<Actual> for ConsistOfMatcher<T>
+where
+    Actual: Contains<T> + Len,
+{
+    type Fail = Mismatch<Vec<T>, Actual>;
+
+    fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {
+        Ok(actual.len() == self.expected.len()
+            && self
+                .expected
+                .iter()
+                .all(|expected| actual.contains(expected)))
     }
 
     fn fail(self, actual: Actual) -> Self::Fail {

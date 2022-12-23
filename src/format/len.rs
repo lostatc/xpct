@@ -7,6 +7,8 @@ use super::MismatchFormat;
 
 /// Succeeds when the actual value has the given length.
 ///
+/// You can use this matcher for your own types by implementing [`Len`] on them.
+///
 /// # Examples
 ///
 /// ```
@@ -26,6 +28,8 @@ where
 }
 
 /// Succeeds when the actual value is empty.
+///
+/// You can use this matcher for your own types by implementing [`Len`] on them.
 ///
 /// # Examples
 ///
