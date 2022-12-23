@@ -166,9 +166,9 @@ pub fn indent(s: &str, spaces: u32, hanging: bool) -> Cow<str> {
 }
 
 pub fn whitespace<'a>(spaces: usize) -> Cow<'a, str> {
-    match spaces as usize {
+    match spaces {
         i if i < PREFIX_CACHE.len() => Cow::Borrowed(&PREFIX_CACHE[..i]),
-        i => Cow::Owned(" ".repeat(i as usize)),
+        i => Cow::Owned(" ".repeat(i)),
     }
 }
 
