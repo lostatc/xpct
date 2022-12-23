@@ -43,28 +43,28 @@ expect!("disco").to(equal("Disco"));
 ```
 
 ```rust,should_panic
-use xpct::{any, equal, expect, map, not, why};
+use xpct::{any, equal, expect, have_suffix, not};
 
-let value = String::from("Disco");
+let location = String::from("Central Jamrock");
 
-expect!(value).to(not(any(|ctx| {
+expect!(location).to(not(any(|ctx| {
     ctx.borrow::<str>()
-        .to(equal("Superstar"))
-        .to(equal("Disco"))
-        .to(equal("Sorry"));
+        .to(equal("The Pox"))
+        .to(have_suffix("Jamrock"))
+        .to(equal("Martinaise"));
 })));
 ```
 
 ```text
-[src/main.rs:6:5] = value
+[src/main.rs:6:5] = location
     Expected all of these to be OK:
         [0]  OK
         
         [1]  FAILED
              Expected:
-                 "Disco"
-             to not equal:
-                 "Disco"
+                 "Central Jamrock"
+             to not have the suffix:
+                 "Jamrock"
 
         [2]  OK
 ```
@@ -104,7 +104,7 @@ expect!(get_person())
 ```text
 [src/main.rs:20:5] = get_person()
     Expected all of these to be OK:
-        xpct::main::Person {
+        my_crate::main::Person {
             name: FAILED
                 🛈 this is a required field
                 Expected this to be Some(_)
