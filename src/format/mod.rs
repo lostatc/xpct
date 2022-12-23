@@ -24,6 +24,7 @@ mod map;
 mod not;
 mod option;
 mod ord;
+mod regex;
 mod result;
 mod substr;
 mod why;
@@ -51,4 +52,7 @@ pub(crate) mod matchers {
     pub use super::result::{be_err, be_ok};
     pub use super::substr::{contain_substr, have_prefix, have_suffix};
     pub use super::why::{why, why_lazy};
+
+    #[cfg(feature = "regex")]
+    pub use super::regex::match_regex;
 }

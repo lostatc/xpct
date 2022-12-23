@@ -10,9 +10,12 @@ mod map;
 mod not;
 mod option;
 mod ord;
+mod regex;
 mod result;
 mod substr;
 
+#[cfg(feature = "regex")]
+pub use self::regex::MatchRegexMatcher;
 pub use boolean::BeTrueMatcher;
 pub use chain::{ChainAssertion, ChainMatcher};
 pub use combinator::{

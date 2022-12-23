@@ -63,4 +63,5 @@ Builtin Matchers
 - [`contain_substr`][crate::contain_substr]
 - [`have_prefix`][crate::have_prefix]
 - [`have_suffix`][crate::have_suffix]
+- [`match_regex`][crate::match_regex]
 */
