@@ -73,4 +73,5 @@ Builtin Matchers
 - [`contain_element`][crate::contain_element]
 - [`contain_elements`][crate::contain_elements]
 - [`consist_of`][crate::consist_of]
+- [`every`][crate::every]
 */

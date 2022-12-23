@@ -19,6 +19,7 @@ mod contain;
 mod default;
 mod each;
 mod equal;
+mod every;
 mod fields;
 mod json;
 mod len;
@@ -47,6 +48,7 @@ pub(crate) mod matchers {
     pub use super::default::be_default;
     pub use super::each::each;
     pub use super::equal::equal;
+    pub use super::every::every;
     pub use super::fields::{match_any_fields, match_fields};
     pub use super::len::{be_empty, have_len};
     pub use super::map::{map, try_map};

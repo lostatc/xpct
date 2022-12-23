@@ -6,6 +6,7 @@ mod combinator;
 mod contain;
 mod default;
 mod equal;
+mod every;
 mod fields;
 mod json;
 mod len;
@@ -27,6 +28,7 @@ pub use combinator::{
 pub use contain::{ConsistOfMatcher, ContainElementsMatcher, Contains};
 pub use default::BeDefaultMatcher;
 pub use equal::{EqualMatcher, Mismatch};
+pub use every::EveryMatcher;
 pub use fields::{FailuresByField, FieldMatcher, FieldMatcherSpec};
 #[cfg(feature = "json")]
 pub use json::MatchJsonMatcher;
