@@ -70,4 +70,6 @@ Builtin Matchers
 
 - [`have_len`][crate::have_len]
 - [`be_empty`][crate::be_empty]
+- [`contain_element`][crate::contain_element]
+- [`contain_elements`][crate::contain_elements]
 */

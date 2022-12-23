@@ -9,7 +9,7 @@ use crate::core::SimpleMatch;
 use super::Mismatch;
 
 /// A collection that has a length.
-pub trait HasLen {
+pub trait Len {
     /// The length of the collection.
     fn len(&self) -> usize;
 
@@ -19,7 +19,7 @@ pub trait HasLen {
     }
 }
 
-impl<T> HasLen for &[T] {
+impl<T> Len for &[T] {
     fn len(&self) -> usize {
         <[T]>::len(self)
     }
@@ -29,7 +29,7 @@ impl<T> HasLen for &[T] {
     }
 }
 
-impl<T, const N: usize> HasLen for [T; N] {
+impl<T, const N: usize> Len for [T; N] {
     fn len(&self) -> usize {
         N
     }
@@ -39,7 +39,7 @@ impl<T, const N: usize> HasLen for [T; N] {
     }
 }
 
-impl<T> HasLen for Vec<T> {
+impl<T> Len for Vec<T> {
     fn len(&self) -> usize {
         self.len()
     }
@@ -49,7 +49,7 @@ impl<T> HasLen for Vec<T> {
     }
 }
 
-impl<T> HasLen for VecDeque<T> {
+impl<T> Len for VecDeque<T> {
     fn len(&self) -> usize {
         self.len()
     }
@@ -59,7 +59,7 @@ impl<T> HasLen for VecDeque<T> {
     }
 }
 
-impl<T> HasLen for LinkedList<T> {
+impl<T> Len for LinkedList<T> {
     fn len(&self) -> usize {
         self.len()
     }
@@ -69,7 +69,7 @@ impl<T> HasLen for LinkedList<T> {
     }
 }
 
-impl<K, V> HasLen for HashMap<K, V> {
+impl<K, V> Len for HashMap<K, V> {
     fn len(&self) -> usize {
         self.len()
     }
@@ -79,7 +79,7 @@ impl<K, V> HasLen for HashMap<K, V> {
     }
 }
 
-impl<T> HasLen for HashSet<T> {
+impl<T> Len for HashSet<T> {
     fn len(&self) -> usize {
         self.len()
     }
@@ -89,7 +89,7 @@ impl<T> HasLen for HashSet<T> {
     }
 }
 
-impl<K, V> HasLen for BTreeMap<K, V> {
+impl<K, V> Len for BTreeMap<K, V> {
     fn len(&self) -> usize {
         self.len()
     }
@@ -99,7 +99,7 @@ impl<K, V> HasLen for BTreeMap<K, V> {
     }
 }
 
-impl<T> HasLen for BTreeSet<T> {
+impl<T> Len for BTreeSet<T> {
     fn len(&self) -> usize {
         self.len()
     }
@@ -109,7 +109,7 @@ impl<T> HasLen for BTreeSet<T> {
     }
 }
 
-impl<T> HasLen for BinaryHeap<T> {
+impl<T> Len for BinaryHeap<T> {
     fn len(&self) -> usize {
         self.len()
     }
@@ -119,7 +119,7 @@ impl<T> HasLen for BinaryHeap<T> {
     }
 }
 
-impl HasLen for String {
+impl Len for String {
     fn len(&self) -> usize {
         self.len()
     }
@@ -129,7 +129,7 @@ impl HasLen for String {
     }
 }
 
-impl<'a> HasLen for &'a str {
+impl<'a> Len for &'a str {
     fn len(&self) -> usize {
         <str>::len(self)
     }
@@ -139,7 +139,7 @@ impl<'a> HasLen for &'a str {
     }
 }
 
-impl<'a> HasLen for Cow<'a, str> {
+impl<'a> Len for Cow<'a, str> {
     fn len(&self) -> usize {
         self.as_ref().len()
     }
@@ -149,7 +149,7 @@ impl<'a> HasLen for Cow<'a, str> {
     }
 }
 
-impl HasLen for OsString {
+impl Len for OsString {
     fn len(&self) -> usize {
         self.as_os_str().len()
     }
@@ -159,7 +159,7 @@ impl HasLen for OsString {
     }
 }
 
-impl<'a> HasLen for &'a OsStr {
+impl<'a> Len for &'a OsStr {
     fn len(&self) -> usize {
         <OsStr>::len(self)
     }
@@ -186,7 +186,7 @@ impl HaveLenMatcher {
 
 impl<Actual> SimpleMatch<Actual> for HaveLenMatcher
 where
-    Actual: HasLen,
+    Actual: Len,
 {
     type Fail = Mismatch<usize, Actual>;
 

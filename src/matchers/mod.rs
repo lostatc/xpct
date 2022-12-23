@@ -3,6 +3,7 @@
 mod boolean;
 mod chain;
 mod combinator;
+mod contain;
 mod default;
 mod equal;
 mod fields;
@@ -23,12 +24,13 @@ pub use chain::{ChainAssertion, ChainMatcher};
 pub use combinator::{
     CombinatorAssertion, CombinatorContext, CombinatorMatcher, CombinatorMode, SomeFailures,
 };
+pub use contain::{ContainElementsMatcher, Contains};
 pub use default::BeDefaultMatcher;
 pub use equal::{EqualMatcher, Mismatch};
 pub use fields::{FailuresByField, FieldMatcher, FieldMatcherSpec};
 #[cfg(feature = "json")]
 pub use json::MatchJsonMatcher;
-pub use len::{HasLen, HaveLenMatcher};
+pub use len::{HaveLenMatcher, Len};
 pub use map::{MapMatcher, TryMapMatcher};
 pub use not::NotMatcher;
 pub use option::BeSomeMatcher;

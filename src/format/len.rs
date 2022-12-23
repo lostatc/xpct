@@ -1,7 +1,7 @@
 use std::fmt;
 
 use crate::core::Matcher;
-use crate::matchers::{HasLen, HaveLenMatcher};
+use crate::matchers::{HaveLenMatcher, Len};
 
 use super::MismatchFormat;
 
@@ -17,7 +17,7 @@ use super::MismatchFormat;
 /// ```
 pub fn have_len<'a, Actual>(len: usize) -> Matcher<'a, Actual, Actual>
 where
-    Actual: fmt::Debug + HasLen + 'a,
+    Actual: fmt::Debug + Len + 'a,
 {
     Matcher::simple(
         HaveLenMatcher::new(len),
@@ -37,7 +37,7 @@ where
 /// ```
 pub fn be_empty<'a, Actual>() -> Matcher<'a, Actual, Actual>
 where
-    Actual: fmt::Debug + HasLen + 'a,
+    Actual: fmt::Debug + Len + 'a,
 {
     Matcher::simple(
         HaveLenMatcher::new(0),
