@@ -135,7 +135,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::{be_ge, be_gt, be_le, be_lt};
+    use super::{be_ge, be_gt, be_le, be_lt, be_sorted_asc, be_sorted_by, be_sorted_desc};
     use crate::expect;
 
     #[test]
@@ -224,5 +224,79 @@ mod tests {
     #[should_panic]
     fn fails_when_not_le() {
         expect!(1).to(be_le(0));
+    }
+
+    #[test]
+    fn succeeds_when_sorted_asc() {
+        expect!(["a", "b", "c"]).to(be_sorted_asc());
+    }
+
+    #[test]
+    fn succeeds_when_not_sorted_asc() {
+        expect!(["a", "c", "b"]).to_not(be_sorted_asc());
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_sorted_asc() {
+        expect!(["a", "b", "c"]).to_not(be_sorted_asc());
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_not_sorted_asc() {
+        expect!(["a", "c", "b"]).to(be_sorted_asc());
+    }
+
+    #[test]
+    fn succeeds_when_sorted_desc() {
+        expect!(["c", "b", "a"]).to(be_sorted_desc());
+    }
+
+    #[test]
+    fn succeeds_when_not_sorted_desc() {
+        expect!(["c", "a", "b"]).to_not(be_sorted_desc());
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_sorted_desc() {
+        expect!(["c", "b", "a"]).to_not(be_sorted_desc());
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_not_sorted_desc() {
+        expect!(["c", "a", "b"]).to(be_sorted_desc());
+    }
+
+    #[test]
+    fn succeeds_when_sorted_by() {
+        expect!(["a", "B", "c"]).to(be_sorted_by::<&str, _>(|a, b| {
+            a.to_lowercase().cmp(&b.to_lowercase())
+        }));
+    }
+
+    #[test]
+    fn succeeds_when_not_sorted_by() {
+        expect!(["c", "B", "a"]).to_not(be_sorted_by::<&str, _>(|a, b| {
+            a.to_lowercase().cmp(&b.to_lowercase())
+        }));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_sorted_by() {
+        expect!(["a", "B", "c"]).to_not(be_sorted_by::<&str, _>(|a, b| {
+            a.to_lowercase().cmp(&b.to_lowercase())
+        }));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_not_sorted_by() {
+        expect!(["c", "B", "a"]).to(be_sorted_by::<&str, _>(|a, b| {
+            a.to_lowercase().cmp(&b.to_lowercase())
+        }));
     }
 }
