@@ -1,9 +1,10 @@
+use std::cmp::Ordering;
 use std::fmt;
 
 use crate::core::Matcher;
-use crate::matchers::{Inequality, OrdMatcher};
+use crate::matchers::{BeSortedByMatcher, BeSortedMatcher, Inequality, OrdMatcher, SortOrder};
 
-use super::MismatchFormat;
+use super::{MessageFormat, MismatchFormat};
 
 /// Succeeds when the actual value is greater than the expected value.
 pub fn be_gt<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
@@ -55,6 +56,79 @@ where
         MismatchFormat::new(
             "to be less than or equal to",
             "to not be less than or equal to",
+        ),
+    )
+}
+
+/// Succeeds when the actual value is sorted in ascending order.
+///
+/// # Examples
+///
+/// ```
+/// use xpct::{expect, be_sorted_asc};
+///
+/// expect!(vec!["a", "b", "c"]).to(be_sorted_asc());
+/// ```
+pub fn be_sorted_asc<'a, T, Actual>() -> Matcher<'a, Actual, Actual>
+where
+    T: Ord + 'a,
+    Actual: AsRef<[T]> + 'a,
+{
+    Matcher::simple(
+        BeSortedMatcher::new(SortOrder::Asc),
+        MessageFormat::new(
+            "Expected this to be sorted in ascending order",
+            "Expected this to not be sorted in ascending order",
+        ),
+    )
+}
+
+/// Succeeds when the actual value is sorted in descending order.
+///
+/// # Examples
+///
+/// ```
+/// use xpct::{expect, be_sorted_desc};
+///
+/// expect!(vec!["c", "b", "a"]).to(be_sorted_desc());
+/// ```
+pub fn be_sorted_desc<'a, T, Actual>() -> Matcher<'a, Actual, Actual>
+where
+    T: Ord + 'a,
+    Actual: AsRef<[T]> + 'a,
+{
+    Matcher::simple(
+        BeSortedMatcher::new(SortOrder::Desc),
+        MessageFormat::new(
+            "Expected this to be sorted in descending order",
+            "Expected this to not be sorted in descending order",
+        ),
+    )
+}
+
+/// Succeeds when the actual value is sorted according to the given predicate.
+///
+/// # Examples
+///
+/// ```
+/// use xpct::{be_sorted_by, expect};
+///
+/// expect!(vec!["a", "B", "c"]).to(be_sorted_by::<&str, _>(|a, b| {
+///     a.to_lowercase().cmp(&b.to_lowercase())
+/// }));
+/// ```
+pub fn be_sorted_by<'a, T, Actual>(
+    predicate: impl Fn(&T, &T) -> Ordering + 'a,
+) -> Matcher<'a, Actual, Actual>
+where
+    T: Ord + 'a,
+    Actual: AsRef<[T]> + 'a,
+{
+    Matcher::simple(
+        BeSortedByMatcher::new(predicate),
+        MessageFormat::new(
+            "Expected this to be sorted",
+            "Expected this to not be sorted",
         ),
     )
 }

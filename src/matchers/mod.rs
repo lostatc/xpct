@@ -36,6 +36,6 @@ pub use len::{HaveLenMatcher, Len};
 pub use map::{IterMapMatcher, IterTryMapMatcher, MapMatcher, TryMapMatcher};
 pub use not::NotMatcher;
 pub use option::BeSomeMatcher;
-pub use ord::{Inequality, OrdMatcher};
+pub use ord::{BeSortedByMatcher, BeSortedMatcher, Inequality, OrdMatcher, SortOrder};
 pub use result::BeOkMatcher;
 pub use substr::{ContainSubstrMatcher, HavePrefixMatcher, HaveSuffixMatcher};

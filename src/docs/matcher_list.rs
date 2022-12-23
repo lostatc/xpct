@@ -17,6 +17,9 @@ Builtin Matchers
 - [`be_le`][crate::be_le]
 - [`be_gt`][crate::be_gt]
 - [`be_ge`][crate::be_ge]
+- [`be_sorted_asc`][crate::be_sorted_asc]
+- [`be_sorted_desc`][crate::be_sorted_desc]
+- [`be_sorted_by`][crate::be_sorted_by]
 
 # Boolean
 

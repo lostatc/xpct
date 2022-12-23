@@ -54,7 +54,7 @@ pub(crate) mod matchers {
     pub use super::map::{iter_map, iter_try_map, map, try_map};
     pub use super::not::not;
     pub use super::option::{be_none, be_some};
-    pub use super::ord::{be_ge, be_gt, be_le, be_lt};
+    pub use super::ord::{be_ge, be_gt, be_le, be_lt, be_sorted_asc, be_sorted_by, be_sorted_desc};
     pub use super::result::{be_err, be_ok};
     pub use super::substr::{contain_substr, have_prefix, have_suffix};
     pub use super::why::{why, why_lazy};

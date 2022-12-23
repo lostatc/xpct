@@ -1,3 +1,7 @@
+use std::cmp::Ordering;
+use std::fmt;
+use std::marker::PhantomData;
+
 use crate::core::SimpleMatch;
 
 use super::Mismatch;
@@ -60,4 +64,96 @@ where
             expected: self.expected,
         }
     }
+}
+
+/// A sort order, either ascending or descending.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum SortOrder {
+    #[allow(missing_docs)]
+    Asc,
+
+    #[allow(missing_docs)]
+    Desc,
+}
+
+/// The matcher for [`be_sorted_asc`] and [`be_sorted_desc`].
+///
+/// [`be_sorted_asc`]: crate::be_sorted_asc
+/// [`be_sorted_desc`]: crate::be_sorted_desc
+#[derive(Debug)]
+#[non_exhaustive]
+pub struct BeSortedMatcher<T> {
+    order: SortOrder,
+    marker: PhantomData<T>,
+}
+
+impl<T> BeSortedMatcher<T> {
+    /// Create a new [`BeSortedMatcher`] from the given sort order.
+    pub fn new(order: SortOrder) -> Self {
+        Self {
+            order,
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<T, Actual> SimpleMatch<Actual> for BeSortedMatcher<T>
+where
+    T: Ord,
+    Actual: AsRef<[T]>,
+{
+    type Fail = ();
+
+    fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {
+        Ok(actual.as_ref().windows(2).all(|window| match self.order {
+            SortOrder::Asc => window[0] <= window[1],
+            SortOrder::Desc => window[0] >= window[1],
+        }))
+    }
+
+    fn fail(self, _: Actual) -> Self::Fail {}
+}
+
+type BoxSortPredicate<'a, T> = Box<dyn Fn(&T, &T) -> Ordering + 'a>;
+
+/// The matcher for [`be_sorted_by`].
+///
+/// [`be_sorted_by`]: crate::be_sorted_by
+#[non_exhaustive]
+pub struct BeSortedByMatcher<'a, T> {
+    predicate: BoxSortPredicate<'a, T>,
+    marker: PhantomData<T>,
+}
+
+impl<'a, T> fmt::Debug for BeSortedByMatcher<'a, T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("BeSortedByMatcher").finish_non_exhaustive()
+    }
+}
+
+impl<'a, T> BeSortedByMatcher<'a, T> {
+    /// Create a new [`BeSortedByMatcher`] from the given sort predicate.
+    pub fn new(predicate: impl Fn(&T, &T) -> Ordering + 'a) -> Self {
+        Self {
+            predicate: Box::new(predicate),
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<'a, T, Actual> SimpleMatch<Actual> for BeSortedByMatcher<'a, T>
+where
+    T: Ord,
+    Actual: AsRef<[T]>,
+{
+    type Fail = ();
+
+    fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {
+        Ok(actual.as_ref().windows(2).all(|window| {
+            let ordering = (self.predicate)(&window[0], &window[1]);
+            ordering == Ordering::Less || ordering == Ordering::Equal
+        }))
+    }
+
+    fn fail(self, _: Actual) -> Self::Fail {}
 }
