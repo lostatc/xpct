@@ -39,93 +39,93 @@ impl<T, const N: usize> Len for [T; N] {
     }
 }
 
-impl<T> Len for Vec<T> {
+impl<T> Len for &Vec<T> {
     fn len(&self) -> usize {
-        self.len()
+        Vec::len(self)
     }
 
     fn is_empty(&self) -> bool {
-        self.is_empty()
+        Vec::is_empty(self)
     }
 }
 
-impl<T> Len for VecDeque<T> {
+impl<T> Len for &VecDeque<T> {
     fn len(&self) -> usize {
-        self.len()
+        VecDeque::len(self)
     }
 
     fn is_empty(&self) -> bool {
-        self.is_empty()
+        VecDeque::is_empty(self)
     }
 }
 
-impl<T> Len for LinkedList<T> {
+impl<T> Len for &LinkedList<T> {
     fn len(&self) -> usize {
-        self.len()
+        LinkedList::len(self)
     }
 
     fn is_empty(&self) -> bool {
-        self.is_empty()
+        LinkedList::is_empty(self)
     }
 }
 
-impl<K, V> Len for HashMap<K, V> {
+impl<K, V> Len for &HashMap<K, V> {
     fn len(&self) -> usize {
-        self.len()
+        HashMap::len(self)
     }
 
     fn is_empty(&self) -> bool {
-        self.is_empty()
+        HashMap::is_empty(self)
     }
 }
 
-impl<T> Len for HashSet<T> {
+impl<T> Len for &HashSet<T> {
     fn len(&self) -> usize {
-        self.len()
+        HashSet::len(self)
     }
 
     fn is_empty(&self) -> bool {
-        self.is_empty()
+        HashSet::is_empty(self)
     }
 }
 
-impl<K, V> Len for BTreeMap<K, V> {
+impl<K, V> Len for &BTreeMap<K, V> {
     fn len(&self) -> usize {
-        self.len()
+        BTreeMap::len(self)
     }
 
     fn is_empty(&self) -> bool {
-        self.is_empty()
+        BTreeMap::is_empty(self)
     }
 }
 
-impl<T> Len for BTreeSet<T> {
+impl<T> Len for &BTreeSet<T> {
     fn len(&self) -> usize {
-        self.len()
+        BTreeSet::len(self)
     }
 
     fn is_empty(&self) -> bool {
-        self.is_empty()
+        BTreeSet::is_empty(self)
     }
 }
 
-impl<T> Len for BinaryHeap<T> {
+impl<T> Len for &BinaryHeap<T> {
     fn len(&self) -> usize {
-        self.len()
+        BinaryHeap::len(self)
     }
 
     fn is_empty(&self) -> bool {
-        self.is_empty()
+        BinaryHeap::is_empty(self)
     }
 }
 
-impl Len for String {
+impl Len for &String {
     fn len(&self) -> usize {
-        self.len()
+        String::len(self)
     }
 
     fn is_empty(&self) -> bool {
-        self.is_empty()
+        String::is_empty(self)
     }
 }
 
@@ -149,7 +149,7 @@ impl<'a> Len for Cow<'a, str> {
     }
 }
 
-impl Len for OsString {
+impl Len for &OsString {
     fn len(&self) -> usize {
         self.as_os_str().len()
     }

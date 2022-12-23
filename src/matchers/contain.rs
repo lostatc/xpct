@@ -22,7 +22,7 @@ where
     }
 }
 
-impl<T> Contains<T> for Vec<T>
+impl<T> Contains<T> for &Vec<T>
 where
     T: PartialEq<T> + Eq,
 {
@@ -31,21 +31,21 @@ where
     }
 }
 
-impl<T> Contains<T> for LinkedList<T>
+impl<T> Contains<T> for &LinkedList<T>
 where
     T: PartialEq<T> + Eq,
 {
     fn contains(&self, element: &T) -> bool {
-        self.contains(element)
+        LinkedList::contains(self, element)
     }
 }
 
-impl<T> Contains<T> for VecDeque<T>
+impl<T> Contains<T> for &VecDeque<T>
 where
     T: PartialEq<T> + Eq,
 {
     fn contains(&self, element: &T) -> bool {
-        self.contains(element)
+        VecDeque::contains(self, element)
     }
 }
 
@@ -67,19 +67,19 @@ impl<'a> Contains<[char]> for &'a str {
     }
 }
 
-impl Contains<str> for String {
+impl Contains<str> for &String {
     fn contains(&self, element: &str) -> bool {
         self.as_str().contains(element)
     }
 }
 
-impl Contains<char> for String {
+impl Contains<char> for &String {
     fn contains(&self, element: &char) -> bool {
         self.as_str().contains(*element)
     }
 }
 
-impl Contains<[char]> for String {
+impl Contains<[char]> for &String {
     fn contains(&self, element: &[char]) -> bool {
         self.as_str().contains(element)
     }
@@ -103,7 +103,7 @@ impl<'a> Contains<[char]> for Cow<'a, str> {
     }
 }
 
-impl<T> Contains<T> for HashSet<T>
+impl<T> Contains<T> for &HashSet<T>
 where
     T: Hash + PartialEq<T> + Eq,
 {
@@ -112,7 +112,7 @@ where
     }
 }
 
-impl<T> Contains<T> for BTreeSet<T>
+impl<T> Contains<T> for &BTreeSet<T>
 where
     T: Ord,
 {
@@ -121,7 +121,7 @@ where
     }
 }
 
-impl<K, V> Contains<K> for HashMap<K, V>
+impl<K, V> Contains<K> for &HashMap<K, V>
 where
     K: Hash + PartialEq<K> + Eq,
 {
@@ -130,7 +130,7 @@ where
     }
 }
 
-impl<K, V> Contains<K> for BTreeMap<K, V>
+impl<K, V> Contains<K> for &BTreeMap<K, V>
 where
     K: Ord,
 {
@@ -139,48 +139,48 @@ where
     }
 }
 
-impl<T> Contains<T> for Range<T>
+impl<T> Contains<T> for &Range<T>
 where
     T: PartialOrd,
 {
     fn contains(&self, element: &T) -> bool {
-        self.contains(element)
+        Range::contains(self, element)
     }
 }
 
-impl<T> Contains<T> for RangeFrom<T>
+impl<T> Contains<T> for &RangeFrom<T>
 where
     T: PartialOrd,
 {
     fn contains(&self, element: &T) -> bool {
-        self.contains(element)
+        RangeFrom::contains(self, element)
     }
 }
 
-impl<T> Contains<T> for RangeTo<T>
+impl<T> Contains<T> for &RangeTo<T>
 where
     T: PartialOrd,
 {
     fn contains(&self, element: &T) -> bool {
-        self.contains(element)
+        RangeTo::contains(self, element)
     }
 }
 
-impl<T> Contains<T> for RangeInclusive<T>
+impl<T> Contains<T> for &RangeInclusive<T>
 where
     T: PartialOrd,
 {
     fn contains(&self, element: &T) -> bool {
-        self.contains(element)
+        RangeInclusive::contains(self, element)
     }
 }
 
-impl<T> Contains<T> for RangeToInclusive<T>
+impl<T> Contains<T> for &RangeToInclusive<T>
 where
     T: PartialOrd,
 {
     fn contains(&self, element: &T) -> bool {
-        self.contains(element)
+        RangeToInclusive::contains(self, element)
     }
 }
 
@@ -257,6 +257,39 @@ where
     fn fail(self, actual: Actual) -> Self::Fail {
         Mismatch {
             expected: self.expected,
+            actual,
+        }
+    }
+}
+
+/// The matcher for [`be_in`].
+///
+/// [`be_in`]: crate::be_in
+#[derive(Debug)]
+pub struct BeInMatcher<Collection> {
+    collection: Collection,
+}
+
+impl<Collection> BeInMatcher<Collection> {
+    /// Create a new [`BeInMatcher`] from the expected collection.
+    pub fn new(collection: Collection) -> Self {
+        Self { collection }
+    }
+}
+
+impl<Collection, Actual> SimpleMatch<Actual> for BeInMatcher<Collection>
+where
+    Collection: Contains<Actual>,
+{
+    type Fail = Mismatch<Collection, Actual>;
+
+    fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {
+        Ok(self.collection.contains(actual))
+    }
+
+    fn fail(self, actual: Actual) -> Self::Fail {
+        Mismatch {
+            expected: self.collection,
             actual,
         }
     }

@@ -25,7 +25,7 @@ pub use chain::{ChainAssertion, ChainMatcher};
 pub use combinator::{
     CombinatorAssertion, CombinatorContext, CombinatorMatcher, CombinatorMode, SomeFailures,
 };
-pub use contain::{ConsistOfMatcher, ContainElementsMatcher, Contains};
+pub use contain::{BeInMatcher, ConsistOfMatcher, ContainElementsMatcher, Contains};
 pub use default::BeDefaultMatcher;
 pub use equal::{EqualMatcher, Mismatch};
 pub use every::EveryMatcher;

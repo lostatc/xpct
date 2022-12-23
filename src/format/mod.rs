@@ -44,7 +44,7 @@ pub(crate) mod matchers {
     pub use super::all::all;
     pub use super::any::any;
     pub use super::boolean::{be_false, be_true};
-    pub use super::contain::{consist_of, contain_element, contain_elements};
+    pub use super::contain::{be_in, consist_of, contain_element, contain_elements};
     pub use super::default::be_default;
     pub use super::each::each;
     pub use super::equal::equal;

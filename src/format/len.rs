@@ -15,7 +15,7 @@ use super::MismatchFormat;
 /// use xpct::{expect, have_len};
 ///
 /// expect!("foo").to(have_len(3));
-/// expect!(vec!["bar"]).to(have_len(1));
+/// expect!(&vec!["bar"]).to(have_len(1));
 /// ```
 pub fn have_len<'a, Actual>(len: usize) -> Matcher<'a, Actual, Actual>
 where
@@ -37,7 +37,7 @@ where
 /// use xpct::{expect, be_empty};
 ///
 /// expect!("").to(be_empty());
-/// expect!(Vec::<()>::new()).to(be_empty());
+/// expect!(&Vec::<()>::new()).to(be_empty());
 /// ```
 pub fn be_empty<'a, Actual>() -> Matcher<'a, Actual, Actual>
 where
@@ -56,45 +56,45 @@ mod tests {
 
     #[test]
     fn succeeds_when_has_len() {
-        expect!(vec!["foo"]).to(have_len(1));
+        expect!(&vec!["foo"]).to(have_len(1));
     }
 
     #[test]
     fn succeeds_when_not_has_len() {
-        expect!(vec!["foo"]).to_not(have_len(100));
+        expect!(&vec!["foo"]).to_not(have_len(100));
     }
 
     #[test]
     #[should_panic]
     fn fails_when_has_len() {
-        expect!(vec!["foo"]).to_not(have_len(1));
+        expect!(&vec!["foo"]).to_not(have_len(1));
     }
 
     #[test]
     #[should_panic]
     fn fails_when_not_has_len() {
-        expect!(vec!["foo"]).to(have_len(100));
+        expect!(&vec!["foo"]).to(have_len(100));
     }
 
     #[test]
     fn succeeds_when_is_empty() {
-        expect!(Vec::<&'static str>::new()).to(be_empty());
+        expect!(&Vec::<&'static str>::new()).to(be_empty());
     }
 
     #[test]
     fn succeeds_when_not_empty() {
-        expect!(vec!["foo"]).to_not(be_empty());
+        expect!(&vec!["foo"]).to_not(be_empty());
     }
 
     #[test]
     #[should_panic]
     fn fails_when_is_empty() {
-        expect!(Vec::<&'static str>::new()).to_not(be_empty());
+        expect!(&Vec::<&'static str>::new()).to_not(be_empty());
     }
 
     #[test]
     #[should_panic]
     fn fails_when_not_empty() {
-        expect!(vec!["foo"]).to(be_empty());
+        expect!(&vec!["foo"]).to(be_empty());
     }
 }
