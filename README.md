@@ -70,20 +70,22 @@ expect!(location).to(not(any(|ctx| {
 ```
 
 ```rust,should_panic
-use xpct::{all, be_lt, be_ok, be_some, be_true, equal, expect, fields, match_fields, why};
+use xpct::{
+    all, be_gt, be_ok, be_some, be_true, equal, expect, fields, have_prefix, match_fields, why,
+};
 
 struct Person {
     name: Option<String>,
-    id: String,
     age: u32,
+    id: String,
     is_superstar: bool,
 }
 
 fn get_person() -> anyhow::Result<Person> {
     Ok(Person {
         name: None,
-        id: String::from("LTN-2JFR"),
         age: 44,
+        id: String::from("12-62-05-JAM41"),
         is_superstar: true,
     })
 }
@@ -91,29 +93,29 @@ fn get_person() -> anyhow::Result<Person> {
 expect!(get_person())
     .to(be_ok())
     .to(match_fields(fields!(Person {
-        name: why(
-            all(|ctx| ctx.to(be_some())?.to(equal("Dick Mullen"))),
-            "this is a required field",
+        name: all(|ctx| ctx
+            .to(be_some())?
+            .to(equal("Dick Mullen"))
         ),
-        id: equal("LTN-2JFR"),
-        age: be_lt(40),
+        age: be_gt(25),
+        id: why(have_prefix("REV"), "all IDs must have this prefix"),
         is_superstar: be_true(),
     })));
 ```
 
 ```text
-[src/main.rs:20:5] = get_person()
+[src/main.rs:22:5] = get_person()
     Expected all of these to be OK:
         my_crate::main::Person {
             name: FAILED
-                🛈 this is a required field
                 Expected this to be Some(_)
-            id: OK
-            age: FAILED
+            age: OK
+            id: FAILED
+                🛈 all IDs must have this prefix
                 Expected:
-                    44
-                to be less than:
-                    40
+                    "12-62-05-JAM41"
+                to have the prefix:
+                    "REV"
             is_superstar: OK
         }
 ```
