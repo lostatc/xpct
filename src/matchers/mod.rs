@@ -7,6 +7,7 @@ mod default;
 mod equal;
 mod fields;
 mod json;
+mod len;
 mod map;
 mod not;
 mod option;
@@ -27,6 +28,7 @@ pub use equal::{EqualMatcher, Mismatch};
 pub use fields::{FailuresByField, FieldMatcher, FieldMatcherSpec};
 #[cfg(feature = "json")]
 pub use json::MatchJsonMatcher;
+pub use len::{HasLen, HaveLenMatcher};
 pub use map::{MapMatcher, TryMapMatcher};
 pub use not::NotMatcher;
 pub use option::BeSomeMatcher;

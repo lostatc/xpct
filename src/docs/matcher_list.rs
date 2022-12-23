@@ -65,4 +65,9 @@ Builtin Matchers
 - [`have_suffix`][crate::have_suffix]
 - [`match_regex`][crate::match_regex]
 - [`match_json`][crate::match_json]
+
+# Collections
+
+- [`have_len`][crate::have_len]
+- [`be_empty`][crate::be_empty]
 */
