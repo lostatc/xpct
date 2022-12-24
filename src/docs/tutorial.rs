@@ -190,22 +190,32 @@ use xpct::{consist_of, expect};
 expect!(&["Mañana", "Evrart"]).to(consist_of(["Evrart", "Mañana"]));
 ```
 
+The [`be_in`] matcher can test that something is in a collection.
+
+```
+use xpct::{be_in, expect};
+
+expect!("Mañana").to(be_in(["Evrart", "Mañana"]));
+expect!('C').to(be_in("Cuno"));
+expect!(50).to(be_in(41..57));
+```
+
 The [`every`] matcher is particularly powerful; it allows you to match every
 element in a collection against the same matcher.
 
 ```
-use xpct::{be_some, every, expect};
+use xpct::{be_some, every, expect, have_prefix};
 
 let items = vec![Some("Cuno"), Some("Cindy")];
 
-let output: Vec<&str> = expect!(items)
-    .to(every(be_some))
-    .into_inner();
+let output: Vec<&str> = expect!(items).to(every(be_some)).into_inner();
+
+expect!(&items).to(every(|| have_prefix("C")));
 ```
 
 The matchers for collections are implemented using the [`Len`] and [`Contains`]
-traits. You can implement these traits for your own types to use them with these
-matchers.
+traits. You can implement these traits for your own types to use them with the
+collections matchers.
 
 Check out [Builtin Matchers][crate::docs::matcher_list] for a list of all the
 matchers provided by this crate.
@@ -226,6 +236,7 @@ matchers provided by this crate.
 [`contain_element`]: crate::contain_element
 [`contain_elements`]: crate::contain_elements
 [`consist_of`]: crate::consist_of
+[`be_in`]: crate::be_in
 [`every`]: crate::every
 [`Len`]: crate::matchers::Len
 [`Contains`]: crate::matchers::Contains
