@@ -8,6 +8,7 @@ mod default;
 mod equal;
 mod every;
 mod fields;
+mod float;
 mod json;
 mod len;
 mod map;
@@ -30,6 +31,8 @@ pub use default::BeDefaultMatcher;
 pub use equal::{EqualMatcher, Mismatch};
 pub use every::EveryMatcher;
 pub use fields::{FailuresByField, FieldMatcher, FieldMatcherSpec};
+#[cfg(feature = "float-cmp")]
+pub use float::ApproxEqFloatMatcher;
 #[cfg(feature = "json")]
 pub use json::MatchJsonMatcher;
 pub use len::{HaveLenMatcher, Len};

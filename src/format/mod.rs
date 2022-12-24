@@ -21,6 +21,7 @@ mod each;
 mod equal;
 mod every;
 mod fields;
+mod float;
 mod json;
 mod len;
 mod map;
@@ -58,6 +59,9 @@ pub(crate) mod matchers {
     pub use super::result::{be_err, be_ok};
     pub use super::substr::{contain_substr, have_prefix, have_suffix};
     pub use super::why::{why, why_lazy};
+
+    #[cfg(feature = "float-cmp")]
+    pub use super::float::{approx_eq_f32, approx_eq_f64};
 
     #[cfg(feature = "json")]
     pub use super::json::match_json;
