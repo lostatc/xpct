@@ -43,16 +43,16 @@ expect!("disco").to(equal("Disco"));
 ```
 
 ```rust,should_panic
-use xpct::{any, equal, expect, have_suffix, not};
+use xpct::{any, contain_substr, equal, expect, match_regex};
 
 let location = String::from("Central Jamrock");
 
-expect!(location).to(not(any(|ctx| {
+expect!(location).to_not(any(|ctx| {
     ctx.borrow::<str>()
-        .to(equal("The Pox"))
-        .to(have_suffix("Jamrock"))
+        .to(match_regex("^(The )?Pox$"))
+        .to(contain_substr("Jamrock"))
         .to(equal("Martinaise"));
-})));
+}));
 ```
 
 ```text
@@ -63,7 +63,7 @@ expect!(location).to(not(any(|ctx| {
         [1]  FAILED
              Expected:
                  "Central Jamrock"
-             to not have the suffix:
+             to not contain the substring:
                  "Jamrock"
 
         [2]  OK
@@ -71,7 +71,8 @@ expect!(location).to(not(any(|ctx| {
 
 ```rust,should_panic
 use xpct::{
-    all, be_gt, be_ok, be_some, be_true, equal, expect, fields, have_prefix, match_fields, why,
+    all, be_empty, be_gt, be_ok, be_some, be_true, expect, fields, have_prefix, match_fields,
+    why,
 };
 
 struct Person {
@@ -95,7 +96,7 @@ expect!(get_person())
     .to(match_fields(fields!(Person {
         name: all(|ctx| ctx
             .to(be_some())?
-            .to(equal("Dick Mullen"))
+            .to_not(be_empty())
         ),
         age: be_gt(25),
         id: why(have_prefix("REV"), "all IDs must have this prefix"),

@@ -16,7 +16,7 @@ the [User Docs][crate::docs].
 #[cfg(doctest)]
 use doc_comment::doctest;
 
-#[cfg(doctest)]
+#[cfg(all(doctest, feature = "regex"))]
 doctest!("../README.md");
 
 pub mod core;
