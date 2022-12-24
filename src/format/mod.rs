@@ -29,6 +29,7 @@ mod map;
 mod not;
 mod option;
 mod ord;
+mod pattern;
 mod regex;
 mod result;
 mod substr;
@@ -59,6 +60,7 @@ pub(crate) mod matchers {
     pub use super::not::not;
     pub use super::option::{be_none, be_some};
     pub use super::ord::{be_ge, be_gt, be_le, be_lt, be_sorted_asc, be_sorted_by, be_sorted_desc};
+    pub use super::pattern::match_pattern;
     pub use super::result::{be_err, be_ok};
     pub use super::substr::{contain_substr, have_prefix, have_suffix};
     pub use super::time::approx_eq_time;

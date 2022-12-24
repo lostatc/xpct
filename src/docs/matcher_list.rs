@@ -14,6 +14,10 @@ Builtin Matchers
 
 - [`not`][crate::not]
 
+# Patterns
+
+- [`match_pattern`][crate::match_pattern]
+
 # Ordering
 
 - [`be_lt`][crate::be_lt]

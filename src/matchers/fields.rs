@@ -138,8 +138,13 @@ impl<'a, T> Match for FieldMatcher<'a, T> {
 
 /// Apply matchers to multiple struct fields.
 ///
-/// This macro is meant to be used with matchers like [`match_fields`] and [`match_any_fields`]. It
-/// provides a Rust-like syntax for mapping struct fields to matchers. The syntax looks like this:
+/// This macro is meant to be used with the [`match_fields`] and [`match_any_fields`] matchers. It
+/// provides a Rust-like syntax for mapping struct fields to matchers.
+///
+/// This macro returns an opaque [`FieldsSpec`] value that can be passed to [`match_fields`] or
+/// [`match_any_fields`].
+///
+/// The syntax of this macro looks like this:
 ///
 /// ```
 /// use xpct::{fields, equal, be_ge};
@@ -184,9 +189,6 @@ impl<'a, T> Match for FieldMatcher<'a, T> {
 ///     1: equal(57),
 /// });
 /// ```
-///
-/// This macro returns a [`FieldsSpec`] value that can be passed to [`match_fields`] or
-/// [`match_any_fields`].
 ///
 /// [`match_fields`]: crate::match_fields
 /// [`match_any_fields`]: crate::match_any_fields
