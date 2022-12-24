@@ -1,3 +1,4 @@
+use std::borrow::Borrow;
 use std::fmt;
 
 use crate::core::Matcher;
@@ -15,15 +16,15 @@ use super::MismatchFormat;
 /// use xpct::{expect, contain_element};
 ///
 /// expect!("foo").to(contain_element('f'));
-/// expect!(&vec!["foo", "bar"]).to(contain_element("foo"));
+/// expect!(["foo", "bar"]).to(contain_element("foo"));
 /// ```
 pub fn contain_element<'a, T, Actual>(element: T) -> Matcher<'a, Actual, Actual>
 where
-    T: fmt::Debug + 'a,
+    T: fmt::Debug + Clone + 'a,
     Actual: fmt::Debug + Contains<T> + 'a,
 {
     Matcher::simple(
-        ContainElementsMatcher::new(vec![element]),
+        ContainElementsMatcher::new([element]),
         MismatchFormat::new("to contain elements", "to not contain elements"),
     )
 }
@@ -37,13 +38,15 @@ where
 /// ```
 /// use xpct::{expect, contain_elements};
 ///
-/// expect!("foo").to(contain_elements(vec!['f', 'o']));
-/// expect!(&vec!["foo", "bar"]).to(contain_elements(vec!["foo", "bar"]));
+/// expect!("foo").to(contain_elements(['f', 'o']));
+/// expect!(["foo", "bar"]).to(contain_elements(["foo", "bar"]));
 /// ```
-pub fn contain_elements<'a, T, Actual>(elements: impl Into<Vec<T>>) -> Matcher<'a, Actual, Actual>
+pub fn contain_elements<'a, T, Expected, Actual>(elements: Expected) -> Matcher<'a, Actual, Actual>
 where
     T: fmt::Debug + 'a,
     Actual: fmt::Debug + Contains<T> + 'a,
+    Expected: fmt::Debug + IntoIterator + Clone + 'a,
+    Expected::Item: Borrow<T>,
 {
     Matcher::simple(
         ContainElementsMatcher::new(elements),
@@ -60,13 +63,15 @@ where
 /// ```
 /// use xpct::{expect, contain_elements};
 ///
-/// expect!("foo").to(contain_elements(vec!['o', 'f', 'o']));
-/// expect!(&vec!["foo", "bar", "baz"]).to(contain_elements(vec!["bar", "foo", "baz"]));
+/// expect!("foo").to(contain_elements(['o', 'f', 'o']));
+/// expect!(["foo", "bar", "baz"]).to(contain_elements(["bar", "foo", "baz"]));
 /// ```
-pub fn consist_of<'a, T, Actual>(elements: impl Into<Vec<T>>) -> Matcher<'a, Actual, Actual>
+pub fn consist_of<'a, T, Expected, Actual>(elements: Expected) -> Matcher<'a, Actual, Actual>
 where
-    T: fmt::Debug + 'a,
-    Actual: fmt::Debug + Contains<T> + Len + 'a,
+    T: 'a,
+    Expected: fmt::Debug + Contains<T> + Len + 'a,
+    Actual: fmt::Debug + IntoIterator + Len + Clone + 'a,
+    Actual::Item: Borrow<T>,
 {
     Matcher::simple(
         ConsistOfMatcher::new(elements),
@@ -88,7 +93,7 @@ where
 ///     .into_iter()
 ///     .collect::<HashSet<_>>();
 ///
-/// let actual_fruits = vec!["apple", "banana"];
+/// let actual_fruits = ["apple", "banana"];
 ///
 /// expect!(actual_fruits).to(every(|| be_in(&allowed_fruits)));
 /// ```
@@ -110,67 +115,67 @@ mod tests {
 
     #[test]
     fn succeeds_when_contains_elements() {
-        expect!(&vec!["foo"]).to(contain_element("foo"));
+        expect!(["foo"]).to(contain_element("foo"));
     }
 
     #[test]
     fn succeeds_when_not_contains_elements() {
-        expect!(&vec!["foo"]).to_not(contain_element("not contained in the collection"));
+        expect!(["foo"]).to_not(contain_element("not contained in the collection"));
     }
 
     #[test]
     #[should_panic]
     fn fails_when_contains_elements() {
-        expect!(&vec!["foo"]).to_not(contain_element("foo"));
+        expect!(["foo"]).to_not(contain_element("foo"));
     }
 
     #[test]
     #[should_panic]
     fn fails_when_not_contains_elements() {
-        expect!(&vec!["foo"]).to(contain_element("not contained in the collection"));
+        expect!(["foo"]).to(contain_element("not contained in the collection"));
     }
 
     #[test]
     fn succeeds_when_consists_of() {
-        expect!(&vec!["foo", "bar"]).to(consist_of(vec!["bar", "foo"]));
+        expect!(["foo", "bar"]).to(consist_of(["bar", "foo"]));
     }
 
     #[test]
     fn succeeds_when_not_consists_of() {
-        expect!(&vec!["foo", "bar"]).to_not(consist_of(vec!["foo"]));
+        expect!(["foo", "bar"]).to_not(consist_of(["foo"]));
     }
 
     #[test]
     #[should_panic]
     fn fails_when_consists_of() {
-        expect!(&vec!["foo", "bar"]).to_not(consist_of(vec!["bar", "foo"]));
+        expect!(["foo", "bar"]).to_not(consist_of(["bar", "foo"]));
     }
 
     #[test]
     #[should_panic]
     fn fails_when_not_consists_of() {
-        expect!(&vec!["foo", "bar"]).to(consist_of(vec!["foo"]));
+        expect!(["foo", "bar"]).to(consist_of(["foo"]));
     }
 
     #[test]
     fn succeeds_when_in_collection() {
-        expect!("foo").to(be_in(&vec!["foo", "bar"]));
+        expect!("foo").to(be_in(["foo", "bar"]));
     }
 
     #[test]
     fn succeeds_when_not_in_collection() {
-        expect!("not in collection").to_not(be_in(&vec!["foo", "bar"]));
+        expect!("not in collection").to_not(be_in(["foo", "bar"]));
     }
 
     #[test]
     #[should_panic]
     fn fails_when_in_collection() {
-        expect!("foo").to_not(be_in(&vec!["foo", "bar"]));
+        expect!("foo").to_not(be_in(["foo", "bar"]));
     }
 
     #[test]
     #[should_panic]
     fn fails_when_not_in_collection() {
-        expect!("not in collection").to(be_in(&vec!["foo", "bar"]));
+        expect!("not in collection").to(be_in(["foo", "bar"]));
     }
 }

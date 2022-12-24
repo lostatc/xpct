@@ -1,6 +1,7 @@
-use std::borrow::Cow;
+use std::borrow::{Borrow, Cow};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, LinkedList, VecDeque};
 use std::hash::Hash;
+use std::marker::PhantomData;
 use std::ops::{Range, RangeFrom, RangeInclusive, RangeTo, RangeToInclusive};
 
 use crate::core::SimpleMatch;
@@ -351,30 +352,35 @@ where
 /// [`contain_element`]: crate::contain_element
 /// [`contain_elements`]: crate::contain_elements
 #[derive(Debug)]
-pub struct ContainElementsMatcher<T> {
-    expected: Vec<T>,
+pub struct ContainElementsMatcher<T, Expected> {
+    expected: Expected,
+    marker: PhantomData<T>,
 }
 
-impl<T> ContainElementsMatcher<T> {
+impl<T, Expected> ContainElementsMatcher<T, Expected> {
     /// Create a new [`ContainElementsMatcher`] from the expected elements.
-    pub fn new(elements: impl Into<Vec<T>>) -> Self {
+    pub fn new(elements: Expected) -> Self {
         Self {
-            expected: elements.into(),
+            expected: elements,
+            marker: PhantomData,
         }
     }
 }
 
-impl<T, Actual> SimpleMatch<Actual> for ContainElementsMatcher<T>
+impl<T, Expected, Actual> SimpleMatch<Actual> for ContainElementsMatcher<T, Expected>
 where
     Actual: Contains<T>,
+    Expected: IntoIterator + Clone,
+    Expected::Item: Borrow<T>,
 {
-    type Fail = Mismatch<Vec<T>, Actual>;
+    type Fail = Mismatch<Expected, Actual>;
 
     fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {
         Ok(self
             .expected
-            .iter()
-            .all(|expected| actual.contains(expected)))
+            .clone()
+            .into_iter()
+            .all(|expected| actual.contains(expected.borrow())))
     }
 
     fn fail(self, actual: Actual) -> Self::Fail {
@@ -389,31 +395,35 @@ where
 ///
 /// [`consist_of`]: crate::consist_of
 #[derive(Debug)]
-pub struct ConsistOfMatcher<T> {
-    expected: Vec<T>,
+pub struct ConsistOfMatcher<T, Expected> {
+    expected: Expected,
+    marker: PhantomData<T>,
 }
 
-impl<T> ConsistOfMatcher<T> {
+impl<T, Expected> ConsistOfMatcher<T, Expected> {
     /// Create a new [`ConsistOfMatcher`] from the expected elements.
-    pub fn new(elements: impl Into<Vec<T>>) -> Self {
+    pub fn new(elements: Expected) -> Self {
         Self {
-            expected: elements.into(),
+            expected: elements,
+            marker: PhantomData,
         }
     }
 }
 
-impl<T, Actual> SimpleMatch<Actual> for ConsistOfMatcher<T>
+impl<T, Expected, Actual> SimpleMatch<Actual> for ConsistOfMatcher<T, Expected>
 where
-    Actual: Contains<T> + Len,
+    Expected: Contains<T> + Len,
+    Actual: IntoIterator + Len + Clone,
+    Actual::Item: Borrow<T>,
 {
-    type Fail = Mismatch<Vec<T>, Actual>;
+    type Fail = Mismatch<Expected, Actual>;
 
     fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {
         Ok(actual.len() == self.expected.len()
-            && self
-                .expected
-                .iter()
-                .all(|expected| actual.contains(expected)))
+            && actual
+                .clone()
+                .into_iter()
+                .all(|actual| self.expected.contains(actual.borrow())))
     }
 
     fn fail(self, actual: Actual) -> Self::Fail {
