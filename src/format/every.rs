@@ -24,16 +24,12 @@ use super::{HeaderFormat, SomeFailuresFormat};
 ///     .into_inner();
 /// ```
 ///
-/// Expect every element to be less than 20 or greater than 30.
+/// Expect every element to be in the range `20..30`.
 ///
 /// ```
-/// use xpct::{any, be_gt, be_lt, every, expect};
+/// use xpct::{be_in, every, expect};
 ///
-/// expect!(vec![10, 40]).to(every(|| {
-///     any(|ctx| {
-///         ctx.copied().to(be_lt(20)).to(be_gt(30));
-///     })
-/// }));
+/// expect!(vec![20, 25]).to(every(|| be_in(20..30)));
 /// ```
 pub fn every<'a, PosOut, NegOut, IntoIter>(
     matcher: impl Fn() -> Matcher<'a, IntoIter::Item, PosOut, NegOut> + 'a,
