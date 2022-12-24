@@ -165,11 +165,50 @@ let value = Person {
 
 expect!(value).to(match_fields(fields!(Person {
     name: be_none(),
-    id: equal("LTN-2JFR"),
-    age: be_ge(44),
+    id: equal("REV12-62-05-JAM41"),
+    age: be_ge(26),
     is_superstar: be_true(),
 })));
 ```
+
+There are also a number of builtin matchers for dealing with collections. For
+example, you can assert that a collection contains certain elements using
+[`contain_element`] and [`contain_elements`].
+
+```
+use xpct::{contain_element, expect};
+
+expect!(["Mañana", "Evrart"]).to(contain_element("Evrart"));
+```
+
+You can also use [`consist_of`] to assert that a collection consists of exactly
+the given elements, in any order.
+
+```
+use xpct::{consist_of, expect};
+
+expect!(&["Mañana", "Evrart"]).to(consist_of(["Evrart", "Mañana"]));
+```
+
+The [`every`] matcher is particularly powerful; it allows you to match every
+element in a collection against the same matcher.
+
+```
+use xpct::{be_some, every, expect};
+
+let items = vec![Some("Cuno"), Some("Cindy")];
+
+let output: Vec<&str> = expect!(items)
+    .to(every(be_some))
+    .into_inner();
+```
+
+The matchers for collections are implemented using the [`Len`] and [`Contains`]
+traits. You can implement these traits for your own types to use them with these
+matchers.
+
+Check out [Builtin Matchers][crate::docs::matcher_list] for a list of all the
+matchers provided by this crate.
 
 [`equal`]: crate::equal
 [`not`]: crate::not
@@ -184,6 +223,12 @@ expect!(value).to(match_fields(fields!(Person {
 [`match_fields`]: crate::match_fields
 [`expect!`]: crate::expect
 [`fields!`]: crate::fields
+[`contain_element`]: crate::contain_element
+[`contain_elements`]: crate::contain_elements
+[`consist_of`]: crate::consist_of
+[`every`]: crate::every
+[`Len`]: crate::matchers::Len
+[`Contains`]: crate::matchers::Contains
 [`Assertion::to_not`]: crate::core::Assertion::to_not
 [`Matcher`]: crate::core::Matcher
 [`Assertion::into_inner`]: crate::core::Assertion::into_inner
