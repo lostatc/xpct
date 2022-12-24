@@ -21,6 +21,7 @@ mod each;
 mod equal;
 mod every;
 mod fields;
+mod file;
 mod float;
 mod json;
 mod len;
@@ -52,6 +53,7 @@ pub(crate) mod matchers {
     pub use super::equal::equal;
     pub use super::every::every;
     pub use super::fields::{match_any_fields, match_fields};
+    pub use super::file::{be_directory, be_existing_file, be_regular_file, be_symlink};
     pub use super::len::{be_empty, have_len};
     pub use super::map::{iter_map, iter_try_map, map, try_map};
     pub use super::not::not;

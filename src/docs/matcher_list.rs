@@ -52,17 +52,17 @@ Builtin Matchers
 - [`iter_map`][crate::iter_map]
 - [`iter_try_map`][crate::iter_try_map]
 
-# [`Result`] values
+# `Result` values
 
 - [`be_ok`][crate::be_ok]
 - [`be_err`][crate::be_err]
 
-# [`Option`] values
+# `Option` values
 
 - [`be_some`][crate::be_some]
 - [`be_none`][crate::be_none]
 
-# [`Default`] values
+# `Default` values
 
 - [`be_default`][crate::be_default]
 
@@ -83,4 +83,11 @@ Builtin Matchers
 - [`consist_of`][crate::consist_of]
 - [`every`][crate::every]
 - [`be_in`][crate::be_in]
+
+# Files
+
+- [`be_existing_file`][crate::be_existing_file]
+- [`be_regular_file`][crate::be_regular_file]
+- [`be_directory`][crate::be_directory]
+- [`be_symlink`][crate::be_symlink]
 */

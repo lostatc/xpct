@@ -8,6 +8,7 @@ mod default;
 mod equal;
 mod every;
 mod fields;
+mod file;
 mod float;
 mod json;
 mod len;
@@ -32,6 +33,7 @@ pub use default::BeDefaultMatcher;
 pub use equal::{EqualMatcher, Mismatch};
 pub use every::EveryMatcher;
 pub use fields::{FailuresByField, FieldMatcher, FieldMatcherSpec};
+pub use file::{FileExistsMatcher, FileExistsMode};
 #[cfg(feature = "float-cmp")]
 pub use float::ApproxEqFloatMatcher;
 #[cfg(feature = "json")]
