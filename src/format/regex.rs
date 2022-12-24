@@ -3,7 +3,7 @@
 use std::fmt;
 
 use crate::core::Matcher;
-use crate::matchers::MatchRegexMatcher;
+use crate::matchers::RegexMatcher;
 
 use super::MismatchFormat;
 
@@ -26,7 +26,7 @@ where
     Actual: fmt::Debug + AsRef<str> + 'a,
 {
     Matcher::simple(
-        MatchRegexMatcher::new(regex),
+        RegexMatcher::new(regex),
         MismatchFormat::new("to match the regex", "to not match the regex"),
     )
 }

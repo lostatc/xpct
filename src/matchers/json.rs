@@ -12,12 +12,12 @@ use super::Mismatch;
 ///
 /// [`match_json`]: crate::match_json
 #[derive(Debug)]
-pub struct MatchJsonMatcher<'a> {
+pub struct JsonMatcher<'a> {
     expected_json: Cow<'a, str>,
 }
 
-impl<'a> MatchJsonMatcher<'a> {
-    /// Create a new [`MatchJsonMatcher`] from the expected JSON string.
+impl<'a> JsonMatcher<'a> {
+    /// Create a new [`JsonMatcher`] from the expected JSON string.
     pub fn new(json: impl Into<Cow<'a, str>>) -> Self {
         Self {
             expected_json: json.into(),
@@ -25,7 +25,7 @@ impl<'a> MatchJsonMatcher<'a> {
     }
 }
 
-impl<'a, Actual> SimpleMatch<Actual> for MatchJsonMatcher<'a>
+impl<'a, Actual> SimpleMatch<Actual> for JsonMatcher<'a>
 where
     Actual: AsRef<str>,
 {

@@ -10,12 +10,12 @@ use super::Mismatch;
 ///
 /// [`match_regex`]: crate::match_regex
 #[derive(Debug)]
-pub struct MatchRegexMatcher {
+pub struct RegexMatcher {
     regex: Result<Regex, regex::Error>,
 }
 
-impl MatchRegexMatcher {
-    /// Create a new [`MatchRegexMatcher`] from the expected regex.
+impl RegexMatcher {
+    /// Create a new [`RegexMatcher`] from the expected regex.
     ///
     /// If the given regex is invalid, the matcher will return an error.
     pub fn new(regex: &str) -> Self {
@@ -25,7 +25,7 @@ impl MatchRegexMatcher {
     }
 }
 
-impl<Actual> SimpleMatch<Actual> for MatchRegexMatcher
+impl<Actual> SimpleMatch<Actual> for RegexMatcher
 where
     Actual: AsRef<str>,
 {

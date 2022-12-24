@@ -22,7 +22,7 @@ mod substr;
 mod time;
 
 #[cfg(feature = "regex")]
-pub use self::regex::MatchRegexMatcher;
+pub use self::regex::RegexMatcher;
 pub use boolean::BeTrueMatcher;
 pub use chain::{ChainAssertion, ChainMatcher};
 pub use combinator::{
@@ -37,7 +37,7 @@ pub use file::{FileExistsMatcher, FileExistsMode};
 #[cfg(feature = "float-cmp")]
 pub use float::ApproxEqFloatMatcher;
 #[cfg(feature = "json")]
-pub use json::MatchJsonMatcher;
+pub use json::JsonMatcher;
 pub use len::{HaveLenMatcher, Len};
 pub use map::{IterMapMatcher, IterTryMapMatcher, MapMatcher, TryMapMatcher};
 pub use not::NotMatcher;

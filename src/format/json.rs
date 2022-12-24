@@ -4,7 +4,7 @@ use std::borrow::Cow;
 use std::fmt;
 
 use crate::core::Matcher;
-use crate::matchers::MatchJsonMatcher;
+use crate::matchers::JsonMatcher;
 
 use super::MismatchFormat;
 
@@ -32,7 +32,7 @@ where
     Actual: fmt::Debug + AsRef<str> + 'a,
 {
     Matcher::simple(
-        MatchJsonMatcher::new(json),
+        JsonMatcher::new(json),
         MismatchFormat::new("to be equivalent JSON to", "to not be equivalent JSON to"),
     )
 }
