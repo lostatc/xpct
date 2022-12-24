@@ -19,6 +19,26 @@ pub trait Len {
     }
 }
 
+impl<T, const N: usize> Len for [T; N] {
+    fn len(&self) -> usize {
+        N
+    }
+
+    fn is_empty(&self) -> bool {
+        N == 0
+    }
+}
+
+impl<T, const N: usize> Len for &[T; N] {
+    fn len(&self) -> usize {
+        N
+    }
+
+    fn is_empty(&self) -> bool {
+        N == 0
+    }
+}
+
 impl<T> Len for &[T] {
     fn len(&self) -> usize {
         <[T]>::len(self)
@@ -29,13 +49,13 @@ impl<T> Len for &[T] {
     }
 }
 
-impl<T, const N: usize> Len for [T; N] {
+impl<T> Len for Vec<T> {
     fn len(&self) -> usize {
-        N
+        Vec::len(self)
     }
 
     fn is_empty(&self) -> bool {
-        N == 0
+        Vec::is_empty(self)
     }
 }
 
@@ -49,6 +69,16 @@ impl<T> Len for &Vec<T> {
     }
 }
 
+impl<T> Len for VecDeque<T> {
+    fn len(&self) -> usize {
+        VecDeque::len(self)
+    }
+
+    fn is_empty(&self) -> bool {
+        VecDeque::is_empty(self)
+    }
+}
+
 impl<T> Len for &VecDeque<T> {
     fn len(&self) -> usize {
         VecDeque::len(self)
@@ -56,6 +86,16 @@ impl<T> Len for &VecDeque<T> {
 
     fn is_empty(&self) -> bool {
         VecDeque::is_empty(self)
+    }
+}
+
+impl<T> Len for LinkedList<T> {
+    fn len(&self) -> usize {
+        LinkedList::len(self)
+    }
+
+    fn is_empty(&self) -> bool {
+        LinkedList::is_empty(self)
     }
 }
 
@@ -69,6 +109,16 @@ impl<T> Len for &LinkedList<T> {
     }
 }
 
+impl<K, V> Len for HashMap<K, V> {
+    fn len(&self) -> usize {
+        HashMap::len(self)
+    }
+
+    fn is_empty(&self) -> bool {
+        HashMap::is_empty(self)
+    }
+}
+
 impl<K, V> Len for &HashMap<K, V> {
     fn len(&self) -> usize {
         HashMap::len(self)
@@ -76,6 +126,16 @@ impl<K, V> Len for &HashMap<K, V> {
 
     fn is_empty(&self) -> bool {
         HashMap::is_empty(self)
+    }
+}
+
+impl<T> Len for HashSet<T> {
+    fn len(&self) -> usize {
+        HashSet::len(self)
+    }
+
+    fn is_empty(&self) -> bool {
+        HashSet::is_empty(self)
     }
 }
 
@@ -89,6 +149,16 @@ impl<T> Len for &HashSet<T> {
     }
 }
 
+impl<K, V> Len for BTreeMap<K, V> {
+    fn len(&self) -> usize {
+        BTreeMap::len(self)
+    }
+
+    fn is_empty(&self) -> bool {
+        BTreeMap::is_empty(self)
+    }
+}
+
 impl<K, V> Len for &BTreeMap<K, V> {
     fn len(&self) -> usize {
         BTreeMap::len(self)
@@ -96,6 +166,16 @@ impl<K, V> Len for &BTreeMap<K, V> {
 
     fn is_empty(&self) -> bool {
         BTreeMap::is_empty(self)
+    }
+}
+
+impl<T> Len for BTreeSet<T> {
+    fn len(&self) -> usize {
+        BTreeSet::len(self)
+    }
+
+    fn is_empty(&self) -> bool {
+        BTreeSet::is_empty(self)
     }
 }
 
@@ -109,6 +189,16 @@ impl<T> Len for &BTreeSet<T> {
     }
 }
 
+impl<T> Len for BinaryHeap<T> {
+    fn len(&self) -> usize {
+        BinaryHeap::len(self)
+    }
+
+    fn is_empty(&self) -> bool {
+        BinaryHeap::is_empty(self)
+    }
+}
+
 impl<T> Len for &BinaryHeap<T> {
     fn len(&self) -> usize {
         BinaryHeap::len(self)
@@ -116,6 +206,16 @@ impl<T> Len for &BinaryHeap<T> {
 
     fn is_empty(&self) -> bool {
         BinaryHeap::is_empty(self)
+    }
+}
+
+impl Len for String {
+    fn len(&self) -> usize {
+        String::len(self)
+    }
+
+    fn is_empty(&self) -> bool {
+        String::is_empty(self)
     }
 }
 
@@ -146,6 +246,26 @@ impl<'a> Len for Cow<'a, str> {
 
     fn is_empty(&self) -> bool {
         self.as_ref().is_empty()
+    }
+}
+
+impl<'a> Len for &Cow<'a, str> {
+    fn len(&self) -> usize {
+        self.as_ref().len()
+    }
+
+    fn is_empty(&self) -> bool {
+        self.as_ref().is_empty()
+    }
+}
+
+impl Len for OsString {
+    fn len(&self) -> usize {
+        self.as_os_str().len()
+    }
+
+    fn is_empty(&self) -> bool {
+        self.as_os_str().is_empty()
     }
 }
 

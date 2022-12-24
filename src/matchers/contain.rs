@@ -13,12 +13,39 @@ pub trait Contains<T: ?Sized> {
     fn contains(&self, element: &T) -> bool;
 }
 
+impl<T, const N: usize> Contains<T> for [T; N]
+where
+    T: PartialEq<T> + Eq,
+{
+    fn contains(&self, element: &T) -> bool {
+        <[T]>::contains(self, element)
+    }
+}
+
+impl<T, const N: usize> Contains<T> for &[T; N]
+where
+    T: PartialEq<T> + Eq,
+{
+    fn contains(&self, element: &T) -> bool {
+        self.as_slice().contains(element)
+    }
+}
+
 impl<T> Contains<T> for &[T]
 where
     T: PartialEq<T> + Eq,
 {
     fn contains(&self, element: &T) -> bool {
         <[T]>::contains(self, element)
+    }
+}
+
+impl<T> Contains<T> for Vec<T>
+where
+    T: PartialEq<T> + Eq,
+{
+    fn contains(&self, element: &T) -> bool {
+        AsRef::<[T]>::as_ref(self).contains(element)
     }
 }
 
@@ -31,12 +58,30 @@ where
     }
 }
 
+impl<T> Contains<T> for LinkedList<T>
+where
+    T: PartialEq<T> + Eq,
+{
+    fn contains(&self, element: &T) -> bool {
+        LinkedList::contains(self, element)
+    }
+}
+
 impl<T> Contains<T> for &LinkedList<T>
 where
     T: PartialEq<T> + Eq,
 {
     fn contains(&self, element: &T) -> bool {
         LinkedList::contains(self, element)
+    }
+}
+
+impl<T> Contains<T> for VecDeque<T>
+where
+    T: PartialEq<T> + Eq,
+{
+    fn contains(&self, element: &T) -> bool {
+        VecDeque::contains(self, element)
     }
 }
 
@@ -64,6 +109,24 @@ impl<'a> Contains<char> for &'a str {
 impl<'a> Contains<[char]> for &'a str {
     fn contains(&self, element: &[char]) -> bool {
         <str>::contains(self, element)
+    }
+}
+
+impl Contains<str> for String {
+    fn contains(&self, element: &str) -> bool {
+        self.as_str().contains(element)
+    }
+}
+
+impl Contains<char> for String {
+    fn contains(&self, element: &char) -> bool {
+        self.as_str().contains(*element)
+    }
+}
+
+impl Contains<[char]> for String {
+    fn contains(&self, element: &[char]) -> bool {
+        self.as_str().contains(element)
     }
 }
 
@@ -103,12 +166,48 @@ impl<'a> Contains<[char]> for Cow<'a, str> {
     }
 }
 
+impl<'a> Contains<str> for &Cow<'a, str> {
+    fn contains(&self, element: &str) -> bool {
+        self.as_ref().contains(element)
+    }
+}
+
+impl<'a> Contains<char> for &Cow<'a, str> {
+    fn contains(&self, element: &char) -> bool {
+        self.as_ref().contains(*element)
+    }
+}
+
+impl<'a> Contains<[char]> for &Cow<'a, str> {
+    fn contains(&self, element: &[char]) -> bool {
+        self.as_ref().contains(element)
+    }
+}
+
+impl<T> Contains<T> for HashSet<T>
+where
+    T: Hash + PartialEq<T> + Eq,
+{
+    fn contains(&self, element: &T) -> bool {
+        HashSet::contains(self, element)
+    }
+}
+
 impl<T> Contains<T> for &HashSet<T>
 where
     T: Hash + PartialEq<T> + Eq,
 {
     fn contains(&self, element: &T) -> bool {
         HashSet::contains(self, element)
+    }
+}
+
+impl<T> Contains<T> for BTreeSet<T>
+where
+    T: Ord,
+{
+    fn contains(&self, element: &T) -> bool {
+        BTreeSet::contains(self, element)
     }
 }
 
@@ -121,9 +220,27 @@ where
     }
 }
 
+impl<K, V> Contains<K> for HashMap<K, V>
+where
+    K: Hash + PartialEq<K> + Eq,
+{
+    fn contains(&self, element: &K) -> bool {
+        self.contains_key(element)
+    }
+}
+
 impl<K, V> Contains<K> for &HashMap<K, V>
 where
     K: Hash + PartialEq<K> + Eq,
+{
+    fn contains(&self, element: &K) -> bool {
+        self.contains_key(element)
+    }
+}
+
+impl<K, V> Contains<K> for BTreeMap<K, V>
+where
+    K: Ord,
 {
     fn contains(&self, element: &K) -> bool {
         self.contains_key(element)
@@ -139,12 +256,30 @@ where
     }
 }
 
+impl<T> Contains<T> for Range<T>
+where
+    T: PartialOrd,
+{
+    fn contains(&self, element: &T) -> bool {
+        Range::contains(self, element)
+    }
+}
+
 impl<T> Contains<T> for &Range<T>
 where
     T: PartialOrd,
 {
     fn contains(&self, element: &T) -> bool {
         Range::contains(self, element)
+    }
+}
+
+impl<T> Contains<T> for RangeFrom<T>
+where
+    T: PartialOrd,
+{
+    fn contains(&self, element: &T) -> bool {
+        RangeFrom::contains(self, element)
     }
 }
 
@@ -157,6 +292,15 @@ where
     }
 }
 
+impl<T> Contains<T> for RangeTo<T>
+where
+    T: PartialOrd,
+{
+    fn contains(&self, element: &T) -> bool {
+        RangeTo::contains(self, element)
+    }
+}
+
 impl<T> Contains<T> for &RangeTo<T>
 where
     T: PartialOrd,
@@ -166,12 +310,30 @@ where
     }
 }
 
+impl<T> Contains<T> for RangeInclusive<T>
+where
+    T: PartialOrd,
+{
+    fn contains(&self, element: &T) -> bool {
+        RangeInclusive::contains(self, element)
+    }
+}
+
 impl<T> Contains<T> for &RangeInclusive<T>
 where
     T: PartialOrd,
 {
     fn contains(&self, element: &T) -> bool {
         RangeInclusive::contains(self, element)
+    }
+}
+
+impl<T> Contains<T> for RangeToInclusive<T>
+where
+    T: PartialOrd,
+{
+    fn contains(&self, element: &T) -> bool {
+        RangeToInclusive::contains(self, element)
     }
 }
 
