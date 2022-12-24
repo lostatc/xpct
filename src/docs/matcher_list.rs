@@ -8,6 +8,7 @@ Builtin Matchers
 - [`equal`][crate::equal]
 - [`approx_eq_f32`][crate::approx_eq_f32]
 - [`approx_eq_f64`][crate::approx_eq_f64]
+- [`approx_eq_time`][crate::approx_eq_time]
 
 # Negating
 

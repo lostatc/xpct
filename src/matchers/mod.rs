@@ -18,6 +18,7 @@ mod ord;
 mod regex;
 mod result;
 mod substr;
+mod time;
 
 #[cfg(feature = "regex")]
 pub use self::regex::MatchRegexMatcher;
@@ -42,3 +43,4 @@ pub use option::BeSomeMatcher;
 pub use ord::{BeSortedByMatcher, BeSortedMatcher, Inequality, OrdMatcher, SortOrder};
 pub use result::BeOkMatcher;
 pub use substr::{ContainSubstrMatcher, HavePrefixMatcher, HaveSuffixMatcher};
+pub use time::ApproxEqTimeMatcher;
