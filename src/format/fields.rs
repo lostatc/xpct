@@ -2,7 +2,7 @@ use std::any::type_name;
 
 use crate::core::style::{ALL_OK_MSG, AT_LESAT_ONE_OK_MSG};
 use crate::core::{style, Format, FormattedOutput, Formatter, Matcher};
-use crate::matchers::{CombinatorMode, FailuresByField, FieldMatcher, FieldMatcherSpec};
+use crate::matchers::{CombinatorMode, FailuresByField, FieldMatcher, FieldsSpec};
 
 use super::HeaderFormat;
 
@@ -89,7 +89,7 @@ impl Format for ByFieldFormat {
 /// ```
 ///
 /// [`fields!`]: crate::fields
-pub fn match_fields<'a, T>(spec: FieldMatcherSpec<'a, T>) -> Matcher<'a, T, ()>
+pub fn match_fields<'a, T>(spec: FieldsSpec<'a, T>) -> Matcher<'a, T, ()>
 where
     T: 'a,
 {
@@ -107,7 +107,7 @@ where
 ///
 /// This matcher is similar to [`match_fields`], except it succeeds when *any* of the fields of a
 /// struct succeed instead of all of them.
-pub fn match_any_fields<'a, T>(spec: FieldMatcherSpec<'a, T>) -> Matcher<'a, T, ()>
+pub fn match_any_fields<'a, T>(spec: FieldsSpec<'a, T>) -> Matcher<'a, T, ()>
 where
     T: 'a,
 {

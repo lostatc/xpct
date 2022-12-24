@@ -10,8 +10,16 @@ use super::CombinatorMode;
 /// This can be used by matchers that test each field of a struct or tuple.
 pub type FailuresByField = Vec<(&'static str, Option<FormattedFailure>)>;
 
-type BoxFieldMatcherSpecFunc<'a, T> =
-    Box<dyn FnOnce(T, bool) -> crate::Result<FailuresByField> + 'a>;
+/// This method is an implementation detail of the [`fields!`][crate::fields] macro and IS NOT part
+/// of the public API.
+#[doc(hidden)]
+pub struct __FieldsSpecParams<T> {
+    pub actual: T,
+    pub negated: bool,
+}
+
+type FieldsSpecFunc<'a, T> =
+    Box<dyn FnOnce(__FieldsSpecParams<T>) -> crate::Result<FailuresByField> + 'a>;
 
 /// An opaque type used with [`match_fields`] and [`match_any_fields`].
 ///
@@ -21,21 +29,23 @@ type BoxFieldMatcherSpecFunc<'a, T> =
 /// [`fields!`]: crate::fields
 /// [`match_fields`]: crate::match_fields
 /// [`match_any_fields`]: crate::match_any_fields
-pub struct FieldMatcherSpec<'a, T> {
-    func: BoxFieldMatcherSpecFunc<'a, T>,
+pub struct FieldsSpec<'a, T> {
+    func: FieldsSpecFunc<'a, T>,
 }
 
-impl<'a, T> fmt::Debug for FieldMatcherSpec<'a, T> {
+impl<'a, T> fmt::Debug for FieldsSpec<'a, T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("FieldMatcherSpec").finish_non_exhaustive()
+        f.debug_struct("FieldsSpec").finish_non_exhaustive()
     }
 }
 
-impl<'a, T> FieldMatcherSpec<'a, T> {
-    /// This is only meant to be called from the [`fields!`][crate::fields] macro and IS NOT part
-    /// of the public API.
+impl<'a, T> FieldsSpec<'a, T> {
+    /// This method is an implementation detail of the [`fields!`][crate::fields] macro and IS NOT
+    /// part of the public API.
     #[doc(hidden)]
-    pub fn __new(func: impl FnOnce(T, bool) -> crate::Result<FailuresByField> + 'a) -> Self {
+    pub fn __new(
+        func: impl FnOnce(__FieldsSpecParams<T>) -> crate::Result<FailuresByField> + 'a,
+    ) -> Self {
         Self {
             func: Box::new(func),
         }
@@ -49,15 +59,15 @@ impl<'a, T> FieldMatcherSpec<'a, T> {
 #[derive(Debug)]
 pub struct FieldMatcher<'a, T> {
     mode: CombinatorMode,
-    spec: FieldMatcherSpec<'a, T>,
+    spec: FieldsSpec<'a, T>,
 }
 
 impl<'a, T> FieldMatcher<'a, T> {
     /// Create a new matcher.
     ///
-    /// This accepts a [`FieldMatcherSpec`], which you can generate using the
-    /// [`fields!`][crate::fields] macro.
-    pub fn new(mode: CombinatorMode, spec: FieldMatcherSpec<'a, T>) -> Self {
+    /// This accepts a [`FieldsSpec`], which you can generate using the [`fields!`][crate::fields]
+    /// macro.
+    pub fn new(mode: CombinatorMode, spec: FieldsSpec<'a, T>) -> Self {
         Self { spec, mode }
     }
 }
@@ -75,7 +85,11 @@ impl<'a, T> Match for FieldMatcher<'a, T> {
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
-        let failures = (self.spec.func)(actual, false)?;
+        let failures = (self.spec.func)(__FieldsSpecParams {
+            actual,
+            negated: false,
+        })?;
+
         match self.mode {
             CombinatorMode::Any => {
                 if failures.iter().any(|(_, fail)| fail.is_none()) {
@@ -98,7 +112,11 @@ impl<'a, T> Match for FieldMatcher<'a, T> {
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
-        let failures = (self.spec.func)(actual, true)?;
+        let failures = (self.spec.func)(__FieldsSpecParams {
+            actual,
+            negated: true,
+        })?;
+
         match self.mode {
             CombinatorMode::Any => {
                 if failures.iter().all(|(_, fail)| fail.is_none()) {
@@ -167,7 +185,7 @@ impl<'a, T> Match for FieldMatcher<'a, T> {
 /// });
 /// ```
 ///
-/// This macro returns a [`FieldMatcherSpec`] value that can be passed to [`match_fields`] or
+/// This macro returns a [`FieldsSpec`] value that can be passed to [`match_fields`] or
 /// [`match_any_fields`].
 ///
 /// [`match_fields`]: crate::match_fields
@@ -182,18 +200,18 @@ macro_rules! fields {
             $(,)?
         }
     ) => {
-        $crate::matchers::FieldMatcherSpec::__new(
-            |input: $struct_type, negated: ::std::primitive::bool| -> $crate::Result<::std::vec::Vec<(&::std::primitive::str, ::std::option::Option<$crate::core::FormattedFailure>)>> {
+        $crate::matchers::FieldsSpec::__new(
+            |params: $crate::matchers::__FieldsSpecParams<$struct_type>,| -> $crate::Result<::std::vec::Vec<(&::std::primitive::str, ::std::option::Option<$crate::core::FormattedFailure>)>> {
                 $crate::Result::Ok(vec![$(
                     (
                         stringify!($field_name),
-                        if negated {
-                            match $crate::core::DynMatch::match_neg(::std::boxed::Box::new($matcher), input.$field_name)? {
+                        if params.negated {
+                            match $crate::core::DynMatch::match_neg(::std::boxed::Box::new($matcher), params.actual.$field_name)? {
                                 $crate::core::MatchOutcome::Success(_) => ::std::option::Option::None,
                                 $crate::core::MatchOutcome::Fail(fail) => ::std::option::Option::Some(fail),
                             }
                         } else {
-                            match $crate::core::DynMatch::match_pos(::std::boxed::Box::new($matcher), input.$field_name)? {
+                            match $crate::core::DynMatch::match_pos(::std::boxed::Box::new($matcher), params.actual.$field_name)? {
                                 $crate::core::MatchOutcome::Success(_) => ::std::option::Option::None,
                                 $crate::core::MatchOutcome::Fail(fail) => ::std::option::Option::Some(fail),
                             }

@@ -32,7 +32,7 @@ pub use contain::{BeInMatcher, ConsistOfMatcher, ContainElementsMatcher, Contain
 pub use default::BeDefaultMatcher;
 pub use equal::{EqualMatcher, Mismatch};
 pub use every::EveryMatcher;
-pub use fields::{FailuresByField, FieldMatcher, FieldMatcherSpec};
+pub use fields::{FailuresByField, FieldMatcher, FieldsSpec, __FieldsSpecParams};
 pub use file::{FileExistsMatcher, FileExistsMode};
 #[cfg(feature = "float-cmp")]
 pub use float::ApproxEqFloatMatcher;
