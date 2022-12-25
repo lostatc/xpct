@@ -44,7 +44,7 @@ pub use map::{IterMapMatcher, IterTryMapMatcher, MapMatcher, TryMapMatcher};
 pub use not::NotMatcher;
 pub use option::BeSomeMatcher;
 pub use ord::{BeSortedByMatcher, BeSortedMatcher, Inequality, OrdMatcher, SortOrder};
-pub use pattern::{PatternMatcher, PatternSpec};
+pub use pattern::{Pattern, PatternMatcher};
 pub use result::BeOkMatcher;
 pub use substr::{ContainSubstrMatcher, HavePrefixMatcher, HaveSuffixMatcher};
 pub use time::ApproxEqTimeMatcher;

@@ -1,7 +1,7 @@
 use std::fmt;
 
 use crate::core::Matcher;
-use crate::matchers::{PatternMatcher, PatternSpec};
+use crate::matchers::{Pattern, PatternMatcher};
 
 use super::MismatchFormat;
 
@@ -31,10 +31,10 @@ use super::MismatchFormat;
 /// }
 ///
 /// expect!(connect()).to(match_pattern(
-///     pattern!(Err(ConnectionError::Disconnected | ConnectionError::Unavailable))
+///     pattern!(Err(ConnectionError::Unavailable))
 /// ));
 /// ```
-pub fn match_pattern<'a, Actual>(spec: PatternSpec<'a, Actual>) -> Matcher<'a, Actual, Actual>
+pub fn match_pattern<'a, Actual>(spec: Pattern<'a, Actual>) -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + 'a,
 {
