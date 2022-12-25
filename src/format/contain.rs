@@ -38,8 +38,8 @@ where
 /// ```
 /// use xpct::{expect, contain_elements};
 ///
-/// expect!("foo").to(contain_elements(['f', 'o']));
-/// expect!(["foo", "bar"]).to(contain_elements(["foo", "bar"]));
+/// expect!("foobar").to(contain_elements(['f', 'b']));
+/// expect!(["foo", "bar", "baz"]).to(contain_elements(["bar", "foo"]));
 /// ```
 pub fn contain_elements<'a, T, Expected, Actual>(elements: Expected) -> Matcher<'a, Actual, Actual>
 where
@@ -61,10 +61,9 @@ where
 /// # Examples
 ///
 /// ```
-/// use xpct::{expect, contain_elements};
+/// use xpct::{expect, consist_of};
 ///
-/// expect!("foo").to(contain_elements(['o', 'f', 'o']));
-/// expect!(["foo", "bar", "baz"]).to(contain_elements(["bar", "foo", "baz"]));
+/// expect!(["foo", "bar", "baz"]).to(consist_of(["bar", "foo", "baz"]));
 /// ```
 pub fn consist_of<'a, T, Expected, Actual>(elements: Expected) -> Matcher<'a, Actual, Actual>
 where
