@@ -144,7 +144,6 @@ your matcher, like you need it to transform the value like the [`be_some`] and
 ```
 use std::marker::PhantomData;
 
-use xpct::{success, fail};
 use xpct::core::{Matcher, Match, MatchOutcome};
 
 pub struct BeOkMatcher<T, E> {
@@ -192,10 +191,8 @@ impl<T, E> Match for BeOkMatcher<T, E> {
         actual: Self::In,
     ) -> xpct::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
         match actual {
-            // This crate provides these macros as a shorthand for returning a
-            // `MatchOutcome`. You don't have to use them.
-            Ok(_) => fail!(()),
-            Err(error) => success!(error),
+            Ok(_) => Ok(MatchOutcome::Fail(())),
+            Err(error) => Ok(MatchOutcome::Success(error)),
         }
     }
 }

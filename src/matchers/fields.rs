@@ -1,7 +1,6 @@
 use std::fmt;
 
 use crate::core::{FormattedFailure, Match, MatchOutcome};
-use crate::{fail, success};
 
 use super::CombinatorMode;
 
@@ -93,16 +92,16 @@ impl<'a, T> Match for FieldMatcher<'a, T> {
         match self.mode {
             CombinatorMode::Any => {
                 if failures.iter().any(|(_, fail)| fail.is_none()) {
-                    success!(())
+                    Ok(MatchOutcome::Success(()))
                 } else {
-                    fail!(failures)
+                    Ok(MatchOutcome::Fail(failures))
                 }
             }
             CombinatorMode::All => {
                 if failures.iter().all(|(_, fail)| fail.is_none()) {
-                    success!(())
+                    Ok(MatchOutcome::Success(()))
                 } else {
-                    fail!(failures)
+                    Ok(MatchOutcome::Fail(failures))
                 }
             }
         }
@@ -120,16 +119,16 @@ impl<'a, T> Match for FieldMatcher<'a, T> {
         match self.mode {
             CombinatorMode::Any => {
                 if failures.iter().all(|(_, fail)| fail.is_none()) {
-                    success!(())
+                    Ok(MatchOutcome::Success(()))
                 } else {
-                    fail!(failures)
+                    Ok(MatchOutcome::Fail(failures))
                 }
             }
             CombinatorMode::All => {
                 if failures.iter().any(|(_, fail)| fail.is_none()) {
-                    success!(())
+                    Ok(MatchOutcome::Success(()))
                 } else {
-                    fail!(failures)
+                    Ok(MatchOutcome::Fail(failures))
                 }
             }
         }

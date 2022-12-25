@@ -162,31 +162,3 @@ impl std::error::Error for MatchError {
         }
     }
 }
-
-/// Return early from a function with [`MatchOutcome::Success`].
-///
-/// This can be used when implementing matchers with [`Match`].
-///
-/// [`Match`]: crate::core::Match
-#[macro_export]
-macro_rules! success {
-    ($success:expr) => {
-        return ::std::result::Result::Ok($crate::core::MatchOutcome::Success(
-            ::std::convert::Into::into($success),
-        ))
-    };
-}
-
-/// Return early from a matcher with [`MatchOutcome::Fail`].
-///
-/// This can be used when implementing matchers with [`Match`].
-///
-/// [`Match`]: crate::core::Match
-#[macro_export]
-macro_rules! fail {
-    ($fail:expr) => {
-        return ::std::result::Result::Ok($crate::core::MatchOutcome::Fail(
-            ::std::convert::Into::into($fail),
-        ))
-    };
-}

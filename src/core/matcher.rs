@@ -46,13 +46,9 @@ pub trait Match {
 
     /// The function called to test whether a value matches.
     ///
-    /// This returns a [`MatchOutcome`] based on whether the matcher succeeded or failed.
-    ///
-    /// When implementing this method, you can use the [`success!`] or [`fail!`] macros to return
-    /// early with a [`MatchOutcome::Success`] or [`MatchOutcome::Fail`] respectively.
-    ///
-    /// [`success!`]: crate::success
-    /// [`fail!`]: crate::fail
+    /// This returns a [`MatchOutcome`], which determines whether the matcher succeeded or failed.
+    /// It can also return an [`Err`], which is distinct from a [`MatchOutcome::Fail`] in that it
+    /// represents an unexpected error as opposed to a matcher failing.
     fn match_pos(
         self,
         actual: Self::In,

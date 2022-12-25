@@ -3,7 +3,6 @@ use std::fmt;
 use std::marker::PhantomData;
 
 use crate::core::{FormattedFailure, Match, MatchOutcome};
-use crate::success;
 
 /// The matcher for [`map`].
 ///
@@ -43,14 +42,14 @@ impl<'a, In, Out> Match for MapMatcher<'a, In, Out> {
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
-        success!((self.func)(actual))
+        Ok(MatchOutcome::Success((self.func)(actual)))
     }
 
     fn match_neg(
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
-        success!((self.func)(actual))
+        Ok(MatchOutcome::Success((self.func)(actual)))
     }
 }
 
@@ -89,14 +88,14 @@ impl<'a, In, Out> Match for TryMapMatcher<'a, In, Out> {
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
-        success!((self.func)(actual)?)
+        Ok(MatchOutcome::Success((self.func)(actual)?))
     }
 
     fn match_neg(
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
-        success!((self.func)(actual)?)
+        Ok(MatchOutcome::Success((self.func)(actual)?))
     }
 }
 
@@ -143,14 +142,18 @@ where
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
-        success!(actual.into_iter().map(self.func).collect::<Vec<_>>())
+        Ok(MatchOutcome::Success(
+            actual.into_iter().map(self.func).collect::<Vec<_>>(),
+        ))
     }
 
     fn match_neg(
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
-        success!(actual.into_iter().map(self.func).collect::<Vec<_>>())
+        Ok(MatchOutcome::Success(
+            actual.into_iter().map(self.func).collect::<Vec<_>>(),
+        ))
     }
 }
 
@@ -197,19 +200,23 @@ where
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
-        success!(actual
-            .into_iter()
-            .map(self.func)
-            .collect::<Result<Vec<_>, _>>()?)
+        Ok(MatchOutcome::Success(
+            actual
+                .into_iter()
+                .map(self.func)
+                .collect::<Result<Vec<_>, _>>()?,
+        ))
     }
 
     fn match_neg(
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
-        success!(actual
-            .into_iter()
-            .map(self.func)
-            .collect::<Result<Vec<_>, _>>()?)
+        Ok(MatchOutcome::Success(
+            actual
+                .into_iter()
+                .map(self.func)
+                .collect::<Result<Vec<_>, _>>()?,
+        ))
     }
 }

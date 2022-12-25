@@ -1,9 +1,6 @@
 use std::fmt;
 
-use crate::{
-    core::{DynMatch, Match, MatchOutcome, Matcher},
-    fail, success,
-};
+use crate::core::{DynMatch, Match, MatchOutcome, Matcher};
 
 use super::SomeFailures;
 
@@ -70,10 +67,10 @@ where
         }
 
         if failures.iter().any(Option::is_some) {
-            fail!(failures);
+            return Ok(MatchOutcome::Fail(failures));
         }
 
-        success!(successes)
+        Ok(MatchOutcome::Success(successes))
     }
 
     fn match_neg(
@@ -96,9 +93,9 @@ where
         }
 
         if failures.iter().any(Option::is_none) {
-            success!(successes)
+            return Ok(MatchOutcome::Success(successes));
         }
 
-        fail!(failures);
+        Ok(MatchOutcome::Fail(failures))
     }
 }

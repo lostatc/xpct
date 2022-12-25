@@ -1,5 +1,4 @@
 use crate::core::{DynMatch, FormattedFailure, Match, MatchError, MatchOutcome};
-use crate::{fail, success};
 use std::fmt;
 
 /// A type used with [`ChainMatcher`] to compose assertions.
@@ -128,8 +127,8 @@ impl<'a, In, Out> Match for ChainMatcher<'a, In, Out> {
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
         match (self.func)(ChainAssertion::new(actual)) {
-            Ok(assertion) => success!(assertion.value),
-            Err(MatchError::Fail(fail)) => fail!(fail),
+            Ok(assertion) => Ok(MatchOutcome::Success(assertion.value)),
+            Err(MatchError::Fail(fail)) => Ok(MatchOutcome::Fail(fail)),
             Err(MatchError::Err(error)) => Err(error),
         }
     }
@@ -139,8 +138,8 @@ impl<'a, In, Out> Match for ChainMatcher<'a, In, Out> {
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
         match (self.func)(ChainAssertion::new(actual)) {
-            Ok(_) => fail!(()),
-            Err(MatchError::Fail(_)) => success!(()),
+            Ok(_) => Ok(MatchOutcome::Fail(())),
+            Err(MatchError::Fail(_)) => Ok(MatchOutcome::Success(())),
             Err(MatchError::Err(error)) => Err(error),
         }
     }

@@ -1,10 +1,7 @@
 use std::convert::Infallible;
 use std::marker::PhantomData;
 
-use crate::{
-    core::{Match, MatchOutcome},
-    fail, success,
-};
+use crate::core::{Match, MatchOutcome};
 
 /// The matcher for [`be_some`] and [`be_none`].
 ///
@@ -44,8 +41,8 @@ impl<T> Match for BeSomeMatcher<T> {
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
         match actual {
-            Some(value) => success!(value),
-            None => fail!(()),
+            Some(value) => Ok(MatchOutcome::Success(value)),
+            None => Ok(MatchOutcome::Fail(())),
         }
     }
 
@@ -54,8 +51,8 @@ impl<T> Match for BeSomeMatcher<T> {
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
         match actual {
-            Some(_) => fail!(()),
-            None => success!(None),
+            Some(_) => Ok(MatchOutcome::Fail(())),
+            None => Ok(MatchOutcome::Success(None)),
         }
     }
 }

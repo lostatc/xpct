@@ -2,7 +2,6 @@ use std::borrow::Borrow;
 use std::fmt;
 
 use crate::core::{DynMatch, FormattedFailure, Match, MatchOutcome};
-use crate::{fail, success};
 
 /// When some of the given matchers failed.
 pub type SomeFailures = Vec<Option<FormattedFailure>>;
@@ -251,16 +250,16 @@ impl<'a, T> Match for CombinatorMatcher<'a, T> {
         match (ctx.state, self.mode) {
             (Ok(failures), CombinatorMode::Any) => {
                 if failures.iter().any(Option::is_none) {
-                    success!(ctx.value);
+                    Ok(MatchOutcome::Success(ctx.value))
                 } else {
-                    fail!(failures);
+                    Ok(MatchOutcome::Fail(failures))
                 }
             }
             (Ok(failures), CombinatorMode::All) => {
                 if failures.iter().any(Option::is_some) {
-                    fail!(failures);
+                    Ok(MatchOutcome::Fail(failures))
                 } else {
-                    success!(ctx.value);
+                    Ok(MatchOutcome::Success(ctx.value))
                 }
             }
             (Err(error), _) => Err(error),
@@ -278,16 +277,16 @@ impl<'a, T> Match for CombinatorMatcher<'a, T> {
         match (ctx.state, self.mode) {
             (Ok(failures), CombinatorMode::Any) => {
                 if failures.iter().any(Option::is_some) {
-                    fail!(failures);
+                    Ok(MatchOutcome::Fail(failures))
                 } else {
-                    success!(ctx.value);
+                    Ok(MatchOutcome::Success(ctx.value))
                 }
             }
             (Ok(failures), CombinatorMode::All) => {
                 if failures.iter().any(Option::is_none) {
-                    success!(ctx.value);
+                    Ok(MatchOutcome::Success(ctx.value))
                 } else {
-                    fail!(failures);
+                    Ok(MatchOutcome::Fail(failures))
                 }
             }
             (Err(error), _) => Err(error),
