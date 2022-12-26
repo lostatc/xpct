@@ -46,7 +46,7 @@ Builtin Matchers
 
 # Adding context
 
-- [`why`][crate::any]
+- [`why`][crate::why]
 - [`why_lazy`][crate::why_lazy]
 
 # Mapping values

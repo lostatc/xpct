@@ -13,6 +13,18 @@ fn option_format() -> MessageFormat {
 ///
 /// If this matcher succeeds, it unwraps the [`Some`] value. When negated, it behaves like
 /// [`be_none`].
+///
+/// # Examples
+///
+/// ```
+/// use xpct::{expect, be_some, equal};
+///
+/// let value = Some("foobar");
+///
+/// expect!(value)
+///     .to(be_some())
+///     .to(equal("foobar"));
+/// ```
 pub fn be_some<'a, T>() -> Matcher<'a, Option<T>, T, Option<Infallible>>
 where
     T: 'a,
@@ -24,6 +36,19 @@ where
 ///
 /// If this matcher succeeds, it converts the value to `Option<Infallible>`. When negated, it
 /// behaves like [`be_some`].
+///
+/// # Examples
+///
+/// ```
+/// use std::convert::Infallible;
+/// use xpct::{expect, be_none, equal};
+///
+/// let value: Option<String> = None;
+///
+/// let output: Option<Infallible> = expect!(value)
+///     .to(be_none())
+///     .into_inner();
+/// ```
 pub fn be_none<'a, T>() -> Matcher<'a, Option<T>, Option<Infallible>, T>
 where
     T: 'a,

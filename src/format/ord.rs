@@ -7,6 +7,14 @@ use crate::matchers::{BeSortedByMatcher, BeSortedMatcher, Inequality, OrdMatcher
 use super::{MessageFormat, MismatchFormat};
 
 /// Succeeds when the actual value is greater than the expected value.
+///
+/// # Examples
+///
+/// ```
+/// use xpct::{expect, be_gt};
+///
+/// expect!(57).to(be_gt(41));
+/// ```
 pub fn be_gt<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + PartialOrd<Expected> + 'a,
@@ -19,6 +27,15 @@ where
 }
 
 /// Succeeds when the actual value is greater than or equal to the expected value.
+///
+/// # Examples
+///
+/// ```
+/// use xpct::{expect, be_ge};
+///
+/// expect!(57).to(be_ge(41));
+/// expect!(57).to(be_ge(57));
+/// ```
 pub fn be_ge<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + PartialOrd<Expected> + 'a,
@@ -34,6 +51,14 @@ where
 }
 
 /// Succeeds when the actual value is less than the expected value.
+///
+/// # Examples
+///
+/// ```
+/// use xpct::{expect, be_lt};
+///
+/// expect!(41).to(be_lt(57));
+/// ```
 pub fn be_lt<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + PartialOrd<Expected> + 'a,
@@ -46,6 +71,15 @@ where
 }
 
 /// Succeeds when the actual value is less than or equal to the expected value.
+///
+/// # Examples
+///
+/// ```
+/// use xpct::{expect, be_le};
+///
+/// expect!(41).to(be_le(57));
+/// expect!(41).to(be_le(41));
+/// ```
 pub fn be_le<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + PartialOrd<Expected> + 'a,

@@ -80,12 +80,12 @@ where
 /// Passing the value to matchers by reference:
 ///
 /// ```
-/// use xpct::{expect, any, equal};
+/// use xpct::{any, contain_substr, equal, expect};
 ///
 /// expect!("Martinaise").to(any(|ctx| {
 ///     ctx.borrow::<str>()
 ///         .to(equal("The Pox"))
-///         .to(equal("Central Jamrock"))
+///         .to(contain_substr("Jamrock"))
 ///         .to(equal("Martinaise"));
 /// }));
 /// ```
@@ -93,12 +93,12 @@ where
 /// Passing the value to matchers by value via [`Copy`]:
 ///
 /// ```
-/// use xpct::{expect, any, equal};
+/// use xpct::{expect, any, be_gt, be_lt};
 ///
-/// expect!(41).to(any(|ctx| {
+/// expect!(60).to(any(|ctx| {
 ///     ctx.copied()
-///         .to(equal(41))
-///         .to(equal(57));
+///         .to(be_lt(41))
+///         .to(be_gt(57));
 /// }));
 /// ```
 ///

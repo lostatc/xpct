@@ -57,11 +57,29 @@ fn bool_format() -> MessageFormat {
 }
 
 /// Succeeds when the actual value is `true`.
+///
+/// # Examples
+///
+/// ```
+/// use xpct::{expect, be_true};
+///
+/// expect!(true).to(be_true());
+/// expect!(false).to_not(be_true());
+/// ```
 pub fn be_true() -> Matcher<'static, bool, bool> {
     Matcher::simple(BeTrueMatcher::new(), bool_format())
 }
 
 /// Succeeds when the actual value is `false`.
+///
+/// # Examples
+///
+/// ```
+/// use xpct::{expect, be_false};
+///
+/// expect!(false).to(be_false());
+/// expect!(true).to_not(be_false());
+/// ```
 pub fn be_false() -> Matcher<'static, bool, bool> {
     Matcher::simple_neg(BeTrueMatcher::new(), NegFormat(bool_format()))
 }

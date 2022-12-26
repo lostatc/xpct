@@ -26,6 +26,21 @@ impl Format for InfallibleFormat {
 ///
 /// This matcher always succeeds, even when negated. Therefore negating it has no effect.
 ///
+/// # Examples
+///
+/// ```
+/// use std::convert::Infallible;
+/// use xpct::{expect, map, equal};
+///
+/// fn do_stuff() -> Result<String, Infallible> {
+///     Ok(String::from("foobar"))
+/// }
+///
+/// expect!(do_stuff())
+///     .to(map(Result::unwrap))
+///     .to(equal("foobar"));
+/// ```
+///
 /// [`Assertion::map`]: crate::core::Assertion::map
 pub fn map<'a, In, Out, F>(func: F) -> Matcher<'a, In, Out>
 where

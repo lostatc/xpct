@@ -10,10 +10,11 @@ use super::{FailureFormat, MessageFormat};
 /// chains the output of each matcher into the next.
 ///
 /// This matcher accepts a closure which is passed a [`ChainAssertion`] value, which is similar to
-/// the [`Assertion`] value returned by [`expect!`]. You can call [`to`] and [`to_not`] on it to
-/// use matchers.
+/// the [`Assertion`] value returned by [`expect!`]. You can call [`to`] and [`to_not`] on it to use
+/// matchers.
 ///
-/// This matcher has some limitations compared to [`each`] when you negate it (such as with [`not`]):
+/// This matcher has some limitations compared to [`each`] when you negate it (such as with
+/// [`not`]):
 ///
 /// 1. If it succeeds (meaning that all the matchers failed), it can't return the transformed value
 ///    at the end. Matchers don't return the value that was passed into them when they fail.

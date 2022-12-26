@@ -95,7 +95,7 @@ where
 /// ```
 /// use xpct::{expect, equal};
 ///
-/// expect!(Some("oblivion")).to(equal(Some("oblivion")));
+/// expect!("foobar").to(equal("foobar"));
 /// ```
 pub fn equal<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
 where

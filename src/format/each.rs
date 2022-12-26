@@ -106,8 +106,8 @@ impl Format for SomeFailuresFormat {
 /// }));
 /// ```
 ///
-/// If you want to format the closure as an expression instead of a statement, you can use
-/// [`done`]. This method doesn't do anything special; it just consumes `self` and returns `()`.
+/// If you want to format the closure as an expression instead of a statement, you can use [`done`].
+/// This method doesn't do anything special; it just consumes `self` and returns `()`.
 ///
 /// ```
 /// use xpct::{expect, each, be_lt, be_gt};

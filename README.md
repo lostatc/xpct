@@ -128,7 +128,7 @@ expect!(get_person())
             .to(be_some())?
             .to_not(be_empty())
         ),
-        age: be_gt(25),
+        age: be_gt(0),
         id: why(have_prefix("REV"), "all IDs must have this prefix"),
         is_superstar: be_true(),
     })));

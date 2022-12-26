@@ -64,7 +64,7 @@ impl Format for ByFieldFormat {
 /// # Examples
 ///
 /// ```
-/// use xpct::{expect, match_fields, fields, equal, be_some, be_gt, be_true, all};
+/// use xpct::{expect, match_fields, fields, be_empty, be_some, be_gt, be_true, all};
 ///
 /// struct Person {
 ///     name: Option<String>,
@@ -81,7 +81,7 @@ impl Format for ByFieldFormat {
 /// expect!(value).to(match_fields(fields!(Person {
 ///     name: all(|ctx| ctx
 ///         .to(be_some())?
-///         .to(equal("Dick Mullen"))
+///         .to_not(be_empty())
 ///     ),
 ///     age: be_gt(0),
 ///     is_superstar: be_true(),

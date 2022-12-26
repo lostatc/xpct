@@ -13,6 +13,21 @@ fn result_format() -> MessageFormat {
 ///
 /// If this matcher succeeds, it unwraps the [`Ok`] value. When negated, it behaves like
 /// [`be_err`].
+///
+/// # Examples
+///
+/// ```
+/// use std::io;
+/// use xpct::{expect, equal, be_ok};
+///
+/// fn might_fail() -> io::Result<String> {
+///     Ok(String::from("foobar"))
+/// }
+///
+/// expect!(might_fail())
+///     .to(be_ok())
+///     .to(equal("foobar"));
+/// ```
 pub fn be_ok<'a, T, E>() -> Matcher<'a, Result<T, E>, T, E>
 where
     T: 'a,
@@ -25,6 +40,22 @@ where
 ///
 /// If this matcher succeeds, it unwraps the [`Err`] value. When negated, it behaves like
 /// [`be_ok`].
+///
+/// # Examples
+///
+/// ```
+/// use std::io;
+/// use xpct::{expect, equal, be_err};
+///
+/// fn might_fail() -> io::Result<()> {
+///     Err(io::Error::new(io::ErrorKind::Other, "something bad happened"))
+/// }
+///
+/// expect!(might_fail())
+///     .to(be_err())
+///     .map(|err| err.kind())
+///     .to(equal(io::ErrorKind::Other));
+/// ```
 pub fn be_err<'a, T, E>() -> Matcher<'a, Result<T, E>, E, T>
 where
     T: 'a,
