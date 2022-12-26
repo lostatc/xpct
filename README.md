@@ -1,8 +1,8 @@
 [![Tests Workflow Status (main)](https://img.shields.io/github/actions/workflow/status/lostatc/xpct/test.yaml?branch=main&label=Tests&style=for-the-badge&logo=github)](https://github.com/lostatc/xpct/actions/workflows/test.yaml)
+[![Crates.io](https://img.shields.io/crates/v/xpct?logo=rust&style=for-the-badge)](https://crates.io/crates/xpct)
+[![docs.rs](https://img.shields.io/docsrs/xpct?logo=docs.rs&style=for-the-badge)](https://docs.rs/xpct)
 
 # xpct
-
-🚧 This repo is under construction 🚧
 
 xpct is an assertions library for Rust. It's designed to be ergonomic,
 batteries-included, and test framework agnostic.
