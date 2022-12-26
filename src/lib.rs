@@ -8,8 +8,12 @@ the [User Docs][crate::docs].
 */
 
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
+#![cfg_attr(docsrs, feature(doc_cfg_hide))]
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
+// Disabling this feature does not change the public API, but the documentation makes it appear as
+// if it does.
+#![cfg_attr(docsrs, doc(cfg_hide(feature = "color")))]
 
 // Test code snippets in the README.
 
