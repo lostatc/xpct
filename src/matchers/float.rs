@@ -1,4 +1,4 @@
-#![cfg(feature = "float-cmp")]
+#![cfg(feature = "float")]
 
 use float_cmp::approx_eq;
 

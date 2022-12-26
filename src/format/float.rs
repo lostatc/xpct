@@ -1,4 +1,4 @@
-#![cfg(feature = "float-cmp")]
+#![cfg(feature = "float")]
 
 use crate::core::Matcher;
 use crate::matchers::ApproxEqFloatMatcher;

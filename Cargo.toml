@@ -9,7 +9,7 @@ repository = "https://github.com/lostatc/xpct"
 documentation = "https://docs.rs/xpct"
 readme = "README.md"
 license = "MIT"
-keywords = ["testing", "assertions"]
+keywords = ["testing", "assertions", "assert", "matchers"]
 categories = ["development-tools", "development-tools::testing"]
 
   # We use an attribute when building on docs.rs so we can make use of unstable
@@ -34,6 +34,6 @@ doc-comment = "0.3.3"
 default = ["fmt", "color"]
 regex = ["dep:regex"]
 json = ["dep:serde_json"]
-float-cmp = ["dep:float-cmp"]
+float = ["dep:float-cmp"]
 fmt = []
 color = ["dep:colored", "dep:atty"]

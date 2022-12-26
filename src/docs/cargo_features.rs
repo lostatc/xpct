@@ -9,8 +9,8 @@ This is a list of cargo features exposed by this crate.
 dependencies.
 - `json`: Enables the [`match_json`] matcher, which requires additional
 dependencies.
-- `float-cmp`: Enables the [`approx_eq_f32`] and [`approx_eq_f64`] matchers,
-which require additional dependencies.
+- `float`: Enables the [`approx_eq_f32`] and [`approx_eq_f64`] matchers, which
+require additional dependencies.
 - `color` (default): Enable colors and text styles in the output. This is enabled by default.
 Disabling it does not change the API, but does remove some dependencies. Text colors and styles are
 always disabled when stderr is not a tty or when the [`NO_COLOR`](https://no-color.org/) environment

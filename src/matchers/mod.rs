@@ -35,7 +35,7 @@ pub use equal::{EqualMatcher, Mismatch};
 pub use every::EveryMatcher;
 pub use fields::{FailuresByField, FieldMatcher, FieldsSpec, __FieldsSpecParams};
 pub use file::{FileExistsMatcher, FileExistsMode};
-#[cfg(feature = "float-cmp")]
+#[cfg(feature = "float")]
 pub use float::ApproxEqFloatMatcher;
 #[cfg(feature = "json")]
 pub use json::JsonMatcher;

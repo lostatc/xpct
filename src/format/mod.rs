@@ -66,7 +66,7 @@ pub(crate) mod matchers {
     pub use super::time::approx_eq_time;
     pub use super::why::{why, why_lazy};
 
-    #[cfg(feature = "float-cmp")]
+    #[cfg(feature = "float")]
     pub use super::float::{approx_eq_f32, approx_eq_f64};
 
     #[cfg(feature = "json")]
