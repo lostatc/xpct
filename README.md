@@ -28,6 +28,8 @@ However you choose to pronounce it is how it's pronounced! I pronounce it like
 
 ## Examples
 
+A simple equality assertion, like `assert_eq`:
+
 ```rust,should_panic
 use xpct::{expect, equal};
 
@@ -41,6 +43,32 @@ expect!("disco").to(equal("Disco"));
     to equal:
         "Disco"
 ```
+
+Asserting that every element in a vec is `Some` and unwrapping it to a
+`Vec<&str>`:
+
+```rust,should_panic
+use xpct::{be_some, every, expect};
+
+let items = vec![Some("foo"), Some("bar"), None];
+
+let output: Vec<&str> = expect!(items)
+    .to(every(be_some))
+    .into_inner();
+```
+
+```text
+[src/main.rs:6:29] = items
+    Expected all of these to be OK:
+        [0]  OK
+        
+        [1]  OK
+        
+        [2]  FAILED
+             Expected this to be Some(_)
+```
+
+Asserting that the given string does not match any of the given matchers:
 
 ```rust,should_panic
 use xpct::{any, contain_substr, equal, expect, match_regex};
@@ -68,6 +96,8 @@ expect!(location).to_not(any(|ctx| {
 
         [2]  OK
 ```
+
+Making assertions about individual fields of a struct:
 
 ```rust,should_panic
 use xpct::{
