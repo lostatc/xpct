@@ -9,12 +9,12 @@ it:
 ```rust,no_run
 #[test]
 fn succeeds_when_foo() {
-    // The matcher should succeed when is not negated.
+    // The matcher should succeed when it is not negated.
 }
 
 #[test]
 fn succeeds_when_not_foo() {
-    // The matcher should succeed when is negated.
+    // The matcher should succeed when it is negated.
 }
 
 #[test]
