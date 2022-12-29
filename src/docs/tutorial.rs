@@ -5,7 +5,8 @@ A brief guide on how to use xpct to write tests.
 
 [↩︎ Back to User Docs](crate::docs)
 
-To make an assertion, you'll usually start with the [`expect!`] macro:
+To make an assertion, you'll usually start with the [`expect!`] macro, which
+returns an [`Assertion`].
 
 ```
 use xpct::{expect, equal};
@@ -63,10 +64,9 @@ In the above example, we don't need to unwrap the [`Result`], because the
 [`be_ok`] matcher did it for us! If we were to negate this matcher with [`not`],
 then it would return the value of the [`Err`] variant instead.
 
-If you want to map a value from one type to another as part of a chain of
-matchers, but don't need a dedicated matcher for it, you can use the matchers
-[`map`] and [`try_map`] as well as [`Assertion::map`] and
-[`Assertion::try_map`].
+If you want to map a value by applying a function to it as part of a chain of
+matchers, you can use the matchers [`map`] and [`try_map`] as well as
+[`Assertion::map`] and [`Assertion::try_map`].
 
 ```
 use std::convert::Infallible;
@@ -210,7 +210,10 @@ use xpct::{be_some, every, expect, have_prefix};
 
 let items = vec![Some("Cuno"), Some("Cindy")];
 
-let output: Vec<&str> = expect!(items).to(every(be_some)).into_inner();
+// Notice it unwraps the `Vec<Option<&str>>` to a `Vec<&str>`.
+let output: Vec<&str> = expect!(items)
+    .to(every(be_some))
+    .into_inner();
 
 expect!(&items).to(every(|| have_prefix("C")));
 ```
@@ -242,6 +245,7 @@ matchers provided by this crate.
 [`every`]: crate::every
 [`Len`]: crate::matchers::Len
 [`Contains`]: crate::matchers::Contains
+[`Assertion`]: crate::core::Assertion
 [`Assertion::to_not`]: crate::core::Assertion::to_not
 [`Matcher`]: crate::core::Matcher
 [`Assertion::into_inner`]: crate::core::Assertion::into_inner
