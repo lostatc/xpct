@@ -1,24 +1,26 @@
 /*!
-Builtin Matchers
+# Builtin Matchers
+
+A list of all the matchers provided by this crate, grouped into categories.
 
 [↩︎ Back to User Docs](crate::docs)
 
-# Equality
+## Equality
 
 - [`equal`][crate::equal]
 - [`approx_eq_f32`][crate::approx_eq_f32]
 - [`approx_eq_f64`][crate::approx_eq_f64]
 - [`approx_eq_time`][crate::approx_eq_time]
 
-# Negating
+## Negating
 
 - [`not`][crate::not]
 
-# Patterns
+## Patterns
 
 - [`match_pattern`][crate::match_pattern]
 
-# Ordering
+## Ordering
 
 - [`be_lt`][crate::be_lt]
 - [`be_le`][crate::be_le]
@@ -28,49 +30,49 @@ Builtin Matchers
 - [`be_sorted_desc`][crate::be_sorted_desc]
 - [`be_sorted_by`][crate::be_sorted_by]
 
-# Boolean
+## Boolean
 
 - [`be_true`][crate::be_true]
 - [`be_false`][crate::be_false]
 
-# Combinators
+## Combinators
 
 - [`all`][crate::all]
 - [`each`][crate::each]
 - [`any`][crate::any]
 
-# Struct fields
+## Struct fields
 
 - [`match_fields`][crate::match_fields]
 - [`match_any_fields`][crate::match_any_fields]
 
-# Adding context
+## Adding context
 
 - [`why`][crate::why]
 - [`why_lazy`][crate::why_lazy]
 
-# Mapping values
+## Mapping values
 
 - [`map`][crate::map]
 - [`try_map`][crate::try_map]
 - [`iter_map`][crate::iter_map]
 - [`iter_try_map`][crate::iter_try_map]
 
-# `Result` values
+## `Result` values
 
 - [`be_ok`][crate::be_ok]
 - [`be_err`][crate::be_err]
 
-# `Option` values
+## `Option` values
 
 - [`be_some`][crate::be_some]
 - [`be_none`][crate::be_none]
 
-# `Default` values
+## `Default` values
 
 - [`be_default`][crate::be_default]
 
-# Strings
+## Strings
 
 - [`contain_substr`][crate::contain_substr]
 - [`have_prefix`][crate::have_prefix]
@@ -78,7 +80,7 @@ Builtin Matchers
 - [`match_regex`][crate::match_regex]
 - [`match_json`][crate::match_json]
 
-# Collections
+## Collections
 
 - [`have_len`][crate::have_len]
 - [`be_empty`][crate::be_empty]
@@ -88,7 +90,7 @@ Builtin Matchers
 - [`every`][crate::every]
 - [`be_in`][crate::be_in]
 
-# Files
+## Files
 
 - [`be_existing_file`][crate::be_existing_file]
 - [`be_regular_file`][crate::be_regular_file]

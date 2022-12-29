@@ -1,5 +1,7 @@
 /*!
-Tutorial
+# Tutorial
+
+A brief guide on how to use xpct to write tests.
 
 [↩︎ Back to User Docs](crate::docs)
 

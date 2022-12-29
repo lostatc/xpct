@@ -1,9 +1,9 @@
 /*!
-Cargo Features
+# Cargo Features
+
+A list of all the Cargo features exposed by this crate.
 
 [↩︎ Back to User Docs](crate::docs)
-
-This is a list of cargo features exposed by this crate.
 
 - `regex`: Enables the [`match_regex`] matcher, which requires additional
 dependencies.

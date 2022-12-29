@@ -1,5 +1,8 @@
 /*!
-Writing Custom Formatters
+# Writing Custom Formatters
+
+How to write custom formatters, either for formatting output from your own
+matchers, or for changing the formatting of builtin matchers.
 
 [↩︎ Back to User Docs](crate::docs)
 

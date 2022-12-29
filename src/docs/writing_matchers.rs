@@ -1,5 +1,7 @@
 /*!
-Writing Custom Matchers
+# Writing Custom Matchers
+
+How to write custom matchers for your tests.
 
 [↩︎ Back to User Docs](crate::docs)
 
@@ -11,7 +13,7 @@ complexity and flexibility:
 2. Implement [`SimpleMatch`].
 3. Implement [`Match`].
 
-# Composing existing matchers
+## Composing existing matchers
 
 The simplest way to make custom matchers is to just compose existing matchers.
 The combinator matchers [`each`], [`any`], and [`all`] are useful for this.
@@ -36,7 +38,7 @@ where
 }
 ```
 
-# Implementing `SimpleMatch`
+## Implementing `SimpleMatch`
 
 The next simplest way is to implement the [`SimpleMatch`] trait. Here's an
 implementation of the [`equal`] matcher.
@@ -134,7 +136,7 @@ where
 expect!("disco").to(not_equal("not disco"));
 ```
 
-# Implementing `Match`
+## Implementing `Match`
 
 The major limitation of [`SimpleMatch`] is that it always returns the same value
 that was passed in, hence the name "simple." If you have more complex needs for
