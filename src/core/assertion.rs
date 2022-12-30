@@ -1,5 +1,7 @@
 use std::convert::TryInto;
 
+use crate::matchers::{IterMap, IterTryMap};
+
 use super::{
     AssertionFailure, AssertionFormat, DynMatch, FormattedOutput, MatchError, MatchOutcome,
 };
@@ -74,7 +76,7 @@ where
         }
     }
 
-    /// Infallibly map the input value to an output value, possibly of a different type.
+    /// Infallibly map the input value by applying a function to it.
     ///
     /// This does the same thing as the [`map`] matcher.
     ///
@@ -87,7 +89,7 @@ where
         }
     }
 
-    /// Fallibly map the input value to an output value, possibly of a different type.
+    /// Fallibly map the input value by applying a function to it.
     ///
     /// This does the same thing as the [`try_map`] matcher.
     ///
@@ -197,6 +199,53 @@ where
     }
 }
 
+impl<In, AssertFmt> Assertion<In, AssertFmt>
+where
+    AssertFmt: AssertionFormat,
+    In: IntoIterator,
+{
+    /// Infallibly map each value of an iterator by applying a function to it.
+    ///
+    /// This does the same thing as the [`iter_map`] matcher.
+    ///
+    /// [`iter_map`]: crate::iter_map
+    pub fn iter_map<'a, Out, IntoIter>(
+        self,
+        func: impl Fn(In::Item) -> Out + 'a,
+    ) -> Assertion<IterMap<'a, In::Item, Out, In>, AssertFmt> {
+        Assertion {
+            value: IterMap::new(self.value, Box::new(func)),
+            format: self.format,
+            ctx: self.ctx,
+        }
+    }
+
+    /// Fallibly map each value of an iterator by applying a function to it.
+    ///
+    /// This does the same thing as the [`iter_try_map`] matcher.
+    ///
+    /// [`iter_try_map`]: crate::iter_try_map
+    pub fn iter_try_map<'a, Out, IntoIter>(
+        self,
+        func: impl Fn(In::Item) -> crate::Result<Out> + 'a,
+    ) -> Assertion<IterTryMap<Out>, AssertFmt> {
+        let mapped_values = self
+            .value
+            .into_iter()
+            .map(func)
+            .collect::<Result<Vec<_>, _>>();
+
+        Assertion {
+            value: match mapped_values {
+                Ok(vec) => IterTryMap::new(vec),
+                Err(error) => fail(self.ctx, MatchError::Err(error), self.format),
+            },
+            format: self.format,
+            ctx: self.ctx,
+        }
+    }
+}
+
 /// Make an assertion.
 ///
 /// Typically you'll want to use the [`expect!`] macro instead, because it does nice things like
@@ -204,6 +253,37 @@ where
 ///
 /// However, if you want to use a custom [`AssertionFormat`], then this function allows you to do
 /// it.
+///
+/// # Examples
+///
+/// You can use this function to write your *own* function or macro like [`expect!`] which hooks
+/// into your custom [`AssertionFormat`].
+///
+/// ```
+/// use xpct::core::{expect, Assertion, Format, Formatter, AssertionFailure};
+///
+/// #[derive(Debug, Default)]
+/// struct MyAssertionFormat;
+///
+/// #[derive(Debug, Default)]
+/// struct MyAssertionContext {
+///     some_value: String,
+/// }
+///
+/// impl Format for MyAssertionFormat {
+///     type Value = AssertionFailure<MyAssertionContext>;
+///
+///     fn fmt(self, f: &mut Formatter, value: Self::Value) -> xpct::Result<()> {
+///         todo!()
+///     }
+/// }
+///
+/// fn my_expect<In>(actual: In) -> Assertion<In, MyAssertionFormat> {
+///     expect::<In, MyAssertionFormat>(actual).with_ctx(|ctx| {
+///         ctx.some_value = String::from("Some value");
+///     })
+/// }
+/// ```
 ///
 /// [`expect!`]: crate::expect
 pub fn expect<In, AssertFmt>(actual: In) -> Assertion<In, AssertFmt>

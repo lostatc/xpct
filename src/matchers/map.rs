@@ -103,6 +103,12 @@ pub struct IterMap<'a, In, Out, I> {
     func: Box<dyn Fn(In) -> Out + 'a>,
 }
 
+impl<'a, In, Out, I> IterMap<'a, In, Out, I> {
+    pub(crate) fn new(inner: I, func: Box<dyn Fn(In) -> Out + 'a>) -> Self {
+        Self { inner, func }
+    }
+}
+
 impl<'a, In, Out, I> fmt::Debug for IterMap<'a, In, Out, I>
 where
     I: fmt::Debug,
@@ -146,27 +152,35 @@ impl<'a, In, Out, I> iter::FusedIterator for IterMap<'a, In, Out, I> where
 
 /// An iterator returned by [`IterTryMapMatcher`].
 #[derive(Debug, Clone)]
-pub struct IterTryMap<Out> {
-    inner: std::vec::IntoIter<Out>,
+pub struct IterTryMap<T> {
+    inner: std::vec::IntoIter<T>,
 }
 
-impl<Out> Iterator for IterTryMap<Out> {
-    type Item = Out;
+impl<T> IterTryMap<T> {
+    pub(crate) fn new(inner: Vec<T>) -> Self {
+        Self {
+            inner: inner.into_iter(),
+        }
+    }
+}
+
+impl<T> Iterator for IterTryMap<T> {
+    type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.inner.next()
     }
 }
 
-impl<Out> DoubleEndedIterator for IterTryMap<Out> {
+impl<T> DoubleEndedIterator for IterTryMap<T> {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.inner.next_back()
     }
 }
 
-impl<Out> ExactSizeIterator for IterTryMap<Out> {}
+impl<T> ExactSizeIterator for IterTryMap<T> {}
 
-impl<Out> iter::FusedIterator for IterTryMap<Out> {}
+impl<T> iter::FusedIterator for IterTryMap<T> {}
 
 /// The matcher for [`iter_map`].
 ///
@@ -208,10 +222,10 @@ where
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
-        Ok(MatchOutcome::Success(IterMap {
-            inner: actual.into_iter(),
-            func: self.func,
-        }))
+        Ok(MatchOutcome::Success(IterMap::new(
+            actual.into_iter(),
+            self.func,
+        )))
     }
 
     fn match_neg(
@@ -262,13 +276,12 @@ where
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
-        Ok(MatchOutcome::Success(IterTryMap {
-            inner: actual
+        Ok(MatchOutcome::Success(IterTryMap::new(
+            actual
                 .into_iter()
                 .map(self.func)
-                .collect::<Result<Vec<_>, _>>()?
-                .into_iter(),
-        }))
+                .collect::<Result<Vec<_>, _>>()?,
+        )))
     }
 
     fn match_neg(

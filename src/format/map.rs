@@ -22,7 +22,7 @@ impl Format for InfallibleFormat {
     }
 }
 
-/// Infallibly map the input value to an output value, possibly of a different type.
+/// Infallibly map the input value by applying a function to it.
 ///
 /// This does the same thing as [`Assertion::map`].
 ///
@@ -52,7 +52,7 @@ where
     Matcher::new(MapMatcher::new(func), InfallibleFormat)
 }
 
-/// Fallibly map the input value to an output value, possibly of a different type.
+/// Fallibly map the input value by applying a function to it.
 ///
 /// This does the same thing as [`Assertion::try_map`].
 ///
@@ -137,7 +137,9 @@ where
     )
 }
 
-/// Infallibly map each value of an iterator to a different value, possibly of a different type.
+/// Infallibly map each value of an iterator by applying a function to it.
+///
+/// This does the same thing as [`Assertion::iter_map`].
 ///
 /// This matcher always succeeds, even when negated. Therefore negating it has no effect.
 ///
@@ -167,6 +169,8 @@ where
 ///     .to(every(be_some))
 ///     .into_inner();
 /// ```
+///
+/// [`Assertion::iter_map`]: crate::core::Assertion::iter_map
 pub fn iter_map<'a, In, Out, IntoIter>(
     func: impl Fn(In) -> Out + 'a,
 ) -> Matcher<'a, IntoIter, IterMap<'a, In, Out, IntoIter::IntoIter>>
@@ -178,10 +182,14 @@ where
     Matcher::new(IterMapMatcher::new(func), InfallibleFormat)
 }
 
-/// Fallibly each value of an iterator to a different value, possibly of a different type.
+/// Fallibly map each value of an iterator by applying a function to it.
+///
+/// This does the same thing as [`Assertion::iter_try_map`].
 ///
 /// This matcher always succeeds as long as `func` returns `Ok`, even when negated. Therefore
 /// negating it has no effect.
+///
+/// [`Assertion::iter_try_map`]: crate::core::Assertion::iter_try_map
 pub fn iter_try_map<'a, In, Out, IntoIter>(
     func: impl Fn(In) -> crate::Result<Out> + 'a,
 ) -> Matcher<'a, IntoIter, IterTryMap<Out>>
