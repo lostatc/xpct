@@ -145,20 +145,6 @@ where
 ///
 /// # Examples
 ///
-/// This fails to compile if we try to pass `items` by reference.
-///
-/// ```compile_fail
-/// use xpct::{be_some, every, expect, iter_map};
-///
-/// let items = vec![Some("foo"), Some("bar")];
-///
-/// let output: Vec<&str> = expect!(&items)
-///     .to(every(be_some))
-///     .into_inner();
-/// ```
-///
-/// To fix that, we need to call [`Option::as_deref`] on each value.
-///
 /// ```
 /// use xpct::{be_some, every, expect, iter_map};
 ///

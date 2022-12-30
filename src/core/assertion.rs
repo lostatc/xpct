@@ -59,6 +59,14 @@ where
     ///
     /// This does the same thing as the [`not`] matcher.
     ///
+    /// # Examples
+    ///
+    /// ```
+    /// use xpct::{expect, equal};
+    ///
+    /// expect!("foo").to_not(equal("bar"));
+    /// ```
+    ///
     /// [`to`]: crate::core::Assertion::to
     /// [`not`]: crate::not
     pub fn to_not<Out>(
@@ -80,6 +88,21 @@ where
     ///
     /// This does the same thing as the [`map`] matcher.
     ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::convert::Infallible;
+    /// use xpct::{expect, equal};
+    ///
+    /// fn do_stuff() -> Result<String, Infallible> {
+    ///     Ok(String::from("foobar"))
+    /// }
+    ///
+    /// expect!(do_stuff())
+    ///     .map(Result::unwrap)
+    ///     .to(equal("foobar"));
+    /// ```
+    ///
     /// [`map`]: crate::map
     pub fn map<Out>(self, func: impl FnOnce(In) -> Out) -> Assertion<Out, AssertFmt> {
         Assertion {
@@ -92,6 +115,16 @@ where
     /// Fallibly map the input value by applying a function to it.
     ///
     /// This does the same thing as the [`try_map`] matcher.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use xpct::{expect, equal};
+    ///
+    /// expect!(vec![0x43, 0x75, 0x6e, 0x6f])
+    ///     .try_map(|bytes| Ok(String::from_utf8(bytes)?))
+    ///     .to(equal("Cuno"));
+    /// ```
     ///
     /// [`try_map`]: crate::map
     pub fn try_map<Out>(
@@ -112,6 +145,16 @@ where
     ///
     /// This does the same thing as the [`into`] matcher.
     ///
+    /// # Examples
+    ///
+    /// ```
+    /// use xpct::{expect, equal};
+    ///
+    /// expect!(41u32)
+    ///     .into::<u64>()
+    ///     .to(equal(41u64));
+    /// ```
+    ///
     /// [`into`]: crate::into
     pub fn into<Out>(self) -> Assertion<Out, AssertFmt>
     where
@@ -127,6 +170,16 @@ where
     /// Fallibly convert input value via [`TryFrom`]/[`TryInto`].
     ///
     /// This does the same thing as the [`try_into`] matcher.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use xpct::{expect, equal};
+    ///
+    /// expect!(41u64)
+    ///     .try_into::<u32>()
+    ///     .to(equal(41u32));
+    /// ```
     ///
     /// [`try_into`]: crate::try_into
     pub fn try_into<Out>(self) -> Assertion<Out, AssertFmt>
@@ -201,20 +254,47 @@ where
 
 impl<In, AssertFmt> Assertion<In, AssertFmt>
 where
-    AssertFmt: AssertionFormat,
     In: IntoIterator,
+    AssertFmt: AssertionFormat,
 {
     /// Infallibly map each value of an iterator by applying a function to it.
     ///
     /// This does the same thing as the [`iter_map`] matcher.
     ///
+    /// # Examples
+    ///
+    /// This fails to compile if we try to pass `items` by reference.
+    ///
+    /// ```compile_fail
+    /// use xpct::{be_some, every, expect};
+    ///
+    /// let items = vec![Some("foo"), Some("bar")];
+    ///
+    /// let output: Vec<&str> = expect!(&items)
+    ///     .to(every(be_some))
+    ///     .into_inner();
+    /// ```
+    ///
+    /// To fix that, we need to call [`Option::as_deref`] on each value.
+    ///
+    /// ```
+    /// use xpct::{be_some, every, expect};
+    ///
+    /// let items = vec![Some("foo"), Some("bar")];
+    ///
+    /// let output: Vec<&str> = expect!(&items)
+    ///     .iter_map(Option::as_deref)
+    ///     .to(every(be_some))
+    ///     .into_inner();
+    /// ```
+    ///
     /// [`iter_map`]: crate::iter_map
-    pub fn iter_map<'a, Out, IntoIter>(
+    pub fn iter_map<'a, Out>(
         self,
         func: impl Fn(In::Item) -> Out + 'a,
-    ) -> Assertion<IterMap<'a, In::Item, Out, In>, AssertFmt> {
+    ) -> Assertion<IterMap<'a, In::Item, Out, In::IntoIter>, AssertFmt> {
         Assertion {
-            value: IterMap::new(self.value, Box::new(func)),
+            value: IterMap::new(self.value.into_iter(), Box::new(func)),
             format: self.format,
             ctx: self.ctx,
         }
@@ -225,7 +305,7 @@ where
     /// This does the same thing as the [`iter_try_map`] matcher.
     ///
     /// [`iter_try_map`]: crate::iter_try_map
-    pub fn iter_try_map<'a, Out, IntoIter>(
+    pub fn iter_try_map<'a, Out>(
         self,
         func: impl Fn(In::Item) -> crate::Result<Out> + 'a,
     ) -> Assertion<IterTryMap<Out>, AssertFmt> {
