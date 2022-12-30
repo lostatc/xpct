@@ -92,7 +92,8 @@ expect!(vec![0x43, 0x75, 0x6e, 0x6f])
 ```
 
 If you need to convert between types that implement [`From`] or [`TryFrom`], you
-can use [`Assertion::into`] and [`Assertion::try_into`].
+can use the matchers [`into`] and [`try_into`] as well as [`Assertion::into`]
+and [`Assertion::try_into`].
 
 ```
 use xpct::{expect, equal};
@@ -230,6 +231,8 @@ matchers provided by this crate.
 [`be_ok`]: crate::be_ok
 [`map`]: crate::map
 [`try_map`]: crate::try_map
+[`into`]: crate::into
+[`try_into`]: crate::try_into
 [`all`]: crate::all
 [`each`]: crate::each
 [`any`]: crate::any

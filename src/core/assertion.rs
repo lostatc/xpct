@@ -55,7 +55,10 @@ where
     ///
     /// This tests that the given matcher does *not* succeed.
     ///
+    /// This does the same thing as the [`not`] matcher.
+    ///
     /// [`to`]: crate::core::Assertion::to
+    /// [`not`]: crate::not
     pub fn to_not<Out>(
         self,
         matcher: impl DynMatch<In = In, NegOut = Out>,
@@ -73,7 +76,7 @@ where
 
     /// Infallibly map the input value to an output value, possibly of a different type.
     ///
-    /// This does the same thing as [`map`].
+    /// This does the same thing as the [`map`] matcher.
     ///
     /// [`map`]: crate::map
     pub fn map<Out>(self, func: impl FnOnce(In) -> Out) -> Assertion<Out, AssertFmt> {
@@ -86,7 +89,7 @@ where
 
     /// Fallibly map the input value to an output value, possibly of a different type.
     ///
-    /// This does the same thing as [`try_map`].
+    /// This does the same thing as the [`try_map`] matcher.
     ///
     /// [`try_map`]: crate::map
     pub fn try_map<Out>(
@@ -103,9 +106,11 @@ where
         }
     }
 
-    /// Convert the input value via [`Into`].
+    /// Infallibly convert input value via [`From`]/[`Into`].
     ///
-    /// [`expect!`]: crate::expect
+    /// This does the same thing as the [`into`] matcher.
+    ///
+    /// [`into`]: crate::into
     pub fn into<Out>(self) -> Assertion<Out, AssertFmt>
     where
         Out: From<In>,
@@ -117,9 +122,11 @@ where
         }
     }
 
-    /// Same as [`into`], but with [`TryInto`].
+    /// Fallibly convert input value via [`TryFrom`]/[`TryInto`].
     ///
-    /// [`into`]: crate::core::Assertion::into
+    /// This does the same thing as the [`try_into`] matcher.
+    ///
+    /// [`try_into`]: crate::try_into
     pub fn try_into<Out>(self) -> Assertion<Out, AssertFmt>
     where
         Out: TryFrom<In>,

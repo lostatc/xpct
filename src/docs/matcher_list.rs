@@ -51,10 +51,12 @@ A list of all the matchers provided by this crate, grouped into categories.
 - [`why`][crate::why]
 - [`why_lazy`][crate::why_lazy]
 
-## Mapping values
+## Mapping/converting values
 
 - [`map`][crate::map]
 - [`try_map`][crate::try_map]
+- [`into`][crate::into]
+- [`try_into`][crate::try_into]
 - [`iter_map`][crate::iter_map]
 - [`iter_try_map`][crate::iter_try_map]
 

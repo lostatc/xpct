@@ -56,7 +56,7 @@ pub(crate) mod matchers {
     pub use super::fields::{match_any_fields, match_fields};
     pub use super::file::{be_directory, be_existing_file, be_regular_file, be_symlink};
     pub use super::len::{be_empty, have_len};
-    pub use super::map::{iter_map, iter_try_map, map, try_map};
+    pub use super::map::{into, iter_map, iter_try_map, map, try_into, try_map};
     pub use super::not::not;
     pub use super::option::{be_none, be_some};
     pub use super::ord::{be_ge, be_gt, be_le, be_lt, be_sorted_asc, be_sorted_by, be_sorted_desc};
