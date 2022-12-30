@@ -1,6 +1,6 @@
 [package]
 name = "xpct"
-version = "0.2.0"
+version = "0.2.1"
 description = "An extensible, batteries-included assertions library"
 edition = "2021"
 authors = ["Wren Powell <wrenp@duck.com>"]
