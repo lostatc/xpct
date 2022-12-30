@@ -141,7 +141,7 @@ where
         }
     }
 
-    /// Infallibly convert input value via [`From`]/[`Into`].
+    /// Infallibly convert the input value via [`From`]/[`Into`].
     ///
     /// This does the same thing as the [`into`] matcher.
     ///
@@ -167,7 +167,7 @@ where
         }
     }
 
-    /// Fallibly convert input value via [`TryFrom`]/[`TryInto`].
+    /// Fallibly convert the input value via [`TryFrom`]/[`TryInto`].
     ///
     /// This does the same thing as the [`try_into`] matcher.
     ///

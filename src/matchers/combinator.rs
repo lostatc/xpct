@@ -87,9 +87,12 @@ impl<'a, 'b: 'a, T, In> CombinatorAssertion<'a, 'b, T, In> {
 
     /// Same as [`to`], but negated.
     ///
+    /// This does the same thing as [`Assertion::to_not`].
+    ///
     /// This tests that the given matcher does *not* succeed.
     ///
-    /// [`to`]: crate::matchers::CombinatorAssertion::to
+    /// [`to`]: crate::core::Assertion::to
+    /// [`Assertion::to_not`]: crate::core::Assertion::to_not
     pub fn to_not(self, matcher: impl DynMatch<In = In>) -> Self {
         if self.negated {
             self.match_pos(matcher)
