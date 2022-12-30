@@ -19,10 +19,7 @@ impl<'a, In, Out> fmt::Debug for MapMatcher<'a, In, Out> {
 
 impl<'a, In, Out> MapMatcher<'a, In, Out> {
     /// Create a new [`MapMatcher`].
-    pub fn new<F>(func: F) -> Self
-    where
-        F: FnOnce(In) -> Out + 'a,
-    {
+    pub fn new(func: impl FnOnce(In) -> Out + 'a) -> Self {
         Self {
             func: Box::new(func),
         }
@@ -115,10 +112,7 @@ impl<'a, In, Out, IntoIter> fmt::Debug for IterMapMatcher<'a, In, Out, IntoIter>
 
 impl<'a, In, Out, IntoIter> IterMapMatcher<'a, In, Out, IntoIter> {
     /// Create a new [`IterMapMatcher`].
-    pub fn new<F>(func: F) -> Self
-    where
-        F: Fn(In) -> Out + 'a,
-    {
+    pub fn new(func: impl Fn(In) -> Out + 'a) -> Self {
         Self {
             func: Box::new(func),
             marker: PhantomData,
@@ -173,10 +167,7 @@ impl<'a, In, Out, IntoIter> fmt::Debug for IterTryMapMatcher<'a, In, Out, IntoIt
 
 impl<'a, In, Out, IntoIter> IterTryMapMatcher<'a, In, Out, IntoIter> {
     /// Create a new [`IterTryMapMatcher`].
-    pub fn new<F>(func: F) -> Self
-    where
-        F: Fn(In) -> crate::Result<Out> + 'a,
-    {
+    pub fn new(func: impl Fn(In) -> crate::Result<Out> + 'a) -> Self {
         Self {
             func: Box::new(func),
             marker: PhantomData,

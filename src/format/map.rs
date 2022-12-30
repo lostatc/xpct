@@ -42,13 +42,12 @@ impl Format for InfallibleFormat {
 /// ```
 ///
 /// [`Assertion::map`]: crate::core::Assertion::map
-pub fn map<'a, In, Out, F>(func: F) -> Matcher<'a, In, Out>
+pub fn map<'a, In, Out>(func: impl FnOnce(In) -> Out + 'a) -> Matcher<'a, In, Out>
 where
-    F: FnOnce(In) -> Out + 'a,
     In: 'a,
     Out: 'a,
 {
-    Matcher::new(MapMatcher::new::<F>(func), InfallibleFormat)
+    Matcher::new(MapMatcher::new(func), InfallibleFormat)
 }
 
 /// Fallibly map the input value to an output value, possibly of a different type.
@@ -166,12 +165,13 @@ where
 ///     .to(every(be_some))
 ///     .into_inner();
 /// ```
-pub fn iter_map<'a, In, Out, IntoIter, F>(func: F) -> Matcher<'a, IntoIter, Vec<Out>>
+pub fn iter_map<'a, In, Out, IntoIter>(
+    func: impl Fn(In) -> Out + 'a,
+) -> Matcher<'a, IntoIter, Vec<Out>>
 where
-    IntoIter: IntoIterator<Item = In> + 'a,
-    F: Fn(In) -> Out + 'a,
     In: 'a,
     Out: 'a,
+    IntoIter: IntoIterator<Item = In> + 'a,
 {
     Matcher::new(IterMapMatcher::new(func), InfallibleFormat)
 }
@@ -180,12 +180,13 @@ where
 ///
 /// This matcher always succeeds as long as `func` returns `Ok`, even when negated. Therefore
 /// negating it has no effect.
-pub fn iter_try_map<'a, In, Out, IntoIter, F>(func: F) -> Matcher<'a, IntoIter, Vec<Out>>
+pub fn iter_try_map<'a, In, Out, IntoIter>(
+    func: impl Fn(In) -> crate::Result<Out> + 'a,
+) -> Matcher<'a, IntoIter, Vec<Out>>
 where
-    IntoIter: IntoIterator<Item = In> + 'a,
-    F: Fn(In) -> crate::Result<Out> + 'a,
     In: 'a,
     Out: 'a,
+    IntoIter: IntoIterator<Item = In> + 'a,
 {
     Matcher::new(IterTryMapMatcher::new(func), InfallibleFormat)
 }
