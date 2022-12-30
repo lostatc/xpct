@@ -6,10 +6,10 @@ use super::{
     AssertionFailure, AssertionFormat, DynMatch, FormattedOutput, MatchError, MatchOutcome,
 };
 
-/// An assertion; the value returned by [`expect!`].
+/// An assertion, the starting point in a chain of matchers.
 ///
 /// This is the value returned by [`expect!`]. You can use the [`to`] and [`to_not`] methods to use
-/// matchers.
+/// matchers, chaining the output of each into the input of the next.
 ///
 /// [`expect!`]: crate::expect
 /// [`to`]: crate::core::Assertion::to
@@ -303,6 +303,18 @@ where
     /// Fallibly map each value of an iterator by applying a function to it.
     ///
     /// This does the same thing as the [`iter_try_map`] matcher.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use xpct::{expect, consist_of};
+    ///
+    /// let small_integers: [u64; 2] = [41, 57];
+    ///
+    /// expect!(small_integers)
+    ///     .iter_try_map(|value| Ok(u32::try_from(value)?))
+    ///     .to(consist_of([41u32, 57u32]));
+    /// ```
     ///
     /// [`iter_try_map`]: crate::iter_try_map
     pub fn iter_try_map<'a, Out>(

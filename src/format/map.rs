@@ -173,6 +173,18 @@ where
 /// This matcher always succeeds as long as `func` returns `Ok`, even when negated. Therefore
 /// negating it has no effect.
 ///
+/// # Examples
+///
+/// ```
+/// use xpct::{expect, iter_try_map, consist_of};
+///
+/// let small_integers: [u64; 2] = [41, 57];
+///
+/// expect!(small_integers)
+///     .to(iter_try_map(|value| Ok(u32::try_from(value)?)))
+///     .to(consist_of([41u32, 57u32]));
+/// ```
+///
 /// [`Assertion::iter_try_map`]: crate::core::Assertion::iter_try_map
 pub fn iter_try_map<'a, In, Out, IntoIter>(
     func: impl Fn(In) -> crate::Result<Out> + 'a,
