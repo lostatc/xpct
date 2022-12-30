@@ -2,19 +2,21 @@
 # Writing Custom Formatters
 
 How to write custom formatters, either for formatting output from your own
-matchers, or for changing the formatting of builtin matchers.
+matchers, or for changing the formatting of the provided matchers.
 
 [↩︎ Back to User Docs](crate::docs)
 
-Most of the time, when writing matchers, you should be able to reuse existing
-formatters in this module. However, if you want to write a formatter for your
-custom matcher, or even to change the formatting of an existing matcher, here's
-how to do it.
+## Writing a formatter
 
-Formatters are types that implement the [`Format`] trait. Formatters have a
-[`Format::Value`], which is the type passed to them by the matcher. If you want
-to implement [`Format`] for use with a matcher, its [`Format::Value`] must be a
-[`MatchFailure`].
+Most of the time, when writing matchers, you should be able to reuse existing
+formatters in [`crate::format`]. However, if you want to write a formatter for
+your custom matcher, or even to change the formatting of an existing matcher,
+here's how to do it.
+
+Matcher formatters are types that implement the [`ResultFormat`] trait. However,
+you can instead implement the more generic [`Format`] trait, making its
+[`Format::Value`] a [`MatchFailure`], which will automatically implement
+[`ResultFormat`] via a blanket impl.
 
 Let's write a simple formatter that accepts a [`Mismatch`] and prints that the
 two values are not equal. This is an example; in practice, you can just use
@@ -101,16 +103,22 @@ where
 }
 ```
 
-Formatters also support styling the output with colors and font styles using the
-[`Formatter::set_style`] and [`Formatter::reset_style`] methods. You can disable
-stylized terminal output by disabling the default `color` Cargo feature. This
-doesn't change the API, but does make methods like [`Formatter::set_style`] a
-no-op.
+## Colors and text styles
+
+Formatters also support styling the output with colors and text styles using the
+[`Formatter::set_style`] and [`Formatter::reset_style`] methods.
+
+Colors and text styles are never emitted when stderr is not a tty or when the
+[`NO_COLOR`](https://no-color.org/) environment variable is set. You can also
+remove support for colors and text styles by disabling the default `color` Cargo
+feature. See [Cargo Features][crate::docs::cargo_features] for information.
+
+## Composing formatters
 
 If your matcher composes other matchers, it will likely pass a
 [`FormattedFailure`] to the formatter, which represents the formatted output of
-those matchers. You can use [`Formatter::write_fmt`] to efficiently write this
-to your formatter's output.
+those matchers. You can use [`Formatter::write_fmt`] to efficiently pass this
+through to your formatter's output.
 
 You can also indent the output of the inner matcher using
 [`FormattedOutput::indented`] like this:
@@ -122,12 +130,19 @@ f.write_fmt(FormattedOutput::from(failure).indented(4));
 # }
 ```
 
+Printing the output of nested matchers on a separate line and indenting them is
+a strategy the provided formatters use to make sure that formatters can compose
+each other nicely without having to worry about what the output of the inner
+formatter actually looks like.
+
 If you really hate the default formatters and you want to replace all the
 provided formatters in this module with your own, you can disable the default
-`fmt` Cargo feature.
+`fmt` Cargo feature. Again, there's more info on the [Cargo
+Features][crate::docs::cargo_features] page.
 
 [`equal`]: crate::equal
 [`EqualMatcher`]: crate::matchers::EqualMatcher
+[`ResultFormat`]: crate::core::ResultFormat
 [`Format`]: crate::core::Format
 [`Format::Value`]: crate::core::Format::Value
 [`MatchFailure`]: crate::core::MatchFailure

@@ -32,11 +32,10 @@ is set.
 
 ## `fmt` *(default)*
 
-Enable the default formatters for the builtin matchers. This is enabled by
-default.
+Enable the provided formatters. This is enabled by default.
 
 You do not want to disable this feature unless you want reimplement **all** the
-builtin formatters yourself, which also includes the matcher functions
+provided formatters yourself, which also includes the matcher functions
 ([`equal`], [`be_some`], etc.), since they rely on these formatters. What this
 leaves is [`crate::core`] and [`crate::matchers`]. Disable this if you want to
 write "xpct, but with better formatting."

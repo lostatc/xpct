@@ -1,5 +1,5 @@
 /*!
-# Builtin Matchers
+# Provided Matchers
 
 A list of all the matchers provided by this crate, grouped into categories.
 

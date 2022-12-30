@@ -55,9 +55,9 @@ where
 
     /// Same as [`to`], but negated.
     ///
-    /// This tests that the given matcher does *not* succeed.
-    ///
     /// This does the same thing as the [`not`] matcher.
+    ///
+    /// This tests that the given matcher does *not* succeed.
     ///
     /// # Examples
     ///

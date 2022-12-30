@@ -40,8 +40,9 @@ where
 
 ## Implementing `SimpleMatch`
 
-The next simplest way is to implement the [`SimpleMatch`] trait. Here's an
-implementation of the [`equal`] matcher.
+The next simplest way is to implement the [`SimpleMatch`] trait. This is how
+many of the provided matchers are implemented. Here's an implementation of the
+[`equal`] matcher.
 
 ```
 use xpct::core::SimpleMatch;
@@ -78,6 +79,7 @@ where
 ```
 
 Now let's make a function to call this matcher ergonomically from tests!
+Basically, we just need to write a function which returns a [`Matcher`].
 
 To make `EqualMatcher` into a `Matcher`, you just need to wrap it with
 [`Matcher::simple`]. This method also accepts the formatter which is used to
@@ -241,6 +243,7 @@ pub fn be_err<'a, T: 'a, E: 'a>() -> Matcher<'a, Result<T, E>, E, T> {
 [`be_ok`]: crate::be_ok
 [`SimpleMatch`]: crate::core::SimpleMatch
 [`equal`]: crate::equal
+[`Matcher`]: crate::core::Matcher
 [`Matcher::new`]: crate::core::Matcher::new
 [`Mismatch`]: crate::matchers::Mismatch
 [`MismatchFormat`]: crate::format::MismatchFormat

@@ -174,8 +174,8 @@ expect!(value).to(match_fields(fields!(Person {
 })));
 ```
 
-There are also a number of builtin matchers for dealing with collections. For
-example, you can assert that a collection contains certain elements using
+There are also a number of matchers for dealing with collections. For example,
+you can assert that a collection contains certain elements using
 [`contain_element`] and [`contain_elements`].
 
 ```
@@ -223,7 +223,7 @@ The matchers for collections are implemented using the [`Len`] and [`Contains`]
 traits. You can implement these traits for your own types to use them with the
 collections matchers.
 
-Check out [Builtin Matchers][crate::docs::matcher_list] for a list of all the
+Check out [Provided Matchers][crate::docs::matcher_list] for a list of all the
 matchers provided by this crate.
 
 [`equal`]: crate::equal
