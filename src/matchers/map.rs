@@ -1,5 +1,6 @@
 use std::convert::Infallible;
 use std::fmt;
+use std::iter;
 use std::marker::PhantomData;
 
 use crate::core::{FormattedFailure, Match, MatchOutcome};
@@ -46,7 +47,7 @@ impl<'a, In, Out> Match for MapMatcher<'a, In, Out> {
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
-        Ok(MatchOutcome::Success((self.func)(actual)))
+        self.match_pos(actual)
     }
 }
 
@@ -92,9 +93,80 @@ impl<'a, In, Out> Match for TryMapMatcher<'a, In, Out> {
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
-        Ok(MatchOutcome::Success((self.func)(actual)?))
+        self.match_pos(actual)
     }
 }
+
+/// An iterator returned by [`IterMapMatcher`].
+pub struct IterMap<'a, In, Out, I> {
+    inner: I,
+    func: Box<dyn Fn(In) -> Out + 'a>,
+}
+
+impl<'a, In, Out, I> fmt::Debug for IterMap<'a, In, Out, I>
+where
+    I: fmt::Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("IterMap")
+            .field("inner", &self.inner)
+            .finish_non_exhaustive()
+    }
+}
+
+impl<'a, In, Out, I> Iterator for IterMap<'a, In, Out, I>
+where
+    I: Iterator<Item = In>,
+{
+    type Item = Out;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.next().map(&self.func)
+    }
+}
+
+impl<'a, In, Out, I> DoubleEndedIterator for IterMap<'a, In, Out, I>
+where
+    I: DoubleEndedIterator<Item = In>,
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.inner.next_back().map(&self.func)
+    }
+}
+
+impl<'a, In, Out, I> ExactSizeIterator for IterMap<'a, In, Out, I> where
+    I: ExactSizeIterator<Item = In>
+{
+}
+
+impl<'a, In, Out, I> iter::FusedIterator for IterMap<'a, In, Out, I> where
+    I: iter::FusedIterator<Item = In>
+{
+}
+
+/// An iterator returned by [`IterTryMapMatcher`].
+#[derive(Debug, Clone)]
+pub struct IterTryMap<Out> {
+    inner: std::vec::IntoIter<Out>,
+}
+
+impl<Out> Iterator for IterTryMap<Out> {
+    type Item = Out;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.next()
+    }
+}
+
+impl<Out> DoubleEndedIterator for IterTryMap<Out> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.inner.next_back()
+    }
+}
+
+impl<Out> ExactSizeIterator for IterTryMap<Out> {}
+
+impl<Out> iter::FusedIterator for IterTryMap<Out> {}
 
 /// The matcher for [`iter_map`].
 ///
@@ -126,8 +198,8 @@ where
 {
     type In = IntoIter;
 
-    type PosOut = Vec<Out>;
-    type NegOut = Vec<Out>;
+    type PosOut = IterMap<'a, In, Out, IntoIter::IntoIter>;
+    type NegOut = IterMap<'a, In, Out, IntoIter::IntoIter>;
 
     type PosFail = Infallible;
     type NegFail = Infallible;
@@ -136,18 +208,17 @@ where
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
-        Ok(MatchOutcome::Success(
-            actual.into_iter().map(self.func).collect::<Vec<_>>(),
-        ))
+        Ok(MatchOutcome::Success(IterMap {
+            inner: actual.into_iter(),
+            func: self.func,
+        }))
     }
 
     fn match_neg(
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
-        Ok(MatchOutcome::Success(
-            actual.into_iter().map(self.func).collect::<Vec<_>>(),
-        ))
+        self.match_pos(actual)
     }
 }
 
@@ -181,8 +252,8 @@ where
 {
     type In = IntoIter;
 
-    type PosOut = Vec<Out>;
-    type NegOut = Vec<Out>;
+    type PosOut = IterTryMap<Out>;
+    type NegOut = IterTryMap<Out>;
 
     type PosFail = Infallible;
     type NegFail = Infallible;
@@ -191,23 +262,19 @@ where
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
-        Ok(MatchOutcome::Success(
-            actual
+        Ok(MatchOutcome::Success(IterTryMap {
+            inner: actual
                 .into_iter()
                 .map(self.func)
-                .collect::<Result<Vec<_>, _>>()?,
-        ))
+                .collect::<Result<Vec<_>, _>>()?
+                .into_iter(),
+        }))
     }
 
     fn match_neg(
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
-        Ok(MatchOutcome::Success(
-            actual
-                .into_iter()
-                .map(self.func)
-                .collect::<Result<Vec<_>, _>>()?,
-        ))
+        self.match_pos(actual)
     }
 }

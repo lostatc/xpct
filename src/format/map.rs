@@ -1,7 +1,9 @@
 use std::convert::Infallible;
 
 use crate::core::{Format, Formatter, MatchFailure, Matcher};
-use crate::matchers::{IterMapMatcher, IterTryMapMatcher, MapMatcher, TryMapMatcher};
+use crate::matchers::{
+    IterMap, IterMapMatcher, IterTryMap, IterTryMapMatcher, MapMatcher, TryMapMatcher,
+};
 
 use super::FailureFormat;
 
@@ -87,10 +89,10 @@ where
 /// # Examples
 ///
 /// ```
-/// use xpct::{expect, equal};
+/// use xpct::{expect, equal, into};
 ///
 /// expect!(41u32)
-///     .to(into::<u64>())
+///     .to(into::<_, u64>())
 ///     .to(equal(41u64));
 /// ```
 ///
@@ -113,10 +115,10 @@ where
 /// # Examples
 ///
 /// ```
-/// use xpct::{expect, equal};
+/// use xpct::{expect, equal, try_into};
 ///
 /// expect!(41u64)
-///     .to(try_into::<u32>())
+///     .to(try_into::<_, u32>())
 ///     .to(equal(41u32));
 /// ```
 ///
@@ -167,7 +169,7 @@ where
 /// ```
 pub fn iter_map<'a, In, Out, IntoIter>(
     func: impl Fn(In) -> Out + 'a,
-) -> Matcher<'a, IntoIter, Vec<Out>>
+) -> Matcher<'a, IntoIter, IterMap<'a, In, Out, IntoIter::IntoIter>>
 where
     In: 'a,
     Out: 'a,
@@ -182,7 +184,7 @@ where
 /// negating it has no effect.
 pub fn iter_try_map<'a, In, Out, IntoIter>(
     func: impl Fn(In) -> crate::Result<Out> + 'a,
-) -> Matcher<'a, IntoIter, Vec<Out>>
+) -> Matcher<'a, IntoIter, IterTryMap<Out>>
 where
     In: 'a,
     Out: 'a,
