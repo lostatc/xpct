@@ -150,38 +150,6 @@ impl<'a, In, Out, I> iter::FusedIterator for IterMap<'a, In, Out, I> where
 {
 }
 
-/// An iterator returned by [`IterTryMapMatcher`].
-#[derive(Debug, Clone)]
-pub struct IterTryMap<T> {
-    inner: std::vec::IntoIter<T>,
-}
-
-impl<T> IterTryMap<T> {
-    pub(crate) fn new(inner: Vec<T>) -> Self {
-        Self {
-            inner: inner.into_iter(),
-        }
-    }
-}
-
-impl<T> Iterator for IterTryMap<T> {
-    type Item = T;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.inner.next()
-    }
-}
-
-impl<T> DoubleEndedIterator for IterTryMap<T> {
-    fn next_back(&mut self) -> Option<Self::Item> {
-        self.inner.next_back()
-    }
-}
-
-impl<T> ExactSizeIterator for IterTryMap<T> {}
-
-impl<T> iter::FusedIterator for IterTryMap<T> {}
-
 /// The matcher for [`iter_map`].
 ///
 /// [`iter_map`]: crate::iter_map
@@ -266,8 +234,8 @@ where
 {
     type In = IntoIter;
 
-    type PosOut = IterTryMap<Out>;
-    type NegOut = IterTryMap<Out>;
+    type PosOut = Vec<Out>;
+    type NegOut = Vec<Out>;
 
     type PosFail = Infallible;
     type NegFail = Infallible;
@@ -276,12 +244,12 @@ where
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
-        Ok(MatchOutcome::Success(IterTryMap::new(
+        Ok(MatchOutcome::Success(
             actual
                 .into_iter()
                 .map(self.func)
                 .collect::<Result<Vec<_>, _>>()?,
-        )))
+        ))
     }
 
     fn match_neg(

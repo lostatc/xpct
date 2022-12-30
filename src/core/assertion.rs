@@ -1,6 +1,6 @@
 use std::convert::TryInto;
 
-use crate::matchers::{IterMap, IterTryMap};
+use crate::matchers::IterMap;
 
 use super::{
     AssertionFailure, AssertionFormat, DynMatch, FormattedOutput, MatchError, MatchOutcome,
@@ -308,7 +308,7 @@ where
     pub fn iter_try_map<'a, Out>(
         self,
         func: impl Fn(In::Item) -> crate::Result<Out> + 'a,
-    ) -> Assertion<IterTryMap<Out>, AssertFmt> {
+    ) -> Assertion<Vec<Out>, AssertFmt> {
         let mapped_values = self
             .value
             .into_iter()
@@ -317,7 +317,7 @@ where
 
         Assertion {
             value: match mapped_values {
-                Ok(vec) => IterTryMap::new(vec),
+                Ok(vec) => vec,
                 Err(error) => fail(self.ctx, MatchError::Err(error), self.format),
             },
             format: self.format,

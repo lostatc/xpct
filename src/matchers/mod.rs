@@ -40,7 +40,7 @@ pub use float::ApproxEqFloatMatcher;
 #[cfg(feature = "json")]
 pub use json::JsonMatcher;
 pub use len::{HaveLenMatcher, Len};
-pub use map::{IterMap, IterMapMatcher, IterTryMap, IterTryMapMatcher, MapMatcher, TryMapMatcher};
+pub use map::{IterMap, IterMapMatcher, IterTryMapMatcher, MapMatcher, TryMapMatcher};
 pub use not::NotMatcher;
 pub use option::BeSomeMatcher;
 pub use ord::{BeSortedByMatcher, BeSortedMatcher, Inequality, OrdMatcher, SortOrder};

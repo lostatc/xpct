@@ -1,9 +1,7 @@
 use std::convert::Infallible;
 
 use crate::core::{Format, Formatter, MatchFailure, Matcher};
-use crate::matchers::{
-    IterMap, IterMapMatcher, IterTryMap, IterTryMapMatcher, MapMatcher, TryMapMatcher,
-};
+use crate::matchers::{IterMap, IterMapMatcher, IterTryMapMatcher, MapMatcher, TryMapMatcher};
 
 use super::FailureFormat;
 
@@ -178,7 +176,7 @@ where
 /// [`Assertion::iter_try_map`]: crate::core::Assertion::iter_try_map
 pub fn iter_try_map<'a, In, Out, IntoIter>(
     func: impl Fn(In) -> crate::Result<Out> + 'a,
-) -> Matcher<'a, IntoIter, IterTryMap<Out>>
+) -> Matcher<'a, IntoIter, Vec<Out>>
 where
     In: 'a,
     Out: 'a,
