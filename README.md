@@ -158,7 +158,7 @@ not also be supported.
 
 The MSRV will only be increased when necessary to take advantage of new Rust
 features, not every time there is a new Rust release. An increase in the MSRV
-will be accompanied by a minor semver bump if >1.0.0 or a patch semver bump if
+will be accompanied by a minor semver bump if >=1.0.0 or a patch semver bump if
 <1.0.0.
 
 ## Semver Policy
