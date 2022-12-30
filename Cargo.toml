@@ -11,6 +11,7 @@ readme = "README.md"
 license = "MIT"
 keywords = ["testing", "assertions", "assert", "matchers"]
 categories = ["development-tools", "development-tools::testing"]
+# If you update this, update the GitHub Actions workflow as well.
 rust-version = "1.60.0"
 
   # We use an attribute when building on docs.rs so we can make use of unstable

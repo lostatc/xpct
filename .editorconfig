@@ -11,5 +11,8 @@ insert_final_newline = true
 [*.rs]
 max_line_length = 100
 
+[*.yaml]
+indent_size = 2
+
 [*.md]
 max_line_length = 80
