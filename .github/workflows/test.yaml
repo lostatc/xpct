@@ -6,6 +6,8 @@ jobs:
   check:
     name: "Check"
     runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: "-D warnings"
     steps:
       - name: "Checkout sources"
         uses: actions/checkout@v2
@@ -27,6 +29,8 @@ jobs:
   test:
     name: "Tests"
     runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: "-D warnings"
     steps:
       - name: "Checkout sources"
         uses: actions/checkout@v2
@@ -48,6 +52,8 @@ jobs:
   lints:
     name: "Linters"
     runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: "-D warnings"
     steps:
       - name: "Checkout sources"
         uses: actions/checkout@v2
@@ -75,6 +81,8 @@ jobs:
   docs:
     name: "Docs"
     runs-on: ubuntu-latest
+    env:
+      RUSTDOCFLAGS: "-D warnings --cfg docsrs"
     steps:
       - name: "Checkout sources"
         uses: actions/checkout@v2
@@ -87,8 +95,6 @@ jobs:
           override: true
 
       - name: "Run cargo doc"
-        env:
-          RUSTDOCFLAGS: "--cfg docsrs"
         uses: actions-rs/cargo@v1
         with:
           toolchain: nightly
