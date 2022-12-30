@@ -14,6 +14,9 @@ the [User Docs][crate::docs].
 // Disabling this feature does not change the public API, but the documentation makes it appear as
 // if it does.
 #![cfg_attr(docsrs, doc(cfg_hide(feature = "color")))]
+// While technically accurate and potentially helpful, this feature flag adds a lot of unnecessary
+// noise to the API docs.
+#![cfg_attr(docsrs, doc(cfg_hide(feature = "fmt")))]
 
 // Test code snippets in the README.
 

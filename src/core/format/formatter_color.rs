@@ -77,7 +77,7 @@ impl Formatter {
     /// Set the current [`OutputStyle`].
     ///
     /// This is used to configure colors and text styles in the output. Output formatting is
-    /// stripped out when stdout is not a tty.
+    /// stripped out when stderr is not a tty.
     pub fn set_style(&mut self, style: OutputStyle) {
         self.prev.push(std::mem::replace(
             &mut self.current,
