@@ -46,31 +46,95 @@ impl<Pos, Neg> MatchFailure<Pos, Neg> {
 }
 
 /// A [`MatchFailure`] which has been formatted with a [`ResultFormat`].
+///
+/// This type is similar to [`FormattedOutput`], except it is specific to formatted [`MatchFailure`]
+/// values and is also an [`Error`].
+///
+/// Values of this type can be converted into a more generic [`FormattedOutput`] via
+/// [`From`]/[`Into`] or [`into_indented`].
+///
+/// [`Error`]: std::error::Error
+/// [`into_indented`]: crate::core::FormattedFailure::into_indented
 #[derive(Debug)]
-pub struct FormattedFailure(FormattedOutput);
+pub struct FormattedFailure {
+    inner: FormattedOutput,
+}
 
 impl FormattedFailure {
-    /// Create a new [`MatchFailure`] by formatting `fail` with `format`.
-    pub fn new<Fmt, PosFail, NegFail>(
-        fail: MatchFailure<PosFail, NegFail>,
-        format: Fmt,
-    ) -> crate::Result<Self>
+    /// Create a new [`FormattedFailure`] by formatting `fail` with `format`.
+    pub fn new<Fmt, Pos, Neg>(fail: MatchFailure<Pos, Neg>, format: Fmt) -> crate::Result<Self>
     where
-        Fmt: ResultFormat<Pos = PosFail, Neg = NegFail>,
+        Fmt: ResultFormat<Pos = Pos, Neg = Neg>,
     {
-        Ok(Self(FormattedOutput::new(fail, format)?))
+        Ok(Self {
+            inner: FormattedOutput::new(fail, format)?,
+        })
+    }
+
+    /// Convert this into a [`FormattedOutput`], indented by the given number of spaces.
+    ///
+    ///
+    /// This method is equivalent to:
+    ///
+    /// ```
+    /// # use xpct::core::{FormattedFailure, FormattedOutput, MatchFailure};
+    /// # use xpct::format::MessageFormat;
+    /// # let formatted_failure = FormattedFailure::new(
+    /// #     MatchFailure::<()>::Pos(()),
+    /// #     MessageFormat::new("", "")
+    /// # ).unwrap();
+    /// # let spaces = 4u32;
+    /// FormattedOutput::from(formatted_failure).indented(spaces);
+    /// ```
+    ///
+    /// See [`FormattedOutput::indented`].
+    ///
+    /// # Examples
+    ///
+    /// Here's a simple formatter that composes the output of multiple other formatters, via
+    /// [`SomeFailures`].
+    ///
+    /// ```
+    /// # struct SomeFailuresFormat;
+    /// use xpct::core::{Formatter, Format};
+    /// use xpct::matchers::SomeFailures;
+    ///
+    /// impl Format for SomeFailuresFormat {
+    ///     type Value = SomeFailures;
+    ///
+    ///     fn fmt(self, f: &mut Formatter, value: Self::Value) -> xpct::Result<()> {
+    ///         for (i, maybe_fail) in value.into_iter().enumerate() {
+    ///             f.write_str(format!("[{}]\n", i));
+    ///
+    ///             match maybe_fail {
+    ///                 Some(fail) => f.write_fmt(fail.into_indented(4)),
+    ///                 None => f.write_str("    OK"),
+    ///             }
+    ///
+    ///             f.write_char('\n');
+    ///         }
+    ///
+    ///         Ok(())
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// [`SomeFailures`]: crate::matchers::SomeFailures
+    /// [`FormattedOutput::indented`]: crate::core::FormattedOutput::indented
+    pub fn into_indented(self, spaces: u32) -> FormattedOutput {
+        FormattedOutput::from(self).indented(spaces)
     }
 }
 
 impl From<FormattedFailure> for FormattedOutput {
     fn from(fail: FormattedFailure) -> Self {
-        fail.0
+        fail.inner
     }
 }
 
 impl fmt::Display for FormattedFailure {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt(f)
+        self.inner.fmt(f)
     }
 }
 

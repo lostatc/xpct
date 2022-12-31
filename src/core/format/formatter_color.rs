@@ -5,7 +5,7 @@ use std::fmt;
 use super::strings::indent_vec;
 use super::{Format, OutputStyle};
 
-// Disable colored output if stderr is not a tty.
+// Disable colors and text styles if stderr is not a tty.
 fn check_disable_color() {
     if atty::isnt(atty::Stream::Stderr) {
         colored::control::set_override(false)
@@ -94,7 +94,12 @@ impl Formatter {
     }
 }
 
-/// A value that has been formatted with a [formatter][`Format`].
+/// A value that has been formatted with [`Format`].
+///
+/// Formatting a value with [`Format`] returns this opaque type rather than a string, since we need
+/// to encapsulate the colors and text styles information in a cross-platform way. While ANSI escape
+/// codes can be included in a string, other platforms (such as Windows) have their own mechanisms
+/// for including colors and text styles in stdout/stderr.
 #[derive(Debug)]
 pub struct FormattedOutput {
     segments: Vec<OutputSegment>,
@@ -137,13 +142,17 @@ impl FormattedOutput {
 
     /// Return a new [`FormattedOutput`] which has been indented by the given number of spaces.
     ///
-    /// This is helpful when writing custom matchers that compose other matchers, so you can indent
-    /// their output and include it in your matcher's output.
+    /// Also see [`FormattedFailure::into_indented`].
+    ///
+    /// [`FormattedFailure::into_indented`]: crate::core::FormattedFailure::into_indented
     pub fn indented(self, spaces: u32) -> Self {
         self.indented_inner(spaces, false)
     }
 
     /// Panic with this output as the error message.
+    ///
+    /// This does not print colors or text styles when the [`NO_COLOR`](https://no-color.org/)
+    /// environment variable is set or when stderr is not a tty.
     pub fn fail(&self) -> ! {
         check_disable_color();
         panic!("\n{}\n", self);

@@ -121,12 +121,12 @@ those matchers. You can use [`Formatter::write_fmt`] to efficiently pass this
 through to your formatter's output.
 
 You can also indent the output of the inner matcher using
-[`FormattedOutput::indented`] like this:
+[`FormattedFailure::into_indented`] like this:
 
 ```
-# use xpct::core::{Formatter, FormattedFailure, FormattedOutput};
+# use xpct::core::{Formatter, FormattedFailure};
 # fn fmt(f: &mut Formatter, failure: FormattedFailure) {
-f.write_fmt(FormattedOutput::from(failure).indented(4));
+f.write_fmt(failure.into_indented(4));
 # }
 ```
 
@@ -152,5 +152,5 @@ Features][crate::docs::cargo_features] page.
 [`Formatter::set_style`]: crate::core::Formatter::set_style
 [`Formatter::reset_style`]: crate::core::Formatter::reset_style
 [`FormattedFailure`]: crate::core::FormattedFailure
-[`FormattedOutput::indented`]: crate::core::FormattedOutput::indented
+[`FormattedFailure::into_indented`]: crate::core::FormattedFailure::into_indented
 */

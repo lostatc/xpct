@@ -1,5 +1,5 @@
 use crate::core::style::{ALL_OK_MSG, AT_LESAT_ONE_OK_MSG};
-use crate::core::{strings, style, Format, FormattedOutput, Formatter, Matcher};
+use crate::core::{strings, style, Format, Formatter, Matcher};
 use crate::matchers::{CombinatorContext, CombinatorMatcher, CombinatorMode, SomeFailures};
 
 use super::HeaderFormat;
@@ -47,7 +47,7 @@ impl Format for SomeFailuresFormat {
                     f.reset_style();
                     f.write_char('\n');
 
-                    f.write_fmt(FormattedOutput::from(fail).indented(failure_indent));
+                    f.write_fmt(fail.into_indented(failure_indent));
                 }
                 None => {
                     f.set_style(style::success());

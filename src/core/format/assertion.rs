@@ -1,4 +1,4 @@
-use super::{strings, Format, FormattedOutput, Formatter};
+use super::{strings, Format, Formatter};
 use crate::core::{style, AssertionContext, AssertionFailure, MatchError};
 
 /// The provided implementation of [`AssertionFormat`].
@@ -42,9 +42,7 @@ impl Format for DefaultAssertionFormat {
         f.reset_style();
 
         match value.error {
-            MatchError::Fail(fail) => {
-                f.write_fmt(FormattedOutput::from(fail).indented(style::indent_len(1)))
-            }
+            MatchError::Fail(fail) => f.write_fmt(fail.into_indented(style::indent_len(1))),
             MatchError::Err(error) => f.write_str(&strings::indent(
                 &error.to_string(),
                 style::indent_len(1),

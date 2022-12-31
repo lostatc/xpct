@@ -1,5 +1,9 @@
 #![cfg(not(feature = "color"))]
 
+// Nothing in this module should have public-facing API documentation. Since the API is identical,
+// we elect to only show the versions of these types with `#[cfg(feature = "color")]` in the API
+// docs, so all the doc comments should go there.
+
 use std::fmt;
 
 use super::color::OutputStyle;

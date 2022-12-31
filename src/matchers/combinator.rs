@@ -3,7 +3,12 @@ use std::fmt;
 
 use crate::core::{DynMatch, FormattedFailure, Match, MatchOutcome};
 
-/// When some of the given matchers failed.
+/// The formatted failure output of other matchers.
+///
+/// This type is used by matchers like [`any`] and [`each`] that compose other matchers.
+///
+/// [`any`]: crate::any
+/// [`each`]: crate::each
 pub type SomeFailures = Vec<Option<FormattedFailure>>;
 
 /// How a combinator matcher should match.
