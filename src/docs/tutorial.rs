@@ -11,11 +11,12 @@ returns an [`Assertion`].
 ```
 use xpct::{expect, equal};
 
-expect!("disco").to(equal("disco"));
+expect!("Disco").to(equal("Disco"));
 ```
 
-In the above example, [`equal`] is a *matcher*. This crate provides a number of
-matchers in the crate root, and you can implement custom matchers as well.
+In the above example, [`equal`] is a *matcher*. This crate provides [a number of
+matchers][crate::docs::matcher_list], and you can implement custom matchers as
+well.
 
 When an assertion fails, it panics with an error message.
 
@@ -30,7 +31,7 @@ expect!(41)
 ```
 
 When you chain together multiple matchers like this, the assertion only succeeds
-if *all* of them match.
+if *all* of them succeed.
 
 You can also negate matchers by calling [`Assertion::to_not`] or using the
 [`not`] matcher:
@@ -43,15 +44,28 @@ expect!(41).to_not(equal(57));
 expect!(41).to(not(equal(57)));
 ```
 
+Some matchers are actually just aliases for negating other matchers:
+
+```
+use xpct::{expect, be_some, be_none};
+
+let value: Option<&str> = None;
+
+// These are equivalent.
+expect!(value).to(be_none());
+expect!(value).to_not(be_some());
+```
+
 When you chain together matchers, they pass the value you passed to [`expect!`]
 into the next matcher in the chain. Matchers can change the type of this value,
 which allows some matchers to do things like unwrap [`Result`] and [`Option`]
 types.
 
 ```
+use std::io;
 use xpct::{expect, equal, be_ok};
 
-fn location() -> anyhow::Result<String> {
+fn location() -> io::Result<String> {
     Ok(String::from("Whirling-in-Rags"))
 }
 
@@ -61,8 +75,9 @@ expect!(location())
 ```
 
 In the above example, we don't need to unwrap the [`Result`], because the
-[`be_ok`] matcher did it for us! If we were to negate this matcher with [`not`],
-then it would return the value of the [`Err`] variant instead.
+[`be_ok`] matcher did it for us! If we were to negate this matcher with [`not`]
+(or just use [`be_err`]), then it would return the value of the [`Err`] variant
+instead.
 
 If you want to map a value by applying a function to it as part of a chain of
 matchers, you can use the matchers [`map`] and [`try_map`] as well as
@@ -104,18 +119,21 @@ expect!(41u64)
 ```
 
 You can always get the value back out at the end of a chain of matchers by
-calling [`Assertion::into_inner`].
+calling [`Assertion::into_inner`]. This lets you use the same value in another
+assertion.
 
 ```
 use xpct::{expect, be_some};
 
-let name: &'static str = expect!(Some("Raphaël Ambrosius Costeau"))
+let name = expect!(Some("Raphaël Ambrosius Costeau"))
     .to(be_some())
     .into_inner();
+
+expect!(name).to(equal("Raphaël Ambrosius Costeau"));
 ```
 
-There are combinator matchers like [`all`], [`each`], and [`any`] which allow us
-to combine matchers in different ways:
+There are combinator matchers like [`all`], [`each`], and [`any`] which allow
+you to combine matchers in different ways:
 
 ```
 use xpct::{expect, any, equal, be_none};
@@ -145,7 +163,7 @@ expect!("Kim Kitsuragi").to(why(
 ));
 ```
 
-If you want to match on multiple fields of a struct, rather than using a
+If you want to assert on multiple fields of a struct, rather than using a
 separate [`expect!`] assertion for each field, you can use [`match_fields`] with
 the [`fields!`] macro.
 
@@ -203,7 +221,7 @@ expect!('C').to(be_in("Cuno"));
 expect!(50).to(be_in(41..57));
 ```
 
-The [`every`] matcher is particularly powerful; it allows you to match every
+The [`every`] matcher is particularly powerful; it allows you to test every
 element in a collection against the same matcher.
 
 ```
@@ -229,6 +247,7 @@ matchers provided by this crate.
 [`equal`]: crate::equal
 [`not`]: crate::not
 [`be_ok`]: crate::be_ok
+[`be_err`]: crate::be_err
 [`map`]: crate::map
 [`try_map`]: crate::try_map
 [`into`]: crate::into
