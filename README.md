@@ -100,6 +100,8 @@ expect!(location).to_not(any(|ctx| {
 Making assertions about individual fields of a struct:
 
 ```rust,should_panic
+use std::io;
+
 use xpct::{
     all, be_empty, be_gt, be_ok, be_some, be_true, expect, fields, have_prefix, match_fields,
     why,
@@ -112,9 +114,9 @@ struct Person {
     is_superstar: bool,
 }
 
-fn get_person() -> anyhow::Result<Person> {
+fn get_person() -> io::Result<Person> {
     Ok(Person {
-        name: None,
+        name: Some("".into()),
         age: 44,
         id: String::from("12-62-05-JAM41"),
         is_superstar: true,
@@ -135,11 +137,11 @@ expect!(get_person())
 ```
 
 ```text
-[src/main.rs:22:5] = get_person()
+[src/main.rs:27:5] = get_person()
     Expected all of these to be OK:
         my_crate::main::Person {
             name: FAILED
-                Expected this to be Some(_)
+                Expected this to not be empty
             age: OK
             id: FAILED
                 🛈 all IDs must have this prefix
