@@ -18,6 +18,10 @@ Enables the [`match_json`] matcher, which requires additional dependencies.
 Enables the [`approx_eq_f32`] and [`approx_eq_f64`] matchers, which require
 additional dependencies.
 
+## `casefold`
+
+Enables the [`eq_casefold`] matcher, which requires additional dependencies.
+
 ## `color` *(default)*
 
 Enable colors and text styles in the output. This is enabled by default.
@@ -47,6 +51,7 @@ disabled, the flags for it are hidden in docs.rs to reduce noise.
 [`match_json`]: crate::match_json
 [`approx_eq_f32`]: crate::approx_eq_f32
 [`approx_eq_f64`]: crate::approx_eq_f64
+[`eq_casefold`]: crate::eq_casefold
 [`equal`]: crate::equal
 [`be_some`]: crate::be_some
 [`Formatter::set_style`]: crate::core::Formatter::set_style

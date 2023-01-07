@@ -8,6 +8,7 @@ A list of all the matchers provided by this crate, grouped into categories.
 ## Equality
 
 - [`equal`][crate::equal]
+- [`eq_casefold`][crate::eq_casefold]
 - [`approx_eq_f32`][crate::approx_eq_f32]
 - [`approx_eq_f64`][crate::approx_eq_f64]
 - [`approx_eq_time`][crate::approx_eq_time]

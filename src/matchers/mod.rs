@@ -1,6 +1,7 @@
 //! The matchers provided by this crate.
 
 mod boolean;
+mod casefold;
 mod chain;
 mod combinator;
 mod contain;
@@ -25,6 +26,8 @@ mod time;
 #[cfg(feature = "regex")]
 pub use self::regex::RegexMatcher;
 pub use boolean::BeTrueMatcher;
+#[cfg(feature = "casefold")]
+pub use casefold::EqCasefoldMatcher;
 pub use chain::{ChainAssertion, ChainMatcher};
 pub use combinator::{
     CombinatorAssertion, CombinatorContext, CombinatorMatcher, CombinatorMode, SomeFailures,

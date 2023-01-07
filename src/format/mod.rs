@@ -15,6 +15,7 @@
 mod all;
 mod any;
 mod boolean;
+mod casefold;
 mod contain;
 mod default;
 mod each;
@@ -65,6 +66,9 @@ pub(crate) mod matchers {
     pub use super::substr::{contain_substr, have_prefix, have_suffix};
     pub use super::time::approx_eq_time;
     pub use super::why::{why, why_lazy};
+
+    #[cfg(feature = "casefold")]
+    pub use super::casefold::eq_casefold;
 
     #[cfg(feature = "float")]
     pub use super::float::{approx_eq_f32, approx_eq_f64};
