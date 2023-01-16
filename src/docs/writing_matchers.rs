@@ -6,12 +6,16 @@ How to write custom matchers for your tests.
 [↩︎ Back to User Docs](crate::docs)
 
 If none of the provided matchers suit your needs, xpct allows you to write
-custom matchers. There are three ways to do this, in increasing order of
-complexity and flexibility:
+custom matchers. There are a few ways to do this. In increasing order of
+complexity and flexibility, you can:
 
-1. Compose existing matchers.
-2. Implement [`SimpleMatch`].
-3. Implement [`Match`].
+1. Compose existing matchers. This is the simplest approach, but doesn't let you
+   customize the formatting of the failure output.
+2. Implement [`SimpleMatch`]. This lets you customize the formatting of the
+   failure output.
+3. Implement [`Match`]. This is like [`SimpleMatch`], but additionally allows
+   you to write matchers that transform values (like the [`be_some`] and
+   [`be_ok`] matchers do).
 
 ## Composing existing matchers
 
