@@ -7,7 +7,7 @@ use crate::core::{Match, MatchOutcome};
 ///
 /// [`be_some`]: crate::be_some
 /// [`be_none`]: crate::be_none
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct BeSomeMatcher<T> {
     marker: PhantomData<T>,
 }
@@ -18,12 +18,6 @@ impl<T> BeSomeMatcher<T> {
         Self {
             marker: PhantomData,
         }
-    }
-}
-
-impl<T> Default for BeSomeMatcher<T> {
-    fn default() -> Self {
-        Self::new()
     }
 }
 

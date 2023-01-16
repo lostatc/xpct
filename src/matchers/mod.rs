@@ -22,6 +22,7 @@ mod regex;
 mod result;
 mod substr;
 mod time;
+mod zero;
 
 #[cfg(feature = "regex")]
 pub use self::regex::RegexMatcher;
@@ -51,3 +52,4 @@ pub use pattern::{Pattern, PatternMatcher};
 pub use result::BeOkMatcher;
 pub use substr::{ContainSubstrMatcher, HavePrefixMatcher, HaveSuffixMatcher};
 pub use time::ApproxEqTimeMatcher;
+pub use zero::{BeZeroMatcher, NonZeroInt};

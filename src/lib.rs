@@ -30,6 +30,9 @@ pub mod core;
 pub mod docs;
 mod error;
 pub mod matchers;
+mod sealed;
+
+pub(crate) use sealed::Sealed;
 
 #[cfg(feature = "fmt")]
 pub mod format;

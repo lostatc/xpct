@@ -36,6 +36,7 @@ mod result;
 mod substr;
 mod time;
 mod why;
+mod zero;
 
 pub use any::HeaderFormat;
 pub use boolean::MessageFormat;
@@ -66,6 +67,7 @@ pub(crate) mod matchers {
     pub use super::substr::{contain_substr, have_prefix, have_suffix};
     pub use super::time::approx_eq_time;
     pub use super::why::{why, why_lazy};
+    pub use super::zero::be_zero;
 
     #[cfg(feature = "casefold")]
     pub use super::casefold::eq_casefold;
