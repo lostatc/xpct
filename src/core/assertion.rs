@@ -21,7 +21,7 @@ where
 {
     value: In,
     ctx: AssertFmt::Context,
-    fmt: AssertFmt,
+    formatter: AssertFmt,
 }
 
 fn fail<Context, AssertFmt>(ctx: Context, error: MatchError, format: AssertFmt) -> !
@@ -53,7 +53,7 @@ where
         Self {
             value,
             ctx,
-            fmt: AssertFmt::default(),
+            formatter: AssertFmt::default(),
         }
     }
 }
@@ -70,11 +70,13 @@ where
         match Box::new(matcher).match_pos(self.value) {
             Ok(MatchOutcome::Success(out)) => Assertion {
                 value: out,
-                fmt: self.fmt,
+                formatter: self.formatter,
                 ctx: self.ctx,
             },
-            Ok(MatchOutcome::Fail(result)) => fail(self.ctx, MatchError::Fail(result), self.fmt),
-            Err(error) => fail(self.ctx, MatchError::Err(error), self.fmt),
+            Ok(MatchOutcome::Fail(result)) => {
+                fail(self.ctx, MatchError::Fail(result), self.formatter)
+            }
+            Err(error) => fail(self.ctx, MatchError::Err(error), self.formatter),
         }
     }
 
@@ -101,11 +103,13 @@ where
         match Box::new(matcher).match_neg(self.value) {
             Ok(MatchOutcome::Success(out)) => Assertion {
                 value: out,
-                fmt: self.fmt,
+                formatter: self.formatter,
                 ctx: self.ctx,
             },
-            Ok(MatchOutcome::Fail(result)) => fail(self.ctx, MatchError::Fail(result), self.fmt),
-            Err(error) => fail(self.ctx, MatchError::Err(error), self.fmt),
+            Ok(MatchOutcome::Fail(result)) => {
+                fail(self.ctx, MatchError::Fail(result), self.formatter)
+            }
+            Err(error) => fail(self.ctx, MatchError::Err(error), self.formatter),
         }
     }
 
@@ -132,7 +136,7 @@ where
     pub fn map<Out>(self, func: impl FnOnce(In) -> Out) -> Assertion<Out, AssertFmt> {
         Assertion {
             value: func(self.value),
-            fmt: self.fmt,
+            formatter: self.formatter,
             ctx: self.ctx,
         }
     }
@@ -159,10 +163,10 @@ where
         match func(self.value) {
             Ok(out) => Assertion {
                 value: out,
-                fmt: self.fmt,
+                formatter: self.formatter,
                 ctx: self.ctx,
             },
-            Err(error) => fail(self.ctx, MatchError::Err(error), self.fmt),
+            Err(error) => fail(self.ctx, MatchError::Err(error), self.formatter),
         }
     }
 
@@ -187,7 +191,7 @@ where
     {
         Assertion {
             value: self.value.into(),
-            fmt: self.fmt,
+            formatter: self.formatter,
             ctx: self.ctx,
         }
     }
@@ -215,9 +219,9 @@ where
         Assertion {
             value: match self.value.try_into() {
                 Ok(out) => out,
-                Err(error) => fail(self.ctx, MatchError::Err(error.into()), self.fmt),
+                Err(error) => fail(self.ctx, MatchError::Err(error.into()), self.formatter),
             },
-            fmt: self.fmt,
+            formatter: self.formatter,
             ctx: self.ctx,
         }
     }
@@ -254,26 +258,14 @@ where
         &mut self.ctx
     }
 
-    /// Apply a function to change the context value associated with this function.
-    pub fn with_ctx(mut self, block: impl FnOnce(&mut AssertFmt::Context)) -> Self {
-        block(&mut self.ctx);
-        self
-    }
-
-    /// Get the formatter associated with this assertion.
+    /// Get the formatter for this assertion.
     pub fn fmt(&self) -> &AssertFmt {
-        &self.fmt
+        &self.formatter
     }
 
-    /// Get a mutable reference to the formatter associated with this assertion.
+    /// Get a mutable reference to the formatter for this assertion.
     pub fn fmt_mut(&mut self) -> &mut AssertFmt {
-        &mut self.fmt
-    }
-
-    /// Apply a function to change the formatter associated with this function.
-    pub fn with_fmt(mut self, block: impl FnOnce(&mut AssertFmt)) -> Self {
-        block(&mut self.fmt);
-        self
+        &mut self.formatter
     }
 }
 
@@ -320,7 +312,7 @@ where
     ) -> Assertion<IterMap<'a, In::Item, Out, In::IntoIter>, AssertFmt> {
         Assertion {
             value: IterMap::new(self.value.into_iter(), Box::new(func)),
-            fmt: self.fmt,
+            formatter: self.formatter,
             ctx: self.ctx,
         }
     }
@@ -355,9 +347,9 @@ where
         Assertion {
             value: match mapped_values {
                 Ok(vec) => vec,
-                Err(error) => fail(self.ctx, MatchError::Err(error), self.fmt),
+                Err(error) => fail(self.ctx, MatchError::Err(error), self.formatter),
             },
-            fmt: self.fmt,
+            formatter: self.formatter,
             ctx: self.ctx,
         }
     }
