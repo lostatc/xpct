@@ -13,10 +13,10 @@ formatters in [`crate::format`]. However, if you want to write a formatter for
 your custom matcher, or even to change the formatting of an existing matcher,
 here's how to do it.
 
-Matcher formatters are types that implement the [`ResultFormat`] trait. However,
-you can instead implement the more generic [`Format`] trait, making its
+Matcher formatters are types that implement the [`MatcherFormat`] trait.
+However, you can instead implement the more generic [`Format`] trait, making its
 [`Format::Value`] a [`MatchFailure`], which will automatically implement
-[`ResultFormat`] via a blanket impl.
+[`MatcherFormat`] via a blanket impl.
 
 Let's write a simple formatter that accepts a [`Mismatch`] and prints that the
 two values are not equal. This is an example; in practice, you can just use
@@ -142,7 +142,7 @@ Features][crate::docs::cargo_features] page.
 
 [`equal`]: crate::equal
 [`EqualMatcher`]: crate::matchers::EqualMatcher
-[`ResultFormat`]: crate::core::ResultFormat
+[`MatcherFormat`]: crate::core::MatcherFormat
 [`Format`]: crate::core::Format
 [`Format::Value`]: crate::core::Format::Value
 [`MatchFailure`]: crate::core::MatchFailure

@@ -1,6 +1,6 @@
 use std::fmt;
 
-use super::{FormattedOutput, ResultFormat};
+use super::{FormattedOutput, MatcherFormat};
 
 /// The result of a failed matcher.
 ///
@@ -45,7 +45,7 @@ impl<Pos, Neg> MatchFailure<Pos, Neg> {
     }
 }
 
-/// A [`MatchFailure`] which has been formatted with a [`ResultFormat`].
+/// A [`MatchFailure`] which has been formatted with a [`MatcherFormat`].
 ///
 /// This type is similar to [`FormattedOutput`], except it is specific to formatted [`MatchFailure`]
 /// values and is also an [`Error`].
@@ -64,7 +64,7 @@ impl FormattedFailure {
     /// Create a new [`FormattedFailure`] by formatting `fail` with `format`.
     pub fn new<Fmt, Pos, Neg>(fail: MatchFailure<Pos, Neg>, format: Fmt) -> crate::Result<Self>
     where
-        Fmt: ResultFormat<Pos = Pos, Neg = Neg>,
+        Fmt: MatcherFormat<Pos = Pos, Neg = Neg>,
     {
         Ok(Self {
             inner: FormattedOutput::new(fail, format)?,

@@ -2,7 +2,7 @@ use std::fmt;
 
 use super::adapter::{DynMatchAdapter, NegMatchAdapter, SimpleMatchAdapter};
 use super::wrap::MatchWrapper;
-use super::{FormattedFailure, MatchOutcome, ResultFormat};
+use super::{FormattedFailure, MatchOutcome, MatcherFormat};
 
 /// The trait which is implemented to create matchers.
 ///
@@ -141,7 +141,7 @@ impl<'a, In, PosOut, NegOut> Matcher<'a, In, PosOut, NegOut> {
     pub fn new<M, Fmt>(matcher: M, format: Fmt) -> Self
     where
         M: Match<In = In, PosOut = PosOut, NegOut = NegOut> + 'a,
-        Fmt: ResultFormat<Pos = M::PosFail, Neg = M::NegFail> + 'a,
+        Fmt: MatcherFormat<Pos = M::PosFail, Neg = M::NegFail> + 'a,
     {
         Self {
             inner: Box::new(DynMatchAdapter::new(matcher, format)),
@@ -158,7 +158,7 @@ impl<'a, In, PosOut, NegOut> Matcher<'a, In, PosOut, NegOut> {
     pub fn neg<M, Fmt>(matcher: M, format: Fmt) -> Self
     where
         M: Match<In = In, PosOut = NegOut, NegOut = PosOut> + 'a,
-        Fmt: ResultFormat<Pos = M::NegFail, Neg = M::PosFail> + 'a,
+        Fmt: MatcherFormat<Pos = M::NegFail, Neg = M::PosFail> + 'a,
     {
         Matcher::new(NegMatchAdapter::new(matcher), format)
     }
@@ -169,7 +169,7 @@ impl<'a, In, PosOut, NegOut> Matcher<'a, In, PosOut, NegOut> {
         In: 'a,
         PosOut: 'a,
         NegOut: 'a,
-        Fmt: ResultFormat<Pos = FormattedFailure, Neg = FormattedFailure> + 'a,
+        Fmt: MatcherFormat<Pos = FormattedFailure, Neg = FormattedFailure> + 'a,
     {
         Self::new(MatchWrapper::new(self), format)
     }
@@ -185,7 +185,7 @@ impl<'a, Actual> Matcher<'a, Actual, Actual> {
     pub fn simple<M, Fmt>(matcher: M, format: Fmt) -> Self
     where
         M: SimpleMatch<Actual> + 'a,
-        Fmt: ResultFormat<Pos = M::Fail, Neg = M::Fail> + 'a,
+        Fmt: MatcherFormat<Pos = M::Fail, Neg = M::Fail> + 'a,
         Actual: 'a,
     {
         Self::new(SimpleMatchAdapter::new(matcher), format)
@@ -200,7 +200,7 @@ impl<'a, Actual> Matcher<'a, Actual, Actual> {
     pub fn simple_neg<M, Fmt>(matcher: M, format: Fmt) -> Self
     where
         M: SimpleMatch<Actual> + 'a,
-        Fmt: ResultFormat<Pos = M::Fail, Neg = M::Fail> + 'a,
+        Fmt: MatcherFormat<Pos = M::Fail, Neg = M::Fail> + 'a,
         Actual: 'a,
     {
         Self::neg(SimpleMatchAdapter::new(matcher), format)

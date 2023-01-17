@@ -21,7 +21,7 @@ pub trait Format {
 /// This trait has a blanket implementation for types that implement [`Format`] where
 /// [`Format::Value`] is a [`MatchFailure`], so you should never need to implement this trait
 /// yourself.
-pub trait ResultFormat: Format<Value = MatchFailure<Self::Pos, Self::Neg>> {
+pub trait MatcherFormat: Format<Value = MatchFailure<Self::Pos, Self::Neg>> {
     /// The match result in the *positive* case (when we were expecting the matcher to succeed).
     type Pos;
 
@@ -29,7 +29,7 @@ pub trait ResultFormat: Format<Value = MatchFailure<Self::Pos, Self::Neg>> {
     type Neg;
 }
 
-impl<T, Pos, Neg> ResultFormat for T
+impl<T, Pos, Neg> MatcherFormat for T
 where
     T: Format<Value = MatchFailure<Pos, Neg>>,
 {
@@ -65,7 +65,7 @@ where
 
 /// A wrapper over a formatter that negates it.
 ///
-/// This type is a [`ResultFormat`] that swaps the [`MatchFailure::Pos`] and [`MatchFailure::Neg`]
+/// This type is a [`MatcherFormat`] that swaps the [`MatchFailure::Pos`] and [`MatchFailure::Neg`]
 /// values, so if you want to write a negated version of a matcher (e.g. [`be_ok`] vs [`be_err`]),
 /// you don't have to write two formatters.
 ///
@@ -91,7 +91,7 @@ where
 /// A formatter which dispatches to different formatters depending on whether the matcher is
 /// negated or not.
 ///
-/// This type is a [`ResultFormat`] that wraps two existing formatters, one for the positive case
+/// This type is a [`MatcherFormat`] that wraps two existing formatters, one for the positive case
 /// (we expected the matcher to match) and one for the negative case (we expected the matcher to
 /// fail). It dispatches to one of those formatters depending on whether the matcher is negated or
 /// not.

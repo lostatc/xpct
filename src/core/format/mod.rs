@@ -8,7 +8,7 @@ pub(crate) mod strings;
 pub(crate) mod style;
 
 pub use assertion::DefaultAssertionFormat;
-pub use base::{AssertionFormat, DispatchFormat, Format, NegFormat, ResultFormat};
+pub use base::{AssertionFormat, DispatchFormat, Format, MatcherFormat, NegFormat};
 pub use color::{Color, OutputStyle, TextColor, TextStyle};
 
 #[cfg(feature = "color")]

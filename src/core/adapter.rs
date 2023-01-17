@@ -1,16 +1,16 @@
 use std::{borrow::Borrow, marker::PhantomData};
 
 use super::{
-    DynMatch, FormattedFailure, Match, MatchFailure, MatchOutcome, ResultFormat, SimpleMatch,
+    DynMatch, FormattedFailure, Match, MatchFailure, MatchOutcome, MatcherFormat, SimpleMatch,
 };
 
 #[derive(Debug)]
-pub(super) struct DynMatchAdapter<M, Fmt: ResultFormat> {
+pub(super) struct DynMatchAdapter<M, Fmt: MatcherFormat> {
     matcher: M,
     format: Fmt,
 }
 
-impl<M, Fmt: ResultFormat> DynMatchAdapter<M, Fmt> {
+impl<M, Fmt: MatcherFormat> DynMatchAdapter<M, Fmt> {
     pub fn new(matcher: M, format: Fmt) -> Self {
         Self { matcher, format }
     }
@@ -19,7 +19,7 @@ impl<M, Fmt: ResultFormat> DynMatchAdapter<M, Fmt> {
 impl<M, Fmt> DynMatch for DynMatchAdapter<M, Fmt>
 where
     M: Match,
-    Fmt: ResultFormat<Pos = M::PosFail, Neg = M::NegFail>,
+    Fmt: MatcherFormat<Pos = M::PosFail, Neg = M::NegFail>,
 {
     type In = M::In;
 
