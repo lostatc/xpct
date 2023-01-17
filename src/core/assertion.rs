@@ -24,9 +24,9 @@ where
     formatter: AssertFmt,
 }
 
-fn fail<Context, AssertFmt>(ctx: Context, error: MatchError, format: AssertFmt) -> !
+fn fail<Ctx, AssertFmt>(ctx: Ctx, error: MatchError, format: AssertFmt) -> !
 where
-    AssertFmt: AssertionFormat<Context = Context>,
+    AssertFmt: AssertionFormat<Context = Ctx>,
 {
     FormattedOutput::new(AssertionFailure { ctx, error }, format)
         .expect("failed to format matcher output")

@@ -142,7 +142,7 @@ impl std::error::Error for FormattedFailure {}
 
 /// The result of a failed assertion.
 #[derive(Debug)]
-pub struct AssertionFailure<Context> {
+pub struct AssertionFailure<Ctx> {
     /// A generic context value to associate with the assertion.
     ///
     /// This value can be use to capture context about the assertion. The provided
@@ -153,7 +153,7 @@ pub struct AssertionFailure<Context> {
     /// [`DefaultAssertionFormat`]: crate::core::DefaultAssertionFormat
     /// [`AssertionContext`]: crate::core::AssertionContext
     /// [`expect!`]: crate::expect
-    pub ctx: Context,
+    pub ctx: Ctx,
 
     /// The error that caused this assertion to fail.
     pub error: MatchError,

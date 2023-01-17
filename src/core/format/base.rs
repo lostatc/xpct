@@ -56,11 +56,11 @@ pub trait AssertionFormat: Format<Value = AssertionFailure<Self::Context>> {
     type Context;
 }
 
-impl<T, Context> AssertionFormat for T
+impl<T, Ctx> AssertionFormat for T
 where
-    T: Format<Value = AssertionFailure<Context>>,
+    T: Format<Value = AssertionFailure<Ctx>>,
 {
-    type Context = Context;
+    type Context = Ctx;
 }
 
 /// A wrapper over a formatter that negates it.
