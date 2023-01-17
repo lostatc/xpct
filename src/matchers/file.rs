@@ -4,6 +4,7 @@ use std::{fs, io};
 use crate::core::SimpleMatch;
 
 /// How an [`FileExistsMatcher`] should match.
+#[non_exhaustive]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum FileExistsMode {
     /// Succeeds if the file exists.
