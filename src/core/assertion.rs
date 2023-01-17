@@ -20,8 +20,8 @@ where
     AssertFmt: AssertionFormat,
 {
     value: In,
-    format: AssertFmt,
     ctx: AssertFmt::Context,
+    fmt: AssertFmt,
 }
 
 fn fail<Context, AssertFmt>(ctx: Context, error: MatchError, format: AssertFmt) -> !
@@ -31,6 +31,31 @@ where
     FormattedOutput::new(AssertionFailure { ctx, error }, format)
         .expect("failed to format matcher output")
         .fail();
+}
+
+impl<In, AssertFmt> Assertion<In, AssertFmt>
+where
+    AssertFmt: AssertionFormat + Default,
+{
+    /// Create a new [`Assertion`].
+    ///
+    /// This accepts the "actual" value to match against and a context value to associate with the
+    /// assertion which is passed to its formatter.
+    ///
+    /// Typically you'll want to use the [`expect!`] macro instead, because it does nice things like
+    /// capture the file name, line number, and the stringified expression that was passed to it.
+    ///
+    /// However, if you want to use a custom [`AssertionFormat`], then creating an assertion this
+    /// way allows you to do it.
+    ///
+    /// [`expect!`]: crate::expect
+    pub fn new(value: In, ctx: AssertFmt::Context) -> Self {
+        Self {
+            value,
+            ctx,
+            fmt: AssertFmt::default(),
+        }
+    }
 }
 
 impl<In, AssertFmt> Assertion<In, AssertFmt>
@@ -45,11 +70,11 @@ where
         match Box::new(matcher).match_pos(self.value) {
             Ok(MatchOutcome::Success(out)) => Assertion {
                 value: out,
-                format: self.format,
+                fmt: self.fmt,
                 ctx: self.ctx,
             },
-            Ok(MatchOutcome::Fail(result)) => fail(self.ctx, MatchError::Fail(result), self.format),
-            Err(error) => fail(self.ctx, MatchError::Err(error), self.format),
+            Ok(MatchOutcome::Fail(result)) => fail(self.ctx, MatchError::Fail(result), self.fmt),
+            Err(error) => fail(self.ctx, MatchError::Err(error), self.fmt),
         }
     }
 
@@ -76,11 +101,11 @@ where
         match Box::new(matcher).match_neg(self.value) {
             Ok(MatchOutcome::Success(out)) => Assertion {
                 value: out,
-                format: self.format,
+                fmt: self.fmt,
                 ctx: self.ctx,
             },
-            Ok(MatchOutcome::Fail(result)) => fail(self.ctx, MatchError::Fail(result), self.format),
-            Err(error) => fail(self.ctx, MatchError::Err(error), self.format),
+            Ok(MatchOutcome::Fail(result)) => fail(self.ctx, MatchError::Fail(result), self.fmt),
+            Err(error) => fail(self.ctx, MatchError::Err(error), self.fmt),
         }
     }
 
@@ -107,7 +132,7 @@ where
     pub fn map<Out>(self, func: impl FnOnce(In) -> Out) -> Assertion<Out, AssertFmt> {
         Assertion {
             value: func(self.value),
-            format: self.format,
+            fmt: self.fmt,
             ctx: self.ctx,
         }
     }
@@ -134,10 +159,10 @@ where
         match func(self.value) {
             Ok(out) => Assertion {
                 value: out,
-                format: self.format,
+                fmt: self.fmt,
                 ctx: self.ctx,
             },
-            Err(error) => fail(self.ctx, MatchError::Err(error), self.format),
+            Err(error) => fail(self.ctx, MatchError::Err(error), self.fmt),
         }
     }
 
@@ -162,7 +187,7 @@ where
     {
         Assertion {
             value: self.value.into(),
-            format: self.format,
+            fmt: self.fmt,
             ctx: self.ctx,
         }
     }
@@ -190,9 +215,9 @@ where
         Assertion {
             value: match self.value.try_into() {
                 Ok(out) => out,
-                Err(error) => fail(self.ctx, MatchError::Err(error.into()), self.format),
+                Err(error) => fail(self.ctx, MatchError::Err(error.into()), self.fmt),
             },
-            format: self.format,
+            fmt: self.fmt,
             ctx: self.ctx,
         }
     }
@@ -237,17 +262,17 @@ where
 
     /// Get the formatter associated with this assertion.
     pub fn fmt(&self) -> &AssertFmt {
-        &self.format
+        &self.fmt
     }
 
     /// Get a mutable reference to the formatter associated with this assertion.
     pub fn fmt_mut(&mut self) -> &mut AssertFmt {
-        &mut self.format
+        &mut self.fmt
     }
 
     /// Apply a function to change the formatter associated with this function.
     pub fn with_fmt(mut self, block: impl FnOnce(&mut AssertFmt)) -> Self {
-        block(&mut self.format);
+        block(&mut self.fmt);
         self
     }
 }
@@ -295,7 +320,7 @@ where
     ) -> Assertion<IterMap<'a, In::Item, Out, In::IntoIter>, AssertFmt> {
         Assertion {
             value: IterMap::new(self.value.into_iter(), Box::new(func)),
-            format: self.format,
+            fmt: self.fmt,
             ctx: self.ctx,
         }
     }
@@ -330,63 +355,11 @@ where
         Assertion {
             value: match mapped_values {
                 Ok(vec) => vec,
-                Err(error) => fail(self.ctx, MatchError::Err(error), self.format),
+                Err(error) => fail(self.ctx, MatchError::Err(error), self.fmt),
             },
-            format: self.format,
+            fmt: self.fmt,
             ctx: self.ctx,
         }
-    }
-}
-
-/// Make an assertion.
-///
-/// Typically you'll want to use the [`expect!`] macro instead, because it does nice things like
-/// capture the file name, line number, and the stringified expression that was passed to it.
-///
-/// However, if you want to use a custom [`AssertionFormat`], then this function allows you to do
-/// it.
-///
-/// # Examples
-///
-/// You can use this function to write your *own* function or macro like [`expect!`] which hooks
-/// into your custom [`AssertionFormat`].
-///
-/// ```
-/// use xpct::core::{expect, Assertion, Format, Formatter, AssertionFailure};
-///
-/// #[derive(Debug, Default)]
-/// struct MyAssertionFormat;
-///
-/// #[derive(Debug, Default)]
-/// struct MyAssertionContext {
-///     some_value: String,
-/// }
-///
-/// impl Format for MyAssertionFormat {
-///     type Value = AssertionFailure<MyAssertionContext>;
-///
-///     fn fmt(self, f: &mut Formatter, value: Self::Value) -> xpct::Result<()> {
-///         todo!()
-///     }
-/// }
-///
-/// fn my_expect<In>(actual: In) -> Assertion<In, MyAssertionFormat> {
-///     expect::<In, MyAssertionFormat>(actual).with_ctx(|ctx| {
-///         ctx.some_value = String::from("Some value");
-///     })
-/// }
-/// ```
-///
-/// [`expect!`]: crate::expect
-pub fn expect<In, AssertFmt>(actual: In) -> Assertion<In, AssertFmt>
-where
-    AssertFmt: AssertionFormat + Default,
-    AssertFmt::Context: Default,
-{
-    Assertion {
-        value: actual,
-        format: Default::default(),
-        ctx: Default::default(),
     }
 }
 
@@ -395,9 +368,9 @@ where
 /// This macro accepts an expression and returns an [`Assertion`], which allows you to make
 /// assertions on that value.
 ///
-/// Under the hood, this macro calls the [`expect`] function using [`DefaultAssertionFormat`]. If
-/// you want to use a custom [`AssertionFormat`] instead, you can call that function directly or
-/// write your own macro that calls it.
+/// Under the hood, this macro calls [`Assertion::new`] using [`DefaultAssertionFormat`]. If you
+/// want to use a custom [`AssertionFormat`] instead, you can call that method directly or write
+/// your own macro that calls it.
 ///
 /// # Examples
 ///
@@ -407,16 +380,18 @@ where
 /// expect!("disco").to(equal("disco"));
 /// ```
 ///
-/// [`expect`]: crate::core::expect
+/// [`Assertion::new`]: crate::core::Assertion::new
 /// [`AssertionFormat`]: crate::core::AssertionFormat
 /// [`DefaultAssertionFormat`]: crate::core::DefaultAssertionFormat
 #[macro_export]
 macro_rules! expect {
     ($actual:expr) => {
-        $crate::core::expect::<_, $crate::core::DefaultAssertionFormat>($actual).with_ctx(|ctx| {
+        $crate::core::Assertion::<_, $crate::core::DefaultAssertionFormat>::new($actual, {
+            let mut ctx = <$crate::core::AssertionContext as ::std::default::Default>::default();
             ctx.expr =
                 ::std::option::Option::Some(::std::string::String::from(stringify!($actual)));
             ctx.location = ::std::option::Option::Some($crate::file_location!());
+            ctx
         })
     };
 }

@@ -3,15 +3,10 @@ use crate::core::{style, AssertionContext, AssertionFailure, MatchError};
 
 /// The provided implementation of [`AssertionFormat`].
 ///
-/// You shouldn't ever need to implement this trait yourself, but you can if you want to customize
-/// the formatting of failed assertions. However, instead of using the [`expect!`] macro, you will
-/// need to use the [`expect`] function which allows you to specify a custom formatter.
-///
 /// This [`AssertionFormat`] implementation prints the expression that was passed to [`expect!`]
 /// along with the file name, line number, and column number.
 ///
 /// [`expect!`]: crate::expect!
-/// [`expect`]: crate::core::expect
 /// [`Assertionformat`]: crate::core::AssertionFormat
 #[derive(Debug, Default)]
 pub struct DefaultAssertionFormat;

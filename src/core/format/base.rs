@@ -39,17 +39,17 @@ where
 
 /// A formatter for failed assertions.
 ///
-/// This formatter is used to determine the format of the assertion as a whole, as opposed to just
-/// a specific matcher. When you use the [`expect!`] macro, you're implicitly using the provided
-/// [`DefaultAssertionFormat`]. However, you can implement this trait and use the [`expect`]
-/// function instead to customize how assertions are formatted.
+/// This formatter is used to determine the format of the assertion as a whole, as opposed to just a
+/// specific matcher. When you use the [`expect!`] macro, you're implicitly using the provided
+/// [`DefaultAssertionFormat`]. However, you can implement this trait and use [`Assertion::new`]
+/// instead to customize how assertions are formatted.
 ///
 /// This trait has a blanket implementation for types that implement [`Format`] where
 /// [`Format::Value`] is an [`AssertionFailure`], so you should never need to implement this trait
 /// yourself.
 ///
 /// [`expect!`]: crate::expect
-/// [`expect`]: crate::core::expect
+/// [`Assertion::new`]: crate::core::Assertion::new
 /// [`DefaultAssertionFormat`]: crate::core::DefaultAssertionFormat
 pub trait AssertionFormat: Format<Value = AssertionFailure<Self::Context>> {
     /// The context value associated with the assertion.
