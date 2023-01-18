@@ -59,11 +59,7 @@ let output: Vec<&str> = expect!(items)
 
 ```text
 [src/main.rs:6:29] = items
-    Expected all of these to be OK:
-        [0]  OK
-        
-        [1]  OK
-        
+    Expected all of these to succeed:
         [2]  FAILED
              Expected this to be Some(_)
 ```
@@ -71,30 +67,33 @@ let output: Vec<&str> = expect!(items)
 Asserting that the given string does not match any of the given matchers:
 
 ```rust,should_panic
-use xpct::{any, contain_substr, equal, expect, match_regex};
+use xpct::{expect, any, match_regex, contain_substr, equal, have_suffix};
 
-let location = String::from("Central Jamrock");
+let location = String::from("Revachol West");
 
 expect!(location).to_not(any(|ctx| {
     ctx.borrow::<str>()
-        .to(match_regex("^(The )?Pox$"))
-        .to(contain_substr("Jamrock"))
-        .to(equal("Martinaise"));
+        .to(match_regex(r"\w+ (North|South|East|West)$"))
+        .to(contain_substr("Revachol"))
+        .to(equal("Martinaise"))
+        .to(have_suffix("Jamrock"));
 }));
 ```
 
 ```text
 [src/main.rs:6:5] = location
-    Expected all of these to be OK:
-        [0]  OK
-        
+    Expected all of these to succeed:
+        [0]  FAILED
+             Expected:
+                 "Revachol West"
+             to not match the regex:
+                 "\\w+ (North|South|East|West)$"
+
         [1]  FAILED
              Expected:
-                 "Central Jamrock"
+                 "Revachol West"
              to not contain the substring:
-                 "Jamrock"
-
-        [2]  OK
+                 "Revachol"
 ```
 
 Making assertions about individual fields of a struct:
@@ -137,9 +136,9 @@ expect!(get_person())
 ```
 
 ```text
-[src/main.rs:27:5] = get_person()
-    Expected all of these to be OK:
-        my_crate::main::Person {
+[src/main.rs:25:5] = get_person()
+    Expected all of these to succeed:
+        xpct::main::Person {
             name: FAILED
                 Expected this to not be empty
             age: OK

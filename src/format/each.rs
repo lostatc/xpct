@@ -32,32 +32,24 @@ impl Format for SomeFailuresFormat {
         let failure_indent = strings::int_len(num_failures, 10) + 4;
 
         for (i, maybe_fail) in value.into_iter().enumerate() {
-            f.set_style(style::index());
-            f.write_str(&format!(
-                "{}[{}]  ",
-                strings::pad_int(i, num_failures, 10),
-                i,
-            ));
-            f.reset_style();
+            if let Some(fail) = maybe_fail {
+                f.set_style(style::index());
+                f.write_str(&format!(
+                    "{}[{}]  ",
+                    strings::pad_int(i, num_failures, 10),
+                    i,
+                ));
+                f.reset_style();
 
-            match maybe_fail {
-                Some(fail) => {
-                    f.set_style(style::failure());
-                    f.write_str(style::FAILED_MSG);
-                    f.reset_style();
-                    f.write_char('\n');
+                f.set_style(style::failure());
+                f.write_str(style::FAILED_MSG);
+                f.reset_style();
+                f.write_char('\n');
 
-                    f.write_fmt(fail.into_indented(failure_indent));
-                }
-                None => {
-                    f.set_style(style::success());
-                    f.write_str(style::OK_MSG);
-                    f.reset_style();
-                    f.write_char('\n');
-                }
-            }
+                f.write_fmt(fail.into_indented(failure_indent));
 
-            f.write_char('\n');
+                f.write_char('\n');
+            };
         }
 
         Ok(())
