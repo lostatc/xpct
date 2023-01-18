@@ -94,12 +94,6 @@ expect!(Name(String::from("Cuno")))
     .map(|name| name.0)
     .to(equal("Cuno"));
 
-let name: Result<_, Infallible> = Ok(String::from("Cuno"));
-
-expect!(name)
-    .to(map(Result::unwrap))
-    .to(equal("Cuno"));
-
 // We use `try_map` for conversions that can fail.
 expect!(vec![0x43, 0x75, 0x6e, 0x6f])
     .try_map(|bytes| Ok(String::from_utf8(bytes)?))
