@@ -113,6 +113,11 @@ Colors and text styles are never emitted when stderr is not a tty or when the
 remove support for colors and text styles by disabling the default `color` Cargo
 feature. See [Cargo Features][crate::docs::cargo_features] for information.
 
+Colors and text styles can be useful to make the output easier to read, but they
+should not convey any information that's not already in the text. Some
+developers may not experience colors the same way you do, some developers use
+screen readers, and some developers just prefer to have colors disabled.
+
 ## Composing formatters
 
 If your matcher composes other matchers, it will likely pass a
