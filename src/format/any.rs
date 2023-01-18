@@ -1,4 +1,4 @@
-use crate::core::style::{ALL_OK_MSG, AT_LESAT_ONE_OK_MSG};
+use crate::core::style::{ALL_OK_HEADER, AT_LESAT_ONE_OK_HEADER};
 use crate::core::{style, Format, FormattedOutput, Formatter, MatchFailure, Matcher};
 use crate::matchers::{CombinatorContext, CombinatorMatcher, CombinatorMode};
 
@@ -114,7 +114,11 @@ where
 {
     Matcher::new(
         CombinatorMatcher::new(CombinatorMode::Any, block),
-        HeaderFormat::new(SomeFailuresFormat::new(), AT_LESAT_ONE_OK_MSG, ALL_OK_MSG),
+        HeaderFormat::new(
+            SomeFailuresFormat::new(),
+            AT_LESAT_ONE_OK_HEADER,
+            ALL_OK_HEADER,
+        ),
     )
 }
 

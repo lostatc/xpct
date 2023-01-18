@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::core::style::{ALL_OK_MSG, AT_LESAT_ONE_OK_MSG};
+use crate::core::style::{ALL_OK_HEADER, AT_LESAT_ONE_OK_HEADER};
 use crate::core::Matcher;
 use crate::matchers::EveryMatcher;
 
@@ -41,7 +41,11 @@ where
 {
     Matcher::new(
         EveryMatcher::new(matcher),
-        HeaderFormat::new(SomeFailuresFormat::new(), ALL_OK_MSG, AT_LESAT_ONE_OK_MSG),
+        HeaderFormat::new(
+            SomeFailuresFormat::new(),
+            ALL_OK_HEADER,
+            AT_LESAT_ONE_OK_HEADER,
+        ),
     )
 }
 

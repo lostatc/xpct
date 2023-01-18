@@ -1,6 +1,6 @@
 use std::any::type_name;
 
-use crate::core::style::{ALL_OK_MSG, AT_LESAT_ONE_OK_MSG};
+use crate::core::style::{ALL_FIELDS_OK_HEADER, AT_LESAT_ONE_FIELD_OK_HEADER};
 use crate::core::{style, Format, Formatter, Matcher};
 use crate::matchers::{CombinatorMode, FailuresByField, FieldMatcher, FieldsSpec};
 
@@ -97,8 +97,8 @@ where
         FieldMatcher::new(CombinatorMode::All, spec),
         HeaderFormat::new(
             ByFieldFormat::new(type_name::<T>()),
-            ALL_OK_MSG,
-            AT_LESAT_ONE_OK_MSG,
+            ALL_FIELDS_OK_HEADER,
+            AT_LESAT_ONE_FIELD_OK_HEADER,
         ),
     )
 }
@@ -115,8 +115,8 @@ where
         FieldMatcher::new(CombinatorMode::Any, spec),
         HeaderFormat::new(
             ByFieldFormat::new(type_name::<T>()),
-            AT_LESAT_ONE_OK_MSG,
-            ALL_OK_MSG,
+            AT_LESAT_ONE_FIELD_OK_HEADER,
+            ALL_FIELDS_OK_HEADER,
         ),
     )
 }

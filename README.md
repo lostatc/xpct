@@ -137,8 +137,8 @@ expect!(get_person())
 
 ```text
 [src/main.rs:25:5] = get_person()
-    Expected all of these to succeed:
-        xpct::main::Person {
+    Expected all of these fields to succeed:
+        my_crate::main::Person {
             name: FAILED
                 Expected this to not be empty
             age: OK
