@@ -115,7 +115,7 @@ feature. See [Cargo Features][crate::docs::cargo_features] for information.
 
 Colors and text styles can be useful to make the output easier to read, but they
 should not convey any information that's not already in the text. Some
-developers may not experience colors the same way you do, some developers use
+developers may not experience color the same way you do, some developers use
 screen readers, and some developers just prefer to have colors disabled.
 
 ## Composing formatters

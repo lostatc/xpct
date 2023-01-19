@@ -39,8 +39,8 @@ where
 {
     /// Create a new [`Assertion`].
     ///
-    /// This accepts the "actual" value to match against and a context value to associate with the
-    /// assertion which is passed to its formatter.
+    /// This accepts the "actual" value to match against and a context value which is passed to its
+    /// formatter.
     ///
     /// Typically you'll want to use the [`expect!`] macro instead, because it does nice things like
     /// capture the file name, line number, and the stringified expression that was passed to it.

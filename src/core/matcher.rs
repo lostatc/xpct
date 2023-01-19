@@ -47,8 +47,8 @@ pub trait Match {
     /// The function called to test whether a value matches.
     ///
     /// This returns a [`MatchOutcome`], which determines whether the matcher succeeded or failed.
-    /// It can also return an [`Err`], which is distinct from a [`MatchOutcome::Fail`] in that it
-    /// represents an unexpected error as opposed to a matcher failing.
+    /// It can also return an `Err`, which is distinct from a [`MatchOutcome::Fail`] in that it
+    /// represents an unexpected error as opposed to the matcher failing.
     fn match_pos(
         self,
         actual: Self::In,
@@ -81,20 +81,30 @@ pub trait SimpleMatch<Actual> {
     type Fail;
 
     /// Returns `true` if the matcher succeeded or `false` if it failed.
+    ///
+    /// This can also return an `Err`, which is distinct from returning `Ok(false)` in that it
+    /// represents an unexpected error as opposed to the matcher failing.
     fn matches(&mut self, actual: &Actual) -> crate::Result<bool>;
 
-    /// Consumes the "actual" value (the value passed to [`expect!`]) and results a [`Self::Fail`]
+    /// Consumes the "actual" value (the value passed to [`expect!`]) and returns a [`Self::Fail`]
     /// that describes why the matcher failed.
     ///
     /// This will only ever be called if [`matches`] returns `false`.
     ///
     /// [`expect!`]: crate::expect
+    /// [`matches`]: crate::core::SimpleMatch::matches
     fn fail(self, actual: Actual) -> Self::Fail;
 }
 
 /// An object-safe version of [`Match`].
 ///
+/// This type replaces the [`PosFail`] and [`NegFail`] associated types of [`Match`] with
+/// [`FormattedFailure`] values.
+///
 /// This type is used internally and you should never have to implement it yourself.
+///
+/// [`PosFail`]: crate::core::Match::PosFail
+/// [`NegFail`]: crate::core::Match::NegFail
 pub trait DynMatch {
     /// Same as [`Match::In`].
     type In;

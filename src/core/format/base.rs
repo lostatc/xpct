@@ -53,6 +53,10 @@ where
 /// [`DefaultAssertionFormat`]: crate::core::DefaultAssertionFormat
 pub trait AssertionFormat: Format<Value = AssertionFailure<Self::Context>> {
     /// The context value associated with the assertion.
+    ///
+    /// See [`AssertionFailure::ctx`] for details.
+    ///
+    /// [`AssertionFailure::ctx`]: crate::core::AssertionFailure::ctx
     type Context;
 }
 

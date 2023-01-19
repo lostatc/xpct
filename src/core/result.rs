@@ -205,7 +205,7 @@ pub enum MatchError {
     /// fail but instead succeeded.
     Fail(FormattedFailure),
 
-    /// The matcher returned an error.
+    /// The matcher returned an unexpected error.
     Err(crate::Error),
 }
 
