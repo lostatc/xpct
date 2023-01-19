@@ -12,6 +12,7 @@ pub type FailuresByField = Vec<(&'static str, Option<FormattedFailure>)>;
 /// This method is an implementation detail of the [`fields!`][crate::fields] macro and IS NOT part
 /// of the public API.
 #[doc(hidden)]
+#[derive(Debug)]
 pub struct __FieldsSpecParams<T> {
     pub actual: T,
     pub negated: bool,

@@ -7,6 +7,7 @@ use super::Mismatch;
 /// The matcher for [`approx_eq_time`].
 ///
 /// [`approx_eq_time`]: crate::approx_eq_time
+#[derive(Debug)]
 pub struct ApproxEqTimeMatcher {
     expected: SystemTime,
     threshold: Duration,

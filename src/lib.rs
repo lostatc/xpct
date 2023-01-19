@@ -11,6 +11,7 @@ the [User Docs][crate::docs].
 #![cfg_attr(docsrs, feature(doc_cfg_hide))]
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
+#![warn(missing_debug_implementations)]
 // Disabling this feature does not change the public API, but the documentation makes it appear as
 // if it does.
 #![cfg_attr(docsrs, doc(cfg_hide(feature = "color")))]
