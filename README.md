@@ -26,6 +26,16 @@ tutorial](https://docs.rs/xpct/latest/xpct/docs/tutorial/index.html).
 However you choose to pronounce it is how it's pronounced! I pronounce it like
 "expect."
 
+## Docs
+
+- [API Docs](https://docs.rs/xpct/latest/xpct/index.html)
+- [User Docs](https://docs.rs/xpct/latest/xpct/docs/index.html)
+  - [Tutorial](https://docs.rs/xpct/latest/xpct/docs/tutorial/index.html)
+  - [Provided Matchers](https://docs.rs/xpct/latest/xpct/docs/matcher_list/index.html)
+  - [Cargo Features](https://docs.rs/xpct/latest/xpct/docs/cargo_features/index.html)
+  - [Writing Custom Matchers](https://docs.rs/xpct/latest/xpct/docs/writing_matchers/index.html)
+  - [Writing Custom Formatters](https://docs.rs/xpct/latest/xpct/docs/writing_formatters/index.html)
+
 ## Examples
 
 A simple equality assertion, like `assert_eq`:
