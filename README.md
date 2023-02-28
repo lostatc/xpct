@@ -54,111 +54,65 @@ expect!("disco").to(equal("Disco"));
         "Disco"
 ```
 
-Asserting that every element in a vec is `Some` and unwrapping it to a
-`Vec<&str>`:
+Unwrapping a `Some` value to make an assertion on the wrapped value:
 
 ```rust,should_panic
-use xpct::{be_some, every, expect};
+use xpct::{be_gt, be_some, expect};
 
-let items = vec![Some("foo"), Some("bar"), None];
-
-let output: Vec<&str> = expect!(items)
-    .to(every(be_some))
-    .into_inner();
+expect!(Some(41))
+    .to(be_some())
+    .to(be_gt(57));
 ```
 
 ```text
-[src/main.rs:6:29] = items
-    Expected all of these to succeed:
-        [2]  FAILED
-             Expected this to be Some(_)
-```
-
-Asserting that the given string does not match any of the given matchers:
-
-```rust,should_panic
-use xpct::{expect, any, match_regex, contain_substr, equal, have_suffix};
-
-let location = String::from("Revachol West");
-
-expect!(location).to_not(any(|ctx| {
-    ctx.borrow::<str>()
-        .to(match_regex(r"\w+ (North|South|East|West)$"))
-        .to(contain_substr("Revachol"))
-        .to(equal("Martinaise"))
-        .to(have_suffix("Jamrock"));
-}));
-```
-
-```text
-[src/main.rs:6:5] = location
-    Expected all of these to succeed:
-        [0]  FAILED
-             Expected:
-                 "Revachol West"
-             to not match the regex:
-                 "\\w+ (North|South|East|West)$"
-
-        [1]  FAILED
-             Expected:
-                 "Revachol West"
-             to not contain the substring:
-                 "Revachol"
+[src/main.rs:6:5] = Some(41)
+    Expected:
+        41
+    to be greater than:
+        57
 ```
 
 Making assertions about individual fields of a struct:
 
 ```rust,should_panic
-use std::io;
-
 use xpct::{
-    all, be_empty, be_gt, be_ok, be_some, be_true, expect, fields, have_prefix, match_fields,
-    why,
+    be_empty, be_gt, be_ok, be_true, expect, fields, have_prefix, match_fields, match_regex,
+    not, why,
 };
 
 struct Person {
-    name: Option<String>,
-    age: u32,
     id: String,
+    name: String,
+    age: u32,
     is_superstar: bool,
 }
 
-fn get_person() -> io::Result<Person> {
-    Ok(Person {
-        name: Some("".into()),
-        age: 44,
-        id: String::from("12-62-05-JAM41"),
-        is_superstar: true,
-    })
-}
+let person = Person {
+    id: String::from("LTN-2JFR"),
+    name: String::new(),
+    age: 44,
+    is_superstar: false,
+};
 
-expect!(get_person())
-    .to(be_ok())
-    .to(match_fields(fields!(Person {
-        name: all(|ctx| ctx
-            .to(be_some())?
-            .to_not(be_empty())
-        ),
-        age: be_gt(0),
-        id: why(have_prefix("REV"), "all IDs must have this prefix"),
-        is_superstar: be_true(),
-    })));
+expect!(person).to(match_fields(fields!(Person {
+    id: match_regex(r"^\w{3}(-\dJFR)?$"),
+    name: why(not(be_empty()), "this is a required field"),
+    age: be_gt(0),
+    is_superstar: be_true(),
+})));
 ```
 
 ```text
-[src/main.rs:25:5] = get_person()
+[src/main.rs:23:5] = person
     Expected all of these fields to succeed:
         my_crate::main::Person {
+            id: OK
             name: FAILED
+                🛈 this is a required field
                 Expected this to not be empty
             age: OK
-            id: FAILED
-                🛈 all IDs must have this prefix
-                Expected:
-                    "12-62-05-JAM41"
-                to have the prefix:
-                    "REV"
-            is_superstar: OK
+            is_superstar: FAILED
+                Expected this to be true
         }
 ```
 
