@@ -118,17 +118,16 @@ expect!(person).to(match_fields(fields!(Person {
 
 ## MSRV Policy
 
-The last two stable Rust releases are supported. Older releases may or may not
-be supported as well.
+The last two stable Rust releases are supported. Older releases may be supported
+as well.
 
 The MSRV will only be increased when necessary to take advantage of new Rust
 features—not every time there is a new Rust release. An increase in the MSRV
-will be accompanied by a minor semver bump if >=1.0.0 or a patch semver bump
-if <1.0.0.
+will be accompanied by a minor semver bump if >=1.0.0 or a patch semver bump if
+<1.0.0.
 
 ## Semver Policy
 
 Prior to version 1.0.0, breaking changes will be accompanied by a minor version
 bump, and new features and bug fixes will be accompanied by a patch version
-bump. The semantics of minor vs patch versions <1.0.0 is unspecified in the
-[semver spec](https://semver.org/).
+bump.
