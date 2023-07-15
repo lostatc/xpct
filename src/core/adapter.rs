@@ -1,4 +1,4 @@
-use std::{borrow::Borrow, marker::PhantomData};
+use std::marker::PhantomData;
 
 use super::{
     DynMatch, FormattedFailure, Match, MatchFailure, MatchOutcome, MatcherFormat, SimpleMatch,
@@ -92,7 +92,7 @@ where
         mut self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
-        match self.inner.matches(actual.borrow()) {
+        match self.inner.matches(&actual) {
             Ok(true) => Ok(MatchOutcome::Success(actual)),
             Ok(false) => Ok(MatchOutcome::Fail(self.inner.fail(actual))),
             Err(error) => Err(error),
@@ -103,7 +103,7 @@ where
         mut self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
-        match self.inner.matches(actual.borrow()) {
+        match self.inner.matches(&actual) {
             Ok(true) => Ok(MatchOutcome::Fail(self.inner.fail(actual))),
             Ok(false) => Ok(MatchOutcome::Success(actual)),
             Err(error) => Err(error),
