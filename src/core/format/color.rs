@@ -9,7 +9,7 @@ bitflags! {
     /// Note that not all styles may be supported on all platforms and by all terminal emulators. A
     /// misconfigured `$TERM` or terminfo database can also cause text styles to not render
     /// properly.
-    #[derive(Default)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct TextStyle: u32 {
         #[allow(missing_docs)]
         const BOLD = 1 << 0;
