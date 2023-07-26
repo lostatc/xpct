@@ -316,7 +316,7 @@ where
 
     fn fail(self, actual: Actual) -> Self::Fail {
         Mismatch {
-            expected: actual.len(),
+            expected: self.len,
             actual,
         }
     }
