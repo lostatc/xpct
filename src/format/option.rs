@@ -1,9 +1,86 @@
 use std::convert::Infallible;
+use std::fmt;
+use std::marker::PhantomData;
 
-use crate::core::{Matcher, NegFormat};
-use crate::matchers::BeSomeMatcher;
+use crate::core::{style, Format, Formatter, MatchFailure, Matcher, NegFormat};
+use crate::matchers::{BeSomeMatcher, Expectation};
 
 use super::MessageFormat;
+
+/// A formatter for [`Expectation`] values.
+///
+/// # Examples
+///
+/// ```
+/// # use xpct::format::ExpectationFormat;
+/// let format: ExpectationFormat<Option<String>> = ExpectationFormat::new(
+///     "to be Some(_)",
+///     "to be None",
+/// );
+/// ```
+///
+/// ```
+/// # use std::io::Error;
+/// # use xpct::format::ExpectationFormat;
+/// let format: ExpectationFormat<Result<String, Error>> = ExpectationFormat::new(
+///     "to be Ok(_)",
+///     "to be Err(_)",
+/// );
+/// ```
+#[derive(Debug)]
+pub struct ExpectationFormat<T> {
+    marker: PhantomData<T>,
+    pos_msg: String,
+    neg_msg: String,
+}
+
+impl<T> ExpectationFormat<T> {
+    /// Create a new [`ExpectationFormat`].
+    ///
+    /// This accepts two error messages: the one to use in the *positive* case (when we were
+    /// expecting the matcher to succeed) and the one to use in the *negative* case (when we were
+    /// expecting the matcher to fail).
+    pub fn new(pos_msg: impl Into<String>, neg_msg: impl Into<String>) -> Self {
+        Self {
+            marker: PhantomData,
+            pos_msg: pos_msg.into(),
+            neg_msg: neg_msg.into(),
+        }
+    }
+}
+
+impl<T> Format for ExpectationFormat<T>
+where
+    T: fmt::Debug,
+{
+    type Value = MatchFailure<Expectation<T>>;
+
+    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
+        f.set_style(style::important());
+        f.write_str("Expected:\n");
+
+        match value {
+            MatchFailure::Pos(expectation) => {
+                f.set_style(style::bad());
+                f.write_str(format!("{}{:?}\n", style::indent(1), expectation.actual));
+
+                f.set_style(style::important());
+                f.write_str(self.pos_msg);
+                f.write_char('\n');
+            }
+            MatchFailure::Neg(expectation) => {
+                f.set_style(style::bad());
+                f.write_str(format!("{}{:?}\n", style::indent(1), expectation.actual));
+
+                f.set_style(style::important());
+                f.write_str(self.neg_msg);
+                f.write_char('\n');
+            }
+        };
+
+        Ok(())
+    }
+}
 
 fn option_format() -> MessageFormat {
     MessageFormat::new("Expected this to be Some(_)", "Expected this to be None")

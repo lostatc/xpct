@@ -4,7 +4,7 @@ use std::marker::PhantomData;
 use crate::core::{style, Format, Formatter, MatchFailure, Matcher};
 use crate::matchers::{EqualMatcher, Mismatch};
 
-/// A formatter for [`Mismatch`] types.
+/// A formatter for [`Mismatch`] values.
 ///
 /// # Examples
 ///

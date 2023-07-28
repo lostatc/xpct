@@ -5,6 +5,10 @@ use crate::matchers::BeTrueMatcher;
 
 /// A formatter which prints a static string message.
 ///
+/// Use this over [`Expectation`] when there's no point including the actual value in the output. A
+/// good example of this is the [`be_true`] matcher, where if the matcher failed, you know the
+/// actual value must be `false`.
+///
 /// # Examples
 ///
 /// ```
@@ -14,6 +18,9 @@ use crate::matchers::BeTrueMatcher;
 ///     "Expected this to be false"
 /// );
 /// ```
+///
+/// [`Expectation`]: crate::matchers::Expectation
+/// [`be_true`]: crate::be_true
 #[derive(Debug)]
 pub struct MessageFormat<PosFail = (), NegFail = ()> {
     marker: PhantomData<(PosFail, NegFail)>,

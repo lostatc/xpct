@@ -44,6 +44,7 @@ pub use each::SomeFailuresFormat;
 pub use equal::MismatchFormat;
 pub use fields::ByFieldFormat;
 pub use not::FailureFormat;
+pub use option::ExpectationFormat;
 pub use why::WhyFormat;
 
 pub(crate) mod matchers {
