@@ -1,9 +1,9 @@
-use crate::{
-    core::Matcher,
-    matchers::{BeZeroMatcher, NonZeroInt},
-};
+use std::fmt;
 
-use super::MessageFormat;
+use crate::core::Matcher;
+use crate::matchers::{BeZeroMatcher, NonZeroInt};
+
+use super::ExpectationFormat;
 
 /// Succeeds when the actual integer value is `0`.
 ///
@@ -25,11 +25,11 @@ use super::MessageFormat;
 /// [`NonZeroI32`]: std::num::NonZeroI32
 pub fn be_zero<'a, T>() -> Matcher<'a, T, T, T::NonZero>
 where
-    T: NonZeroInt + 'a,
+    T: fmt::Debug + NonZeroInt + 'a,
 {
     Matcher::new(
         BeZeroMatcher::new(),
-        MessageFormat::new("Expected this to be 0", "Expected this to not be 0"),
+        ExpectationFormat::new("to be 0", "to not be 0"),
     )
 }
 

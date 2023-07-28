@@ -4,7 +4,7 @@ use std::fmt;
 use crate::core::Matcher;
 use crate::matchers::{BeSortedByMatcher, BeSortedMatcher, Inequality, OrdMatcher, SortOrder};
 
-use super::{MessageFormat, MismatchFormat};
+use super::{ExpectationFormat, MismatchFormat};
 
 /// Succeeds when the actual value is greater than the expected value.
 ///
@@ -106,13 +106,13 @@ where
 pub fn be_sorted_asc<'a, T, Actual>() -> Matcher<'a, Actual, Actual>
 where
     T: Ord + 'a,
-    Actual: AsRef<[T]> + 'a,
+    Actual: fmt::Debug + AsRef<[T]> + 'a,
 {
     Matcher::simple(
         BeSortedMatcher::new(SortOrder::Asc),
-        MessageFormat::new(
-            "Expected this to be sorted in ascending order",
-            "Expected this to not be sorted in ascending order",
+        ExpectationFormat::new(
+            "to be sorted in ascending order",
+            "to not be sorted in ascending order",
         ),
     )
 }
@@ -129,13 +129,13 @@ where
 pub fn be_sorted_desc<'a, T, Actual>() -> Matcher<'a, Actual, Actual>
 where
     T: Ord + 'a,
-    Actual: AsRef<[T]> + 'a,
+    Actual: fmt::Debug + AsRef<[T]> + 'a,
 {
     Matcher::simple(
         BeSortedMatcher::new(SortOrder::Desc),
-        MessageFormat::new(
-            "Expected this to be sorted in descending order",
-            "Expected this to not be sorted in descending order",
+        ExpectationFormat::new(
+            "to be sorted in descending order",
+            "to not be sorted in descending order",
         ),
     )
 }
@@ -156,13 +156,13 @@ pub fn be_sorted_by<'a, T, Actual>(
 ) -> Matcher<'a, Actual, Actual>
 where
     T: Ord + 'a,
-    Actual: AsRef<[T]> + 'a,
+    Actual: fmt::Debug + AsRef<[T]> + 'a,
 {
     Matcher::simple(
         BeSortedByMatcher::new(predicate),
-        MessageFormat::new(
-            "Expected this to be sorted",
-            "Expected this to not be sorted",
+        ExpectationFormat::new(
+            "to be sorted by the given predicate",
+            "to not be sorted by the given predicate",
         ),
     )
 }

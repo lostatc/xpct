@@ -3,6 +3,8 @@ use std::{fs, io};
 
 use crate::core::SimpleMatch;
 
+use super::Expectation;
+
 /// How an [`FileExistsMatcher`] should match.
 #[non_exhaustive]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -23,8 +25,6 @@ pub enum FileExistsMode {
     Directory,
 
     /// Succeeds if the file exists and is a symbolic link.
-    ///
-    /// This mode does not follow symlinks.
     Symlink,
 }
 
@@ -50,7 +50,7 @@ impl<Actual> SimpleMatch<Actual> for FileExistsMatcher
 where
     Actual: AsRef<Path>,
 {
-    type Fail = ();
+    type Fail = Expectation<Actual>;
 
     fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {
         let metadata_result = if self.mode == FileExistsMode::Symlink {
@@ -74,5 +74,7 @@ where
         }
     }
 
-    fn fail(self, _: Actual) -> Self::Fail {}
+    fn fail(self, actual: Actual) -> Self::Fail {
+        Expectation { actual }
+    }
 }

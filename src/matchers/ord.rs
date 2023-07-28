@@ -4,7 +4,7 @@ use std::marker::PhantomData;
 
 use crate::core::SimpleMatch;
 
-use super::Mismatch;
+use super::{Expectation, Mismatch};
 
 /// Which inequality test to perform with [`OrdMatcher`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -102,7 +102,7 @@ where
     T: Ord,
     Actual: AsRef<[T]>,
 {
-    type Fail = ();
+    type Fail = Expectation<Actual>;
 
     fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {
         Ok(actual.as_ref().windows(2).all(|window| match self.order {
@@ -111,7 +111,9 @@ where
         }))
     }
 
-    fn fail(self, _: Actual) -> Self::Fail {}
+    fn fail(self, actual: Actual) -> Self::Fail {
+        Expectation { actual }
+    }
 }
 
 type BoxSortPredicate<'a, T> = Box<dyn Fn(&T, &T) -> Ordering + 'a>;
@@ -146,7 +148,7 @@ where
     T: Ord,
     Actual: AsRef<[T]>,
 {
-    type Fail = ();
+    type Fail = Expectation<Actual>;
 
     fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {
         Ok(actual.as_ref().windows(2).all(|window| {
@@ -155,5 +157,7 @@ where
         }))
     }
 
-    fn fail(self, _: Actual) -> Self::Fail {}
+    fn fail(self, actual: Actual) -> Self::Fail {
+        Expectation { actual }
+    }
 }

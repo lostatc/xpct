@@ -3,7 +3,7 @@ use std::fmt;
 use crate::core::Matcher;
 use crate::matchers::{HaveLenMatcher, Len};
 
-use super::{MessageFormat, MismatchFormat};
+use super::MismatchFormat;
 
 /// Succeeds when the actual value has the given length.
 ///
@@ -45,7 +45,7 @@ where
 {
     Matcher::simple(
         HaveLenMatcher::new(0),
-        MessageFormat::new("Expected this to be empty", "Expected this to not be empty"),
+        MismatchFormat::new("to have length", "to not have length"),
     )
 }
 

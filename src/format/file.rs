@@ -1,9 +1,10 @@
+use std::fmt;
 use std::path::Path;
 
 use crate::core::Matcher;
 use crate::matchers::{FileExistsMatcher, FileExistsMode};
 
-use super::MessageFormat;
+use super::ExpectationFormat;
 
 /// Succeeds when the actual value is an existing file.
 ///
@@ -19,13 +20,13 @@ use super::MessageFormat;
 /// ```
 pub fn be_existing_file<'a, Actual>() -> Matcher<'a, Actual, Actual>
 where
-    Actual: AsRef<Path> + 'a,
+    Actual: fmt::Debug + AsRef<Path> + 'a,
 {
     Matcher::simple(
         FileExistsMatcher::new(FileExistsMode::Exists),
-        MessageFormat::new(
-            "Expected this file to exist",
-            "Expected this file to not exist",
+        ExpectationFormat::new(
+            "to exist in the filesystem",
+            "to not exist in the filesystem",
         ),
     )
 }
@@ -44,14 +45,11 @@ where
 /// ```
 pub fn be_regular_file<'a, Actual>() -> Matcher<'a, Actual, Actual>
 where
-    Actual: AsRef<Path> + 'a,
+    Actual: fmt::Debug + AsRef<Path> + 'a,
 {
     Matcher::simple(
         FileExistsMatcher::new(FileExistsMode::RegularFile),
-        MessageFormat::new(
-            "Expected this to be a regular file",
-            "Expected this to not be a regular file",
-        ),
+        ExpectationFormat::new("to exist and be a regular file", "to not be a regular file"),
     )
 }
 
@@ -69,14 +67,11 @@ where
 /// ```
 pub fn be_directory<'a, Actual>() -> Matcher<'a, Actual, Actual>
 where
-    Actual: AsRef<Path> + 'a,
+    Actual: fmt::Debug + AsRef<Path> + 'a,
 {
     Matcher::simple(
         FileExistsMatcher::new(FileExistsMode::Directory),
-        MessageFormat::new(
-            "Expected this to be a directory",
-            "Expected this to not be a directory",
-        ),
+        ExpectationFormat::new("to exist and be a directory", "to not be a directory"),
     )
 }
 
@@ -94,13 +89,13 @@ where
 /// ```
 pub fn be_symlink<'a, Actual>() -> Matcher<'a, Actual, Actual>
 where
-    Actual: AsRef<Path> + 'a,
+    Actual: fmt::Debug + AsRef<Path> + 'a,
 {
     Matcher::simple(
         FileExistsMatcher::new(FileExistsMode::Symlink),
-        MessageFormat::new(
-            "Expected this to be a symbolic link",
-            "Expected this to not be a symbolic link",
+        ExpectationFormat::new(
+            "to exist and be a symbolic link",
+            "to not be a symbolic link",
         ),
     )
 }
