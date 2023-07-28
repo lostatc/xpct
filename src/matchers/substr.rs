@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use crate::core::SimpleMatch;
+use crate::core::Match;
 
 use super::Mismatch;
 
@@ -21,7 +21,7 @@ impl<'a> ContainSubstrMatcher<'a> {
     }
 }
 
-impl<'a, Actual> SimpleMatch<Actual> for ContainSubstrMatcher<'a>
+impl<'a, Actual> Match<Actual> for ContainSubstrMatcher<'a>
 where
     Actual: AsRef<str>,
 {
@@ -56,7 +56,7 @@ impl<'a> HavePrefixMatcher<'a> {
     }
 }
 
-impl<'a, Actual> SimpleMatch<Actual> for HavePrefixMatcher<'a>
+impl<'a, Actual> Match<Actual> for HavePrefixMatcher<'a>
 where
     Actual: AsRef<str>,
 {
@@ -91,7 +91,7 @@ impl<'a> HaveSuffixMatcher<'a> {
     }
 }
 
-impl<'a, Actual> SimpleMatch<Actual> for HaveSuffixMatcher<'a>
+impl<'a, Actual> Match<Actual> for HaveSuffixMatcher<'a>
 where
     Actual: AsRef<str>,
 {

@@ -1,13 +1,13 @@
 use std::fmt;
 
-use super::adapter::{DynTransformMatchAdapter, NegTransformMatchAdapter, SimpleMatchAdapter};
+use super::adapter::{DynTransformMatchAdapter, MatchAdapter, NegTransformMatchAdapter};
 use super::wrap::MatchWrapper;
 use super::{FormattedFailure, MatchOutcome, MatcherFormat};
 
-/// The trait which is implemented to create matchers that transform their values.
+/// A trait which is implemented to create matchers that transform their values.
 ///
 /// For simple matchers that don't need to transform their values, it may be easier to implement
-/// [`SimpleMatch`] instead.
+/// [`Match`] instead.
 pub trait TransformMatch {
     /// The type of the "actual" value passed into the matcher by [`expect!`].
     ///
@@ -67,18 +67,19 @@ pub trait TransformMatch {
     ) -> crate::Result<MatchOutcome<Self::NegOut, Self::NegFail>>;
 }
 
-/// A simplified version of the [`TransformMatch`] trait for implementing matchers.
+/// A trait which is implemented to create matchers.
 ///
-/// Implementing this trait is a simpler alternative when the matcher does not need to transform
-/// values like the [`be_ok`] and [`be_some`] matchers do.
+/// To create a matcher that can transform its values, like the [`be_ok`] and [`be_some`] matchers
+/// do, you need to use [`TransformMatch`] instead.
 ///
 /// [`be_ok`]: crate::be_ok
 /// [`be_some`]: crate::be_some
-pub trait SimpleMatch<Actual> {
+pub trait Match<Actual> {
     /// The failure output that is passed to the formatter.
     ///
-    /// This type serves the same purpose as [`TransformMatch::PosFail`] and [`TransformMatch::NegFail`], except for
-    /// matchers that are implemented with [`SimpleMatch`], they are always the same type.
+    /// This type serves the same purpose as [`TransformMatch::PosFail`] and
+    /// [`TransformMatch::NegFail`], except for matchers that are implemented with [`Match`], they
+    /// are always the same type.
     type Fail;
 
     /// Returns `true` if the matcher succeeded or `false` if it failed.
@@ -93,7 +94,7 @@ pub trait SimpleMatch<Actual> {
     /// This will only ever be called if [`matches`] returns `false`.
     ///
     /// [`expect!`]: crate::expect
-    /// [`matches`]: crate::core::SimpleMatch::matches
+    /// [`matches`]: crate::core::Match::matches
     fn fail(self, actual: Actual) -> Self::Fail;
 }
 
@@ -136,7 +137,7 @@ pub type BoxTransformMatch<'a, In, PosOut, NegOut = PosOut> =
 /// A matcher.
 ///
 /// This type is a matcher that can be used to make assertions. You can create a matcher from any
-/// type which implements [`TransformMatch`] or [`SimpleMatch`].
+/// type which implements [`TransformMatch`] or [`Match`].
 pub struct Matcher<'a, In, PosOut, NegOut = PosOut> {
     inner: BoxTransformMatch<'a, In, PosOut, NegOut>,
 }
@@ -192,14 +193,14 @@ impl<'a, In, PosOut, NegOut> Matcher<'a, In, PosOut, NegOut> {
 }
 
 impl<'a, Actual> Matcher<'a, Actual, Actual> {
-    /// Create a new [`Matcher`] from a type that implements [`SimpleMatch`] and a formatter.
+    /// Create a new [`Matcher`] from a type that implements [`Match`] and a formatter.
     pub fn simple<M, Fmt>(matcher: M, format: Fmt) -> Self
     where
-        M: SimpleMatch<Actual> + 'a,
+        M: Match<Actual> + 'a,
         Fmt: MatcherFormat<Pos = M::Fail, Neg = M::Fail> + 'a,
         Actual: 'a,
     {
-        Self::new(SimpleMatchAdapter::new(matcher), format)
+        Self::new(MatchAdapter::new(matcher), format)
     }
 
     /// Same as [`simple`], but negates the matcher.
@@ -210,11 +211,11 @@ impl<'a, Actual> Matcher<'a, Actual, Actual> {
     /// [`neg`]: crate::core::Matcher::neg
     pub fn simple_neg<M, Fmt>(matcher: M, format: Fmt) -> Self
     where
-        M: SimpleMatch<Actual> + 'a,
+        M: Match<Actual> + 'a,
         Fmt: MatcherFormat<Pos = M::Fail, Neg = M::Fail> + 'a,
         Actual: 'a,
     {
-        Self::neg(SimpleMatchAdapter::new(matcher), format)
+        Self::neg(MatchAdapter::new(matcher), format)
     }
 }
 

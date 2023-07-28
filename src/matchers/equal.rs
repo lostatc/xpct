@@ -1,4 +1,4 @@
-use crate::core::SimpleMatch;
+use crate::core::Match;
 
 /// A value that is returned by matchers when the expected and actual values differ.
 ///
@@ -45,7 +45,7 @@ impl<Expected> EqualMatcher<Expected> {
     }
 }
 
-impl<Expected, Actual> SimpleMatch<Actual> for EqualMatcher<Expected>
+impl<Expected, Actual> Match<Actual> for EqualMatcher<Expected>
 where
     Actual: PartialEq<Expected> + Eq,
 {

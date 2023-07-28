@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use super::{
-    DynTransformMatch, FormattedFailure, MatchFailure, MatchOutcome, MatcherFormat, SimpleMatch,
+    DynTransformMatch, FormattedFailure, Match, MatchFailure, MatchOutcome, MatcherFormat,
     TransformMatch,
 };
 
@@ -57,17 +57,17 @@ where
 }
 
 #[derive(Debug)]
-pub(super) struct SimpleMatchAdapter<M, Actual>
+pub(super) struct MatchAdapter<M, Actual>
 where
-    M: SimpleMatch<Actual>,
+    M: Match<Actual>,
 {
     inner: M,
     marker: PhantomData<Actual>,
 }
 
-impl<M, Actual> SimpleMatchAdapter<M, Actual>
+impl<M, Actual> MatchAdapter<M, Actual>
 where
-    M: SimpleMatch<Actual>,
+    M: Match<Actual>,
 {
     pub fn new(inner: M) -> Self {
         Self {
@@ -77,9 +77,9 @@ where
     }
 }
 
-impl<M, Actual> TransformMatch for SimpleMatchAdapter<M, Actual>
+impl<M, Actual> TransformMatch for MatchAdapter<M, Actual>
 where
-    M: SimpleMatch<Actual>,
+    M: Match<Actual>,
 {
     type In = Actual;
 

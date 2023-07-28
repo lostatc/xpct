@@ -4,7 +4,7 @@ use std::borrow::Cow;
 
 use serde_json::{from_str as json_from_str, Value as JsonValue};
 
-use crate::core::SimpleMatch;
+use crate::core::Match;
 
 use super::Mismatch;
 
@@ -25,7 +25,7 @@ impl<'a> JsonMatcher<'a> {
     }
 }
 
-impl<'a, Actual> SimpleMatch<Actual> for JsonMatcher<'a>
+impl<'a, Actual> Match<Actual> for JsonMatcher<'a>
 where
     Actual: AsRef<str>,
 {

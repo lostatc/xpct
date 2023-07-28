@@ -2,7 +2,7 @@
 
 use regex::Regex;
 
-use crate::core::SimpleMatch;
+use crate::core::Match;
 
 use super::Mismatch;
 
@@ -25,7 +25,7 @@ impl RegexMatcher {
     }
 }
 
-impl<Actual> SimpleMatch<Actual> for RegexMatcher
+impl<Actual> Match<Actual> for RegexMatcher
 where
     Actual: AsRef<str>,
 {

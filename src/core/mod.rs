@@ -14,5 +14,5 @@ mod wrap;
 pub use assertion::Assertion;
 pub use context::{AssertionContext, FileLocation};
 pub use format::*;
-pub use matcher::{BoxTransformMatch, DynTransformMatch, Matcher, SimpleMatch, TransformMatch};
+pub use matcher::{BoxTransformMatch, DynTransformMatch, Match, Matcher, TransformMatch};
 pub use result::{AssertionFailure, FormattedFailure, MatchError, MatchFailure, MatchOutcome};

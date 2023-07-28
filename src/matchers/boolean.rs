@@ -1,4 +1,4 @@
-use crate::core::SimpleMatch;
+use crate::core::Match;
 
 /// The matcher for [`be_true`] and [`be_false`].
 ///
@@ -15,7 +15,7 @@ impl BeTrueMatcher {
     }
 }
 
-impl SimpleMatch<bool> for BeTrueMatcher {
+impl Match<bool> for BeTrueMatcher {
     type Fail = ();
 
     fn matches(&mut self, actual: &bool) -> crate::Result<bool> {

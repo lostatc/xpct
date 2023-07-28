@@ -1,6 +1,6 @@
 use std::time::{Duration, SystemTime};
 
-use crate::core::SimpleMatch;
+use crate::core::Match;
 
 use super::Mismatch;
 
@@ -23,7 +23,7 @@ impl ApproxEqTimeMatcher {
     }
 }
 
-impl SimpleMatch<SystemTime> for ApproxEqTimeMatcher {
+impl Match<SystemTime> for ApproxEqTimeMatcher {
     type Fail = Mismatch<SystemTime, SystemTime>;
 
     fn matches(&mut self, actual: &SystemTime) -> crate::Result<bool> {

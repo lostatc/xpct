@@ -1,4 +1,4 @@
-use crate::core::SimpleMatch;
+use crate::core::Match;
 
 use super::Mismatch;
 
@@ -20,7 +20,7 @@ where
     }
 }
 
-impl<Actual> SimpleMatch<Actual> for BeDefaultMatcher<Actual>
+impl<Actual> Match<Actual> for BeDefaultMatcher<Actual>
 where
     Actual: Default + PartialEq<Actual> + Eq,
 {

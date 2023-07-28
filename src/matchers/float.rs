@@ -2,7 +2,7 @@
 
 use float_cmp::approx_eq;
 
-use crate::core::SimpleMatch;
+use crate::core::Match;
 
 use super::Mismatch;
 
@@ -30,7 +30,7 @@ impl ApproxEqFloatMatcher<f64, i64> {
     }
 }
 
-impl SimpleMatch<f32> for ApproxEqFloatMatcher<f32, i32> {
+impl Match<f32> for ApproxEqFloatMatcher<f32, i32> {
     type Fail = Mismatch<f32, f32>;
 
     fn matches(&mut self, actual: &f32) -> crate::Result<bool> {
@@ -45,7 +45,7 @@ impl SimpleMatch<f32> for ApproxEqFloatMatcher<f32, i32> {
     }
 }
 
-impl SimpleMatch<f64> for ApproxEqFloatMatcher<f64, i64> {
+impl Match<f64> for ApproxEqFloatMatcher<f64, i64> {
     type Fail = Mismatch<f64, f64>;
 
     fn matches(&mut self, actual: &f64) -> crate::Result<bool> {

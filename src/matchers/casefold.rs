@@ -4,7 +4,7 @@ use std::borrow::Cow;
 
 use unicase::UniCase;
 
-use crate::core::SimpleMatch;
+use crate::core::Match;
 
 use super::Mismatch;
 
@@ -25,7 +25,7 @@ impl<'a> EqCasefoldMatcher<'a> {
     }
 }
 
-impl<'a, Actual> SimpleMatch<Actual> for EqCasefoldMatcher<'a>
+impl<'a, Actual> Match<Actual> for EqCasefoldMatcher<'a>
 where
     Actual: AsRef<str>,
 {

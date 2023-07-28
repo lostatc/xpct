@@ -11,10 +11,10 @@ complexity and flexibility, you can:
 
 1. Compose existing matchers. This is the simplest approach, but doesn't let you
    customize the formatting of the failure output.
-2. Implement [`SimpleMatch`]. This lets you customize the formatting of the
-   failure output.
-3. Implement [`TransformMatch`]. This is like [`SimpleMatch`], but additionally
-   allows you to write matchers that transform values (like the [`be_some`] and
+2. Implement [`Match`]. This lets you customize the formatting of the failure
+   output.
+3. Implement [`TransformMatch`]. This is like [`Match`], but additionally allows
+   you to write matchers that transform values (like the [`be_some`] and
    [`be_ok`] matchers do).
 
 ## Composing existing matchers
@@ -42,14 +42,14 @@ where
 }
 ```
 
-## Implementing `SimpleMatch`
+## Implementing `Match`
 
-The next simplest way is to implement the [`SimpleMatch`] trait. This is how
-many of the provided matchers are implemented. Here's an implementation of the
-[`equal`] matcher.
+The next simplest way is to implement the [`Match`] trait. This is how many of
+the provided matchers are implemented. Here's an implementation of the [`equal`]
+matcher.
 
 ```
-use xpct::core::SimpleMatch;
+use xpct::core::Match;
 use xpct::matchers::Mismatch;
 
 pub struct EqualMatcher<Expected> {
@@ -62,7 +62,7 @@ impl<Expected> EqualMatcher<Expected> {
     }
 }
 
-impl<Expected, Actual> SimpleMatch<Actual> for EqualMatcher<Expected>
+impl<Expected, Actual> Match<Actual> for EqualMatcher<Expected>
 where
     Actual: PartialEq<Expected> + Eq,
 {
@@ -115,7 +115,7 @@ where
 
 What if we wanted to make a matcher which is the negated version of
 `EqualMatcher`, like `not_equal`? For a matcher created by implementing
-[`SimpleMatch`], we can call [`Matcher::simple_neg`] to negate it.
+[`Match`], we can call [`Matcher::simple_neg`] to negate it.
 
 ```
 # use xpct::matchers::EqualMatcher;
@@ -144,9 +144,9 @@ expect!("disco").to(not_equal("not disco"));
 
 ## Implementing `TransformMatch`
 
-The major limitation of [`SimpleMatch`] is that it always returns the same value
-that was passed in. If you need it to transform the value like the [`be_some`]
-and [`be_ok`] matchers do, you can implement the [`TransformMatch`] trait.
+The major limitation of [`Match`] is that it always returns the same value that
+was passed in. If you need it to transform the value like the [`be_some`] and
+[`be_ok`] matchers do, you can implement the [`TransformMatch`] trait.
 
 ```
 use std::marker::PhantomData;
@@ -254,7 +254,7 @@ where
 [`all`]: crate::all
 [`be_some`]: crate::be_some
 [`be_ok`]: crate::be_ok
-[`SimpleMatch`]: crate::core::SimpleMatch
+[`Match`]: crate::core::Match
 [`equal`]: crate::equal
 [`Matcher`]: crate::core::Matcher
 [`Matcher::new`]: crate::core::Matcher::new

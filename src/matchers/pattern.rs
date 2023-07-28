@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::core::SimpleMatch;
+use crate::core::Match;
 
 use super::Mismatch;
 
@@ -76,7 +76,7 @@ impl<'a, Actual> PatternMatcher<'a, Actual> {
     }
 }
 
-impl<'a, 'b: 'a, Actual> SimpleMatch<Actual> for PatternMatcher<'a, Actual> {
+impl<'a, 'b: 'a, Actual> Match<Actual> for PatternMatcher<'a, Actual> {
     type Fail = Mismatch<Pattern<'a, Actual>, Actual>;
 
     fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {

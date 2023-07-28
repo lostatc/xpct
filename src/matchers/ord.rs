@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use std::fmt;
 use std::marker::PhantomData;
 
-use crate::core::SimpleMatch;
+use crate::core::Match;
 
 use super::{Expectation, Mismatch};
 
@@ -43,7 +43,7 @@ impl<Expected> OrdMatcher<Expected> {
     }
 }
 
-impl<Expected, Actual> SimpleMatch<Actual> for OrdMatcher<Expected>
+impl<Expected, Actual> Match<Actual> for OrdMatcher<Expected>
 where
     Actual: PartialOrd<Expected>,
 {
@@ -97,7 +97,7 @@ impl<T> BeSortedMatcher<T> {
     }
 }
 
-impl<T, Actual> SimpleMatch<Actual> for BeSortedMatcher<T>
+impl<T, Actual> Match<Actual> for BeSortedMatcher<T>
 where
     T: Ord,
     Actual: AsRef<[T]>,
@@ -143,7 +143,7 @@ impl<'a, T> BeSortedByMatcher<'a, T> {
     }
 }
 
-impl<'a, T, Actual> SimpleMatch<Actual> for BeSortedByMatcher<'a, T>
+impl<'a, T, Actual> Match<Actual> for BeSortedByMatcher<'a, T>
 where
     T: Ord,
     Actual: AsRef<[T]>,

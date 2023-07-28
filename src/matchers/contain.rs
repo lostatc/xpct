@@ -4,7 +4,7 @@ use std::hash::Hash;
 use std::marker::PhantomData;
 use std::ops::{Range, RangeFrom, RangeInclusive, RangeTo, RangeToInclusive};
 
-use crate::core::SimpleMatch;
+use crate::core::Match;
 
 use super::{Len, Mismatch};
 
@@ -367,7 +367,7 @@ impl<T, Expected> ContainElementsMatcher<T, Expected> {
     }
 }
 
-impl<T, Expected, Actual> SimpleMatch<Actual> for ContainElementsMatcher<T, Expected>
+impl<T, Expected, Actual> Match<Actual> for ContainElementsMatcher<T, Expected>
 where
     Actual: Contains<T>,
     Expected: IntoIterator + Clone,
@@ -410,7 +410,7 @@ impl<T, Expected> ConsistOfMatcher<T, Expected> {
     }
 }
 
-impl<T, Expected, Actual> SimpleMatch<Actual> for ConsistOfMatcher<T, Expected>
+impl<T, Expected, Actual> Match<Actual> for ConsistOfMatcher<T, Expected>
 where
     Expected: Contains<T> + Len,
     Actual: IntoIterator + Len + Clone,
@@ -449,7 +449,7 @@ impl<Collection> BeInMatcher<Collection> {
     }
 }
 
-impl<Collection, Actual> SimpleMatch<Actual> for BeInMatcher<Collection>
+impl<Collection, Actual> Match<Actual> for BeInMatcher<Collection>
 where
     Collection: Contains<Actual>,
 {

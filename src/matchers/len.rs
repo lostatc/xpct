@@ -4,7 +4,7 @@ use std::{
     ffi::{OsStr, OsString},
 };
 
-use crate::core::SimpleMatch;
+use crate::core::Match;
 
 use super::{Expectation, Mismatch};
 
@@ -304,7 +304,7 @@ impl HaveLenMatcher {
     }
 }
 
-impl<Actual> SimpleMatch<Actual> for HaveLenMatcher
+impl<Actual> Match<Actual> for HaveLenMatcher
 where
     Actual: Len,
 {
@@ -336,7 +336,7 @@ impl BeEmptyMatcher {
     }
 }
 
-impl<Actual> SimpleMatch<Actual> for BeEmptyMatcher
+impl<Actual> Match<Actual> for BeEmptyMatcher
 where
     Actual: Len,
 {

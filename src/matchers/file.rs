@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::{fs, io};
 
-use crate::core::SimpleMatch;
+use crate::core::Match;
 
 use super::Expectation;
 
@@ -46,7 +46,7 @@ impl FileExistsMatcher {
     }
 }
 
-impl<Actual> SimpleMatch<Actual> for FileExistsMatcher
+impl<Actual> Match<Actual> for FileExistsMatcher
 where
     Actual: AsRef<Path>,
 {
