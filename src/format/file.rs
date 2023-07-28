@@ -6,7 +6,7 @@ use crate::matchers::{FileExistsMatcher, FileExistsMode};
 
 use super::ExpectationFormat;
 
-/// Succeeds when the actual value is an existing file.
+/// Succeeds when the actual value is the path of an existing file.
 ///
 /// This follows symbolic links.
 ///
@@ -31,7 +31,7 @@ where
     )
 }
 
-/// Succeeds when the actual value is an existing regular file.
+/// Succeeds when the actual value is the path of an existing regular file.
 ///
 /// This follows symbolic links.
 ///
@@ -53,7 +53,7 @@ where
     )
 }
 
-/// Succeeds when the actual value is an existing directory.
+/// Succeeds when the actual value is the path of an existing directory.
 ///
 /// This follows symbolic links.
 ///
@@ -75,9 +75,7 @@ where
     )
 }
 
-/// Succeeds when the actual value is an existing symbolic link.
-///
-/// This does not follow symbolic links.
+/// Succeeds when the actual value is the path of an existing symbolic link.
 ///
 /// # Examples
 ///
