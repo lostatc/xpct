@@ -325,7 +325,7 @@ where
 /// The matcher for [`be_empty`].
 ///
 /// [`be_empty`]: crate::be_empty
-#[derive(Debug)]
+#[derive(Debug, Default)]
 #[non_exhaustive]
 pub struct BeEmptyMatcher;
 
