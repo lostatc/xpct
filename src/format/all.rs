@@ -73,7 +73,7 @@ where
         MessageFormat::new("", AT_LESAT_ONE_NOT_OK_MSG),
     );
 
-    Matcher::new(ChainMatcher::new(block), format)
+    Matcher::transform(ChainMatcher::new(block), format)
 }
 
 #[cfg(test)]

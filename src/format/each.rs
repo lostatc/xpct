@@ -125,7 +125,7 @@ pub fn each<'a, T>(block: impl FnOnce(&mut CombinatorContext<T>) + 'a) -> Matche
 where
     T: 'a,
 {
-    Matcher::new(
+    Matcher::transform(
         CombinatorMatcher::new(CombinatorMode::All, block),
         HeaderFormat::new(
             SomeFailuresFormat::new(),

@@ -86,11 +86,11 @@ Now let's make a function to call this matcher ergonomically from tests!
 Basically, we just need to write a function which returns a [`Matcher`].
 
 To make `EqualMatcher` into a `Matcher`, you just need to wrap it with
-[`Matcher::simple`]. This method also accepts the formatter which is used to
-format the output. Thankfully, you don't need to write the formatting logic
-yourself to get pretty output! Because our matcher returns a [`Mismatch`] when
-it fails, we can use any formatter which accepts a [`Mismatch`], like the
-provided [`MismatchFormat`].
+[`Matcher::new`]. This method also accepts the formatter which is used to format
+the output. Thankfully, you don't need to write the formatting logic yourself to
+get pretty output! Because our matcher returns a [`Mismatch`] when it fails, we
+can use any formatter which accepts a [`Mismatch`], like the provided
+[`MismatchFormat`].
 
 ```
 # use xpct::matchers::EqualMatcher;
@@ -105,7 +105,7 @@ where
     Actual: fmt::Debug + PartialEq<Expected> + Eq + 'a,
     Expected: fmt::Debug + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         EqualMatcher::new(expected),
         MismatchFormat::new("to equal", "to not equal"),
     )
@@ -115,7 +115,7 @@ where
 
 What if we wanted to make a matcher which is the negated version of
 `EqualMatcher`, like `not_equal`? For a matcher created by implementing
-[`Match`], we can call [`Matcher::simple_neg`] to negate it.
+[`Match`], we can call [`Matcher::neg`] to negate it.
 
 ```
 # use xpct::matchers::EqualMatcher;
@@ -130,7 +130,7 @@ where
     Actual: fmt::Debug + PartialEq<Expected> + Eq + 'a,
     Expected: fmt::Debug + 'a,
 {
-    Matcher::simple_neg(
+    Matcher::neg(
         EqualMatcher::new(expected),
         // Remember that we need to flip these cases, because `actual !=
         // expected` is now the *positive* case and `actual == expected` is now
@@ -233,8 +233,9 @@ where
     T: fmt::Debug + 'a,
     E: fmt::Debug + 'a,
 {
-    // For matchers implemented with `TransformMatch`, you use `Matcher::new`.
-    Matcher::new(BeOkMatcher::new(), result_format())
+    // For matchers implemented with `TransformMatch`, you use
+    // `Matcher::transform`.
+    Matcher::transform(BeOkMatcher::new(), result_format())
 }
 
 pub fn be_err<'a, T, E>() -> Matcher<'a, Result<T, E>, E, T>
@@ -242,9 +243,10 @@ where
     T: fmt::Debug + 'a,
     E: fmt::Debug + 'a,
 {
-    // You can use `Matcher::neg` to negate a matcher created by implementing
-    // `TransformMatch`. You can use `NegFormat` to negate the formatter.
-    Matcher::neg(BeOkMatcher::new(), NegFormat(result_format()))
+    // You can use `Matcher::transform_neg` to negate a matcher created by
+    // implementing `TransformMatch`. You can use `NegFormat` to negate the
+    // formatter.
+    Matcher::transform_neg(BeOkMatcher::new(), NegFormat(result_format()))
 }
 ```
 
@@ -257,9 +259,9 @@ where
 [`Match`]: crate::core::Match
 [`equal`]: crate::equal
 [`Matcher`]: crate::core::Matcher
-[`Matcher::new`]: crate::core::Matcher::new
+[`Matcher::transform`]: crate::core::Matcher::transform
 [`Mismatch`]: crate::matchers::Mismatch
 [`MismatchFormat`]: crate::format::MismatchFormat
-[`Matcher::simple`]: crate::core::Matcher::simple
-[`Matcher::simple_neg`]: crate::core::Matcher::simple_neg
+[`Matcher::new`]: crate::core::Matcher::new
+[`Matcher::neg`]: crate::core::Matcher::neg
 */

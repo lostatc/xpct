@@ -22,7 +22,7 @@ use super::MismatchFormat;
 /// expect!(actual).to(approx_eq_f32(expected, 2));
 /// ```
 pub fn approx_eq_f32<'a>(expected: f32, ulps: i32) -> Matcher<'a, f32, f32> {
-    Matcher::simple(
+    Matcher::new(
         ApproxEqFloatMatcher::<f32, i32>::new(expected, ulps),
         MismatchFormat::new("to approximately equal", "to not approximately equal"),
     )
@@ -32,7 +32,7 @@ pub fn approx_eq_f32<'a>(expected: f32, ulps: i32) -> Matcher<'a, f32, f32> {
 ///
 /// See [`approx_eq_f32`] for details.
 pub fn approx_eq_f64<'a>(expected: f64, ulps: i64) -> Matcher<'a, f64, f64> {
-    Matcher::simple(
+    Matcher::new(
         ApproxEqFloatMatcher::<f64, i64>::new(expected, ulps),
         MismatchFormat::new("to approximately equal", "to not approximately equal"),
     )

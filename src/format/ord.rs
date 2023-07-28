@@ -20,7 +20,7 @@ where
     Actual: fmt::Debug + PartialOrd<Expected> + 'a,
     Expected: fmt::Debug + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         OrdMatcher::new(expected, Inequality::Greater),
         MismatchFormat::new("to be greater than", "to not be greater than"),
     )
@@ -41,7 +41,7 @@ where
     Actual: fmt::Debug + PartialOrd<Expected> + 'a,
     Expected: fmt::Debug + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         OrdMatcher::new(expected, Inequality::GreaterOrEqual),
         MismatchFormat::new(
             "to be greater than or equal to",
@@ -64,7 +64,7 @@ where
     Actual: fmt::Debug + PartialOrd<Expected> + 'a,
     Expected: fmt::Debug + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         OrdMatcher::new(expected, Inequality::Less),
         MismatchFormat::new("to be less than", "to not be less than"),
     )
@@ -85,7 +85,7 @@ where
     Actual: fmt::Debug + PartialOrd<Expected> + 'a,
     Expected: fmt::Debug + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         OrdMatcher::new(expected, Inequality::LessOrEqual),
         MismatchFormat::new(
             "to be less than or equal to",
@@ -108,7 +108,7 @@ where
     T: Ord + 'a,
     Actual: fmt::Debug + AsRef<[T]> + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         BeSortedMatcher::new(SortOrder::Asc),
         ExpectationFormat::new(
             "to be sorted in ascending order",
@@ -131,7 +131,7 @@ where
     T: Ord + 'a,
     Actual: fmt::Debug + AsRef<[T]> + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         BeSortedMatcher::new(SortOrder::Desc),
         ExpectationFormat::new(
             "to be sorted in descending order",
@@ -158,7 +158,7 @@ where
     T: Ord + 'a,
     Actual: fmt::Debug + AsRef<[T]> + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         BeSortedByMatcher::new(predicate),
         ExpectationFormat::new(
             "to be sorted by the given predicate",

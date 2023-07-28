@@ -104,7 +104,7 @@ pub fn be_some<'a, T>() -> Matcher<'a, Option<T>, T, Option<Infallible>>
 where
     T: fmt::Debug + 'a,
 {
-    Matcher::new(BeSomeMatcher::new(), option_format())
+    Matcher::transform(BeSomeMatcher::new(), option_format())
 }
 
 /// Succeeds when the actual value is [`None`].
@@ -128,7 +128,7 @@ pub fn be_none<'a, T>() -> Matcher<'a, Option<T>, Option<Infallible>, T>
 where
     T: fmt::Debug + 'a,
 {
-    Matcher::neg(BeSomeMatcher::new(), NegFormat(option_format()))
+    Matcher::transform_neg(BeSomeMatcher::new(), NegFormat(option_format()))
 }
 
 #[cfg(test)]

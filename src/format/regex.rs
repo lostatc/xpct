@@ -25,7 +25,7 @@ pub fn match_regex<'a, Actual>(regex: &str) -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + AsRef<str> + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         RegexMatcher::new(regex),
         MismatchFormat::new("to match the regex", "to not match the regex"),
     )

@@ -17,7 +17,7 @@ pub fn be_default<'a, Actual>() -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + Default + PartialEq<Actual> + Eq + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         BeDefaultMatcher::new(),
         MismatchFormat::new("to be the default value", "to not be the default value"),
     )

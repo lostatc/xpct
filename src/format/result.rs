@@ -33,7 +33,7 @@ where
     T: fmt::Debug + 'a,
     E: fmt::Debug + 'a,
 {
-    Matcher::new(BeOkMatcher::new(), result_format())
+    Matcher::transform(BeOkMatcher::new(), result_format())
 }
 
 /// Succeeds when the actual value is [`Err`].
@@ -61,7 +61,7 @@ where
     T: fmt::Debug + 'a,
     E: fmt::Debug + 'a,
 {
-    Matcher::neg(BeOkMatcher::new(), NegFormat(result_format()))
+    Matcher::transform_neg(BeOkMatcher::new(), NegFormat(result_format()))
 }
 
 #[cfg(test)]

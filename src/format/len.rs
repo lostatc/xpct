@@ -21,7 +21,7 @@ pub fn have_len<'a, Actual>(len: usize) -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + Len + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         HaveLenMatcher::new(len),
         MismatchFormat::new("to have length", "to not have length"),
     )
@@ -43,7 +43,7 @@ pub fn be_empty<'a, Actual>() -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + Len + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         BeEmptyMatcher::new(),
         ExpectationFormat::new("to be empty", "to not be empty"),
     )

@@ -74,7 +74,7 @@ fn bool_format() -> MessageFormat {
 /// expect!(false).to_not(be_true());
 /// ```
 pub fn be_true() -> Matcher<'static, bool, bool> {
-    Matcher::simple(BeTrueMatcher::new(), bool_format())
+    Matcher::new(BeTrueMatcher::new(), bool_format())
 }
 
 /// Succeeds when the actual value is `false`.
@@ -88,7 +88,7 @@ pub fn be_true() -> Matcher<'static, bool, bool> {
 /// expect!(true).to_not(be_false());
 /// ```
 pub fn be_false() -> Matcher<'static, bool, bool> {
-    Matcher::simple_neg(BeTrueMatcher::new(), NegFormat(bool_format()))
+    Matcher::neg(BeTrueMatcher::new(), NegFormat(bool_format()))
 }
 
 #[cfg(test)]

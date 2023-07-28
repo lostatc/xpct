@@ -22,7 +22,7 @@ pub fn be_existing_file<'a, Actual>() -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + AsRef<Path> + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         FileExistsMatcher::new(FileExistsMode::Exists),
         ExpectationFormat::new(
             "to exist in the filesystem",
@@ -47,7 +47,7 @@ pub fn be_regular_file<'a, Actual>() -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + AsRef<Path> + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         FileExistsMatcher::new(FileExistsMode::RegularFile),
         ExpectationFormat::new("to exist and be a regular file", "to not be a regular file"),
     )
@@ -69,7 +69,7 @@ pub fn be_directory<'a, Actual>() -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + AsRef<Path> + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         FileExistsMatcher::new(FileExistsMode::Directory),
         ExpectationFormat::new("to exist and be a directory", "to not be a directory"),
     )
@@ -91,7 +91,7 @@ pub fn be_symlink<'a, Actual>() -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + AsRef<Path> + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         FileExistsMatcher::new(FileExistsMode::Symlink),
         ExpectationFormat::new(
             "to exist and be a symbolic link",

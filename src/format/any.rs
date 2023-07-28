@@ -112,7 +112,7 @@ pub fn any<'a, T>(block: impl Fn(&mut CombinatorContext<T>) + 'a) -> Matcher<'a,
 where
     T: 'a,
 {
-    Matcher::new(
+    Matcher::transform(
         CombinatorMatcher::new(CombinatorMode::Any, block),
         HeaderFormat::new(
             SomeFailuresFormat::new(),

@@ -25,7 +25,7 @@ pub fn approx_eq_time<'a>(
     expected: SystemTime,
     threshold: Duration,
 ) -> Matcher<'a, SystemTime, SystemTime> {
-    Matcher::simple(
+    Matcher::new(
         ApproxEqTimeMatcher::new(expected, threshold),
         MismatchFormat::new("to approximately equal", "to not approximately equal"),
     )

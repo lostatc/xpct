@@ -56,7 +56,7 @@ where
     PosOut: 'a,
     NegOut: 'a,
 {
-    Matcher::new(NotMatcher::new(matcher), FailureFormat::new())
+    Matcher::transform(NotMatcher::new(matcher), FailureFormat::new())
 }
 
 #[cfg(test)]

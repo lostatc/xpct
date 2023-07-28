@@ -23,7 +23,7 @@ where
     T: fmt::Debug + Clone + 'a,
     Actual: fmt::Debug + Contains<T> + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         ContainElementsMatcher::new([element]),
         MismatchFormat::new("to contain elements", "to not contain elements"),
     )
@@ -48,7 +48,7 @@ where
     Expected: fmt::Debug + IntoIterator + Clone + 'a,
     Expected::Item: Borrow<T>,
 {
-    Matcher::simple(
+    Matcher::new(
         ContainElementsMatcher::new(elements),
         MismatchFormat::new("to contain elements", "to not contain elements"),
     )
@@ -72,7 +72,7 @@ where
     Actual: fmt::Debug + IntoIterator + Len + Clone + 'a,
     Actual::Item: Borrow<T>,
 {
-    Matcher::simple(
+    Matcher::new(
         ConsistOfMatcher::new(elements),
         MismatchFormat::new("to consist of elements", "to consist of elements"),
     )
@@ -101,7 +101,7 @@ where
     Actual: fmt::Debug + 'a,
     Collection: fmt::Debug + Contains<Actual> + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         BeInMatcher::new(collection),
         MismatchFormat::new("to be in", "to not be in"),
     )

@@ -39,7 +39,7 @@ where
     PosOut: 'a,
     NegOut: 'a,
 {
-    Matcher::new(
+    Matcher::transform(
         EveryMatcher::new(matcher),
         HeaderFormat::new(
             SomeFailuresFormat::new(),

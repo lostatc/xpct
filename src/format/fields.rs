@@ -93,7 +93,7 @@ pub fn match_fields<'a, T>(spec: FieldsSpec<'a, T>) -> Matcher<'a, T, ()>
 where
     T: 'a,
 {
-    Matcher::new(
+    Matcher::transform(
         FieldMatcher::new(CombinatorMode::All, spec),
         HeaderFormat::new(
             ByFieldFormat::new(type_name::<T>()),
@@ -111,7 +111,7 @@ pub fn match_any_fields<'a, T>(spec: FieldsSpec<'a, T>) -> Matcher<'a, T, ()>
 where
     T: 'a,
 {
-    Matcher::new(
+    Matcher::transform(
         FieldMatcher::new(CombinatorMode::Any, spec),
         HeaderFormat::new(
             ByFieldFormat::new(type_name::<T>()),

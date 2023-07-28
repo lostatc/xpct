@@ -23,7 +23,7 @@ pub fn eq_casefold<'a, Actual>(expected: impl Into<Cow<'a, str>>) -> Matcher<'a,
 where
     Actual: fmt::Debug + AsRef<str> + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         EqCasefoldMatcher::new(expected),
         MismatchFormat::new(
             "to equal case-insensitively",

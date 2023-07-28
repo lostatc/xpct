@@ -19,7 +19,7 @@ pub fn contain_substr<'a, Actual>(substr: impl Into<Cow<'a, str>>) -> Matcher<'a
 where
     Actual: fmt::Debug + AsRef<str> + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         ContainSubstrMatcher::new(substr),
         MismatchFormat::new("to contain the substring", "to not contain the substring"),
     )
@@ -38,7 +38,7 @@ pub fn have_prefix<'a, Actual>(prefix: impl Into<Cow<'a, str>>) -> Matcher<'a, A
 where
     Actual: fmt::Debug + AsRef<str> + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         HavePrefixMatcher::new(prefix),
         MismatchFormat::new("to have the prefix", "to not have the prefix"),
     )
@@ -57,7 +57,7 @@ pub fn have_suffix<'a, Actual>(suffix: impl Into<Cow<'a, str>>) -> Matcher<'a, A
 where
     Actual: fmt::Debug + AsRef<str> + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         HaveSuffixMatcher::new(suffix),
         MismatchFormat::new("to have the suffix", "to not have the suffix"),
     )

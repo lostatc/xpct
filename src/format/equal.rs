@@ -102,7 +102,7 @@ where
     Actual: fmt::Debug + PartialEq<Expected> + Eq + 'a,
     Expected: fmt::Debug + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         EqualMatcher::new(expected),
         MismatchFormat::new("to equal", "to not equal"),
     )

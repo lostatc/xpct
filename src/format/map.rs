@@ -47,7 +47,7 @@ where
     In: 'a,
     Out: 'a,
 {
-    Matcher::new(MapMatcher::new(func), InfallibleFormat)
+    Matcher::transform(MapMatcher::new(func), InfallibleFormat)
 }
 
 /// Fallibly map the input value by applying a function to it.
@@ -75,7 +75,7 @@ where
     In: 'a,
     Out: 'a,
 {
-    Matcher::new(TryMapMatcher::new(func), FailureFormat::new())
+    Matcher::transform(TryMapMatcher::new(func), FailureFormat::new())
 }
 
 /// Infallibly convert the input value via [`From`]/[`Into`].
@@ -100,7 +100,7 @@ where
     In: 'a,
     Out: From<In> + 'a,
 {
-    Matcher::new(MapMatcher::new(<Out as From<In>>::from), InfallibleFormat)
+    Matcher::transform(MapMatcher::new(<Out as From<In>>::from), InfallibleFormat)
 }
 
 /// Fallibly convert the input value via [`TryFrom`]/[`TryInto`].
@@ -127,7 +127,7 @@ where
     Out: TryFrom<In> + 'a,
     <Out as TryFrom<In>>::Error: std::error::Error + Send + Sync + 'static,
 {
-    Matcher::new(
+    Matcher::transform(
         TryMapMatcher::new(|value| {
             <Out as TryFrom<In>>::try_from(value).map_err(crate::Error::new)
         }),
@@ -163,7 +163,7 @@ where
     Out: 'a,
     IntoIter: IntoIterator<Item = In> + 'a,
 {
-    Matcher::new(IterMapMatcher::new(func), InfallibleFormat)
+    Matcher::transform(IterMapMatcher::new(func), InfallibleFormat)
 }
 
 /// Fallibly map each value of an iterator by applying a function to it.
@@ -194,5 +194,5 @@ where
     Out: 'a,
     IntoIter: IntoIterator<Item = In> + 'a,
 {
-    Matcher::new(IterTryMapMatcher::new(func), InfallibleFormat)
+    Matcher::transform(IterTryMapMatcher::new(func), InfallibleFormat)
 }

@@ -31,7 +31,7 @@ pub fn match_json<'a, Actual>(json: impl Into<Cow<'a, str>>) -> Matcher<'a, Actu
 where
     Actual: fmt::Debug + AsRef<str> + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         JsonMatcher::new(json),
         MismatchFormat::new("to be equivalent JSON to", "to not be equivalent JSON to"),
     )

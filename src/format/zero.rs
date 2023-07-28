@@ -27,7 +27,7 @@ pub fn be_zero<'a, T>() -> Matcher<'a, T, T, T::NonZero>
 where
     T: fmt::Debug + NonZeroInt + 'a,
 {
-    Matcher::new(
+    Matcher::transform(
         BeZeroMatcher::new(),
         ExpectationFormat::new("to be 0", "to not be 0"),
     )

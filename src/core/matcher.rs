@@ -148,16 +148,15 @@ impl<'a, In, PosOut, NegOut> fmt::Debug for Matcher<'a, In, PosOut, NegOut> {
     }
 }
 
-impl<'a, In, PosOut, NegOut> Matcher<'a, In, PosOut, NegOut> {
-    /// Create a new [`Matcher`] from a type that implements [`TransformMatch`] and a formatter.
+impl<'a, Actual> Matcher<'a, Actual, Actual> {
+    /// Create a new [`Matcher`] from a type that implements [`Match`] and a formatter.
     pub fn new<M, Fmt>(matcher: M, format: Fmt) -> Self
     where
-        M: TransformMatch<In = In, PosOut = PosOut, NegOut = NegOut> + 'a,
-        Fmt: MatcherFormat<Pos = M::PosFail, Neg = M::NegFail> + 'a,
+        M: Match<Actual> + 'a,
+        Fmt: MatcherFormat<Pos = M::Fail, Neg = M::Fail> + 'a,
+        Actual: 'a,
     {
-        Self {
-            inner: Box::new(DynTransformMatchAdapter::new(matcher, format)),
-        }
+        Self::transform(MatchAdapter::new(matcher), format)
     }
 
     /// Same as [`new`], but negates the matcher.
@@ -169,10 +168,39 @@ impl<'a, In, PosOut, NegOut> Matcher<'a, In, PosOut, NegOut> {
     /// [`equal`]: crate::equal
     pub fn neg<M, Fmt>(matcher: M, format: Fmt) -> Self
     where
+        M: Match<Actual> + 'a,
+        Fmt: MatcherFormat<Pos = M::Fail, Neg = M::Fail> + 'a,
+        Actual: 'a,
+    {
+        Self::transform_neg(MatchAdapter::new(matcher), format)
+    }
+}
+
+impl<'a, In, PosOut, NegOut> Matcher<'a, In, PosOut, NegOut> {
+    /// Create a new [`Matcher`] from a type that implements [`TransformMatch`] and a formatter.
+    pub fn transform<M, Fmt>(matcher: M, format: Fmt) -> Self
+    where
+        M: TransformMatch<In = In, PosOut = PosOut, NegOut = NegOut> + 'a,
+        Fmt: MatcherFormat<Pos = M::PosFail, Neg = M::NegFail> + 'a,
+    {
+        Self {
+            inner: Box::new(DynTransformMatchAdapter::new(matcher, format)),
+        }
+    }
+
+    /// Same as [`transform`], but negates the matcher.
+    ///
+    /// See [`neg`].
+    ///
+    /// [`transform`]: crate::core::Matcher::transform
+    /// [`neg`]: crate::core::Matcher::neg
+    ///
+    pub fn transform_neg<M, Fmt>(matcher: M, format: Fmt) -> Self
+    where
         M: TransformMatch<In = In, PosOut = NegOut, NegOut = PosOut> + 'a,
         Fmt: MatcherFormat<Pos = M::NegFail, Neg = M::PosFail> + 'a,
     {
-        Matcher::new(NegTransformMatchAdapter::new(matcher), format)
+        Matcher::transform(NegTransformMatchAdapter::new(matcher), format)
     }
 
     /// Wrap this matcher with a new formatter.
@@ -183,39 +211,12 @@ impl<'a, In, PosOut, NegOut> Matcher<'a, In, PosOut, NegOut> {
         NegOut: 'a,
         Fmt: MatcherFormat<Pos = FormattedFailure, Neg = FormattedFailure> + 'a,
     {
-        Self::new(MatchWrapper::new(self), format)
+        Self::transform(MatchWrapper::new(self), format)
     }
 
     /// Convert this matcher into a [`BoxTransformMatch`].
     pub fn into_box(self) -> BoxTransformMatch<'a, In, PosOut, NegOut> {
         self.inner
-    }
-}
-
-impl<'a, Actual> Matcher<'a, Actual, Actual> {
-    /// Create a new [`Matcher`] from a type that implements [`Match`] and a formatter.
-    pub fn simple<M, Fmt>(matcher: M, format: Fmt) -> Self
-    where
-        M: Match<Actual> + 'a,
-        Fmt: MatcherFormat<Pos = M::Fail, Neg = M::Fail> + 'a,
-        Actual: 'a,
-    {
-        Self::new(MatchAdapter::new(matcher), format)
-    }
-
-    /// Same as [`simple`], but negates the matcher.
-    ///
-    /// See [`neg`].
-    ///
-    /// [`simple`]: crate::core::Matcher::simple
-    /// [`neg`]: crate::core::Matcher::neg
-    pub fn simple_neg<M, Fmt>(matcher: M, format: Fmt) -> Self
-    where
-        M: Match<Actual> + 'a,
-        Fmt: MatcherFormat<Pos = M::Fail, Neg = M::Fail> + 'a,
-        Actual: 'a,
-    {
-        Self::neg(MatchAdapter::new(matcher), format)
     }
 }
 

@@ -38,7 +38,7 @@ pub fn match_pattern<'a, Actual>(spec: Pattern<'a, Actual>) -> Matcher<'a, Actua
 where
     Actual: fmt::Debug + 'a,
 {
-    Matcher::simple(
+    Matcher::new(
         PatternMatcher::new(spec),
         MismatchFormat::new("to match the pattern", "to not match the pattern"),
     )
