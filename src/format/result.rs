@@ -1,12 +1,12 @@
-use crate::{
-    core::{Matcher, NegFormat},
-    matchers::BeOkMatcher,
-};
+use std::fmt;
 
-use super::MessageFormat;
+use crate::core::{Matcher, NegFormat};
+use crate::matchers::BeOkMatcher;
 
-fn result_format() -> MessageFormat {
-    MessageFormat::new("Expected this to be Ok(_)", "Expected this to be Err(_)")
+use super::ExpectationFormat;
+
+fn result_format<T, E>() -> ExpectationFormat<Result<T, E>> {
+    ExpectationFormat::new("to be Ok(_)", "to be Err(_)")
 }
 
 /// Succeeds when the actual value is [`Ok`].
@@ -30,8 +30,8 @@ fn result_format() -> MessageFormat {
 /// ```
 pub fn be_ok<'a, T, E>() -> Matcher<'a, Result<T, E>, T, E>
 where
-    T: 'a,
-    E: 'a,
+    T: fmt::Debug + 'a,
+    E: fmt::Debug + 'a,
 {
     Matcher::new(BeOkMatcher::new(), result_format())
 }
@@ -58,8 +58,8 @@ where
 /// ```
 pub fn be_err<'a, T, E>() -> Matcher<'a, Result<T, E>, E, T>
 where
-    T: 'a,
-    E: 'a,
+    T: fmt::Debug + 'a,
+    E: fmt::Debug + 'a,
 {
     Matcher::neg(BeOkMatcher::new(), NegFormat(result_format()))
 }

@@ -2,6 +2,8 @@ use std::marker::PhantomData;
 
 use crate::core::{Match, MatchOutcome};
 
+use super::Expectation;
+
 /// The matcher for [`be_ok`] and [`be_err`].
 ///
 /// [`be_ok`]: crate::be_ok
@@ -32,8 +34,8 @@ impl<T, E> Match for BeOkMatcher<T, E> {
     type PosOut = T;
     type NegOut = E;
 
-    type PosFail = ();
-    type NegFail = ();
+    type PosFail = Expectation<Result<T, E>>;
+    type NegFail = Expectation<Result<T, E>>;
 
     fn match_pos(
         self,
@@ -41,7 +43,7 @@ impl<T, E> Match for BeOkMatcher<T, E> {
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
         match actual {
             Ok(value) => Ok(MatchOutcome::Success(value)),
-            Err(_) => Ok(MatchOutcome::Fail(())),
+            Err(err) => Ok(MatchOutcome::Fail(Expectation { actual: Err(err) })),
         }
     }
 
@@ -50,7 +52,7 @@ impl<T, E> Match for BeOkMatcher<T, E> {
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
         match actual {
-            Ok(_) => Ok(MatchOutcome::Fail(())),
+            Ok(value) => Ok(MatchOutcome::Fail(Expectation { actual: Ok(value) })),
             Err(error) => Ok(MatchOutcome::Success(error)),
         }
     }
