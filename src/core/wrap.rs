@@ -1,9 +1,9 @@
 use std::fmt;
 
-use super::{matcher::Match, BoxMatch, FormattedFailure, MatchOutcome, Matcher};
+use super::{matcher::TransformMatch, BoxTransformMatch, FormattedFailure, MatchOutcome, Matcher};
 
 pub(super) struct MatchWrapper<'a, In, PosOut, NegOut> {
-    inner: BoxMatch<'a, In, PosOut, NegOut>,
+    inner: BoxTransformMatch<'a, In, PosOut, NegOut>,
 }
 
 impl<'a, In, PosOut, NegOut> MatchWrapper<'a, In, PosOut, NegOut> {
@@ -20,7 +20,7 @@ impl<'a, In, PosOut, NegOut> fmt::Debug for MatchWrapper<'a, In, PosOut, NegOut>
     }
 }
 
-impl<'a, In, PosOut, NegOut> Match for MatchWrapper<'a, In, PosOut, NegOut> {
+impl<'a, In, PosOut, NegOut> TransformMatch for MatchWrapper<'a, In, PosOut, NegOut> {
     type In = In;
 
     type PosOut = PosOut;

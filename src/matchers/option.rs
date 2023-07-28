@@ -1,7 +1,7 @@
 use std::convert::Infallible;
 use std::marker::PhantomData;
 
-use crate::core::{Match, MatchOutcome};
+use crate::core::{MatchOutcome, TransformMatch};
 
 /// A value that is returned by matchers when the actual value doesn't meet some criteria.
 ///
@@ -44,7 +44,7 @@ impl<T> BeSomeMatcher<T> {
     }
 }
 
-impl<T> Match for BeSomeMatcher<T> {
+impl<T> TransformMatch for BeSomeMatcher<T> {
     type In = Option<T>;
 
     type PosOut = T;

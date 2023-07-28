@@ -3,7 +3,7 @@ use std::fmt;
 use std::iter;
 use std::marker::PhantomData;
 
-use crate::core::{FormattedFailure, Match, MatchOutcome};
+use crate::core::{FormattedFailure, MatchOutcome, TransformMatch};
 
 /// The matcher for [`map`].
 ///
@@ -27,7 +27,7 @@ impl<'a, In, Out> MapMatcher<'a, In, Out> {
     }
 }
 
-impl<'a, In, Out> Match for MapMatcher<'a, In, Out> {
+impl<'a, In, Out> TransformMatch for MapMatcher<'a, In, Out> {
     type In = In;
 
     type PosOut = Out;
@@ -73,7 +73,7 @@ impl<'a, In, Out> TryMapMatcher<'a, In, Out> {
     }
 }
 
-impl<'a, In, Out> Match for TryMapMatcher<'a, In, Out> {
+impl<'a, In, Out> TransformMatch for TryMapMatcher<'a, In, Out> {
     type In = In;
 
     type PosOut = Out;
@@ -174,7 +174,7 @@ impl<'a, In, Out, IntoIter> IterMapMatcher<'a, In, Out, IntoIter> {
     }
 }
 
-impl<'a, In, Out, IntoIter> Match for IterMapMatcher<'a, In, Out, IntoIter>
+impl<'a, In, Out, IntoIter> TransformMatch for IterMapMatcher<'a, In, Out, IntoIter>
 where
     IntoIter: IntoIterator<Item = In> + 'a,
 {
@@ -228,7 +228,7 @@ impl<'a, In, Out, IntoIter> IterTryMapMatcher<'a, In, Out, IntoIter> {
     }
 }
 
-impl<'a, In, Out, IntoIter> Match for IterTryMapMatcher<'a, In, Out, IntoIter>
+impl<'a, In, Out, IntoIter> TransformMatch for IterTryMapMatcher<'a, In, Out, IntoIter>
 where
     IntoIter: IntoIterator<Item = In> + 'a,
 {

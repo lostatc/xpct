@@ -1,24 +1,25 @@
 use std::marker::PhantomData;
 
 use super::{
-    DynMatch, FormattedFailure, Match, MatchFailure, MatchOutcome, MatcherFormat, SimpleMatch,
+    DynTransformMatch, FormattedFailure, MatchFailure, MatchOutcome, MatcherFormat, SimpleMatch,
+    TransformMatch,
 };
 
 #[derive(Debug)]
-pub(super) struct DynMatchAdapter<M, Fmt: MatcherFormat> {
+pub(super) struct DynTransformMatchAdapter<M, Fmt: MatcherFormat> {
     matcher: M,
     format: Fmt,
 }
 
-impl<M, Fmt: MatcherFormat> DynMatchAdapter<M, Fmt> {
+impl<M, Fmt: MatcherFormat> DynTransformMatchAdapter<M, Fmt> {
     pub fn new(matcher: M, format: Fmt) -> Self {
         Self { matcher, format }
     }
 }
 
-impl<M, Fmt> DynMatch for DynMatchAdapter<M, Fmt>
+impl<M, Fmt> DynTransformMatch for DynTransformMatchAdapter<M, Fmt>
 where
-    M: Match,
+    M: TransformMatch,
     Fmt: MatcherFormat<Pos = M::PosFail, Neg = M::NegFail>,
 {
     type In = M::In;
@@ -76,7 +77,7 @@ where
     }
 }
 
-impl<M, Actual> Match for SimpleMatchAdapter<M, Actual>
+impl<M, Actual> TransformMatch for SimpleMatchAdapter<M, Actual>
 where
     M: SimpleMatch<Actual>,
 {
@@ -112,19 +113,19 @@ where
 }
 
 #[derive(Debug)]
-pub(super) struct NegMatchAdapter<M> {
+pub(super) struct NegTransformMatchAdapter<M> {
     matcher: M,
 }
 
-impl<M> NegMatchAdapter<M> {
+impl<M> NegTransformMatchAdapter<M> {
     pub fn new(matcher: M) -> Self {
         Self { matcher }
     }
 }
 
-impl<M> Match for NegMatchAdapter<M>
+impl<M> TransformMatch for NegTransformMatchAdapter<M>
 where
-    M: Match,
+    M: TransformMatch,
 {
     type In = M::In;
 

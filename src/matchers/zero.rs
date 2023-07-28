@@ -6,7 +6,7 @@ use std::{
     },
 };
 
-use crate::core::{Match, MatchOutcome};
+use crate::core::{MatchOutcome, TransformMatch};
 
 use super::Expectation;
 
@@ -207,7 +207,7 @@ impl<T> BeZeroMatcher<T> {
     }
 }
 
-impl<T> Match for BeZeroMatcher<T>
+impl<T> TransformMatch for BeZeroMatcher<T>
 where
     T: NonZeroInt,
 {

@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::core::{DynMatch, Match, MatchOutcome, Matcher};
+use crate::core::{DynTransformMatch, MatchOutcome, Matcher, TransformMatch};
 
 use super::SomeFailures;
 
@@ -35,7 +35,7 @@ where
     }
 }
 
-impl<'a, PosOut, NegOut, IntoIter> Match for EveryMatcher<'a, PosOut, NegOut, IntoIter>
+impl<'a, PosOut, NegOut, IntoIter> TransformMatch for EveryMatcher<'a, PosOut, NegOut, IntoIter>
 where
     IntoIter: IntoIterator + 'a,
 {

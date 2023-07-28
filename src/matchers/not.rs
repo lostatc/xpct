@@ -1,4 +1,4 @@
-use crate::core::{FormattedFailure, Match, MatchOutcome, Matcher};
+use crate::core::{FormattedFailure, MatchOutcome, Matcher, TransformMatch};
 
 /// The matcher for [`not`]
 ///
@@ -15,7 +15,7 @@ impl<'a, In, PosOut, NegOut> NotMatcher<'a, In, PosOut, NegOut> {
     }
 }
 
-impl<'a, In, PosOut, NegOut> Match for NotMatcher<'a, In, PosOut, NegOut> {
+impl<'a, In, PosOut, NegOut> TransformMatch for NotMatcher<'a, In, PosOut, NegOut> {
     type In = In;
 
     type PosOut = NegOut;

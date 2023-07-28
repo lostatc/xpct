@@ -1,4 +1,4 @@
-use crate::core::{DynMatch, FormattedFailure, Match, MatchError, MatchOutcome};
+use crate::core::{DynTransformMatch, FormattedFailure, MatchError, MatchOutcome, TransformMatch};
 use std::fmt;
 
 use super::IterMap;
@@ -28,7 +28,7 @@ impl<In> ChainAssertion<In> {
     /// [`Assertion::to`]: crate::core::Assertion::to
     pub fn to<Out>(
         self,
-        matcher: impl DynMatch<In = In, PosOut = Out>,
+        matcher: impl DynTransformMatch<In = In, PosOut = Out>,
     ) -> Result<ChainAssertion<Out>, MatchError> {
         match Box::new(matcher).match_pos(self.value) {
             Ok(MatchOutcome::Success(out)) => Ok(ChainAssertion::new(out)),
@@ -47,7 +47,7 @@ impl<In> ChainAssertion<In> {
     /// [`Assertion::to_not`]: crate::core::Assertion::to_not
     pub fn to_not<Out>(
         self,
-        matcher: impl DynMatch<In = In, NegOut = Out>,
+        matcher: impl DynTransformMatch<In = In, NegOut = Out>,
     ) -> Result<ChainAssertion<Out>, MatchError> {
         match Box::new(matcher).match_neg(self.value) {
             Ok(MatchOutcome::Success(out)) => Ok(ChainAssertion::new(out)),
@@ -165,7 +165,7 @@ impl<'a, In, Out> ChainMatcher<'a, In, Out> {
     }
 }
 
-impl<'a, In, Out> Match for ChainMatcher<'a, In, Out> {
+impl<'a, In, Out> TransformMatch for ChainMatcher<'a, In, Out> {
     type In = In;
 
     type PosOut = Out;

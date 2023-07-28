@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::core::{FormattedFailure, Match, MatchOutcome};
+use crate::core::{FormattedFailure, MatchOutcome, TransformMatch};
 
 use super::CombinatorMode;
 
@@ -72,7 +72,7 @@ impl<'a, T> FieldMatcher<'a, T> {
     }
 }
 
-impl<'a, T> Match for FieldMatcher<'a, T> {
+impl<'a, T> TransformMatch for FieldMatcher<'a, T> {
     type In = T;
 
     type PosOut = ();
@@ -208,12 +208,12 @@ macro_rules! fields {
                     (
                         stringify!($field_name),
                         if params.negated {
-                            match $crate::core::DynMatch::match_neg(::std::boxed::Box::new($matcher), params.actual.$field_name)? {
+                            match $crate::core::DynTransformMatch::match_neg(::std::boxed::Box::new($matcher), params.actual.$field_name)? {
                                 $crate::core::MatchOutcome::Success(_) => ::std::option::Option::None,
                                 $crate::core::MatchOutcome::Fail(fail) => ::std::option::Option::Some(fail),
                             }
                         } else {
-                            match $crate::core::DynMatch::match_pos(::std::boxed::Box::new($matcher), params.actual.$field_name)? {
+                            match $crate::core::DynTransformMatch::match_pos(::std::boxed::Box::new($matcher), params.actual.$field_name)? {
                                 $crate::core::MatchOutcome::Success(_) => ::std::option::Option::None,
                                 $crate::core::MatchOutcome::Fail(fail) => ::std::option::Option::Some(fail),
                             }

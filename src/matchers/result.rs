@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::core::{Match, MatchOutcome};
+use crate::core::{MatchOutcome, TransformMatch};
 
 use super::Expectation;
 
@@ -28,7 +28,7 @@ impl<T, E> Default for BeOkMatcher<T, E> {
     }
 }
 
-impl<T, E> Match for BeOkMatcher<T, E> {
+impl<T, E> TransformMatch for BeOkMatcher<T, E> {
     type In = Result<T, E>;
 
     type PosOut = T;

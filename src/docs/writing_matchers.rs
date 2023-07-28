@@ -13,8 +13,8 @@ complexity and flexibility, you can:
    customize the formatting of the failure output.
 2. Implement [`SimpleMatch`]. This lets you customize the formatting of the
    failure output.
-3. Implement [`Match`]. This is like [`SimpleMatch`], but additionally allows
-   you to write matchers that transform values (like the [`be_some`] and
+3. Implement [`TransformMatch`]. This is like [`SimpleMatch`], but additionally
+   allows you to write matchers that transform values (like the [`be_some`] and
    [`be_ok`] matchers do).
 
 ## Composing existing matchers
@@ -142,20 +142,20 @@ where
 expect!("disco").to(not_equal("not disco"));
 ```
 
-## Implementing `Match`
+## Implementing `TransformMatch`
 
 The major limitation of [`SimpleMatch`] is that it always returns the same value
 that was passed in. If you need it to transform the value like the [`be_some`]
-and [`be_ok`] matchers do, you can implement the [`Match`] trait.
+and [`be_ok`] matchers do, you can implement the [`TransformMatch`] trait.
 
 ```
 use std::marker::PhantomData;
 
-use xpct::core::{Matcher, Match, MatchOutcome};
+use xpct::core::{Matcher, TransformMatch, MatchOutcome};
 use xpct::matchers::Expectation;
 
 pub struct BeOkMatcher<T, E> {
-    // Matchers created by implementing `Match` will often need to use
+    // Matchers created by implementing `TransformMatch` will often need to use
     // `PhantomData` so they know their input and output types.
     marker: PhantomData<(T, E)>,
 }
@@ -168,7 +168,7 @@ impl<T, E> BeOkMatcher<T, E> {
     }
 }
 
-impl<T, E> Match for BeOkMatcher<T, E> {
+impl<T, E> TransformMatch for BeOkMatcher<T, E> {
     // The type the matcher accepts.
     type In = Result<T, E>;
 
@@ -233,7 +233,7 @@ where
     T: fmt::Debug + 'a,
     E: fmt::Debug + 'a,
 {
-    // For matchers implemented with `Match`, you use `Matcher::new`.
+    // For matchers implemented with `TransformMatch`, you use `Matcher::new`.
     Matcher::new(BeOkMatcher::new(), result_format())
 }
 
@@ -243,12 +243,12 @@ where
     E: fmt::Debug + 'a,
 {
     // You can use `Matcher::neg` to negate a matcher created by implementing
-    // `Match`. You can use `NegFormat` to negate the formatter.
+    // `TransformMatch`. You can use `NegFormat` to negate the formatter.
     Matcher::neg(BeOkMatcher::new(), NegFormat(result_format()))
 }
 ```
 
-[`Match`]: crate::core::Match
+[`TransformMatch`]: crate::core::TransformMatch
 [`each`]: crate::each
 [`any`]: crate::any
 [`all`]: crate::all

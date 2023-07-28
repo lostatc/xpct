@@ -3,7 +3,7 @@ use std::convert::TryInto;
 use crate::matchers::IterMap;
 
 use super::{
-    AssertionFailure, AssertionFormat, DynMatch, FormattedOutput, MatchError, MatchOutcome,
+    AssertionFailure, AssertionFormat, DynTransformMatch, FormattedOutput, MatchError, MatchOutcome,
 };
 
 /// An assertion, the starting point in a chain of matchers.
@@ -65,7 +65,7 @@ where
     /// Make an assertion with the given `matcher`.
     pub fn to<Out>(
         self,
-        matcher: impl DynMatch<In = In, PosOut = Out>,
+        matcher: impl DynTransformMatch<In = In, PosOut = Out>,
     ) -> Assertion<Out, AssertFmt> {
         match Box::new(matcher).match_pos(self.value) {
             Ok(MatchOutcome::Success(out)) => Assertion {
@@ -98,7 +98,7 @@ where
     /// [`not`]: crate::not
     pub fn to_not<Out>(
         self,
-        matcher: impl DynMatch<In = In, NegOut = Out>,
+        matcher: impl DynTransformMatch<In = In, NegOut = Out>,
     ) -> Assertion<Out, AssertFmt> {
         match Box::new(matcher).match_neg(self.value) {
             Ok(MatchOutcome::Success(out)) => Assertion {

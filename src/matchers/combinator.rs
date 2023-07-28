@@ -1,7 +1,7 @@
 use std::borrow::Borrow;
 use std::fmt;
 
-use crate::core::{DynMatch, FormattedFailure, Match, MatchOutcome};
+use crate::core::{DynTransformMatch, FormattedFailure, MatchOutcome, TransformMatch};
 
 /// The formatted failure output of other matchers.
 ///
@@ -45,7 +45,7 @@ where
 }
 
 impl<'a, 'b: 'a, T, In> CombinatorAssertion<'a, 'b, T, In> {
-    fn match_pos(self, matcher: impl DynMatch<In = In>) -> Self {
+    fn match_pos(self, matcher: impl DynTransformMatch<In = In>) -> Self {
         if let Ok(failures) = self.state {
             match Box::new(matcher).match_pos((self.transform)(self.value)) {
                 Ok(MatchOutcome::Success(_)) => {
@@ -63,7 +63,7 @@ impl<'a, 'b: 'a, T, In> CombinatorAssertion<'a, 'b, T, In> {
         self
     }
 
-    fn match_neg(self, matcher: impl DynMatch<In = In>) -> Self {
+    fn match_neg(self, matcher: impl DynTransformMatch<In = In>) -> Self {
         if let Ok(failures) = self.state {
             match Box::new(matcher).match_neg((self.transform)(self.value)) {
                 Ok(MatchOutcome::Success(_)) => {
@@ -82,7 +82,7 @@ impl<'a, 'b: 'a, T, In> CombinatorAssertion<'a, 'b, T, In> {
     }
 
     /// Make an assertion with the given `matcher`.
-    pub fn to(self, matcher: impl DynMatch<In = In>) -> Self {
+    pub fn to(self, matcher: impl DynTransformMatch<In = In>) -> Self {
         if self.negated {
             self.match_neg(matcher)
         } else {
@@ -98,7 +98,7 @@ impl<'a, 'b: 'a, T, In> CombinatorAssertion<'a, 'b, T, In> {
     ///
     /// [`to`]: crate::core::Assertion::to
     /// [`Assertion::to_not`]: crate::core::Assertion::to_not
-    pub fn to_not(self, matcher: impl DynMatch<In = In>) -> Self {
+    pub fn to_not(self, matcher: impl DynTransformMatch<In = In>) -> Self {
         if self.negated {
             self.match_pos(matcher)
         } else {
@@ -238,7 +238,7 @@ impl<'a, T> CombinatorMatcher<'a, T> {
     }
 }
 
-impl<'a, T> Match for CombinatorMatcher<'a, T> {
+impl<'a, T> TransformMatch for CombinatorMatcher<'a, T> {
     type In = T;
 
     type PosOut = T;

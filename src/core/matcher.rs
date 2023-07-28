@@ -1,14 +1,14 @@
 use std::fmt;
 
-use super::adapter::{DynMatchAdapter, NegMatchAdapter, SimpleMatchAdapter};
+use super::adapter::{DynTransformMatchAdapter, NegTransformMatchAdapter, SimpleMatchAdapter};
 use super::wrap::MatchWrapper;
 use super::{FormattedFailure, MatchOutcome, MatcherFormat};
 
-/// The trait which is implemented to create matchers.
+/// The trait which is implemented to create matchers that transform their values.
 ///
-/// This trait exposes all the features of matchers, but for simple matchers, it may be easier to
-/// implement [`SimpleMatch`] instead.
-pub trait Match {
+/// For simple matchers that don't need to transform their values, it may be easier to implement
+/// [`SimpleMatch`] instead.
+pub trait TransformMatch {
     /// The type of the "actual" value passed into the matcher by [`expect!`].
     ///
     /// [`expect!`]: crate::expect
@@ -25,23 +25,24 @@ pub trait Match {
 
     /// The output type of the matcher in the negative case.
     ///
-    /// This is the same as [`Self::PosOut`], except this is for when a matcher is negated (we're
-    /// expecting it to fail).
+    /// This is the same as [`Self::PosOut`], except this is for when a matcher is negated (when
+    /// we're expecting it to fail).
     type NegOut;
 
     /// The failure output that is passed to the formatter.
     ///
     /// This value describes the reason why the matcher failed in a presentation-agnostic way so
-    /// that a formatter can use it to generate its own output format. Values like [`Mismatch`] are
-    /// meant to be used for this.
+    /// that a formatter can use it to generate its own output format. Values like [`Mismatch`] and
+    /// [`Expectation`] are meant to be used for this.
     ///
     /// [`Mismatch`]: crate::matchers::Mismatch
+    /// [`Expectation`]: crate::matchers::Expectation
     type PosFail;
 
     /// The failure output of the matcher in the negative case.
     ///
-    /// This is the same as [`Self::PosFail`], except this is for when a matcher is negated (we're
-    /// expecting it to fail).
+    /// This is the same as [`Self::PosFail`], except this is for when a matcher is negated (when
+    /// we're expecting it to fail).
     type NegFail;
 
     /// The function called to test whether a value matches.
@@ -56,17 +57,17 @@ pub trait Match {
 
     /// The function called to test whether a value matches in the negative case.
     ///
-    /// This is the same as [`match_pos`], except this is for when a matcher is negated (we're
+    /// This is the same as [`match_pos`], except this is for when a matcher is negated (when we're
     /// expecting it to fail).
     ///
-    /// [`match_pos`]: crate::core::Match::match_pos
+    /// [`match_pos`]: crate::core::TransformMatch::match_pos
     fn match_neg(
         self,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::NegOut, Self::NegFail>>;
 }
 
-/// A simplified version of the [`Match`] trait for implementing matchers.
+/// A simplified version of the [`TransformMatch`] trait for implementing matchers.
 ///
 /// Implementing this trait is a simpler alternative when the matcher does not need to transform
 /// values like the [`be_ok`] and [`be_some`] matchers do.
@@ -76,7 +77,7 @@ pub trait Match {
 pub trait SimpleMatch<Actual> {
     /// The failure output that is passed to the formatter.
     ///
-    /// This type serves the same purpose as [`Match::PosFail`] and [`Match::NegFail`], except for
+    /// This type serves the same purpose as [`TransformMatch::PosFail`] and [`TransformMatch::NegFail`], except for
     /// matchers that are implemented with [`SimpleMatch`], they are always the same type.
     type Fail;
 
@@ -96,48 +97,48 @@ pub trait SimpleMatch<Actual> {
     fn fail(self, actual: Actual) -> Self::Fail;
 }
 
-/// An object-safe version of [`Match`].
+/// An object-safe version of [`TransformMatch`].
 ///
-/// This type replaces the [`PosFail`] and [`NegFail`] associated types of [`Match`] with
+/// This type replaces the [`PosFail`] and [`NegFail`] associated types of [`TransformMatch`] with
 /// [`FormattedFailure`] values.
 ///
 /// This type is used internally and you should never have to implement it yourself.
 ///
-/// [`PosFail`]: crate::core::Match::PosFail
-/// [`NegFail`]: crate::core::Match::NegFail
-pub trait DynMatch {
-    /// Same as [`Match::In`].
+/// [`PosFail`]: crate::core::TransformMatch::PosFail
+/// [`NegFail`]: crate::core::TransformMatch::NegFail
+pub trait DynTransformMatch {
+    /// Same as [`TransformMatch::In`].
     type In;
 
-    /// Same as [`Match::PosOut`].
+    /// Same as [`TransformMatch::PosOut`].
     type PosOut;
 
-    /// Same as [`Match::NegOut`].
+    /// Same as [`TransformMatch::NegOut`].
     type NegOut;
 
-    /// An object-safe version of [`Match::match_pos`].
+    /// An object-safe version of [`TransformMatch::match_pos`].
     fn match_pos(
         self: Box<Self>,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::PosOut, FormattedFailure>>;
 
-    /// An object-safe version of [`Match::match_neg`].
+    /// An object-safe version of [`TransformMatch::match_neg`].
     fn match_neg(
         self: Box<Self>,
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::NegOut, FormattedFailure>>;
 }
 
-/// A boxed [`DynMatch`].
-pub type BoxMatch<'a, In, PosOut, NegOut = PosOut> =
-    Box<dyn DynMatch<In = In, PosOut = PosOut, NegOut = NegOut> + 'a>;
+/// A boxed [`DynTransformMatch`].
+pub type BoxTransformMatch<'a, In, PosOut, NegOut = PosOut> =
+    Box<dyn DynTransformMatch<In = In, PosOut = PosOut, NegOut = NegOut> + 'a>;
 
 /// A matcher.
 ///
 /// This type is a matcher that can be used to make assertions. You can create a matcher from any
-/// type which implements [`Match`] or [`SimpleMatch`].
+/// type which implements [`TransformMatch`] or [`SimpleMatch`].
 pub struct Matcher<'a, In, PosOut, NegOut = PosOut> {
-    inner: BoxMatch<'a, In, PosOut, NegOut>,
+    inner: BoxTransformMatch<'a, In, PosOut, NegOut>,
 }
 
 impl<'a, In, PosOut, NegOut> fmt::Debug for Matcher<'a, In, PosOut, NegOut> {
@@ -147,14 +148,14 @@ impl<'a, In, PosOut, NegOut> fmt::Debug for Matcher<'a, In, PosOut, NegOut> {
 }
 
 impl<'a, In, PosOut, NegOut> Matcher<'a, In, PosOut, NegOut> {
-    /// Create a new [`Matcher`] from a type that implements [`Match`] and a formatter.
+    /// Create a new [`Matcher`] from a type that implements [`TransformMatch`] and a formatter.
     pub fn new<M, Fmt>(matcher: M, format: Fmt) -> Self
     where
-        M: Match<In = In, PosOut = PosOut, NegOut = NegOut> + 'a,
+        M: TransformMatch<In = In, PosOut = PosOut, NegOut = NegOut> + 'a,
         Fmt: MatcherFormat<Pos = M::PosFail, Neg = M::NegFail> + 'a,
     {
         Self {
-            inner: Box::new(DynMatchAdapter::new(matcher, format)),
+            inner: Box::new(DynTransformMatchAdapter::new(matcher, format)),
         }
     }
 
@@ -167,10 +168,10 @@ impl<'a, In, PosOut, NegOut> Matcher<'a, In, PosOut, NegOut> {
     /// [`equal`]: crate::equal
     pub fn neg<M, Fmt>(matcher: M, format: Fmt) -> Self
     where
-        M: Match<In = In, PosOut = NegOut, NegOut = PosOut> + 'a,
+        M: TransformMatch<In = In, PosOut = NegOut, NegOut = PosOut> + 'a,
         Fmt: MatcherFormat<Pos = M::NegFail, Neg = M::PosFail> + 'a,
     {
-        Matcher::new(NegMatchAdapter::new(matcher), format)
+        Matcher::new(NegTransformMatchAdapter::new(matcher), format)
     }
 
     /// Wrap this matcher with a new formatter.
@@ -184,8 +185,8 @@ impl<'a, In, PosOut, NegOut> Matcher<'a, In, PosOut, NegOut> {
         Self::new(MatchWrapper::new(self), format)
     }
 
-    /// Convert this matcher into a [`BoxMatch`].
-    pub fn into_box(self) -> BoxMatch<'a, In, PosOut, NegOut> {
+    /// Convert this matcher into a [`BoxTransformMatch`].
+    pub fn into_box(self) -> BoxTransformMatch<'a, In, PosOut, NegOut> {
         self.inner
     }
 }
@@ -217,7 +218,7 @@ impl<'a, Actual> Matcher<'a, Actual, Actual> {
     }
 }
 
-impl<'a, In, PosOut, NegOut> DynMatch for Matcher<'a, In, PosOut, NegOut> {
+impl<'a, In, PosOut, NegOut> DynTransformMatch for Matcher<'a, In, PosOut, NegOut> {
     type In = In;
 
     type PosOut = PosOut;
