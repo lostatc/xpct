@@ -109,11 +109,14 @@ expect!(person).to(match_fields(fields!(Person {
             id: OK
             name: FAILED
                 🛈 this is a required field
-                Expected this to not be empty
+                Expected:
+                    ""
+                to not be empty
             age: OK
             is_superstar: FAILED
                 Expected this to be true
         }
+
 ```
 
 ## MSRV Policy
