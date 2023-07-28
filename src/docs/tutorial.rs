@@ -117,7 +117,7 @@ calling [`Assertion::into_inner`]. This lets you use the same value in another
 assertion.
 
 ```
-use xpct::{expect, be_some};
+use xpct::{expect, equal, be_some};
 
 let name = expect!(Some("Raphaël Ambrosius Costeau"))
     .to(be_some())
@@ -173,7 +173,7 @@ struct Person {
 
 let value = Person {
     name: None,
-    id: String::from("LTN-2JFR"),
+    id: String::from("REV12-62-05-JAM41"),
     age: 44,
     is_superstar: true,
 };
@@ -224,11 +224,11 @@ use xpct::{be_some, every, expect, have_prefix};
 let items = vec![Some("Cuno"), Some("Cindy")];
 
 // Notice it unwraps the `Vec<Option<&str>>` to a `Vec<&str>`.
-let output: Vec<&str> = expect!(items)
+let unwrapped: Vec<&str> = expect!(items)
     .to(every(be_some))
     .into_inner();
 
-expect!(&items).to(every(|| have_prefix("C")));
+expect!(&unwrapped).to(every(|| have_prefix("C")));
 ```
 
 The matchers for collections are implemented using the [`Len`] and [`Contains`]

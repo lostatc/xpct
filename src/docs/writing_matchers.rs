@@ -216,22 +216,32 @@ expecting it to succeed.
 Now let's make some functions for invoking our matcher.
 
 ```
+use std::fmt;
+
 # use xpct::matchers::BeOkMatcher;
 use xpct::core::{Matcher, NegFormat};
 use xpct::format::ExpectationFormat;
 
 // `ExpectationFormat` is a simple formatter that just returns the actual value
 // and a static message.
-fn result_format() -> MessageFormat {
+fn result_format<T>() -> ExpectationFormat<T> {
     ExpectationFormat::new("to be Ok(_)", "to be Err(_)")
 }
 
-pub fn be_ok<'a, T: 'a, E: 'a>() -> Matcher<'a, Result<T, E>, T, E> {
+pub fn be_ok<'a, T, E>() -> Matcher<'a, Result<T, E>, T, E>
+where
+    T: fmt::Debug + 'a,
+    E: fmt::Debug + 'a,
+{
     // For matchers implemented with `Match`, you use `Matcher::new`.
     Matcher::new(BeOkMatcher::new(), result_format())
 }
 
-pub fn be_err<'a, T: 'a, E: 'a>() -> Matcher<'a, Result<T, E>, E, T> {
+pub fn be_err<'a, T, E>() -> Matcher<'a, Result<T, E>, E, T>
+where
+    T: fmt::Debug + 'a,
+    E: fmt::Debug + 'a,
+{
     // You can use `Matcher::neg` to negate a matcher created by implementing
     // `Match`. You can use `NegFormat` to negate the formatter.
     Matcher::neg(BeOkMatcher::new(), NegFormat(result_format()))

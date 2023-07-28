@@ -49,3 +49,9 @@ To build the documentation correctly, run the following command:
 ```shell
 RUSTDOCFLAGS='--cfg docsrs' cargo +nightly doc --all-features
 ```
+
+To run doctests in the `crate::docs` module, run the following command:
+
+```shell
+RUSTDOCFLAGS='--cfg docsrs' cargo +nightly test --all-features
+```

@@ -3,6 +3,8 @@ name: Test
 on: [push, pull_request]
 
 jobs:
+  # We run `cargo check` pinned to this crate's MSRV to ensure we're not
+  # accidentally using more recent Rust features.
   check:
     name: "Check"
     runs-on: ubuntu-latest
@@ -26,11 +28,13 @@ jobs:
           command: check
           args: "--all-features"
 
+  # We run tests on nightly so that the doctests in the `crate::docs` module
+  # are included.
   test:
     name: "Tests"
     runs-on: ubuntu-latest
     env:
-      RUSTFLAGS: "-D warnings"
+      RUSTDOCFLAGS: "-D warnings --cfg docsrs"
     steps:
       - name: "Checkout sources"
         uses: actions/checkout@v2
@@ -39,13 +43,13 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          # If you update this, update the Cargo.toml as well.
-          toolchain: "1.63.0"
+          toolchain: nightly
           override: true
 
       - name: "Run cargo test"
         uses: actions-rs/cargo@v1
         with:
+          toolchain: nightly
           command: test
           args: "--all-features"
 
@@ -78,6 +82,8 @@ jobs:
           command: clippy
           args: "--all-features"
 
+  # We build the docs on nightly so that the docs in the `crate::docs` module
+  # are included.
   docs:
     name: "Docs"
     runs-on: ubuntu-latest
