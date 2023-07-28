@@ -5,8 +5,6 @@ use std::marker::PhantomData;
 use crate::core::{style, Format, Formatter, MatchFailure, Matcher, NegFormat};
 use crate::matchers::{BeSomeMatcher, Expectation};
 
-use super::MessageFormat;
-
 /// A formatter for [`Expectation`] values.
 ///
 /// # Examples
@@ -82,8 +80,8 @@ where
     }
 }
 
-fn option_format() -> MessageFormat {
-    MessageFormat::new("Expected this to be Some(_)", "Expected this to be None")
+fn option_format<T>() -> ExpectationFormat<Option<T>> {
+    ExpectationFormat::new("to be Some(_)", "to be None")
 }
 
 /// Succeeds when the actual value is [`Some`].
@@ -104,7 +102,7 @@ fn option_format() -> MessageFormat {
 /// ```
 pub fn be_some<'a, T>() -> Matcher<'a, Option<T>, T, Option<Infallible>>
 where
-    T: 'a,
+    T: fmt::Debug + 'a,
 {
     Matcher::new(BeSomeMatcher::new(), option_format())
 }
@@ -128,7 +126,7 @@ where
 /// ```
 pub fn be_none<'a, T>() -> Matcher<'a, Option<T>, Option<Infallible>, T>
 where
-    T: 'a,
+    T: fmt::Debug + 'a,
 {
     Matcher::neg(BeSomeMatcher::new(), NegFormat(option_format()))
 }

@@ -11,7 +11,7 @@ use crate::core::{Match, MatchOutcome};
 /// This can be used for matchers like [`be_some`] and [`be_ok`] to represent a value not meeting
 /// some criteria, such as not being `Some(_)` and not being `Ok(_)` respectively.
 ///
-/// Use this over [`Mismatch`] when there's only one case in which the matcher would fail.
+/// Use this over [`Mismatch`] when there's only one case in which the matcher could fail.
 ///
 /// When returned by a matcher, this value just means, "here is the actual value." It's up to the
 /// formatter to determine how that information is presented to the user.
@@ -50,8 +50,8 @@ impl<T> Match for BeSomeMatcher<T> {
     type PosOut = T;
     type NegOut = Option<Infallible>;
 
-    type PosFail = ();
-    type NegFail = ();
+    type PosFail = Expectation<Option<T>>;
+    type NegFail = Expectation<Option<T>>;
 
     fn match_pos(
         self,
@@ -59,7 +59,7 @@ impl<T> Match for BeSomeMatcher<T> {
     ) -> crate::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
         match actual {
             Some(value) => Ok(MatchOutcome::Success(value)),
-            None => Ok(MatchOutcome::Fail(())),
+            None => Ok(MatchOutcome::Fail(Expectation { actual: None })),
         }
     }
 
@@ -68,7 +68,9 @@ impl<T> Match for BeSomeMatcher<T> {
         actual: Self::In,
     ) -> crate::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
         match actual {
-            Some(_) => Ok(MatchOutcome::Fail(())),
+            Some(value) => Ok(MatchOutcome::Fail(Expectation {
+                actual: Some(value),
+            })),
             None => Ok(MatchOutcome::Success(None)),
         }
     }
