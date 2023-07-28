@@ -43,7 +43,7 @@ pub use file::{FileExistsMatcher, FileExistsMode};
 pub use float::ApproxEqFloatMatcher;
 #[cfg(feature = "json")]
 pub use json::JsonMatcher;
-pub use len::{HaveLenMatcher, Len};
+pub use len::{BeEmptyMatcher, HaveLenMatcher, Len};
 pub use map::{IterMap, IterMapMatcher, IterTryMapMatcher, MapMatcher, TryMapMatcher};
 pub use not::NotMatcher;
 pub use option::{BeSomeMatcher, Expectation};

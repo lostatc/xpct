@@ -1,9 +1,9 @@
 use std::fmt;
 
 use crate::core::Matcher;
-use crate::matchers::{HaveLenMatcher, Len};
+use crate::matchers::{BeEmptyMatcher, HaveLenMatcher, Len};
 
-use super::MismatchFormat;
+use super::{ExpectationFormat, MismatchFormat};
 
 /// Succeeds when the actual value has the given length.
 ///
@@ -44,8 +44,8 @@ where
     Actual: fmt::Debug + Len + 'a,
 {
     Matcher::simple(
-        HaveLenMatcher::new(0),
-        MismatchFormat::new("to have length", "to not have length"),
+        BeEmptyMatcher::new(),
+        ExpectationFormat::new("to be empty", "to not be empty"),
     )
 }
 

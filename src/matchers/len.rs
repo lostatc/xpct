@@ -6,7 +6,7 @@ use std::{
 
 use crate::core::SimpleMatch;
 
-use super::Mismatch;
+use super::{Expectation, Mismatch};
 
 /// A collection that has a length.
 pub trait Len {
@@ -319,5 +319,34 @@ where
             expected: self.len,
             actual,
         }
+    }
+}
+
+/// The matcher for [`be_empty`].
+///
+/// [`be_empty`]: crate::be_empty
+#[derive(Debug)]
+#[non_exhaustive]
+pub struct BeEmptyMatcher;
+
+impl BeEmptyMatcher {
+    /// Create a new [`BeEmptyMatcher`].
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+impl<Actual> SimpleMatch<Actual> for BeEmptyMatcher
+where
+    Actual: Len,
+{
+    type Fail = Expectation<Actual>;
+
+    fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {
+        Ok(actual.len() == 0)
+    }
+
+    fn fail(self, actual: Actual) -> Self::Fail {
+        Expectation { actual }
     }
 }
