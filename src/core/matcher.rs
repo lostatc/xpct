@@ -137,7 +137,7 @@ pub type BoxTransformMatch<'a, In, PosOut, NegOut = PosOut> =
 /// A matcher.
 ///
 /// This type is a matcher that can be used to make assertions. You can create a matcher from any
-/// type which implements [`TransformMatch`] or [`Match`].
+/// type which implements [`Match`] or [`TransformMatch`].
 pub struct Matcher<'a, In, PosOut, NegOut = PosOut> {
     inner: BoxTransformMatch<'a, In, PosOut, NegOut>,
 }
