@@ -21,9 +21,9 @@ use crate::core::{Match, MatchOutcome};
 /// [`be_some`]: crate::be_some
 /// [`be_ok`]: crate::be_ok
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Expectation<T> {
+pub struct Expectation<Actual> {
     /// The actual value.
-    pub actual: T,
+    pub actual: Actual,
 }
 
 /// The matcher for [`be_some`] and [`be_none`].

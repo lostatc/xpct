@@ -28,13 +28,13 @@ use super::MessageFormat;
 /// );
 /// ```
 #[derive(Debug)]
-pub struct ExpectationFormat<T> {
-    marker: PhantomData<T>,
+pub struct ExpectationFormat<Actual> {
+    marker: PhantomData<Actual>,
     pos_msg: String,
     neg_msg: String,
 }
 
-impl<T> ExpectationFormat<T> {
+impl<Actual> ExpectationFormat<Actual> {
     /// Create a new [`ExpectationFormat`].
     ///
     /// This accepts two error messages: the one to use in the *positive* case (when we were
@@ -49,11 +49,11 @@ impl<T> ExpectationFormat<T> {
     }
 }
 
-impl<T> Format for ExpectationFormat<T>
+impl<Actual> Format for ExpectationFormat<Actual>
 where
-    T: fmt::Debug,
+    Actual: fmt::Debug,
 {
-    type Value = MatchFailure<Expectation<T>>;
+    type Value = MatchFailure<Expectation<Actual>>;
 
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         f.set_style(style::important());
