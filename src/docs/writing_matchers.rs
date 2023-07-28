@@ -89,8 +89,8 @@ To make `EqualMatcher` into a `Matcher`, you just need to wrap it with
 [`Matcher::simple`]. This method also accepts the formatter which is used to
 format the output. Thankfully, you don't need to write the formatting logic
 yourself to get pretty output! Because our matcher returns a [`Mismatch`] when
-it fails, we can use any formatter which accepts a [`Mismatch`], like the aptly
-named [`MismatchFormat`].
+it fails, we can use any formatter which accepts a [`Mismatch`], like the
+provided [`MismatchFormat`].
 
 ```
 # use xpct::matchers::EqualMatcher;
@@ -145,14 +145,14 @@ expect!("disco").to(not_equal("not disco"));
 ## Implementing `Match`
 
 The major limitation of [`SimpleMatch`] is that it always returns the same value
-that was passed in, hence the name "simple." If you have more complex needs for
-your matcher, like you need it to transform the value like the [`be_some`] and
-[`be_ok`] matchers do, you can implement the [`Match`] trait
+that was passed in. If you need it to transform the value like the [`be_some`]
+and [`be_ok`] matchers do, you can implement the [`Match`] trait.
 
 ```
 use std::marker::PhantomData;
 
 use xpct::core::{Matcher, Match, MatchOutcome};
+use xpct::matchers::Expectation;
 
 pub struct BeOkMatcher<T, E> {
     // Matchers created by implementing `Match` will often need to use
@@ -178,11 +178,10 @@ impl<T, E> Match for BeOkMatcher<T, E> {
     // In the negative case, this should return the `Err` value.
     type NegOut = E;
 
-    // Because we don't have any interesting information to provide other than
-    // "the value was not `Ok`" or "the value was not `Err`", we just make these
-    // the unit type.
-    type PosFail = ();
-    type NegFail = ();
+    // We use the `Expectation` type here to include the actual value in the
+    // failure output.
+    type PosFail = Expectation<Result<T, E>>;
+    type NegFail = Expectation<Result<T, E>>;
 
     fn match_pos(
         self,
@@ -190,7 +189,7 @@ impl<T, E> Match for BeOkMatcher<T, E> {
     ) -> xpct::Result<MatchOutcome<Self::PosOut, Self::PosFail>> {
         match actual {
             Ok(value) => Ok(MatchOutcome::Success(value)),
-            Err(_) => Ok(MatchOutcome::Fail(())),
+            Err(err) => Ok(MatchOutcome::Fail(Expectation { actual: Err(err) })),
         }
     }
 
@@ -199,7 +198,7 @@ impl<T, E> Match for BeOkMatcher<T, E> {
         actual: Self::In,
     ) -> xpct::Result<MatchOutcome<Self::NegOut, Self::NegFail>> {
         match actual {
-            Ok(_) => Ok(MatchOutcome::Fail(())),
+            Ok(value) => Ok(MatchOutcome::Fail(Expectation { actual: Ok(value) })),
             Err(error) => Ok(MatchOutcome::Success(error)),
         }
     }
@@ -219,12 +218,12 @@ Now let's make some functions for invoking our matcher.
 ```
 # use xpct::matchers::BeOkMatcher;
 use xpct::core::{Matcher, NegFormat};
-use xpct::format::MessageFormat;
+use xpct::format::ExpectationFormat;
 
-// `MessageFormat` is a simple formatter that just returns a static message in
-// each case. It doesn't care what the types of `PosFail` and `NegFail` are.
+// `ExpectationFormat` is a simple formatter that just returns the actual value
+// and a static message.
 fn result_format() -> MessageFormat {
-    MessageFormat::new("Expected this to be Ok(_)", "Expected this to be Err(_)")
+    ExpectationFormat::new("to be Ok(_)", "to be Err(_)")
 }
 
 pub fn be_ok<'a, T: 'a, E: 'a>() -> Matcher<'a, Result<T, E>, T, E> {
