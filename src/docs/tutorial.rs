@@ -66,12 +66,12 @@ use std::io;
 use xpct::{expect, equal, be_ok};
 
 fn location() -> io::Result<String> {
-    Ok(String::from("Whirling-in-Rags"))
+    Ok(String::from("Martinaise"))
 }
 
 expect!(location())
     .to(be_ok())
-    .to(equal("Whirling-in-Rags"));
+    .to(equal("Martinaise"));
 ```
 
 In the above example, we don't need to unwrap the [`Result`], because the
@@ -117,13 +117,15 @@ calling [`Assertion::into_inner`]. This lets you use the same value in another
 assertion.
 
 ```
-use xpct::{expect, equal, be_some};
+use xpct::{be_some, equal, expect, have_len};
 
-let name = expect!(Some("Raphaël Ambrosius Costeau"))
-    .to(be_some())
+let name = expect!(["Mañana", "Evrart"])
+    .to(have_len(2))
     .into_inner();
 
-expect!(name).to(equal("Raphaël Ambrosius Costeau"));
+expect!(name.first())
+    .to(be_some())
+    .to(equal(&"Mañana"));
 ```
 
 There are combinator matchers like [`all`], [`each`], and [`any`] which allow
@@ -149,11 +151,11 @@ If you want to attach additional context to a matcher to include in the failure
 output, you can use [`why`] and [`why_lazy`]:
 
 ```
-use xpct::{expect, why, not, equal};
+use xpct::{expect, match_regex, why};
 
-expect!("Kim Kitsuragi").to(why(
-    not(equal("kim kitsuragi")),
-    "names should be capitalized"
+expect!("Kim").to(why(
+    match_regex(r"^\p{Lu}"),
+    "names should start with a capital letter",
 ));
 ```
 
@@ -162,26 +164,26 @@ separate [`expect!`] assertion for each field, you can use [`match_fields`] with
 the [`fields!`] macro.
 
 ```
-use xpct::{expect, match_fields, fields, equal, be_none, be_ge, be_true};
+use xpct::{be_gt, be_some, be_true, expect, fields, have_prefix, match_fields};
 
 struct Person {
-    name: Option<String>,
     id: String,
+    name: Option<String>,
     age: u32,
     is_superstar: bool,
 }
 
 let value = Person {
-    name: None,
     id: String::from("REV12-62-05-JAM41"),
+    name: Some(String::from("Raphaël")),
     age: 44,
     is_superstar: true,
 };
 
 expect!(value).to(match_fields(fields!(Person {
-    name: be_none(),
-    id: equal("REV12-62-05-JAM41"),
-    age: be_ge(26),
+    id: have_prefix("REV"),
+    name: be_some(),
+    age: be_gt(0),
     is_superstar: be_true(),
 })));
 ```
@@ -215,8 +217,8 @@ expect!('C').to(be_in("Cuno"));
 expect!(50).to(be_in(41..57));
 ```
 
-The [`every`] matcher is particularly powerful; it allows you to test every
-element in a collection against the same matcher.
+The [`every`] matcher allows you to test every element in a collection against
+the same matcher.
 
 ```
 use xpct::{be_some, every, expect, have_prefix};
@@ -227,8 +229,6 @@ let items = vec![Some("Cuno"), Some("Cindy")];
 let unwrapped: Vec<&str> = expect!(items)
     .to(every(be_some))
     .into_inner();
-
-expect!(&unwrapped).to(every(|| have_prefix("C")));
 ```
 
 The matchers for collections are implemented using the [`Len`] and [`Contains`]
