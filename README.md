@@ -74,48 +74,48 @@ expect!(Some(41))
 Making assertions about individual fields of a struct:
 
 ```rust,should_panic
-use xpct::{
-    be_empty, be_gt, be_ok, be_true, expect, fields, have_prefix, match_fields, match_regex,
-    not, why,
-};
+use xpct::{be_empty, be_in, be_true, expect, fields, have_prefix, match_fields, not, why};
 
-struct Person {
+struct Player {
     id: String,
     name: String,
-    age: u32,
+    level: u32,
     is_superstar: bool,
 }
 
-let person = Person {
-    id: String::from("LTN-2JFR"),
-    name: String::new(),
-    age: 44,
+let player = Player {
+    id: String::from("REV12-62-05-JAM41"),
+    name: String::from(""),
+    level: 21,
     is_superstar: false,
 };
 
-expect!(person).to(match_fields(fields!(Person {
-    id: match_regex(r"^\w{3}(-\dJFR)?$"),
-    name: why(not(be_empty()), "this is a required field"),
-    age: be_gt(0),
-    is_superstar: be_true(),
+expect!(player).to(match_fields(fields!(Player {
+    id: have_prefix("REV"),
+    name: not(be_empty()),
+    level: be_in(1..=20),
+    is_superstar: why(be_true(), "only superstars allowed"),
 })));
 ```
 
 ```text
-[src/main.rs:23:5] = person
+[src/main.rs:18:5] = player
     Expected all of these fields to succeed:
-        my_crate::main::Person {
+        my_crate::main::Player {
             id: OK
             name: FAILED
-                🛈 this is a required field
                 Expected:
                     ""
                 to not be empty
-            age: OK
+            level: FAILED
+                Expected:
+                    21
+                to be in:
+                    1..=20
             is_superstar: FAILED
+                🛈 only superstars allowed
                 Expected this to be true
         }
-
 ```
 
 ## MSRV Policy
