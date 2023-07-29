@@ -58,8 +58,9 @@ impl Format for SomeFailuresFormat {
 
 /// Succeeds when each of the passed matchers succeeds.
 ///
-/// This matcher is similar to [`all`], except it does not short-circuit and it does not chain the
-/// output of each matcher into the next. You can use matcher this when:
+/// This is a matcher than can be used to compose other matchers. It's similar to [`all`], except it
+/// does not short-circuit and it does not chain the output of each matcher into the next. You can
+/// use matcher this when:
 ///
 /// 1. You want to test all the matchers instead of just failing early and printing the first
 ///    failure.
@@ -68,47 +69,36 @@ impl Format for SomeFailuresFormat {
 ///
 /// This matcher owns its value and passes it to each matcher, either by reference, or by value if
 /// the value is [`Clone`] or [`Copy`]. The closure you pass to this matcher accepts a
-/// [`CombinatorContext`], which has methods like [`borrow`], [`cloned`] and [`copied`] to
-/// determine how the value is passed to matchers. From there, you can call [`to`] and [`to_not`]
-/// to use matchers.
+/// [`CombinatorContext`], which has methods like [`borrow`], [`cloned`] and [`copied`] to determine
+/// how the value is passed to matchers. From there, you can call [`to`] and [`to_not`] to use
+/// matchers.
 ///
 /// # Examples
 ///
 /// Passing the value to matchers by reference:
 ///
 /// ```
-/// use xpct::{expect, each, be_lt, be_gt};
+/// use xpct::{each, expect, have_len, match_regex};
 ///
-/// expect!("Billie").to(each(|ctx| {
+/// expect!("11b72db5-ff70-40a5-8728-937faf86ce48").to(each(|ctx| {
 ///     ctx.borrow::<str>()
-///         .to(be_lt("Cuno"))
-///         .to(be_gt("Annette"));
+///         .to(have_len(36))
+///         .to(match_regex("[0-9a-f-]+"));
 /// }));
 /// ```
 ///
-/// Passing the value to matchers by value via [`Copy`]:
+/// Passing the value to matchers by value via [`Clone`]:
 ///
 /// ```
-/// use xpct::{expect, each, be_lt, be_gt};
+/// use xpct::{each, expect, have_len, match_regex};
 ///
-/// expect!(20.0).to(each(|ctx| {
-///     ctx.copied()
-///         .to(be_lt(130.0))
-///         .to(be_gt(0.40));
+/// let uuid = String::from("11b72db5-ff70-40a5-8728-937faf86ce48");
+///
+/// expect!(uuid).to(each(|ctx| {
+///     ctx.cloned()
+///         .to(have_len(36))
+///         .to(match_regex("[0-9a-f-]+"));
 /// }));
-/// ```
-///
-/// If you want to format the closure as an expression instead of a statement, you can use [`done`].
-/// This method doesn't do anything special; it just consumes `self` and returns `()`.
-///
-/// ```
-/// use xpct::{expect, each, be_lt, be_gt};
-///
-/// expect!(20.0).to(each(|ctx| ctx.copied()
-///     .to(be_lt(130.0))
-///     .to(be_gt(0.40))
-///     .done()
-/// ));
 /// ```
 ///
 /// [`all`]: crate::all

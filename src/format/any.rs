@@ -80,13 +80,12 @@ where
 /// Passing the value to matchers by reference:
 ///
 /// ```
-/// use xpct::{any, contain_substr, equal, expect};
+/// use xpct::{any, expect, have_prefix};
 ///
-/// expect!("Martinaise").to(any(|ctx| {
+/// expect!("https://example.com").to(any(|ctx| {
 ///     ctx.borrow::<str>()
-///         .to(equal("The Pox"))
-///         .to(contain_substr("Jamrock"))
-///         .to(equal("Martinaise"));
+///         .to(have_prefix("http://"))
+///         .to(have_prefix("https://"));
 /// }));
 /// ```
 ///

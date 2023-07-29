@@ -6,53 +6,58 @@ use super::{FailureFormat, MessageFormat};
 
 /// Succeeds when all of the passed matchers succeed.
 ///
-/// This method is similar to [`each`], except it short-circuits on the first failed match and
-/// chains the output of each matcher into the next.
+/// This is a matcher than can be used to compose other matchers. It's similar to [`each`], except
+/// it short-circuits on the first failed match and chains the output of each matcher into the next.
 ///
 /// This matcher accepts a closure which is passed a [`ChainAssertion`] value, which is similar to
 /// the [`Assertion`] value returned by [`expect!`]. You can call [`to`] and [`to_not`] on it to use
 /// matchers.
 ///
-/// This matcher has some limitations compared to [`each`] when you negate it (such as with
-/// [`not`]):
+/// You typically do not want to negate this matcher (such as with [`not`]). Instead, you probably
+/// want to negate the individual matchers you're composing with it. Here's why:
 ///
-/// 1. If it succeeds (meaning that all the matchers failed), it can't return the transformed value
-///    at the end. Matchers don't return the value that was passed into them when they fail.
-/// 2. If it fails (meaning that all the matchers succeeded), the output it produces won't be
-///    particularly useful. Matchers don't produce failure output when they succeed.
+/// 1. If you negate this matcher and it succeeds (meaning that all the matchers failed), it can't
+///    return the transformed value at the end (it will return `()`). Matchers don't return the
+///    value that was passed into them when they fail.
+/// 2. If you negate this matcher and it fails (meaning that all the matchers succeeded), the output
+///    it produces won't be particularly useful. Matchers don't produce failure output when they
+///    succeed.
 ///
 /// # Examples
 ///
-/// Unlike [`each`], this matcher lets you chain matchers together to do things like this.
+/// Normally, you can just chain together matchers like this:
 ///
 /// ```
-/// use xpct::{expect, all, equal, be_some};
+/// use xpct::{expect, be_some, equal};
 ///
-/// fn favorite_clothing() -> Option<String> {
-///     Some(String::from("necktie"))
+/// expect!(Some("horrific"))
+///     .to(be_some())
+///     .to(equal("horrific"));
+/// ```
+///
+/// However, if you need to do this inside of another matcher, such as when using [`match_fields`],
+/// you can use [`all`]:
+///
+/// ```
+/// use xpct::{expect, match_fields, fields, equal, all, not, be_empty, be_some};
+///
+/// struct Person {
+///     name: Option<String>,
+///     age: u32,
 /// }
 ///
-/// expect!(favorite_clothing()).to(all(|ctx| ctx
-///     .to(be_some())?
-///     .to(equal("necktie"))
-/// ));
-/// ```
+/// let person = Person {
+///     name: Some(String::from("Kim Kitsuragi")),
+///     age: 43,
+/// };
 ///
-/// Instead of returning the transformed value at the end, when negated, it returns `()`.
-///
-/// ```
-/// use xpct::{expect, all, equal, be_some};
-///
-/// fn favorite_clothing() -> Option<String> {
-///     None
-/// }
-///
-/// let result: () = expect!(favorite_clothing())
-///     .to_not(all(|ctx| ctx
+/// expect!(person).to(match_fields(fields!(Person {
+///     name: all(|ctx| ctx
 ///         .to(be_some())?
-///         .to(equal("necktie"))
-///     ))
-///     .into_inner();
+///         .to(not(be_empty()))
+///     ),
+///     age: equal(43),
+/// })));
 /// ```
 ///
 /// [`each`]: crate::each
@@ -61,6 +66,7 @@ use super::{FailureFormat, MessageFormat};
 /// [`to_not`]: crate::matchers::ChainAssertion::to_not
 /// [`not`]: crate::not
 /// [`expect!`]: crate::expect
+/// [`match_fields`]: crate::match_fields
 pub fn all<'a, In, Out>(
     block: impl FnOnce(ChainAssertion<In>) -> Result<ChainAssertion<Out>, MatchError> + 'a,
 ) -> Matcher<'a, In, Out, ()>

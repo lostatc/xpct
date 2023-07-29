@@ -123,7 +123,8 @@ impl<'a, 'b: 'a, T, In> CombinatorAssertion<'a, 'b, T, In> {
     ///         .to(be_gt(0.40));
     /// }));
     ///
-    /// expect!(20.0).to(each(|ctx| ctx.copied()
+    /// expect!(20.0).to(each(|ctx| ctx
+    ///     .copied()
     ///     .to(be_lt(130.0))
     ///     .to(be_gt(0.40))
     ///     .done()
