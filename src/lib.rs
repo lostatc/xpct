@@ -1,5 +1,5 @@
 /*!
-xpct is an assertions library for Rust.
+xpct is an extensible test assertion library for Rust.
 
 It's designed to be ergonomic, batteries-included, and test framework agnostic.
 

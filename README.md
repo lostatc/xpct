@@ -4,8 +4,11 @@
 
 # xpct
 
-xpct is an assertions library for Rust. It's designed to be ergonomic,
-batteries-included, and test framework agnostic.
+xpct is an extensible test assertion library for Rust. It's designed to be
+ergonomic, batteries-included, and test framework agnostic.
+
+Want to get started? [Check out the
+tutorial](https://docs.rs/xpct/latest/xpct/docs/tutorial/index.html).
 
 ## About
 
@@ -18,13 +21,9 @@ can:
 2. Customize the formatting of existing matchers without having to reimplement
    their logic.
 
-Want to get started? [Check out the
-tutorial](https://docs.rs/xpct/latest/xpct/docs/tutorial/index.html).
-
-*How do you pronounce "xpct"?*
-
-However you choose to pronounce it is how it's pronounced! I pronounce it like
-"expect."
+This crate also aims to provide many useful matchers out of the box. Check out
+the full [list of provided
+matchers](https://docs.rs/xpct/latest/xpct/docs/matcher_list/index.html).
 
 ## Docs
 
