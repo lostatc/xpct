@@ -85,16 +85,11 @@ where
 /// # Examples
 ///
 /// ```
-/// use std::collections::HashSet;
-/// use xpct::{be_in, every, expect};
+/// use xpct::{be_in, expect};
 ///
-/// let allowed_fruits = ["apple", "banana", "lemon", "orange"]
-///     .into_iter()
-///     .collect::<HashSet<_>>();
-///
-/// let actual_fruits = ["apple", "banana"];
-///
-/// expect!(actual_fruits).to(every(|| be_in(&allowed_fruits)));
+/// expect!("Mañana").to(be_in(["Evrart", "Mañana"]));
+/// expect!('C').to(be_in("Cuno"));
+/// expect!(50).to(be_in(41..57));
 /// ```
 pub fn be_in<'a, Collection, Actual>(collection: Collection) -> Matcher<'a, Actual, Actual>
 where
