@@ -150,10 +150,9 @@ expect!(names).to(every(|| all(|ctx| {
 The last two stable Rust releases are supported. Older releases may be supported
 as well.
 
-The MSRV will only be increased when necessary to take advantage of new Rust
-features—not every time there is a new Rust release. An increase in the MSRV
-will be accompanied by a minor semver bump if >=1.0.0 or a patch semver bump if
-<1.0.0.
+The MSRV will only be increased when necessary—not every time there is a new
+Rust release. An increase in the MSRV will be accompanied by a minor semver bump
+if >=1.0.0 or a patch semver bump if <1.0.0.
 
 ## Semver Policy
 
