@@ -21,8 +21,8 @@ can:
 2. Customize the formatting of existing matchers without having to reimplement
    their logic.
 
-This crate also aims to provide many useful matchers out of the box. Check out
-the full [list of provided
+This crate aims to provide many useful matchers out of the box. Check out the
+full [list of provided
 matchers](https://docs.rs/xpct/latest/xpct/docs/matcher_list/index.html).
 
 ## Docs
