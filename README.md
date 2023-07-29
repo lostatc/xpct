@@ -118,6 +118,33 @@ expect!(player).to(match_fields(fields!(Player {
         }
 ```
 
+Asserting that every element of a collection is `Some(_)` and is not an empty
+string:
+
+```rust,should_panic
+use xpct::{all, be_empty, be_some, every, expect, not};
+
+let names = [Some(""), Some("Cuno"), None];
+
+expect!(names).to(every(|| all(|ctx| {
+    ctx.to(be_some())?.to(not(be_empty()))
+})));
+```
+
+```text
+[src/main.rs:6:5] = names
+    Expected all of these to succeed:
+        [0]  FAILED
+             Expected:
+                 ""
+             to not be empty
+
+        [2]  FAILED
+             Expected:
+                 None
+             to be Some(_)
+```
+
 ## MSRV Policy
 
 The last two stable Rust releases are supported. Older releases may be supported
