@@ -62,3 +62,30 @@ where
         ),
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{equal, expect, match_elements};
+
+    #[test]
+    fn succeeds_when_all_elements_succeed() {
+        expect!(["a", "b"]).to(match_elements([equal("a"), equal("b")]));
+    }
+
+    #[test]
+    fn succeeds_when_some_elements_fail() {
+        expect!(["a", "b"]).to_not(match_elements([equal("a"), equal("c")]));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_all_elements_succeed() {
+        expect!(["a", "b"]).to_not(match_elements([equal("a"), equal("b")]));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_some_elements_fail() {
+        expect!(["a", "b"]).to(match_elements([equal("a"), equal("c")]));
+    }
+}
