@@ -117,11 +117,11 @@ impl<'a, 'b: 'a, Actual> Match<Actual> for PatternMatcher<'a, Actual> {
 /// [`match_pattern`]: crate::match_pattern
 #[macro_export]
 macro_rules! pattern {
-    ($(|)? $( $pattern:pat_param )|+ $( if $guard: expr )? $(,)?) => {
+    ($pattern:pat $( if $guard:expr )? $(,)?) => {
         $crate::matchers::Pattern::__new(
-            stringify!($( $pattern )|+ $( if $guard )?),
+            stringify!($pattern $( if $guard )?),
             |ref actual| match actual {
-                $( $pattern )|+ $( if $guard )? => true,
+                $pattern $( if $guard )? => true,
                 _ => false,
             },
         )
