@@ -52,11 +52,11 @@ impl Format for ByFieldFormat {
 
 /// Succeeds when all the fields of a struct succeed.
 ///
-/// This matcher operates on a struct and allows for matching on each field separately. This is
-/// used with the [`fields!`] macro.
+/// This matcher operates on a struct and allows for matching on each field separately. This is used
+/// with the [`fields!`] macro.
 ///
-/// This succeeds when each field of the struct succeeds, and skipping/omitting fields does not
-/// make it fail.
+/// This succeeds when each field of the struct succeeds, and skipping/omitting fields does not make
+/// it fail.
 ///
 /// This matcher can be used for both regular structs and tuple structs. See [`fields!`] for
 /// details.
@@ -64,25 +64,25 @@ impl Format for ByFieldFormat {
 /// # Examples
 ///
 /// ```
-/// use xpct::{expect, match_fields, fields, be_empty, be_some, be_gt, be_true, all};
+/// use xpct::{be_gt, be_some, be_true, expect, fields, have_prefix, match_fields};
 ///
 /// struct Person {
+///     id: String,
 ///     name: Option<String>,
 ///     age: u32,
 ///     is_superstar: bool,
 /// }
 ///
 /// let value = Person {
-///     name: Some(String::from("Dick Mullen")),
-///     age: 37,
+///     id: String::from("REV12-62-05-JAM41"),
+///     name: Some(String::from("Raphaël")),
+///     age: 44,
 ///     is_superstar: true,
 /// };
 ///
 /// expect!(value).to(match_fields(fields!(Person {
-///     name: all(|ctx| ctx
-///         .to(be_some())?
-///         .to_not(be_empty())
-///     ),
+///     id: have_prefix("REV"),
+///     name: be_some(),
 ///     age: be_gt(0),
 ///     is_superstar: be_true(),
 /// })));
