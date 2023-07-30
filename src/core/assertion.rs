@@ -235,9 +235,9 @@ where
     ///
     /// ```
     /// use xpct::{expect, be_some, equal};
+    ///
     /// let result: &str = expect!(Some("disco"))
     ///     .to(be_some())
-    ///     .to(equal("disco"))
     ///     .into_inner();
     /// ```
     ///
