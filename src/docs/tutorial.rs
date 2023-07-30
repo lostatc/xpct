@@ -159,6 +159,28 @@ expect!("Kim").to(why(
 ));
 ```
 
+You can test that a value matches a pattern using the [`match_pattern`] matcher
+and the [`pattern`] macro.
+
+```
+use std::path::PathBuf;
+
+use xpct::{expect, match_pattern, pattern};
+
+#[derive(Debug)]
+enum Command {
+    Create { path: PathBuf },
+    Delete { path: PathBuf },
+    Update { path: PathBuf, value: Vec<u8> },
+}
+
+let command = Command::Create {
+    path: "/path/to/file".into(),
+};
+
+expect!(command).to(match_pattern(pattern!(Command::Create { .. })));
+```
+
 If you want to assert on multiple fields of a struct, rather than using a
 separate [`expect!`] assertion for each field, you can use [`match_fields`] with
 the [`fields!`] macro.
