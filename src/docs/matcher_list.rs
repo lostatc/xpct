@@ -93,6 +93,7 @@ A list of all the matchers provided by this crate, grouped into categories.
 - [`consist_of`][crate::consist_of]
 - [`every`][crate::every]
 - [`be_in`][crate::be_in]
+- [`match_elements`][crate::match_elements]
 
 ## Files
 

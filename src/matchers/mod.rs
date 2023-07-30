@@ -6,6 +6,7 @@ mod chain;
 mod combinator;
 mod contain;
 mod default;
+mod elements;
 mod equal;
 mod every;
 mod fields;
@@ -35,6 +36,7 @@ pub use combinator::{
 };
 pub use contain::{BeInMatcher, ConsistOfMatcher, ContainElementsMatcher, Contains};
 pub use default::BeDefaultMatcher;
+pub use elements::MatchElementsMatcher;
 pub use equal::{EqualMatcher, Mismatch};
 pub use every::EveryMatcher;
 pub use fields::{FailuresByField, FieldMatcher, FieldsSpec, __FieldsSpecParams};

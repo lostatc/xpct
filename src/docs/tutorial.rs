@@ -231,6 +231,21 @@ let unwrapped: Vec<&str> = expect!(items)
     .into_inner();
 ```
 
+The [`match_elements`] matcher allows you to tests each element of a collection
+against a different matcher.
+
+```
+use xpct::{be_in, equal, expect, have_prefix, match_elements};
+
+let items = vec!["apple", "banana", "cucumber"];
+
+expect!(items).to(match_elements([
+    equal("apple"),
+    be_in(["banana", "orange"]),
+    have_prefix("c"),
+]));
+```
+
 The matchers for collections are implemented using the [`Len`] and [`Contains`]
 traits. You can implement these traits for your own types to use them with the
 collections matchers.
@@ -251,6 +266,8 @@ matchers provided by this crate.
 [`any`]: crate::any
 [`why`]: crate::why
 [`why_lazy`]: crate::why_lazy
+[`match_pattern`]: crate::match_pattern
+[`pattern`]: crate::pattern
 [`match_fields`]: crate::match_fields
 [`expect!`]: crate::expect
 [`fields!`]: crate::fields
@@ -259,6 +276,7 @@ matchers provided by this crate.
 [`consist_of`]: crate::consist_of
 [`be_in`]: crate::be_in
 [`every`]: crate::every
+[`match_elements`]: crate::match_elements
 [`Len`]: crate::matchers::Len
 [`Contains`]: crate::matchers::Contains
 [`Assertion`]: crate::core::Assertion
