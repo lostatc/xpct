@@ -118,31 +118,36 @@ expect!(player).to(match_fields(fields!(Player {
         }
 ```
 
-Asserting that every element of a collection is `Some(_)` and is not an empty
-string:
+Making assertions about elements in a collection:
 
 ```rust,should_panic
-use xpct::{all, be_empty, be_some, every, expect, not};
+use xpct::{be_in, contain_substr, equal, expect, have_len, match_elements};
 
-let names = [Some(""), Some("Cuno"), None];
+let items = vec!["apple", "pear", "banana"];
 
-expect!(names).to(every(|| all(|ctx| {
-    ctx.to(be_some())?.to(not(be_empty()))
-})));
+expect!(items)
+    .to(have_len(3))
+    .to(match_elements([
+        contain_substr("ana"),
+        equal("pear"),
+        be_in(["mango", "orange"]),
+    ]));
 ```
 
 ```text
-[src/main.rs:6:5] = names
+[src/main.rs:6:5] = items
     Expected all of these to succeed:
         [0]  FAILED
              Expected:
-                 ""
-             to not be empty
+                 "apple"
+             to contain the substring:
+                 "ana"
 
         [2]  FAILED
              Expected:
-                 None
-             to be Some(_)
+                 "banana"
+             to be in:
+                 ["mango", "orange"]
 ```
 
 ## MSRV Policy
