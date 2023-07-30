@@ -160,25 +160,23 @@ expect!("Kim").to(why(
 ```
 
 You can test that a value matches a pattern using the [`match_pattern`] matcher
-and the [`pattern`] macro.
+and the [`pattern!`] macro.
 
 ```
-use std::path::PathBuf;
-
 use xpct::{expect, match_pattern, pattern};
 
 #[derive(Debug)]
 enum Command {
-    Create { path: PathBuf },
-    Delete { path: PathBuf },
-    Update { path: PathBuf, value: Vec<u8> },
+    Create(String),
+    Update(String),
+    Delete,
 }
 
-let command = Command::Create {
-    path: "/path/to/file".into(),
-};
+let command = Command::Create("foo".into());
 
-expect!(command).to(match_pattern(pattern!(Command::Create { .. })));
+expect!(command).to(match_pattern(pattern!(
+    Command::Create(_) | Command::Delete
+)));
 ```
 
 If you want to assert on multiple fields of a struct, rather than using a
@@ -289,7 +287,7 @@ matchers provided by this crate.
 [`why`]: crate::why
 [`why_lazy`]: crate::why_lazy
 [`match_pattern`]: crate::match_pattern
-[`pattern`]: crate::pattern
+[`pattern!`]: crate::pattern
 [`match_fields`]: crate::match_fields
 [`expect!`]: crate::expect
 [`fields!`]: crate::fields

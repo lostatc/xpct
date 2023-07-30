@@ -38,22 +38,20 @@ use super::MismatchFormat;
 /// You could also use it to test for an enum variant while ignoring its fields.
 ///
 /// ```
-/// use std::path::PathBuf;
-///
 /// use xpct::{expect, match_pattern, pattern};
 ///
 /// #[derive(Debug)]
 /// enum Command {
-///     Create { path: PathBuf },
-///     Delete { path: PathBuf },
-///     Update { path: PathBuf, value: Vec<u8> },
+///     Create(String),
+///     Update(String),
+///     Delete,
 /// }
 ///
-/// let command = Command::Create {
-///     path: "/path/to/file".into(),
-/// };
+/// let command = Command::Create("foo".into());
 ///
-/// expect!(command).to(match_pattern(pattern!(Command::Create { .. })));
+/// expect!(command).to(match_pattern(pattern!(
+///     Command::Create(_) | Command::Delete
+/// )));
 /// ```
 pub fn match_pattern<'a, Actual>(spec: Pattern<'a, Actual>) -> Matcher<'a, Actual, Actual>
 where
