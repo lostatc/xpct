@@ -44,6 +44,7 @@ pub use boolean::MessageFormat;
 pub use each::SomeFailuresFormat;
 pub use equal::MismatchFormat;
 pub use fields::ByFieldFormat;
+pub use map::InfallibleFormat;
 pub use not::FailureFormat;
 pub use option::ExpectationFormat;
 pub use why::WhyFormat;
