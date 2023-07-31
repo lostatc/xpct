@@ -5,6 +5,8 @@ use std::hash::Hash;
 
 use similar::{capture_diff_slices, ChangeTag, TextDiff};
 
+use crate::core::Match;
+
 const DIFF_ALGORITHM: similar::Algorithm = similar::Algorithm::Patience;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -131,5 +133,35 @@ where
         Q: Borrow<Self::Other>,
     {
         self.as_slice().diff(other)
+    }
+}
+
+/// The matcher for [`diff_eq`].
+///
+/// [`diff_eq`]: crate::diff_eq
+#[derive(Debug)]
+pub struct DiffEqualMatcher<Expected> {
+    expected: Expected,
+}
+
+impl<Expected> DiffEqualMatcher<Expected> {
+    /// Create a new [`DiffEqualMatcher`] from the expected value.
+    pub fn new(expected: Expected) -> Self {
+        Self { expected }
+    }
+}
+
+impl<Expected, Actual> Match<Actual> for DiffEqualMatcher<Expected>
+where
+    Actual: PartialEq<Expected> + Eq + Diffable<Other = Expected>,
+{
+    type Fail = Diff<Actual::Segment>;
+
+    fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {
+        Ok(actual == &self.expected)
+    }
+
+    fn fail(self, actual: Actual) -> Self::Fail {
+        actual.diff(&self.expected)
     }
 }
