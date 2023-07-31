@@ -6,6 +6,7 @@ mod chain;
 mod combinator;
 mod contain;
 mod default;
+mod diff;
 mod elements;
 mod equal;
 mod every;
