@@ -39,7 +39,9 @@ pub use default::BeDefaultMatcher;
 pub use elements::MatchElementsMatcher;
 pub use equal::{EqualMatcher, Mismatch};
 pub use every::EveryMatcher;
-pub use fields::{FailuresByField, FieldMatcher, FieldsSpec, __FieldsSpecParams};
+#[doc(hidden)]
+pub use fields::__FieldsSpecParams;
+pub use fields::{FailuresByField, FieldMatcher, FieldsSpec};
 pub use file::{FileExistsMatcher, FileExistsMode};
 #[cfg(feature = "float")]
 pub use float::ApproxEqFloatMatcher;
