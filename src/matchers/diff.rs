@@ -1,7 +1,6 @@
 #![cfg(feature = "diff")]
 
 use std::borrow::{Borrow, Cow};
-use std::fmt;
 use std::hash::Hash;
 
 use similar::{capture_diff_slices, ChangeTag, TextDiff};
@@ -25,46 +24,28 @@ impl DiffTag {
     }
 }
 
-#[derive(Clone, PartialEq, Eq)]
-pub struct DiffSegment<'a, T>
-where
-    T: ?Sized + ToOwned,
-{
-    pub value: Cow<'a, T>,
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DiffSegment<T> {
+    pub value: T,
     pub tag: DiffTag,
 }
 
-impl<'a, T> fmt::Debug for DiffSegment<'a, T>
-where
-    T: ?Sized + ToOwned + fmt::Debug,
-    T::Owned: fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("DiffSegment")
-            .field("value", &self.value)
-            .field("tag", &self.tag)
-            .finish()
-    }
-}
+pub type Diff<T> = Vec<DiffSegment<T>>;
 
-pub type Diff<'a, T> = Vec<DiffSegment<'a, T>>;
-
-pub trait Diffable<'a> {
+pub trait Diffable {
     type Other: ?Sized;
+    type Segment;
 
-    type Segment: ?Sized + ToOwned;
-
-    fn diff<Q>(&'a self, other: &'a Q) -> Diff<'a, Self::Segment>
+    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
     where
         Q: Borrow<Self::Other>;
 }
 
-impl<'a> Diffable<'a> for str {
+impl Diffable for str {
     type Other = str;
+    type Segment = String;
 
-    type Segment = str;
-
-    fn diff<Q>(&'a self, other: &'a Q) -> Diff<'a, Self::Segment>
+    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
     where
         Q: Borrow<Self::Other>,
     {
@@ -81,7 +62,7 @@ impl<'a> Diffable<'a> for str {
         text_diff
             .iter_all_changes()
             .map(|change| DiffSegment {
-                value: change.to_string_lossy(),
+                value: change.to_string_lossy().into_owned(),
                 tag: match change.tag() {
                     ChangeTag::Insert => DiffTag::Insert,
                     ChangeTag::Delete => DiffTag::Delete,
@@ -92,11 +73,11 @@ impl<'a> Diffable<'a> for str {
     }
 }
 
-impl<'a> Diffable<'a> for String {
+impl Diffable for String {
     type Other = str;
-    type Segment = str;
+    type Segment = String;
 
-    fn diff<Q>(&'a self, other: &'a Q) -> Diff<'a, Self::Segment>
+    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
     where
         Q: Borrow<Self::Other>,
     {
@@ -104,11 +85,11 @@ impl<'a> Diffable<'a> for String {
     }
 }
 
-impl<'a> Diffable<'a> for Cow<'a, str> {
+impl<'a> Diffable for Cow<'a, str> {
     type Other = str;
-    type Segment = str;
+    type Segment = String;
 
-    fn diff<Q>(&'a self, other: &'a Q) -> Diff<'a, Self::Segment>
+    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
     where
         Q: Borrow<Self::Other>,
     {
@@ -116,14 +97,14 @@ impl<'a> Diffable<'a> for Cow<'a, str> {
     }
 }
 
-impl<'a, T> Diffable<'a> for [T]
+impl<T> Diffable for [T]
 where
     T: Clone + Hash + Ord,
 {
     type Other = [T];
     type Segment = T;
 
-    fn diff<Q>(&'a self, other: &'a Q) -> Diff<'a, Self::Segment>
+    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
     where
         Q: Borrow<Self::Other>,
     {
@@ -131,21 +112,21 @@ where
             .into_iter()
             .flat_map(|op| op.iter_changes(self, other.borrow()))
             .map(|change| DiffSegment {
-                value: Cow::Owned(change.value()),
+                value: change.value(),
                 tag: DiffTag::from_similar(change.tag()),
             })
             .collect()
     }
 }
 
-impl<'a, T> Diffable<'a> for Vec<T>
+impl<T> Diffable for Vec<T>
 where
     T: Clone + Hash + Ord,
 {
     type Other = [T];
     type Segment = T;
 
-    fn diff<Q>(&'a self, other: &'a Q) -> Diff<'a, Self::Segment>
+    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
     where
         Q: Borrow<Self::Other>,
     {
