@@ -10,13 +10,13 @@ use crate::core::Match;
 const DIFF_ALGORITHM: similar::Algorithm = similar::Algorithm::Patience;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum DiffTag {
+pub enum DiffKind {
     Insert,
     Delete,
     Equal,
 }
 
-impl DiffTag {
+impl DiffKind {
     fn from_similar(tag: ChangeTag) -> Self {
         match tag {
             ChangeTag::Equal => Self::Equal,
@@ -29,7 +29,7 @@ impl DiffTag {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DiffSegment<T> {
     pub value: T,
-    pub tag: DiffTag,
+    pub kind: DiffKind,
 }
 
 pub type Diff<T> = Vec<DiffSegment<T>>;
@@ -65,10 +65,10 @@ impl Diffable for str {
             .iter_all_changes()
             .map(|change| DiffSegment {
                 value: change.to_string_lossy().into_owned(),
-                tag: match change.tag() {
-                    ChangeTag::Insert => DiffTag::Insert,
-                    ChangeTag::Delete => DiffTag::Delete,
-                    ChangeTag::Equal => DiffTag::Equal,
+                kind: match change.tag() {
+                    ChangeTag::Insert => DiffKind::Insert,
+                    ChangeTag::Delete => DiffKind::Delete,
+                    ChangeTag::Equal => DiffKind::Equal,
                 },
             })
             .collect()
@@ -115,7 +115,7 @@ where
             .flat_map(|op| op.iter_changes(self, other.borrow()))
             .map(|change| DiffSegment {
                 value: change.value(),
-                tag: DiffTag::from_similar(change.tag()),
+                kind: DiffKind::from_similar(change.tag()),
             })
             .collect()
     }
