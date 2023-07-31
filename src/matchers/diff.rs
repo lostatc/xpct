@@ -2,6 +2,7 @@
 
 use std::borrow::{Borrow, Cow};
 use std::hash::Hash;
+use std::marker::PhantomData;
 
 use similar::{capture_diff_slices, ChangeTag, TextDiff};
 
@@ -17,7 +18,7 @@ pub enum DiffKind {
 }
 
 impl DiffKind {
-    fn from_similar(tag: ChangeTag) -> Self {
+    fn from_tag(tag: ChangeTag) -> Self {
         match tag {
             ChangeTag::Equal => Self::Equal,
             ChangeTag::Delete => Self::Delete,
@@ -27,18 +28,37 @@ impl DiffKind {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct DiffSegment<T> {
-    pub value: T,
-    pub kind: DiffKind,
+pub struct DiffSegment<Diffable: ?Sized, Segment> {
+    value: Segment,
+    kind: DiffKind,
+    marker: PhantomData<Diffable>,
 }
 
-pub type Diff<T> = Vec<DiffSegment<T>>;
+impl<Diffable: ?Sized, Segment> DiffSegment<Diffable, Segment> {
+    pub fn new(value: Segment, kind: DiffKind) -> Self {
+        Self {
+            value,
+            kind,
+            marker: PhantomData,
+        }
+    }
+
+    pub fn value(&self) -> &Segment {
+        &self.value
+    }
+
+    pub fn kind(&self) -> DiffKind {
+        self.kind
+    }
+}
+
+pub type Diff<Diffable, Segment> = Vec<DiffSegment<Diffable, Segment>>;
 
 pub trait Diffable {
     type Other: ?Sized;
     type Segment;
 
-    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
+    fn diff<Q>(&self, other: &Q) -> Diff<Self::Other, Self::Segment>
     where
         Q: Borrow<Self::Other>;
 }
@@ -47,7 +67,7 @@ impl Diffable for str {
     type Other = str;
     type Segment = String;
 
-    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
+    fn diff<Q>(&self, other: &Q) -> Diff<Self::Other, Self::Segment>
     where
         Q: Borrow<Self::Other>,
     {
@@ -63,13 +83,15 @@ impl Diffable for str {
 
         text_diff
             .iter_all_changes()
-            .map(|change| DiffSegment {
-                value: change.to_string_lossy().into_owned(),
-                kind: match change.tag() {
-                    ChangeTag::Insert => DiffKind::Insert,
-                    ChangeTag::Delete => DiffKind::Delete,
-                    ChangeTag::Equal => DiffKind::Equal,
-                },
+            .map(|change| {
+                DiffSegment::new(
+                    change.to_string_lossy().into_owned(),
+                    match change.tag() {
+                        ChangeTag::Insert => DiffKind::Insert,
+                        ChangeTag::Delete => DiffKind::Delete,
+                        ChangeTag::Equal => DiffKind::Equal,
+                    },
+                )
             })
             .collect()
     }
@@ -79,7 +101,7 @@ impl Diffable for String {
     type Other = str;
     type Segment = String;
 
-    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
+    fn diff<Q>(&self, other: &Q) -> Diff<Self::Other, Self::Segment>
     where
         Q: Borrow<Self::Other>,
     {
@@ -91,7 +113,7 @@ impl<'a> Diffable for Cow<'a, str> {
     type Other = str;
     type Segment = String;
 
-    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
+    fn diff<Q>(&self, other: &Q) -> Diff<Self::Other, Self::Segment>
     where
         Q: Borrow<Self::Other>,
     {
@@ -106,17 +128,14 @@ where
     type Other = [T];
     type Segment = T;
 
-    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
+    fn diff<Q>(&self, other: &Q) -> Diff<Self::Other, Self::Segment>
     where
         Q: Borrow<Self::Other>,
     {
         capture_diff_slices(DIFF_ALGORITHM, self, other.borrow())
             .into_iter()
             .flat_map(|op| op.iter_changes(self, other.borrow()))
-            .map(|change| DiffSegment {
-                value: change.value(),
-                kind: DiffKind::from_similar(change.tag()),
-            })
+            .map(|change| DiffSegment::new(change.value(), DiffKind::from_tag(change.tag())))
             .collect()
     }
 }
@@ -128,7 +147,7 @@ where
     type Other = [T];
     type Segment = T;
 
-    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
+    fn diff<Q>(&self, other: &Q) -> Diff<Self::Other, Self::Segment>
     where
         Q: Borrow<Self::Other>,
     {
@@ -155,7 +174,7 @@ impl<Expected, Actual> Match<Actual> for DiffEqualMatcher<Expected>
 where
     Actual: PartialEq<Expected> + Eq + Diffable<Other = Expected>,
 {
-    type Fail = Diff<Actual::Segment>;
+    type Fail = Diff<Expected, Actual::Segment>;
 
     fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {
         Ok(actual == &self.expected)
