@@ -22,6 +22,17 @@ additional dependencies.
 
 Enables the [`eq_casefold`] matcher, which requires additional dependencies.
 
+## `diff`
+
+Enables the [`diff_eq`] matcher, which requires additional dependencies.
+
+## `unicode-diff`
+
+Changes the behavior of [`diff_eq`] to diff strings by grapheme instead of by
+character, which requires additional dependencies.
+
+This implies `diff`.
+
 ## `color` *(default)*
 
 Enable colors and text styles in the output. This is enabled by default.
@@ -52,6 +63,7 @@ disabled, the flags for it are hidden in docs.rs to reduce noise.
 [`approx_eq_f32`]: crate::approx_eq_f32
 [`approx_eq_f64`]: crate::approx_eq_f64
 [`eq_casefold`]: crate::eq_casefold
+[`diff_eq`]: crate::diff_eq
 [`equal`]: crate::equal
 [`be_some`]: crate::be_some
 [`Formatter::set_style`]: crate::core::Formatter::set_style
