@@ -172,15 +172,16 @@ impl<Expected> DiffEqualMatcher<Expected> {
 
 impl<Expected, Actual> Match<Actual> for DiffEqualMatcher<Expected>
 where
-    Actual: PartialEq<Expected> + Eq + Diffable<Other = Expected>,
+    Actual: PartialEq<Expected> + Eq,
+    Expected: Diffable<Other = Actual>,
 {
-    type Fail = Diff<Expected, Actual::Segment>;
+    type Fail = Diff<Actual, Expected::Segment>;
 
     fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {
         Ok(actual == &self.expected)
     }
 
     fn fail(self, actual: Actual) -> Self::Fail {
-        actual.diff(&self.expected)
+        self.expected.diff(&actual)
     }
 }
