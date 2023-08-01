@@ -127,7 +127,7 @@ impl<Actual, Expected> DiffFormat<Actual, Expected> {
 impl<Actual, Expected> Format for DiffFormat<Actual, Expected>
 where
     Actual: fmt::Debug,
-    Expected: Diffable<Other = Actual> + fmt::Debug,
+    Expected: Diffable<Actual> + fmt::Debug,
 {
     type Value = MatchFailure<Diff<Expected::Segment>>;
 
@@ -173,7 +173,7 @@ where
 pub fn eq_diff<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + PartialEq<Expected> + Eq + 'a,
-    Expected: Diffable<Other = Actual> + fmt::Debug + 'a,
+    Expected: Diffable<Actual> + fmt::Debug + 'a,
 {
     Matcher::new(
         EqDiffMatcher::new(expected),

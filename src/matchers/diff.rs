@@ -1,6 +1,6 @@
 #![cfg(feature = "diff")]
 
-use std::borrow::{Borrow, Cow};
+use std::borrow::Borrow;
 use std::fmt;
 use std::hash::Hash;
 
@@ -91,10 +91,7 @@ pub type Diff<Segment> = Vec<DiffSegment<Segment>>;
 /// A value which can be diffed against another value.
 ///
 /// Diffing two values produces a [`Diff`], which consists of a list of [`DiffSegment`]s.
-pub trait Diffable {
-    /// The value to be diffed against.
-    type Other: ?Sized;
-
+pub trait Diffable<Other> {
     /// The unit that diffs are broken up into.
     ///
     /// A diff consists of a list of segments that each represent an addition, a deletion, or no
@@ -116,9 +113,7 @@ pub trait Diffable {
     const KIND: &'static str;
 
     /// Generate a diff of this value and `other`.
-    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
-    where
-        Q: Borrow<Self::Other>;
+    fn diff(&self, other: Other) -> Diff<Self::Segment>;
 
     /// The string representation of the value to use in the diff output.
     ///
@@ -129,20 +124,16 @@ pub trait Diffable {
     fn repr(segment: &Self::Segment) -> String;
 }
 
-impl Diffable for str {
-    type Other = str;
+impl<'a> Diffable<&'a str> for &'a str {
     type Segment = String;
 
     const KIND: &'static str = STRING_DIFF_KIND;
 
-    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
-    where
-        Q: Borrow<Self::Other>,
-    {
+    fn diff(&self, other: &'a str) -> Diff<Self::Segment> {
         #[cfg(feature = "unicode-diff")]
         let text_diff = TextDiff::configure()
             .algorithm(DIFF_ALGORITHM)
-            .diff_graphemes(self, other.borrow());
+            .diff_graphemes(*self, other);
 
         #[cfg(not(feature = "unicode-diff"))]
         let text_diff = TextDiff::configure()
@@ -164,85 +155,24 @@ impl Diffable for str {
     }
 }
 
-impl Diffable for String {
-    type Other = str;
-    type Segment = String;
-
-    const KIND: &'static str = STRING_DIFF_KIND;
-
-    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
-    where
-        Q: Borrow<Self::Other>,
-    {
-        self.as_str().diff(other)
-    }
-
-    fn repr(segment: &Self::Segment) -> String {
-        <str as Diffable>::repr(segment)
-    }
-}
-
-impl<'a> Diffable for Cow<'a, str> {
-    type Other = str;
-    type Segment = String;
-
-    const KIND: &'static str = STRING_DIFF_KIND;
-
-    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
-    where
-        Q: Borrow<Self::Other>,
-    {
-        self.as_ref().diff(other)
-    }
-
-    fn repr(segment: &Self::Segment) -> String {
-        <str as Diffable>::repr(segment)
-    }
-}
-
-impl<T> Diffable for [T]
+impl<'a, T> Diffable<&'a [T]> for &'a [T]
 where
     T: Clone + Hash + Ord + fmt::Debug,
 {
-    type Other = [T];
     type Segment = T;
 
     const KIND: &'static str = SLICE_DIFF_KIND;
 
-    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
-    where
-        Q: Borrow<Self::Other>,
-    {
-        capture_diff_slices(DIFF_ALGORITHM, self, other.borrow())
+    fn diff(&self, other: &'a [T]) -> Diff<Self::Segment> {
+        capture_diff_slices(DIFF_ALGORITHM, self, other)
             .into_iter()
-            .flat_map(|op| op.iter_changes(self, other.borrow()))
+            .flat_map(|op| op.iter_changes(*self, other))
             .map(|change| DiffSegment::new(change.value(), DiffTag::from_tag(change.tag())))
             .collect()
     }
 
     fn repr(segment: &Self::Segment) -> String {
         format!("{:?}", segment)
-    }
-}
-
-impl<T> Diffable for Vec<T>
-where
-    T: Clone + Hash + Ord + fmt::Debug,
-{
-    type Other = [T];
-    type Segment = T;
-
-    const KIND: &'static str = SLICE_DIFF_KIND;
-
-    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
-    where
-        Q: Borrow<Self::Other>,
-    {
-        self.as_slice().diff(other)
-    }
-
-    fn repr(segment: &Self::Segment) -> String {
-        <[T] as Diffable>::repr(segment)
     }
 }
 
@@ -264,7 +194,7 @@ impl<Expected> EqDiffMatcher<Expected> {
 impl<Expected, Actual> Match<Actual> for EqDiffMatcher<Expected>
 where
     Actual: PartialEq<Expected> + Eq,
-    Expected: Diffable<Other = Actual>,
+    Expected: Diffable<Actual>,
 {
     type Fail = Diff<Expected::Segment>;
 
@@ -273,6 +203,6 @@ where
     }
 
     fn fail(self, actual: Actual) -> Self::Fail {
-        self.expected.diff(&actual)
+        self.expected.diff(actual)
     }
 }
