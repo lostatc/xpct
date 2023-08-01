@@ -18,6 +18,7 @@ mod boolean;
 mod casefold;
 mod contain;
 mod default;
+mod diff;
 mod each;
 mod elements;
 mod equal;
@@ -49,6 +50,9 @@ pub use not::FailureFormat;
 pub use option::ExpectationFormat;
 pub use why::WhyFormat;
 
+#[cfg(feature = "diff")]
+pub use diff::{DiffFormat, DiffSegmentStyle, DiffStyle, SliceDiffStyle, StringDiffStyle};
+
 pub(crate) mod matchers {
     pub use super::all::all;
     pub use super::any::any;
@@ -72,6 +76,9 @@ pub(crate) mod matchers {
     pub use super::time::approx_eq_time;
     pub use super::why::{why, why_lazy};
     pub use super::zero::be_zero;
+
+    #[cfg(feature = "diff")]
+    pub use super::diff::eq_diff;
 
     #[cfg(feature = "casefold")]
     pub use super::casefold::eq_casefold;
