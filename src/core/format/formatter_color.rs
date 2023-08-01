@@ -38,6 +38,23 @@ impl Formatter {
         }
     }
 
+    fn into_segments(self) -> Vec<OutputSegment> {
+        let mut segments = self.prev;
+        segments.push(self.current);
+        segments
+    }
+
+    fn push_segments(&mut self, segments: Vec<OutputSegment>) {
+        let new_current = OutputSegment {
+            buf: String::new(),
+            style: self.current.style.clone(),
+        };
+
+        self.prev
+            .push(std::mem::replace(&mut self.current, new_current));
+        self.prev.extend(segments);
+    }
+
     /// Write a string to the output.
     pub fn write_str(&mut self, s: impl AsRef<str>) {
         self.current.buf.push_str(s.as_ref());
@@ -60,13 +77,34 @@ impl Formatter {
     /// [`SomeFailuresFormat`]: crate::format::SomeFailuresFormat
     pub fn write_fmt(&mut self, output: impl Into<FormattedOutput>) {
         let formatted = output.into();
-        let new_current = OutputSegment {
-            buf: String::new(),
-            style: self.current.style.clone(),
-        };
-        self.prev
-            .push(std::mem::replace(&mut self.current, new_current));
-        self.prev.extend(formatted.segments);
+        self.push_segments(formatted.segments)
+    }
+
+    /// Write some indented text to the output.
+    ///
+    /// Anything written to the [`Formatter`] passed to `func` is indented by the given number of
+    /// `spaces`.
+    ///
+    /// The current [`style`] is inherited by the [`Formatter`] passed to `func`.
+    ///
+    /// [`style`]: crate::core::Formatter::style
+    pub fn indented(
+        &mut self,
+        spaces: u32,
+        func: impl FnOnce(&mut Formatter) -> crate::Result<()>,
+    ) -> crate::Result<()> {
+        let mut formatter = Self::new();
+        formatter.current.style = self.current.style.clone();
+
+        func(&mut formatter)?;
+
+        let segments = formatter.into_segments();
+        let output = FormattedOutput { segments };
+
+        let indented = output.indented(spaces);
+        self.push_segments(indented.segments);
+
+        Ok(())
     }
 
     /// Get the current [`OutputStyle`].
@@ -113,9 +151,9 @@ impl FormattedOutput {
     {
         let mut formatter = Formatter::new();
         format.fmt(&mut formatter, value)?;
-        let mut segments = formatter.prev;
-        segments.push(formatter.current);
-        Ok(Self { segments })
+        Ok(Self {
+            segments: formatter.into_segments(),
+        })
     }
 
     fn indented_inner(self, spaces: u32, hanging: bool) -> Self {

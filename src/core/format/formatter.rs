@@ -35,6 +35,22 @@ impl Formatter {
         self.buf.push_str(&output.into().buf);
     }
 
+    pub fn indented(
+        &mut self,
+        spaces: u32,
+        func: impl FnOnce(&mut Formatter) -> crate::Result<()>,
+    ) -> crate::Result<()> {
+        let mut formatter = Self::new();
+        func(&mut formatter)?;
+
+        let output = FormattedOutput { buf: formatter.buf };
+
+        let indented = output.indented(spaces);
+        self.buf.push_str(&indented.buf);
+
+        Ok(())
+    }
+
     pub fn style(&self) -> &OutputStyle {
         &self.style
     }
