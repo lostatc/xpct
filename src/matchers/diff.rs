@@ -4,6 +4,7 @@ use std::borrow::{Borrow, Cow};
 use std::hash::Hash;
 use std::marker::PhantomData;
 
+use similar::utils::TextDiffRemapper;
 use similar::{capture_diff_slices, ChangeTag, TextDiff};
 
 use crate::core::Match;
@@ -146,18 +147,13 @@ impl Diffable for str {
             .algorithm(DIFF_ALGORITHM)
             .diff_chars(self, other);
 
+        let remapper = TextDiffRemapper::from_text_diff(&text_diff, self, other.borrow());
+
         text_diff
-            .iter_all_changes()
-            .map(|change| {
-                DiffSegment::new(
-                    change.to_string_lossy().into_owned(),
-                    match change.tag() {
-                        ChangeTag::Insert => DiffTag::Insert,
-                        ChangeTag::Delete => DiffTag::Delete,
-                        ChangeTag::Equal => DiffTag::Equal,
-                    },
-                )
-            })
+            .ops()
+            .iter()
+            .flat_map(move |op| remapper.iter_slices(op))
+            .map(|(tag, slice)| DiffSegment::new(slice.to_owned(), DiffTag::from_tag(tag)))
             .collect()
     }
 }
