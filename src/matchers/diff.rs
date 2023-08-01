@@ -11,13 +11,13 @@ use crate::core::Match;
 const DIFF_ALGORITHM: similar::Algorithm = similar::Algorithm::Patience;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum DiffKind {
+pub enum DiffTag {
     Insert,
     Delete,
     Equal,
 }
 
-impl DiffKind {
+impl DiffTag {
     fn from_tag(tag: ChangeTag) -> Self {
         match tag {
             ChangeTag::Equal => Self::Equal,
@@ -30,15 +30,15 @@ impl DiffKind {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DiffSegment<Diffable: ?Sized, Segment> {
     value: Segment,
-    kind: DiffKind,
+    tag: DiffTag,
     marker: PhantomData<Diffable>,
 }
 
 impl<Diffable: ?Sized, Segment> DiffSegment<Diffable, Segment> {
-    pub fn new(value: Segment, kind: DiffKind) -> Self {
+    pub fn new(value: Segment, kind: DiffTag) -> Self {
         Self {
             value,
-            kind,
+            tag: kind,
             marker: PhantomData,
         }
     }
@@ -47,8 +47,8 @@ impl<Diffable: ?Sized, Segment> DiffSegment<Diffable, Segment> {
         &self.value
     }
 
-    pub fn kind(&self) -> DiffKind {
-        self.kind
+    pub fn tag(&self) -> DiffTag {
+        self.tag
     }
 }
 
@@ -87,9 +87,9 @@ impl Diffable for str {
                 DiffSegment::new(
                     change.to_string_lossy().into_owned(),
                     match change.tag() {
-                        ChangeTag::Insert => DiffKind::Insert,
-                        ChangeTag::Delete => DiffKind::Delete,
-                        ChangeTag::Equal => DiffKind::Equal,
+                        ChangeTag::Insert => DiffTag::Insert,
+                        ChangeTag::Delete => DiffTag::Delete,
+                        ChangeTag::Equal => DiffTag::Equal,
                     },
                 )
             })
@@ -135,7 +135,7 @@ where
         capture_diff_slices(DIFF_ALGORITHM, self, other.borrow())
             .into_iter()
             .flat_map(|op| op.iter_changes(self, other.borrow()))
-            .map(|change| DiffSegment::new(change.value(), DiffKind::from_tag(change.tag())))
+            .map(|change| DiffSegment::new(change.value(), DiffTag::from_tag(change.tag())))
             .collect()
     }
 }
