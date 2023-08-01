@@ -60,7 +60,11 @@ where
         match value {
             MatchFailure::Pos(expectation) => {
                 f.set_style(style::bad());
-                f.write_str(format!("{}{:?}\n", style::indent(1), expectation.actual));
+                f.indented(style::INDENT_LEN, |inner_f| {
+                    inner_f.write_str(format!("{:?}", expectation.actual));
+                    Ok(())
+                })?;
+                f.write_char('\n');
 
                 f.set_style(style::important());
                 f.write_str(self.pos_msg);
@@ -68,7 +72,11 @@ where
             }
             MatchFailure::Neg(expectation) => {
                 f.set_style(style::bad());
-                f.write_str(format!("{}{:?}\n", style::indent(1), expectation.actual));
+                f.indented(style::INDENT_LEN, |inner_f| {
+                    inner_f.write_str(format!("{:?}", expectation.actual));
+                    Ok(())
+                })?;
+                f.write_char('\n');
 
                 f.set_style(style::important());
                 f.write_str(self.neg_msg);

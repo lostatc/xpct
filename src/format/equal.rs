@@ -59,28 +59,44 @@ where
                 f.write_str("Expected:\n");
 
                 f.set_style(style::bad());
-                f.write_str(format!("{}{:?}\n", style::indent(1), mismatch.actual));
+                f.indented(style::INDENT_LEN, |inner_f| {
+                    inner_f.write_str(format!("{:?}", mismatch.actual));
+                    Ok(())
+                })?;
+                f.write_char('\n');
 
                 f.set_style(style::important());
                 f.write_str(self.pos_msg);
                 f.write_str(":\n");
 
                 f.set_style(style::bad());
-                f.write_str(format!("{}{:?}\n", style::indent(1), mismatch.expected));
+                f.indented(style::INDENT_LEN, |inner_f| {
+                    inner_f.write_str(format!("{:?}", mismatch.expected));
+                    Ok(())
+                })?;
+                f.write_char('\n');
             }
             MatchFailure::Neg(mismatch) => {
                 f.set_style(style::important());
                 f.write_str("Expected:\n");
 
                 f.set_style(style::bad());
-                f.write_str(format!("{}{:?}\n", style::indent(1), mismatch.actual));
+                f.indented(style::INDENT_LEN, |inner_f| {
+                    inner_f.write_str(format!("{:?}", mismatch.actual));
+                    Ok(())
+                })?;
+                f.write_char('\n');
 
                 f.set_style(style::important());
                 f.write_str(self.neg_msg);
                 f.write_str(":\n");
 
                 f.set_style(style::bad());
-                f.write_str(format!("{}{:?}\n", style::indent(1), mismatch.expected));
+                f.indented(style::INDENT_LEN, |inner_f| {
+                    inner_f.write_str(format!("{:?}", mismatch.expected));
+                    Ok(())
+                })?;
+                f.write_char('\n');
             }
         };
 
