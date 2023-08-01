@@ -2,7 +2,6 @@
 
 use std::borrow::{Borrow, Cow};
 use std::hash::Hash;
-use std::marker::PhantomData;
 
 use similar::utils::TextDiffRemapper;
 use similar::{capture_diff_slices, ChangeTag, TextDiff};
@@ -11,17 +10,15 @@ use crate::core::Match;
 
 const DIFF_ALGORITHM: similar::Algorithm = similar::Algorithm::Patience;
 
-/// A [`Diffable::Kind`] for strings.
+/// A [`Diffable::KIND`] for strings.
 ///
-/// [`Diffable::Kind`]: crate::matchers::Diffable::Kind
-#[derive(Debug)]
-pub enum StringDiffKind {}
+/// [`Diffable::KIND`]: crate::matchers::Diffable::KIND
+pub const STRING_DIFF_KIND: &str = "string";
 
-/// A [`Diffable::Kind`] for slices.
+/// A [`Diffable::KIND`] for slices.
 ///
-/// [`Diffable::Kind`]: crate::matchers::Diffable::Kind
-#[derive(Debug)]
-pub enum SliceDiffKind {}
+/// [`Diffable::KIND`]: crate::matchers::Diffable::KIND
+pub const SLICE_DIFF_KIND: &str = "slice";
 
 /// Whether a [`DiffSegment`] represents an insertion, deletion, or no change.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -56,27 +53,22 @@ impl DiffTag {
 ///
 /// The "something" that was added, removed, or unchanged in the diff is returned by [`value`].
 ///
-/// A diff segment is generic over its `Kind` and `Value`. The `Kind` maps to [`Diffable::Kind`] and
-/// the `Value` maps to [`Diffable::Segment`]. See [`Diffable`] for more information.
+/// A diff segment is generic over its `Value`, which maps to [`Diffable::Segment`].
+///
+/// See [`Diffable`] for more information.
 ///
 /// [`value`]: crate::matchers::DiffSegment::value
-/// [`Diffable::Kind`]: crate::matchers::Diffable::Kind
 /// [`Diffable::Segment`]: crate::matchers::Diffable::Segment
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct DiffSegment<Kind, Value> {
+pub struct DiffSegment<Value> {
     value: Value,
     tag: DiffTag,
-    kind: PhantomData<Kind>,
 }
 
-impl<Kind, Value> DiffSegment<Kind, Value> {
+impl<Value> DiffSegment<Value> {
     /// Create a new [`DiffSegment`] from a value and a tag.
     pub fn new(value: Value, tag: DiffTag) -> Self {
-        Self {
-            value,
-            tag,
-            kind: PhantomData,
-        }
+        Self { value, tag }
     }
 
     /// Return the value of this segment.
@@ -93,23 +85,12 @@ impl<Kind, Value> DiffSegment<Kind, Value> {
 /// A diff between an actual and expected value.
 ///
 /// You can generate a [`Diff`] from any type which implements [`Diffable`].
-pub type Diff<Kind, Segment> = Vec<DiffSegment<Kind, Segment>>;
+pub type Diff<Segment> = Vec<DiffSegment<Segment>>;
 
 /// A value which can be diffed against another value.
 ///
 /// Diffing two values produces a [`Diff`], which consists of a list of [`DiffSegment`]s.
 pub trait Diffable {
-    /// A discriminant that represents how this diffable should be formatted.
-    ///
-    /// Making a [`Diffable`] generic over its `Kind` allows [formatters][crate::core::Format] to
-    /// represent different kinds of diffable values differently. For example, a diff of two strings
-    /// should be formatted differently from a diff of two vectors of strings.
-    ///
-    /// The `Kind` doesn't need to have a value. A zero-variant enum works fine for this.
-    ///
-    /// [`StringDiffKind`] and [`SliceDiffKind`] are two examples of provided diff kinds.
-    type Kind;
-
     /// The value to be diffed against.
     type Other: ?Sized;
 
@@ -122,18 +103,30 @@ pub trait Diffable {
     /// `Segment` could be `char` or `str`.
     type Segment;
 
+    /// A discriminant that represents how this diffable should be formatted.
+    ///
+    /// This value allows [formatters][crate::core::Format] to represent different kinds of diffable
+    /// values differently. For example, a diff of two strings should be formatted differently from
+    /// a diff of two vectors of strings, even if they both have a [`Segment`] of type `String`.
+    ///
+    /// [`STRING_DIFF_KIND`] and [`SLICE_DIFF_KIND`] are two examples of provided diff kinds.
+    ///
+    /// [`Segment`]: crate::matchers::Diffable::Segment
+    const KIND: &'static str;
+
     /// Generate a diff of this value and `other`.
-    fn diff<Q>(&self, other: &Q) -> Diff<Self::Kind, Self::Segment>
+    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
     where
         Q: Borrow<Self::Other>;
 }
 
 impl Diffable for str {
-    type Kind = StringDiffKind;
     type Other = str;
     type Segment = String;
 
-    fn diff<Q>(&self, other: &Q) -> Diff<Self::Kind, Self::Segment>
+    const KIND: &'static str = STRING_DIFF_KIND;
+
+    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
     where
         Q: Borrow<Self::Other>,
     {
@@ -159,11 +152,12 @@ impl Diffable for str {
 }
 
 impl Diffable for String {
-    type Kind = StringDiffKind;
     type Other = str;
     type Segment = String;
 
-    fn diff<Q>(&self, other: &Q) -> Diff<Self::Kind, Self::Segment>
+    const KIND: &'static str = STRING_DIFF_KIND;
+
+    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
     where
         Q: Borrow<Self::Other>,
     {
@@ -172,11 +166,12 @@ impl Diffable for String {
 }
 
 impl<'a> Diffable for Cow<'a, str> {
-    type Kind = StringDiffKind;
     type Other = str;
     type Segment = String;
 
-    fn diff<Q>(&self, other: &Q) -> Diff<Self::Kind, Self::Segment>
+    const KIND: &'static str = STRING_DIFF_KIND;
+
+    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
     where
         Q: Borrow<Self::Other>,
     {
@@ -188,11 +183,12 @@ impl<T> Diffable for [T]
 where
     T: Clone + Hash + Ord,
 {
-    type Kind = SliceDiffKind;
     type Other = [T];
     type Segment = T;
 
-    fn diff<Q>(&self, other: &Q) -> Diff<Self::Kind, Self::Segment>
+    const KIND: &'static str = SLICE_DIFF_KIND;
+
+    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
     where
         Q: Borrow<Self::Other>,
     {
@@ -208,11 +204,12 @@ impl<T> Diffable for Vec<T>
 where
     T: Clone + Hash + Ord,
 {
-    type Kind = SliceDiffKind;
     type Other = [T];
     type Segment = T;
 
-    fn diff<Q>(&self, other: &Q) -> Diff<Self::Kind, Self::Segment>
+    const KIND: &'static str = SLICE_DIFF_KIND;
+
+    fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
     where
         Q: Borrow<Self::Other>,
     {
@@ -240,7 +237,7 @@ where
     Actual: PartialEq<Expected> + Eq,
     Expected: Diffable<Other = Actual>,
 {
-    type Fail = Diff<Expected::Kind, Expected::Segment>;
+    type Fail = Diff<Expected::Segment>;
 
     fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {
         Ok(actual == &self.expected)
