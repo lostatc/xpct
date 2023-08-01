@@ -10,16 +10,28 @@ use crate::core::Match;
 
 const DIFF_ALGORITHM: similar::Algorithm = similar::Algorithm::Patience;
 
+/// A [`Diffable::Kind`] for strings.
+///
+/// [`Diffable::Kind`]: crate::matchers::Diffable::Kind
 #[derive(Debug)]
 pub enum StringDiffKind {}
 
+/// A [`Diffable::Kind`] for slices.
+///
+/// [`Diffable::Kind`]: crate::matchers::Diffable::Kind
 #[derive(Debug)]
 pub enum SliceDiffKind {}
 
+/// Whether a [`DiffSegment`] represents an insertion, deletion, or no change.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum DiffTag {
+    /// The segment is in the actual value but not the expected value.
     Insert,
+
+    /// The segment is in the expected value but not the actual value.
     Delete,
+
+    /// The segment is the same in both the actual and expected values.
     Equal,
 }
 
@@ -33,38 +45,83 @@ impl DiffTag {
     }
 }
 
+/// A contiguous span in a diff.
+///
+/// A [`Diff`] consists of a list of segments. Each segment represents either:
+///
+/// 1. Something that is in the actual value but not the expected value (an insertion).
+/// 2. Something that is in the expected value but not the actual value (a deletion).
+/// 3. Something that is the same between the two values.
+///
+/// The "something" that was added, removed, or unchanged in the diff is returned by [`value`].
+///
+/// A diff segment is generic over its `Kind` and `Value`. The `Kind` maps to [`Diffable::Kind`] and
+/// the `Value` maps to [`Diffable::Segment`]. See [`Diffable`] for more information.
+///
+/// [`value`]: crate::matchers::DiffSegment::value
+/// [`Diffable::Kind`]: crate::matchers::Diffable::Kind
+/// [`Diffable::Segment`]: crate::matchers::Diffable::Segment
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct DiffSegment<Kind, Segment> {
-    value: Segment,
+pub struct DiffSegment<Kind, Value> {
+    value: Value,
     tag: DiffTag,
     kind: PhantomData<Kind>,
 }
 
-impl<Kind, Segment> DiffSegment<Kind, Segment> {
-    pub fn new(value: Segment, kind: DiffTag) -> Self {
+impl<Kind, Value> DiffSegment<Kind, Value> {
+    /// Create a new [`DiffSegment`] from a value and a tag.
+    pub fn new(value: Value, tag: DiffTag) -> Self {
         Self {
             value,
-            tag: kind,
+            tag,
             kind: PhantomData,
         }
     }
 
-    pub fn value(&self) -> &Segment {
+    /// Return the value of this segment.
+    pub fn value(&self) -> &Value {
         &self.value
     }
 
+    /// Return whether this segment represents an insertion, a deletion, or no change.
     pub fn tag(&self) -> DiffTag {
         self.tag
     }
 }
 
+/// A diff between an actual and expected value.
+///
+/// You can generate a [`Diff`] from any type which implements [`Diffable`].
 pub type Diff<Kind, Segment> = Vec<DiffSegment<Kind, Segment>>;
 
+/// A value which can be diffed against another value.
+///
+/// Diffing two values produces a [`Diff`], which consists of a list of [`DiffSegment`]s.
 pub trait Diffable {
+    /// A discriminant that represents how this diffable should be formatted.
+    ///
+    /// Making a [`Diffable`] generic over its `Kind` allows [formatters][crate::core::Format] to
+    /// represent different kinds of diffable values differently. For example, a diff of two strings
+    /// should be formatted differently from a diff of two vectors of strings.
+    ///
+    /// The `Kind` doesn't need to have a value. A zero-variant enum works fine for this.
+    ///
+    /// [`StringDiffKind`] and [`SliceDiffKind`] are two examples of provided diff kinds.
     type Kind;
+
+    /// The value to be diffed against.
     type Other: ?Sized;
+
+    /// The unit that diffs are broken up into.
+    ///
+    /// A diff consists of a list of segments that each represent an addition, a deletion, or no
+    /// change. This type represents the segments that the diffable values should be broken up into.
+    ///
+    /// If you're diffing `Vec<T>`, the `Segment` could be `T`. If you're diffing strings, the
+    /// `Segment` could be `char` or `str`.
     type Segment;
 
+    /// Generate a diff of this value and `other`.
     fn diff<Q>(&self, other: &Q) -> Diff<Self::Kind, Self::Segment>
     where
         Q: Borrow<Self::Other>;
