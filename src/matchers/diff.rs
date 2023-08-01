@@ -1,6 +1,7 @@
 #![cfg(feature = "diff")]
 
 use std::borrow::{Borrow, Cow};
+use std::fmt;
 use std::hash::Hash;
 
 use similar::utils::TextDiffRemapper;
@@ -118,6 +119,14 @@ pub trait Diffable {
     fn diff<Q>(&self, other: &Q) -> Diff<Self::Segment>
     where
         Q: Borrow<Self::Other>;
+
+    /// The string representation of the value to use in the diff output.
+    ///
+    /// In practice, this will probably delegate to the type's [`Debug`] or [`Display`] impl.
+    ///
+    /// [`Debug`]: std::fmt::Debug
+    /// [`Display`]: std::fmt::Display
+    fn repr(segment: &Self::Segment) -> String;
 }
 
 impl Diffable for str {
@@ -149,6 +158,10 @@ impl Diffable for str {
             .map(|(tag, slice)| DiffSegment::new(slice.to_owned(), DiffTag::from_tag(tag)))
             .collect()
     }
+
+    fn repr(segment: &Self::Segment) -> String {
+        segment.to_string()
+    }
 }
 
 impl Diffable for String {
@@ -162,6 +175,10 @@ impl Diffable for String {
         Q: Borrow<Self::Other>,
     {
         self.as_str().diff(other)
+    }
+
+    fn repr(segment: &Self::Segment) -> String {
+        <str as Diffable>::repr(segment)
     }
 }
 
@@ -177,11 +194,15 @@ impl<'a> Diffable for Cow<'a, str> {
     {
         self.as_ref().diff(other)
     }
+
+    fn repr(segment: &Self::Segment) -> String {
+        <str as Diffable>::repr(segment)
+    }
 }
 
 impl<T> Diffable for [T]
 where
-    T: Clone + Hash + Ord,
+    T: Clone + Hash + Ord + fmt::Debug,
 {
     type Other = [T];
     type Segment = T;
@@ -198,11 +219,15 @@ where
             .map(|change| DiffSegment::new(change.value(), DiffTag::from_tag(change.tag())))
             .collect()
     }
+
+    fn repr(segment: &Self::Segment) -> String {
+        format!("{:?}", segment)
+    }
 }
 
 impl<T> Diffable for Vec<T>
 where
-    T: Clone + Hash + Ord,
+    T: Clone + Hash + Ord + fmt::Debug,
 {
     type Other = [T];
     type Segment = T;
@@ -214,6 +239,10 @@ where
         Q: Borrow<Self::Other>,
     {
         self.as_slice().diff(other)
+    }
+
+    fn repr(segment: &Self::Segment) -> String {
+        <[T] as Diffable>::repr(segment)
     }
 }
 
