@@ -224,18 +224,18 @@ where
 ///
 /// [`eq_diff`]: crate::eq_diff
 #[derive(Debug)]
-pub struct DiffEqualMatcher<Expected> {
+pub struct EqDiffMatcher<Expected> {
     expected: Expected,
 }
 
-impl<Expected> DiffEqualMatcher<Expected> {
-    /// Create a new [`DiffEqualMatcher`] from the expected value.
+impl<Expected> EqDiffMatcher<Expected> {
+    /// Create a new [`EqDiffMatcher`] from the expected value.
     pub fn new(expected: Expected) -> Self {
         Self { expected }
     }
 }
 
-impl<Expected, Actual> Match<Actual> for DiffEqualMatcher<Expected>
+impl<Expected, Actual> Match<Actual> for EqDiffMatcher<Expected>
 where
     Actual: PartialEq<Expected> + Eq,
     Expected: Diffable<Other = Actual>,

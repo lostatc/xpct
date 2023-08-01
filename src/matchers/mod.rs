@@ -39,7 +39,7 @@ pub use contain::{BeInMatcher, ConsistOfMatcher, ContainElementsMatcher, Contain
 pub use default::BeDefaultMatcher;
 #[cfg(feature = "diff")]
 pub use diff::{
-    Diff, DiffEqualMatcher, DiffSegment, DiffTag, Diffable, SliceDiffKind, StringDiffKind,
+    Diff, DiffSegment, DiffTag, Diffable, EqDiffMatcher, SliceDiffKind, StringDiffKind,
 };
 pub use elements::MatchElementsMatcher;
 pub use equal::{EqualMatcher, Mismatch};
