@@ -220,9 +220,9 @@ where
     }
 }
 
-/// The matcher for [`diff_eq`].
+/// The matcher for [`eq_diff`].
 ///
-/// [`diff_eq`]: crate::diff_eq
+/// [`eq_diff`]: crate::eq_diff
 #[derive(Debug)]
 pub struct DiffEqualMatcher<Expected> {
     expected: Expected,
