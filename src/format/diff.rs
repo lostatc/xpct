@@ -4,7 +4,8 @@ use std::fmt;
 use std::marker::PhantomData;
 
 use crate::core::{
-    style, Color, Format, Formatter, MatchFailure, Matcher, OutputStyle, TextColor, TextStyle,
+    strings, style, Color, Format, Formatter, MatchFailure, Matcher, OutputStyle, TextColor,
+    TextStyle,
 };
 use crate::matchers::{Diff, DiffTag, Diffable, EqDiffMatcher, SLICE_DIFF_KIND, STRING_DIFF_KIND};
 
@@ -20,14 +21,14 @@ pub struct DiffSegmentStyle<T> {
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct StringDiffStyle {
-    pub styles: DiffSegmentStyle<OutputStyle>,
+    pub style: DiffSegmentStyle<OutputStyle>,
     pub format: DiffSegmentStyle<String>,
 }
 
 impl Default for StringDiffStyle {
     fn default() -> Self {
         Self {
-            styles: DiffSegmentStyle {
+            style: DiffSegmentStyle {
                 insert: OutputStyle::default(),
                 delete: OutputStyle::default(),
                 equal: OutputStyle::default(),
@@ -44,22 +45,28 @@ impl Default for StringDiffStyle {
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct SliceDiffStyle {
-    pub styles: DiffSegmentStyle<OutputStyle>,
-    pub gutter: DiffSegmentStyle<char>,
+    pub element_style: DiffSegmentStyle<OutputStyle>,
+    pub gutter_char: DiffSegmentStyle<char>,
+    pub gutter_style: DiffSegmentStyle<OutputStyle>,
 }
 
 impl Default for SliceDiffStyle {
     fn default() -> Self {
         Self {
-            styles: DiffSegmentStyle {
+            element_style: DiffSegmentStyle {
                 insert: OutputStyle::default(),
                 delete: OutputStyle::default(),
                 equal: OutputStyle::default(),
             },
-            gutter: DiffSegmentStyle {
+            gutter_char: DiffSegmentStyle {
                 insert: ' ',
                 delete: ' ',
                 equal: ' ',
+            },
+            gutter_style: DiffSegmentStyle {
+                insert: OutputStyle::default(),
+                delete: OutputStyle::default(),
+                equal: OutputStyle::default(),
             },
         }
     }
@@ -73,39 +80,70 @@ pub struct DiffStyle {
 }
 
 fn default_style() -> DiffStyle {
-    let segment_style = DiffSegmentStyle {
-        insert: OutputStyle {
-            style: TextStyle::BOLD | TextStyle::REVERSED,
-            color: TextColor {
-                fg: Some(Color::BrightGreen),
-                bg: None,
-            },
-        },
-        delete: OutputStyle {
-            style: TextStyle::BOLD | TextStyle::UNDERLINE,
-            color: TextColor {
-                fg: Some(Color::BrightRed),
-                bg: None,
-            },
-        },
-        equal: OutputStyle::default(),
-    };
-
     DiffStyle {
         string: StringDiffStyle {
-            styles: segment_style.clone(),
+            style: DiffSegmentStyle {
+                insert: OutputStyle {
+                    style: TextStyle::BOLD | TextStyle::REVERSED,
+                    color: TextColor {
+                        fg: Some(Color::BrightGreen),
+                        bg: None,
+                    },
+                },
+                delete: OutputStyle {
+                    style: TextStyle::BOLD | TextStyle::UNDERLINE,
+                    color: TextColor {
+                        fg: Some(Color::BrightRed),
+                        bg: None,
+                    },
+                },
+                equal: OutputStyle::default(),
+            },
             format: DiffSegmentStyle {
-                insert: String::from("+[%s]"),
-                delete: String::from("-[%s]"),
+                insert: String::from("%s"),
+                delete: String::from("%s"),
                 equal: String::from("%s"),
             },
         },
         slice: SliceDiffStyle {
-            styles: segment_style,
-            gutter: DiffSegmentStyle {
+            element_style: DiffSegmentStyle {
+                insert: OutputStyle {
+                    style: TextStyle::BOLD,
+                    color: TextColor {
+                        fg: Some(Color::BrightGreen),
+                        bg: None,
+                    },
+                },
+                delete: OutputStyle {
+                    style: TextStyle::BOLD,
+                    color: TextColor {
+                        fg: Some(Color::BrightRed),
+                        bg: None,
+                    },
+                },
+                equal: OutputStyle::default(),
+            },
+            gutter_char: DiffSegmentStyle {
                 insert: '+',
                 delete: '-',
                 equal: ' ',
+            },
+            gutter_style: DiffSegmentStyle {
+                insert: OutputStyle {
+                    style: TextStyle::empty(),
+                    color: TextColor {
+                        fg: Some(Color::BrightGreen),
+                        bg: None,
+                    },
+                },
+                delete: OutputStyle {
+                    style: TextStyle::empty(),
+                    color: TextColor {
+                        fg: Some(Color::BrightRed),
+                        bg: None,
+                    },
+                },
+                equal: OutputStyle::default(),
             },
         },
     }
@@ -151,20 +189,20 @@ where
 
         match Expected::KIND {
             STRING_DIFF_KIND => {
-                f.indented(style::INDENT_LEN, |inner_f| {
+                f.indented(style::INDENT_LEN, |f| {
                     for segment in diff {
                         let (format, style) = match segment.tag() {
                             DiffTag::Insert => (
                                 self.style.string.format.insert.clone(),
-                                self.style.string.styles.insert.clone(),
+                                self.style.string.style.insert.clone(),
                             ),
                             DiffTag::Delete => (
                                 self.style.string.format.delete.clone(),
-                                self.style.string.styles.delete.clone(),
+                                self.style.string.style.delete.clone(),
                             ),
                             DiffTag::Equal => (
                                 self.style.string.format.equal.clone(),
-                                self.style.string.styles.equal.clone(),
+                                self.style.string.style.equal.clone(),
                             ),
                         };
 
@@ -172,8 +210,8 @@ where
                         let formatted_segment =
                             format.replacen(FORMAT_PLACEHOLDER, &segment_string, 1);
 
-                        inner_f.set_style(style);
-                        inner_f.write_str(&formatted_segment);
+                        f.set_style(style);
+                        f.write_str(&formatted_segment);
                     }
 
                     Ok(())
@@ -181,7 +219,51 @@ where
 
                 Ok(())
             }
-            SLICE_DIFF_KIND => todo!(),
+            SLICE_DIFF_KIND => {
+                f.indented(style::INDENT_LEN, |f| {
+                    f.write_char('[');
+                    f.write_char('\n');
+
+                    for segment in diff {
+                        let (gutter, gutter_style, element_style) = match segment.tag() {
+                            DiffTag::Insert => (
+                                self.style.slice.gutter_char.insert,
+                                self.style.slice.gutter_style.insert.clone(),
+                                self.style.slice.element_style.insert.clone(),
+                            ),
+                            DiffTag::Delete => (
+                                self.style.slice.gutter_char.delete,
+                                self.style.slice.gutter_style.delete.clone(),
+                                self.style.slice.element_style.delete.clone(),
+                            ),
+                            DiffTag::Equal => (
+                                self.style.slice.gutter_char.equal,
+                                self.style.slice.gutter_style.equal.clone(),
+                                self.style.slice.element_style.equal.clone(),
+                            ),
+                        };
+
+                        f.set_style(gutter_style);
+                        f.write_char(gutter);
+                        f.reset_style();
+
+                        f.write_str(strings::whitespace(style::indent_len(1) as usize - 1));
+
+                        f.set_style(element_style);
+                        f.write_str(Expected::repr(segment.value()));
+                        f.reset_style();
+
+                        f.write_char(',');
+                        f.write_char('\n');
+                    }
+
+                    f.write_char(']');
+
+                    Ok(())
+                })?;
+
+                Ok(())
+            }
             _ => Err(crate::Error::msg(format!(
                 "this is not a supported diffable kind: {}",
                 Expected::KIND,
