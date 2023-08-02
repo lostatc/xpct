@@ -73,10 +73,10 @@ pub struct DiffStyle {
 fn default_style() -> DiffStyle {
     let segment_style = DiffSegmentStyle {
         insert: OutputStyle {
-            style: TextStyle::BOLD,
+            style: TextStyle::BOLD | TextStyle::REVERSED,
             color: TextColor {
-                fg: None,
-                bg: Some(Color::BrightGreen),
+                fg: Some(Color::BrightGreen),
+                bg: None,
             },
         },
         delete: OutputStyle {
@@ -132,32 +132,38 @@ where
     type Value = MatchFailure<Diff<Expected::Segment>>;
 
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
+        let diff = match value {
+            MatchFailure::Pos(diff) => {
+                f.set_style(style::important());
+                f.write_str("Expected these to be equal:\n");
+                diff
+            }
+            MatchFailure::Neg(diff) => {
+                f.set_style(style::important());
+                f.write_str("Expected these to not be equal:\n");
+                diff
+            }
+        };
+
+        f.reset_style();
+
         match Expected::KIND {
             STRING_DIFF_KIND => {
-                let diff = match value {
-                    MatchFailure::Pos(diff) => {
-                        f.set_style(style::important());
-                        f.write_str("Expected these to be equal:\n");
-                        diff
+                f.indented(style::INDENT_LEN, |inner_f| {
+                    for segment in diff {
+                        let style = match segment.tag() {
+                            DiffTag::Insert => self.style.string.styles.insert.clone(),
+                            DiffTag::Delete => self.style.string.styles.delete.clone(),
+                            DiffTag::Equal => self.style.string.styles.equal.clone(),
+                        };
+
+                        inner_f.set_style(style);
+
+                        inner_f.write_str(Expected::repr(segment.value()));
                     }
-                    MatchFailure::Neg(diff) => {
-                        f.set_style(style::important());
-                        f.write_str("Expected these to not be equal:\n");
-                        diff
-                    }
-                };
 
-                for segment in diff {
-                    let style = match segment.tag() {
-                        DiffTag::Insert => self.style.string.styles.insert.clone(),
-                        DiffTag::Delete => self.style.string.styles.delete.clone(),
-                        DiffTag::Equal => self.style.string.styles.equal.clone(),
-                    };
-
-                    f.set_style(style);
-
-                    f.write_str(Expected::repr(segment.value()));
-                }
+                    Ok(())
+                })?;
 
                 Ok(())
             }

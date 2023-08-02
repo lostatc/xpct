@@ -2,7 +2,7 @@
 
 use std::fmt;
 
-use super::strings::indent_vec;
+use super::strings::{indent_segments, OutputSegment};
 use super::{Format, OutputStyle};
 
 // Disable colors and text styles if stderr is not a tty.
@@ -10,12 +10,6 @@ fn check_disable_color() {
     if atty::isnt(atty::Stream::Stderr) {
         colored::control::set_override(false)
     }
-}
-
-#[derive(Debug, Default)]
-struct OutputSegment {
-    buf: String,
-    style: OutputStyle,
 }
 
 /// Configuration for formatting with [`Format`].
@@ -156,35 +150,19 @@ impl FormattedOutput {
         })
     }
 
-    fn indented_inner(self, spaces: u32, hanging: bool) -> Self {
-        if spaces == 0 {
-            return self;
-        }
-
-        let mut styles = Vec::with_capacity(self.segments.len());
-        let mut buffers = Vec::with_capacity(self.segments.len());
-
-        for segment in self.segments {
-            styles.push(segment.style);
-            buffers.push(segment.buf);
-        }
-
-        Self {
-            segments: indent_vec(buffers, spaces, hanging)
-                .into_iter()
-                .zip(styles)
-                .map(|(buf, style)| OutputSegment { buf, style })
-                .collect(),
-        }
-    }
-
     /// Return a new [`FormattedOutput`] which has been indented by the given number of spaces.
     ///
     /// Also see [`FormattedFailure::into_indented`].
     ///
     /// [`FormattedFailure::into_indented`]: crate::core::FormattedFailure::into_indented
     pub fn indented(self, spaces: u32) -> Self {
-        self.indented_inner(spaces, false)
+        if spaces == 0 {
+            return self;
+        }
+
+        Self {
+            segments: indent_segments(self.segments, spaces),
+        }
     }
 
     /// Panic with this output as the error message.

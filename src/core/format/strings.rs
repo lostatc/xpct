@@ -4,101 +4,77 @@ const PREFIX_CACHE: &str = "                                                    
 
 #[cfg(feature = "color")]
 mod with_color {
+
+    use crate::core::OutputStyle;
+
     use super::whitespace;
-    use std::ops::Range;
 
-    // Find the first LF or CRLF linebreak in the given string.
-    //
-    // This returns the bytes range of the linebreak characters, not the byte range of the line
-    // between the linebreaks.
-    //
-    // If no linebreak was found, this returns `None`.
-    //
-    // ```
-    // assert_eq!(find_linebreak("abc\r\ndef"), Some(3..5));
-    // ```
-    fn find_linebreak(s: &str) -> Option<Range<usize>> {
-        let mut chars = s.char_indices();
-
-        loop {
-            match chars.next() {
-                Some((start, '\n')) => {
-                    if let Some((_, '\r')) = chars.next() {
-                        return Some(start..start + 2);
-                    } else {
-                        return Some(start..start + 1);
-                    }
-                }
-                None => break,
-                _ => {}
-            }
-        }
-
-        None
+    /// A styled segment of a string.
+    #[derive(Debug, Default, Clone)]
+    pub struct OutputSegment {
+        pub buf: String,
+        pub style: OutputStyle,
     }
 
-    pub fn indent_vec(
-        segments: impl IntoIterator<Item = String>,
-        spaces: u32,
-        hanging: bool,
-    ) -> Vec<String> {
-        if spaces == 0 {
-            return segments.into_iter().collect();
-        }
+    /// Indent each line of the string represented by the given list of styled segments.
+    ///
+    /// This ensures that the whitespace used for indentation is unstyled.
+    pub fn indent_segments(segments: Vec<OutputSegment>, spaces: u32) -> Vec<OutputSegment> {
+        // We know that we'll probably need more segments than we were given, but we don't know
+        // exactly how many yet.
+        let mut new_segments = Vec::with_capacity(segments.len() * 2);
 
-        let prefix = whitespace(spaces as usize);
+        // Write the indentation spaces with no formatting. Even though colors won't appear on
+        // whitespace, some text styles will.
+        new_segments.push(OutputSegment {
+            buf: whitespace(spaces as usize).into_owned(),
+            style: OutputStyle::default(),
+        });
 
-        let mut new_segments = Vec::new();
+        let non_empty_segments = segments
+            .into_iter()
+            .filter(|segment| !segment.buf.is_empty())
+            .collect::<Vec<_>>();
 
-        // Whether the next write should be adding indentation.
-        let mut needs_indented = !hanging;
-
-        for segment in segments.into_iter() {
-            if segment.is_empty() {
-                // This segment is empty, so no need for indentation.
-                new_segments.push(segment);
+        for (segment_index, segment) in non_empty_segments.iter().enumerate() {
+            if segment.buf.is_empty() {
                 continue;
             }
 
-            let mut pos = 0;
+            let is_last_segment = segment_index == non_empty_segments.len() - 1;
 
-            // We know that we'll need more than `segment.len()` bytes for the output, but we don't
-            // know exactly how many yet.
-            let mut new_segment = String::with_capacity(segment.len() * 2);
+            // This works for both '\n' line endings and '\r\n' line endings.
+            let segment_ends_in_newline =
+                matches!(segment.buf.chars().next_back(), Some(last_char) if last_char == '\n');
 
-            // Iterate over linebreaks (LF or CRLF) in the segment.
-            while let Some(linebreak) = find_linebreak(&segment[pos..]) {
-                if pos == linebreak.start {
-                    // This is a blank line and should not be indented.
-                    new_segment.push('\n');
-                } else {
-                    if needs_indented {
-                        new_segment.push_str(&prefix);
-                    }
+            let lines = segment.buf.lines().collect::<Vec<_>>();
+            let num_lines = lines.len();
 
-                    new_segment.push_str(&segment[pos..pos + linebreak.start]);
-                    new_segment.push('\n');
+            for (line_index, line) in lines.into_iter().enumerate() {
+                let is_last_line_in_segment = line_index == num_lines - 1;
+                let needs_newline = !is_last_line_in_segment || segment_ends_in_newline;
+
+                let mut owned_line = line.to_owned();
+
+                if needs_newline {
+                    owned_line.push('\n');
                 }
 
-                needs_indented = true;
-                pos += linebreak.end;
-            }
+                new_segments.push(OutputSegment {
+                    buf: owned_line,
+                    style: segment.style.clone(),
+                });
 
-            if pos < segment.len() {
-                // There are characters between the last linebreak and the end of the segment.
-                if needs_indented {
-                    new_segment.push_str(&prefix);
-                    needs_indented = false;
+                if !is_last_segment && needs_newline {
+                    new_segments.push(OutputSegment {
+                        buf: whitespace(spaces as usize).into_owned(),
+                        style: OutputStyle::default(),
+                    });
                 }
-
-                new_segment.push_str(&segment[pos..]);
             }
-
-            // We most likely over-allocated.
-            new_segment.shrink_to_fit();
-
-            new_segments.push(new_segment);
         }
+
+        new_segments.shrink_to_fit();
 
         new_segments
     }
@@ -111,6 +87,7 @@ pub use with_color::*;
 mod with_fmt {
     use std::borrow::Cow;
 
+    /// Return the length of a stringified integer.
     pub fn int_len(n: usize, base: u32) -> u32 {
         let mut power = base as usize;
         let mut count = 1;
@@ -125,6 +102,7 @@ mod with_fmt {
         count
     }
 
+    /// Return the amount of padding necessary to align an integer.
     pub fn pad_int(n: usize, longest: usize, base: u32) -> Cow<'static, str> {
         super::whitespace((int_len(longest, base) - int_len(n, base)) as usize)
     }
@@ -165,6 +143,7 @@ pub fn indent(s: &str, spaces: u32, hanging: bool) -> Cow<str> {
     Cow::Owned(result)
 }
 
+/// Return a string of whitespace of the given length.
 pub fn whitespace<'a>(spaces: usize) -> Cow<'a, str> {
     match spaces {
         i if i < PREFIX_CACHE.len() => Cow::Borrowed(&PREFIX_CACHE[..i]),
