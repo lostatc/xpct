@@ -8,6 +8,8 @@ use crate::core::{
 };
 use crate::matchers::{Diff, DiffTag, Diffable, EqDiffMatcher, SLICE_DIFF_KIND, STRING_DIFF_KIND};
 
+const FORMAT_PLACEHOLDER: &str = "%s";
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DiffSegmentStyle<T> {
     pub insert: T,
@@ -93,8 +95,8 @@ fn default_style() -> DiffStyle {
         string: StringDiffStyle {
             styles: segment_style.clone(),
             format: DiffSegmentStyle {
-                insert: String::from("%s"),
-                delete: String::from("%s"),
+                insert: String::from("+[%s]"),
+                delete: String::from("-[%s]"),
                 equal: String::from("%s"),
             },
         },
@@ -151,15 +153,27 @@ where
             STRING_DIFF_KIND => {
                 f.indented(style::INDENT_LEN, |inner_f| {
                     for segment in diff {
-                        let style = match segment.tag() {
-                            DiffTag::Insert => self.style.string.styles.insert.clone(),
-                            DiffTag::Delete => self.style.string.styles.delete.clone(),
-                            DiffTag::Equal => self.style.string.styles.equal.clone(),
+                        let (format, style) = match segment.tag() {
+                            DiffTag::Insert => (
+                                self.style.string.format.insert.clone(),
+                                self.style.string.styles.insert.clone(),
+                            ),
+                            DiffTag::Delete => (
+                                self.style.string.format.delete.clone(),
+                                self.style.string.styles.delete.clone(),
+                            ),
+                            DiffTag::Equal => (
+                                self.style.string.format.equal.clone(),
+                                self.style.string.styles.equal.clone(),
+                            ),
                         };
 
-                        inner_f.set_style(style);
+                        let segment_string = Expected::repr(segment.value());
+                        let formatted_segment =
+                            format.replacen(FORMAT_PLACEHOLDER, &segment_string, 1);
 
-                        inner_f.write_str(Expected::repr(segment.value()));
+                        inner_f.set_style(style);
+                        inner_f.write_str(&formatted_segment);
                     }
 
                     Ok(())
