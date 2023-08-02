@@ -25,6 +25,39 @@ pub struct StringDiffStyle {
     pub format: DiffSegmentStyle<String>,
 }
 
+impl StringDiffStyle {
+    /// The provided styling, used by [`eq_diff`].
+    ///
+    /// You can use this as a starting point for customizing the provided styling. The value
+    /// returned by this method may change and is not part of the public API.
+    pub fn provided() -> Self {
+        Self {
+            style: DiffSegmentStyle {
+                insert: OutputStyle {
+                    style: TextStyle::BOLD | TextStyle::REVERSED,
+                    color: TextColor {
+                        fg: Some(Color::BrightGreen),
+                        bg: None,
+                    },
+                },
+                delete: OutputStyle {
+                    style: TextStyle::BOLD | TextStyle::UNDERLINE,
+                    color: TextColor {
+                        fg: Some(Color::BrightRed),
+                        bg: None,
+                    },
+                },
+                equal: OutputStyle::default(),
+            },
+            format: DiffSegmentStyle {
+                insert: String::from("%s"),
+                delete: String::from("%s"),
+                equal: String::from("%s"),
+            },
+        }
+    }
+}
+
 impl Default for StringDiffStyle {
     fn default() -> Self {
         Self {
@@ -50,62 +83,13 @@ pub struct SliceDiffStyle {
     pub gutter_style: DiffSegmentStyle<OutputStyle>,
 }
 
-impl Default for SliceDiffStyle {
-    fn default() -> Self {
+impl SliceDiffStyle {
+    /// The provided styling, used by [`eq_diff`].
+    ///
+    /// You can use this as a starting point for customizing the provided styling. The value
+    /// returned by this method may change and is not part of the public API.
+    pub fn provided() -> Self {
         Self {
-            element_style: DiffSegmentStyle {
-                insert: OutputStyle::default(),
-                delete: OutputStyle::default(),
-                equal: OutputStyle::default(),
-            },
-            gutter_char: DiffSegmentStyle {
-                insert: ' ',
-                delete: ' ',
-                equal: ' ',
-            },
-            gutter_style: DiffSegmentStyle {
-                insert: OutputStyle::default(),
-                delete: OutputStyle::default(),
-                equal: OutputStyle::default(),
-            },
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-#[non_exhaustive]
-pub struct DiffStyle {
-    pub string: StringDiffStyle,
-    pub slice: SliceDiffStyle,
-}
-
-fn default_style() -> DiffStyle {
-    DiffStyle {
-        string: StringDiffStyle {
-            style: DiffSegmentStyle {
-                insert: OutputStyle {
-                    style: TextStyle::BOLD | TextStyle::REVERSED,
-                    color: TextColor {
-                        fg: Some(Color::BrightGreen),
-                        bg: None,
-                    },
-                },
-                delete: OutputStyle {
-                    style: TextStyle::BOLD | TextStyle::UNDERLINE,
-                    color: TextColor {
-                        fg: Some(Color::BrightRed),
-                        bg: None,
-                    },
-                },
-                equal: OutputStyle::default(),
-            },
-            format: DiffSegmentStyle {
-                insert: String::from("%s"),
-                delete: String::from("%s"),
-                equal: String::from("%s"),
-            },
-        },
-        slice: SliceDiffStyle {
             element_style: DiffSegmentStyle {
                 insert: OutputStyle {
                     style: TextStyle::BOLD,
@@ -145,7 +129,49 @@ fn default_style() -> DiffStyle {
                 },
                 equal: OutputStyle::default(),
             },
-        },
+        }
+    }
+}
+
+impl Default for SliceDiffStyle {
+    fn default() -> Self {
+        Self {
+            element_style: DiffSegmentStyle {
+                insert: OutputStyle::default(),
+                delete: OutputStyle::default(),
+                equal: OutputStyle::default(),
+            },
+            gutter_char: DiffSegmentStyle {
+                insert: ' ',
+                delete: ' ',
+                equal: ' ',
+            },
+            gutter_style: DiffSegmentStyle {
+                insert: OutputStyle::default(),
+                delete: OutputStyle::default(),
+                equal: OutputStyle::default(),
+            },
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct DiffStyle {
+    pub string: StringDiffStyle,
+    pub slice: SliceDiffStyle,
+}
+
+impl DiffStyle {
+    /// The provided styling, used by [`eq_diff`].
+    ///
+    /// You can use this as a starting point for customizing the provided styling. The value
+    /// returned by this method may change and is not part of the public API.
+    pub fn provided() -> Self {
+        Self {
+            string: StringDiffStyle::provided(),
+            slice: SliceDiffStyle::provided(),
+        }
     }
 }
 
@@ -247,6 +273,7 @@ where
                         f.write_char(gutter);
                         f.reset_style();
 
+                        // Leave room for the gutter char.
                         f.write_str(strings::whitespace(style::indent_len(1) as usize - 1));
 
                         f.set_style(element_style);
@@ -279,6 +306,6 @@ where
 {
     Matcher::new(
         EqDiffMatcher::new(expected),
-        DiffFormat::<Actual, Expected>::new(default_style()),
+        DiffFormat::<Actual, Expected>::new(DiffStyle::provided()),
     )
 }
