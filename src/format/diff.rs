@@ -375,7 +375,7 @@ where
 /// ```
 /// use xpct::{expect, eq_diff};
 ///
-/// expect!("hello world").to(eq_diff("goodbye world"));
+/// expect!("Hello, world!").to(eq_diff("Goodbye, world!"));
 /// ```
 ///
 /// ```

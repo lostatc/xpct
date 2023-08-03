@@ -179,6 +179,16 @@ expect!(command).to(match_pattern(pattern!(
 )));
 ```
 
+You can use [`eq_diff`] instead of [`equal`] for any type that implements
+[`Diffable`] to print a rich diff when the values are not equal:
+
+```
+use xpct::{expect, eq_diff};
+
+expect!("Hello, world!").to(eq_diff("Goodbye, world!"));
+expect!(["apple", "banana", "orange"]).to(eq_diff(["apple", "kiwi", "pear"]));
+```
+
 If you want to assert on multiple fields of a struct, rather than using a
 separate [`expect!`] assertion for each field, you can use [`match_fields`] with
 the [`fields!`] macro.
@@ -274,6 +284,7 @@ Check out [Provided Matchers][crate::docs::matcher_list] for a list of all the
 matchers provided by this crate.
 
 [`equal`]: crate::equal
+[`eq_diff`]: crate::eq_diff
 [`not`]: crate::not
 [`be_ok`]: crate::be_ok
 [`be_err`]: crate::be_err
@@ -287,6 +298,7 @@ matchers provided by this crate.
 [`why`]: crate::why
 [`why_lazy`]: crate::why_lazy
 [`match_pattern`]: crate::match_pattern
+[`Diffable`]: crate::matchers::Diffable
 [`pattern!`]: crate::pattern
 [`match_fields`]: crate::match_fields
 [`expect!`]: crate::expect
