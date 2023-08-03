@@ -1,0 +1,5 @@
+[src/main.rs:4:5] = "disco"
+    Expected:
+        "disco"
+    to equal:
+        "Disco"

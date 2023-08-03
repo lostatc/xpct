@@ -45,13 +45,9 @@ use xpct::{expect, equal};
 expect!("disco").to(equal("Disco"));
 ```
 
-```text
-[src/main.rs:4:5] = "disco"
-    Expected:
-        "disco"
-    to equal:
-        "Disco"
-```
+![Stderr from failed assertion](./examples/equality.png)
+
+[*Image transcript*](./examples/equality.txt)
 
 Unwrapping a `Some` value to make an assertion on the wrapped value:
 
@@ -63,13 +59,9 @@ expect!(Some(41))
     .to(be_gt(57));
 ```
 
-```text
-[src/main.rs:6:5] = Some(41)
-    Expected:
-        41
-    to be greater than:
-        57
-```
+![Stderr from failed assertion](./examples/chaining.png)
+
+[*Image transcript*](./examples/chaining.txt)
 
 Making assertions about individual fields of a struct:
 
@@ -98,25 +90,9 @@ expect!(player).to(match_fields(fields!(Player {
 })));
 ```
 
-```text
-[src/main.rs:18:5] = player
-    Expected all of these fields to succeed:
-        my_crate::main::Player {
-            id: OK
-            name: FAILED
-                Expected:
-                    ""
-                to not be empty
-            level: FAILED
-                Expected:
-                    21
-                to be in:
-                    1..=20
-            is_superstar: FAILED
-                🛈 only superstars allowed
-                Expected this to be true
-        }
-```
+![Stderr from failed assertion](./examples/fields.png)
+
+[*Image transcript*](./examples/fields.txt)
 
 Making assertions about elements in a collection:
 
@@ -134,21 +110,9 @@ expect!(items)
     ]));
 ```
 
-```text
-[src/main.rs:6:5] = items
-    Expected all of these to succeed:
-        [0]  FAILED
-             Expected:
-                 "apple"
-             to contain the substring:
-                 "ana"
+![Stderr from failed assertion](./examples/collections.png)
 
-        [2]  FAILED
-             Expected:
-                 "banana"
-             to be in:
-                 ["mango", "orange"]
-```
+[*Image transcript*](./examples/collections.txt)
 
 ## MSRV Policy
 

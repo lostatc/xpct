@@ -1,0 +1,13 @@
+[src/main.rs:6:5] = items
+    Expected all of these to succeed:
+        [0]  FAILED
+             Expected:
+                 "apple"
+             to contain the substring:
+                 "ana"
+
+        [2]  FAILED
+             Expected:
+                 "banana"
+             to be in:
+                 ["mango", "orange"]

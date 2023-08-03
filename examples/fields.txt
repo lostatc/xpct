@@ -1,0 +1,17 @@
+[src/main.rs:18:5] = player
+    Expected all of these fields to succeed:
+        xpct::main::Player {
+            id: OK
+            name: FAILED
+                Expected:
+                    ""
+                to not be empty
+            level: FAILED
+                Expected:
+                    21
+                to be in:
+                    1..=20
+            is_superstar: FAILED
+                🛈 only superstars allowed
+                Expected this to be true
+        }
