@@ -1,11 +1,13 @@
 #![cfg(feature = "diff")]
 
 use std::borrow::{Borrow, Cow};
+use std::collections::{BTreeSet, HashSet};
 use std::fmt;
 use std::hash::Hash;
 
 use similar::{capture_diff_slices, utils::TextDiffRemapper, TextDiff};
 
+use super::diff::SET_DIFF_KIND;
 use super::{Diff, DiffSegment, DiffTag, Diffable, SLICE_DIFF_KIND, STRING_DIFF_KIND};
 
 const DIFF_ALGORITHM: similar::Algorithm = similar::Algorithm::Patience;
@@ -426,5 +428,85 @@ where
 
     fn repr(segment: &Self::Segment) -> String {
         <&[T] as Diffable<&[T]>>::repr(segment)
+    }
+}
+
+impl<T> Diffable<&HashSet<T>> for &HashSet<T>
+where
+    T: Clone + Hash + Ord + fmt::Debug,
+{
+    type Segment = T;
+
+    const KIND: &'static str = SET_DIFF_KIND;
+
+    fn diff(&self, other: &HashSet<T>) -> Diff<Self::Segment> {
+        self.iter()
+            .cloned()
+            .collect::<Vec<_>>()
+            .diff(other.iter().cloned().collect::<Vec<_>>())
+    }
+
+    fn repr(segment: &Self::Segment) -> String {
+        format!("{:?}", segment)
+    }
+}
+
+impl<T> Diffable<HashSet<T>> for HashSet<T>
+where
+    T: Clone + Hash + Ord + fmt::Debug,
+{
+    type Segment = T;
+
+    const KIND: &'static str = SET_DIFF_KIND;
+
+    fn diff(&self, other: HashSet<T>) -> Diff<Self::Segment> {
+        self.iter()
+            .cloned()
+            .collect::<Vec<_>>()
+            .diff(other.into_iter().collect::<Vec<_>>())
+    }
+
+    fn repr(segment: &Self::Segment) -> String {
+        <&HashSet<T> as Diffable<&HashSet<T>>>::repr(segment)
+    }
+}
+
+impl<T> Diffable<&BTreeSet<T>> for &BTreeSet<T>
+where
+    T: Clone + Hash + Ord + fmt::Debug,
+{
+    type Segment = T;
+
+    const KIND: &'static str = SET_DIFF_KIND;
+
+    fn diff(&self, other: &BTreeSet<T>) -> Diff<Self::Segment> {
+        self.iter()
+            .cloned()
+            .collect::<Vec<_>>()
+            .diff(other.iter().cloned().collect::<Vec<_>>())
+    }
+
+    fn repr(segment: &Self::Segment) -> String {
+        <&HashSet<T> as Diffable<&HashSet<T>>>::repr(segment)
+    }
+}
+
+impl<T> Diffable<BTreeSet<T>> for BTreeSet<T>
+where
+    T: Clone + Hash + Ord + fmt::Debug,
+{
+    type Segment = T;
+
+    const KIND: &'static str = SET_DIFF_KIND;
+
+    fn diff(&self, other: BTreeSet<T>) -> Diff<Self::Segment> {
+        self.iter()
+            .cloned()
+            .collect::<Vec<_>>()
+            .diff(other.into_iter().collect::<Vec<_>>())
+    }
+
+    fn repr(segment: &Self::Segment) -> String {
+        <&HashSet<T> as Diffable<&HashSet<T>>>::repr(segment)
     }
 }

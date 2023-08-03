@@ -7,7 +7,9 @@ use crate::core::{
     strings, style, Color, Format, Formatter, MatchFailure, Matcher, OutputStyle, TextColor,
     TextStyle,
 };
-use crate::matchers::{Diff, DiffTag, Diffable, EqDiffMatcher, SLICE_DIFF_KIND, STRING_DIFF_KIND};
+use crate::matchers::{
+    Diff, DiffTag, Diffable, EqDiffMatcher, SET_DIFF_KIND, SLICE_DIFF_KIND, STRING_DIFF_KIND,
+};
 
 const FORMAT_PLACEHOLDER: &str = "%s";
 
@@ -299,9 +301,14 @@ where
 
                 Ok(())
             }
-            SLICE_DIFF_KIND => {
+            SLICE_DIFF_KIND | SET_DIFF_KIND => {
                 f.indented(style::INDENT_LEN, |f| {
-                    f.write_char('[');
+                    match Expected::KIND {
+                        SLICE_DIFF_KIND => f.write_char('['),
+                        SET_DIFF_KIND => f.write_char('{'),
+                        _ => unreachable!(),
+                    };
+
                     f.write_char('\n');
 
                     for segment in diff {
@@ -338,7 +345,11 @@ where
                         f.write_char('\n');
                     }
 
-                    f.write_char(']');
+                    match Expected::KIND {
+                        SLICE_DIFF_KIND => f.write_char(']'),
+                        SET_DIFF_KIND => f.write_char('}'),
+                        _ => unreachable!(),
+                    };
 
                     Ok(())
                 })?;
