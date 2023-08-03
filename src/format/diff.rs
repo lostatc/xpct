@@ -49,6 +49,8 @@ pub struct StringDiffStyle {
     /// # Examples
     ///
     /// ```
+    /// use xpct::format::DiffSegmentStyle;
+    ///
     /// let style = DiffSegmentStyle {
     ///     insert: String::from("+(%s)"),
     ///     delete: String::from("-(%s)"),
@@ -372,13 +374,13 @@ where
 ///
 /// # Examples
 ///
-/// ```
+/// ```should_panic
 /// use xpct::{expect, eq_diff};
 ///
 /// expect!("Hello, world!").to(eq_diff("Goodbye, world!"));
 /// ```
 ///
-/// ```
+/// ```should_panic
 /// use xpct::{expect, eq_diff};
 ///
 /// expect!(["apple", "banana", "orange"]).to(eq_diff(["apple", "kiwi", "pear"]));
@@ -396,19 +398,25 @@ where
 /// This example makes string diffs readable without text styling:
 ///
 /// ```
-/// let custom_style = DiffStyle::provided();
+/// use std::fmt;
 ///
-/// custom_style.string.format = DiffSegmentStyle {
-///     insert: "+(%s)",
-///     delete: "-(%s)",
-///     equal: "%s",
-/// };
+/// use xpct::core::Matcher;
+/// use xpct::format::{DiffFormat, DiffSegmentStyle, DiffStyle};
+/// use xpct::matchers::{Diffable, EqDiffMatcher};
 ///
 /// pub fn eq_diff<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
 /// where
 ///     Actual: fmt::Debug + PartialEq<Expected> + Eq + 'a,
 ///     Expected: Diffable<Actual> + fmt::Debug + 'a,
 /// {
+///     let mut custom_style = DiffStyle::provided();
+///
+///     custom_style.string.format = DiffSegmentStyle {
+///         insert: String::from("+(%s)"),
+///         delete: String::from("-(%s)"),
+///         equal: String::from("%s"),
+///     };
+///
 ///     Matcher::new(
 ///         EqDiffMatcher::new(expected),
 ///         DiffFormat::<Actual, Expected>::new(custom_style),

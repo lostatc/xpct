@@ -182,7 +182,7 @@ expect!(command).to(match_pattern(pattern!(
 You can use [`eq_diff`] instead of [`equal`] for any type that implements
 [`Diffable`] to print a rich diff when the values are not equal:
 
-```
+```should_panic
 use xpct::{expect, eq_diff};
 
 expect!("Hello, world!").to(eq_diff("Goodbye, world!"));
