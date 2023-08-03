@@ -11,17 +11,48 @@ use crate::matchers::{Diff, DiffTag, Diffable, EqDiffMatcher, SLICE_DIFF_KIND, S
 
 const FORMAT_PLACEHOLDER: &str = "%s";
 
+/// A configuration option for [`DiffStyle`].
+///
+/// This represents a generic value that differs when an element is added, removed, or remains
+/// unchanged.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DiffSegmentStyle<T> {
+    /// The element is in the actual value but not the expected value.
     pub insert: T,
+
+    /// The element is in the expected value but not the actual value.
     pub delete: T,
+
+    /// The element is the same in both the actual and expected values.
     pub equal: T,
 }
 
+/// The styling for string diffs when using [`DiffFormat`].
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct StringDiffStyle {
+    /// The text styling to use for substrings that are added or removed.
     pub style: DiffSegmentStyle<OutputStyle>,
+
+    /// Format strings used to wrap additions and deletions.
+    ///
+    /// Out of the box, string diffs are impossible to read with text styling disabled. Since they
+    /// diff by character/grapheme instead of by line, there's nowhere to put a gutter like `git
+    /// diff` has. You can add strings before and after additions and deletions to make it possible
+    /// to see the changes without text styling.
+    ///
+    /// Each format string replaces the first occurrence of `%s` with the added or removed text.
+    /// Note that if the format string doesn't contain a `%s`, that text will not be shown.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let style = DiffSegmentStyle {
+    ///     insert: String::from("+(%s)"),
+    ///     delete: String::from("-(%s)"),
+    ///     equal: String::from("%s"),
+    /// };
+    /// ```
     pub format: DiffSegmentStyle<String>,
 }
 
@@ -75,11 +106,22 @@ impl Default for StringDiffStyle {
     }
 }
 
+/// The styling for slice diffs when using [`DiffFormat`].
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct SliceDiffStyle {
+    /// The text styling to use for each element in the slice.
+    ///
+    /// You can change the styling of elements to represent values that have been added or removed.
     pub element_style: DiffSegmentStyle<OutputStyle>,
+
+    /// The characters to show in the gutter to represent changes.
+    ///
+    /// The diff output shows '+' and '-' characters in the gutter, like `git diff`. You can
+    /// customize which characters are used.
     pub gutter_char: DiffSegmentStyle<char>,
+
+    /// The text styling to use for the characters in the gutter.
     pub gutter_style: DiffSegmentStyle<OutputStyle>,
 }
 
@@ -155,10 +197,18 @@ impl Default for SliceDiffStyle {
     }
 }
 
+/// The style sheet for [`DiffFormat`].
+///
+/// Out of the box, [`DiffFormat`] relies on text styling to distinguish added and removed values in
+/// some cases, particularly for string diffs. If you prefer to have text styling disabled, or if
+/// the provided styling is inaccessible for you, you can use this to customize the styling.
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct DiffStyle {
+    /// The styling for string diffs.
     pub string: StringDiffStyle,
+
+    /// The styling for slice diffs.
     pub slice: SliceDiffStyle,
 }
 
@@ -175,6 +225,9 @@ impl DiffStyle {
     }
 }
 
+/// A formatter for [`Diff`] values.
+///
+/// [`Diff`]: crate::matchers::Diff
 #[derive(Debug)]
 pub struct DiffFormat<Actual, Expected> {
     style: DiffStyle,
@@ -182,6 +235,7 @@ pub struct DiffFormat<Actual, Expected> {
 }
 
 impl<Actual, Expected> DiffFormat<Actual, Expected> {
+    /// Create a new [`DiffFormat`] from the given style sheet.
     pub fn new(style: DiffStyle) -> Self {
         Self {
             style,
@@ -299,6 +353,61 @@ where
     }
 }
 
+/// Succeeds when the actual value equals the expected value and shows a diff.
+///
+/// This matcher is functionally identical to [`equal`], except it shows a diff if the values are
+/// not equal. You can use this matcher with any type that implements [`Diffable`], and you can
+/// implement [`Diffable`] for your own types.
+///
+/// # Examples
+///
+/// ```
+/// use xpct::{expect, eq_diff};
+///
+/// expect!("hello world").to(eq_diff("goodbye world"));
+/// ```
+///
+/// ```
+/// use xpct::{expect, eq_diff};
+///
+/// expect!(["apple", "banana", "orange"]).to(eq_diff(["apple", "kiwi", "pear"]));
+/// ```
+///
+/// # Custom Styling
+///
+/// This matcher relies on text styling to distinguish added and removed values in some cases. If
+/// you prefer to have text styling disabled, or if the provided styling is inaccessible for you,
+/// you can override the provided styling.
+///
+/// To do this, write a custom style sheet using [`DiffStyle`] and write your own matcher function
+/// that calls [`EqDiffMatcher`].
+///
+/// This example makes string diffs readable without text styling:
+///
+/// ```
+/// let custom_style = DiffStyle::provided();
+///
+/// custom_style.string.format = DiffSegmentStyle {
+///     insert: "+(%s)",
+///     delete: "-(%s)",
+///     equal: "%s",
+/// };
+///
+/// pub fn eq_diff<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
+/// where
+///     Actual: fmt::Debug + PartialEq<Expected> + Eq + 'a,
+///     Expected: Diffable<Actual> + fmt::Debug + 'a,
+/// {
+///     Matcher::new(
+///         EqDiffMatcher::new(expected),
+///         DiffFormat::<Actual, Expected>::new(custom_style),
+///     )
+/// }
+/// ```
+///
+/// [`equal`]: crate::equal
+/// [`Diffable`]: crate::matchers::Diffable
+/// [`EqDiffMatcher`]: crate::matchers::EqDiffMatcher
 pub fn eq_diff<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + PartialEq<Expected> + Eq + 'a,
