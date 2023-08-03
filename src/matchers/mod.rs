@@ -7,6 +7,7 @@ mod combinator;
 mod contain;
 mod default;
 mod diff;
+mod diff_impl;
 mod elements;
 mod equal;
 mod every;

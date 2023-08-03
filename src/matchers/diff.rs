@@ -1,15 +1,10 @@
 #![cfg(feature = "diff")]
 
-use std::borrow::Borrow;
-use std::fmt;
 use std::hash::Hash;
 
-use similar::utils::TextDiffRemapper;
-use similar::{capture_diff_slices, ChangeTag, TextDiff};
+use similar::ChangeTag;
 
 use crate::core::Match;
-
-const DIFF_ALGORITHM: similar::Algorithm = similar::Algorithm::Patience;
 
 /// A [`Diffable::KIND`] for strings.
 ///
@@ -20,6 +15,11 @@ pub const STRING_DIFF_KIND: &str = "string";
 ///
 /// [`Diffable::KIND`]: crate::matchers::Diffable::KIND
 pub const SLICE_DIFF_KIND: &str = "slice";
+
+/// A [`Diffable::KIND`] for sets.
+///
+/// [`Diffable::KIND`]: crate::matchers::Diffable::KIND
+pub const SET_DIFF_KIND: &str = "set";
 
 /// Whether a [`DiffSegment`] represents an insertion, deletion, or no change.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -35,7 +35,7 @@ pub enum DiffTag {
 }
 
 impl DiffTag {
-    fn from_tag(tag: ChangeTag) -> Self {
+    pub(super) fn from_tag(tag: ChangeTag) -> Self {
         match tag {
             ChangeTag::Equal => Self::Equal,
             ChangeTag::Delete => Self::Delete,
@@ -122,58 +122,6 @@ pub trait Diffable<Other> {
     /// [`Debug`]: std::fmt::Debug
     /// [`Display`]: std::fmt::Display
     fn repr(segment: &Self::Segment) -> String;
-}
-
-impl<'a> Diffable<&'a str> for &'a str {
-    type Segment = String;
-
-    const KIND: &'static str = STRING_DIFF_KIND;
-
-    fn diff(&self, other: &'a str) -> Diff<Self::Segment> {
-        #[cfg(feature = "unicode-diff")]
-        let text_diff = TextDiff::configure()
-            .algorithm(DIFF_ALGORITHM)
-            .diff_graphemes(*self, other);
-
-        #[cfg(not(feature = "unicode-diff"))]
-        let text_diff = TextDiff::configure()
-            .algorithm(DIFF_ALGORITHM)
-            .diff_chars(self, other);
-
-        let remapper = TextDiffRemapper::from_text_diff(&text_diff, self, other.borrow());
-
-        text_diff
-            .ops()
-            .iter()
-            .flat_map(move |op| remapper.iter_slices(op))
-            .map(|(tag, slice)| DiffSegment::new(slice.to_owned(), DiffTag::from_tag(tag)))
-            .collect()
-    }
-
-    fn repr(segment: &Self::Segment) -> String {
-        segment.to_string()
-    }
-}
-
-impl<'a, T> Diffable<&'a [T]> for &'a [T]
-where
-    T: Clone + Hash + Ord + fmt::Debug,
-{
-    type Segment = T;
-
-    const KIND: &'static str = SLICE_DIFF_KIND;
-
-    fn diff(&self, other: &'a [T]) -> Diff<Self::Segment> {
-        capture_diff_slices(DIFF_ALGORITHM, self, other)
-            .into_iter()
-            .flat_map(|op| op.iter_changes(*self, other))
-            .map(|change| DiffSegment::new(change.value(), DiffTag::from_tag(change.tag())))
-            .collect()
-    }
-
-    fn repr(segment: &Self::Segment) -> String {
-        format!("{:?}", segment)
-    }
 }
 
 /// The matcher for [`eq_diff`].
