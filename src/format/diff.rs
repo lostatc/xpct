@@ -8,7 +8,8 @@ use crate::core::{
     TextStyle,
 };
 use crate::matchers::{
-    Diff, DiffTag, Diffable, EqDiffMatcher, SET_DIFF_KIND, SLICE_DIFF_KIND, STRING_DIFF_KIND,
+    Diff, DiffTag, Diffable, EqDiffMatcher, MAP_DIFF_KIND, SET_DIFF_KIND, SLICE_DIFF_KIND,
+    STRING_DIFF_KIND,
 };
 
 const FORMAT_PLACEHOLDER: &str = "%s";
@@ -303,11 +304,11 @@ where
 
                 Ok(())
             }
-            SLICE_DIFF_KIND | SET_DIFF_KIND => {
+            SLICE_DIFF_KIND | SET_DIFF_KIND | MAP_DIFF_KIND => {
                 f.indented(style::INDENT_LEN, |f| {
                     match Expected::KIND {
                         SLICE_DIFF_KIND => f.write_char('['),
-                        SET_DIFF_KIND => f.write_char('{'),
+                        SET_DIFF_KIND | MAP_DIFF_KIND => f.write_char('{'),
                         _ => unreachable!(),
                     };
 
@@ -349,7 +350,7 @@ where
 
                     match Expected::KIND {
                         SLICE_DIFF_KIND => f.write_char(']'),
-                        SET_DIFF_KIND => f.write_char('}'),
+                        SET_DIFF_KIND | MAP_DIFF_KIND => f.write_char('}'),
                         _ => unreachable!(),
                     };
 

@@ -21,6 +21,11 @@ pub const SLICE_DIFF_KIND: &str = "slice";
 /// [`Diffable::KIND`]: crate::matchers::Diffable::KIND
 pub const SET_DIFF_KIND: &str = "set";
 
+/// A [`Diffable::KIND`] for maps.
+///
+/// [`Diffable::KIND`]: crate::matchers::Diffable::KIND
+pub const MAP_DIFF_KIND: &str = "map";
+
 /// Whether a [`DiffSegment`] represents an insertion, deletion, or no change.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum DiffTag {

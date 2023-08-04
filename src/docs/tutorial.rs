@@ -185,9 +185,9 @@ You can use [`eq_diff`] instead of [`equal`] for any type that implements
 ```
 use xpct::{expect, eq_diff};
 
-expect!("you can diff strings").to(eq_diff("you can diff strings"));
-expect!(["and", "slices", "too"]).to(eq_diff(["and", "slices", "too"]));
-// also sets and maps
+expect!("diffing strings").to(eq_diff("diffing strings"));
+expect!(["slices", "too"]).to(eq_diff(["slices", "too"]));
+// Also sets and maps!
 ```
 
 If you want to assert on multiple fields of a struct, rather than using a
