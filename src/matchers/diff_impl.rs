@@ -433,17 +433,30 @@ where
 
 impl<T> Diffable<&HashSet<T>> for &HashSet<T>
 where
-    T: Clone + Hash + Ord + fmt::Debug,
+    T: Eq + Hash + Clone + fmt::Debug,
 {
     type Segment = T;
 
     const KIND: &'static str = SET_DIFF_KIND;
 
     fn diff(&self, other: &HashSet<T>) -> Diff<Self::Segment> {
-        self.iter()
-            .cloned()
-            .collect::<Vec<_>>()
-            .diff(other.iter().cloned().collect::<Vec<_>>())
+        let deletions = self
+            .difference(other)
+            .map(|element| DiffSegment::new(element.to_owned(), DiffTag::Delete));
+
+        let equal = self
+            .intersection(other)
+            .map(|element| DiffSegment::new(element.to_owned(), DiffTag::Equal));
+
+        let insertions = other
+            .difference(self)
+            .map(|element| DiffSegment::new(element.to_owned(), DiffTag::Insert));
+
+        let mut segments = deletions.collect::<Vec<_>>();
+        segments.extend(equal);
+        segments.extend(insertions);
+
+        segments
     }
 
     fn repr(segment: &Self::Segment) -> String {
@@ -460,34 +473,44 @@ where
     const KIND: &'static str = SET_DIFF_KIND;
 
     fn diff(&self, other: HashSet<T>) -> Diff<Self::Segment> {
-        self.iter()
-            .cloned()
-            .collect::<Vec<_>>()
-            .diff(other.into_iter().collect::<Vec<_>>())
+        <&HashSet<T>>::diff(&self, &other)
     }
 
     fn repr(segment: &Self::Segment) -> String {
-        <&HashSet<T> as Diffable<&HashSet<T>>>::repr(segment)
+        <&HashSet<T>>::repr(segment)
     }
 }
 
 impl<T> Diffable<&BTreeSet<T>> for &BTreeSet<T>
 where
-    T: Clone + Hash + Ord + fmt::Debug,
+    T: Eq + Hash + Ord + Clone + fmt::Debug,
 {
     type Segment = T;
 
     const KIND: &'static str = SET_DIFF_KIND;
 
     fn diff(&self, other: &BTreeSet<T>) -> Diff<Self::Segment> {
-        self.iter()
-            .cloned()
-            .collect::<Vec<_>>()
-            .diff(other.iter().cloned().collect::<Vec<_>>())
+        let deletions = self
+            .difference(other)
+            .map(|element| DiffSegment::new(element.to_owned(), DiffTag::Delete));
+
+        let equal = self
+            .intersection(other)
+            .map(|element| DiffSegment::new(element.to_owned(), DiffTag::Equal));
+
+        let insertions = other
+            .difference(self)
+            .map(|element| DiffSegment::new(element.to_owned(), DiffTag::Insert));
+
+        let mut segments = deletions.collect::<Vec<_>>();
+        segments.extend(equal);
+        segments.extend(insertions);
+
+        segments
     }
 
     fn repr(segment: &Self::Segment) -> String {
-        <&HashSet<T> as Diffable<&HashSet<T>>>::repr(segment)
+        format!("{:?}", segment)
     }
 }
 
@@ -500,13 +523,10 @@ where
     const KIND: &'static str = SET_DIFF_KIND;
 
     fn diff(&self, other: BTreeSet<T>) -> Diff<Self::Segment> {
-        self.iter()
-            .cloned()
-            .collect::<Vec<_>>()
-            .diff(other.into_iter().collect::<Vec<_>>())
+        <&BTreeSet<T>>::diff(&self, &other)
     }
 
     fn repr(segment: &Self::Segment) -> String {
-        <&HashSet<T> as Diffable<&HashSet<T>>>::repr(segment)
+        <&BTreeSet<T>>::repr(segment)
     }
 }
