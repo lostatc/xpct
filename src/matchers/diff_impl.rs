@@ -1,6 +1,6 @@
 #![cfg(feature = "diff")]
 
-use std::borrow::{Borrow, Cow};
+use std::borrow::Cow;
 use std::cmp;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::fmt;
@@ -31,7 +31,7 @@ impl<'a> Diffable<&'a str> for &'a str {
             .algorithm(DIFF_ALGORITHM)
             .diff_chars(self, other);
 
-        let remapper = TextDiffRemapper::from_text_diff(&text_diff, self, other.borrow());
+        let remapper = TextDiffRemapper::from_text_diff(&text_diff, self, other);
 
         text_diff
             .ops()
@@ -751,5 +751,351 @@ where
 
     fn repr(segment: &Self::Segment) -> String {
         <&BTreeMap<K, V>>::repr(segment)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn diff_identical_strings() {
+        let actual = "foobar".diff("foobar");
+
+        let expected = vec![DiffSegment {
+            value: "foobar".to_string(),
+            tag: DiffTag::Equal,
+        }];
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn diff_strings_with_addition() {
+        let actual = "foo".diff("foobar");
+
+        let expected = vec![
+            DiffSegment {
+                value: "foo".to_string(),
+                tag: DiffTag::Equal,
+            },
+            DiffSegment {
+                value: "bar".to_string(),
+                tag: DiffTag::Insert,
+            },
+        ];
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn diff_strings_with_deletion() {
+        let actual = "foobar".diff("foo");
+
+        let expected = vec![
+            DiffSegment {
+                value: "foo".to_string(),
+                tag: DiffTag::Equal,
+            },
+            DiffSegment {
+                value: "bar".to_string(),
+                tag: DiffTag::Delete,
+            },
+        ];
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn diff_strings_with_addition_and_deletion() {
+        let actual = "bar".diff("foobarbaz");
+
+        let expected = vec![
+            DiffSegment {
+                value: "foo".to_string(),
+                tag: DiffTag::Insert,
+            },
+            DiffSegment {
+                value: "bar".to_string(),
+                tag: DiffTag::Equal,
+            },
+            DiffSegment {
+                value: "baz".to_string(),
+                tag: DiffTag::Insert,
+            },
+        ];
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn diff_identical_slices() {
+        let actual = ["a", "b", "c"].diff(["a", "b", "c"]);
+
+        let expected = vec![
+            DiffSegment {
+                value: "a",
+                tag: DiffTag::Equal,
+            },
+            DiffSegment {
+                value: "b",
+                tag: DiffTag::Equal,
+            },
+            DiffSegment {
+                value: "c",
+                tag: DiffTag::Equal,
+            },
+        ];
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn diff_slices_with_addition() {
+        let actual = ["a"].diff(["a", "b"]);
+
+        let expected = vec![
+            DiffSegment {
+                value: "a",
+                tag: DiffTag::Equal,
+            },
+            DiffSegment {
+                value: "b",
+                tag: DiffTag::Insert,
+            },
+        ];
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn diff_slices_with_deletion() {
+        let actual = ["a", "b"].diff(["a"]);
+
+        let expected = vec![
+            DiffSegment {
+                value: "a",
+                tag: DiffTag::Equal,
+            },
+            DiffSegment {
+                value: "b",
+                tag: DiffTag::Delete,
+            },
+        ];
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn diff_slices_with_addition_and_deletion() {
+        let actual = ["a", "b"].diff(["b", "c"]);
+
+        let expected = vec![
+            DiffSegment {
+                value: "a",
+                tag: DiffTag::Delete,
+            },
+            DiffSegment {
+                value: "b",
+                tag: DiffTag::Equal,
+            },
+            DiffSegment {
+                value: "c",
+                tag: DiffTag::Insert,
+            },
+        ];
+
+        assert_eq!(actual, expected);
+    }
+
+    //
+    // For sets and maps, we always order deleted elements before elements than are equal before
+    // elements that were added.
+    //
+
+    #[test]
+    fn diff_identical_sets() {
+        let before = ["a", "b", "c"].into_iter().collect::<HashSet<_>>();
+        let after = ["a", "b", "c"].into_iter().collect::<HashSet<_>>();
+
+        let actual = before.diff(after);
+
+        let expected = vec![
+            DiffSegment {
+                value: "a",
+                tag: DiffTag::Equal,
+            },
+            DiffSegment {
+                value: "b",
+                tag: DiffTag::Equal,
+            },
+            DiffSegment {
+                value: "c",
+                tag: DiffTag::Equal,
+            },
+        ];
+
+        assert_eq!(
+            actual.into_iter().collect::<HashSet<_>>(),
+            expected.into_iter().collect::<HashSet<_>>()
+        );
+    }
+
+    #[test]
+    fn diff_sets_with_addition() {
+        let before = ["a"].into_iter().collect::<HashSet<_>>();
+        let after = ["a", "b"].into_iter().collect::<HashSet<_>>();
+
+        let actual = before.diff(after);
+
+        let expected = vec![
+            DiffSegment {
+                value: "a",
+                tag: DiffTag::Equal,
+            },
+            DiffSegment {
+                value: "b",
+                tag: DiffTag::Insert,
+            },
+        ];
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn diff_sets_with_deletion() {
+        let before = ["a", "b"].into_iter().collect::<HashSet<_>>();
+        let after = ["a"].into_iter().collect::<HashSet<_>>();
+
+        let actual = before.diff(after);
+
+        let expected = vec![
+            DiffSegment {
+                value: "b",
+                tag: DiffTag::Delete,
+            },
+            DiffSegment {
+                value: "a",
+                tag: DiffTag::Equal,
+            },
+        ];
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn diff_sets_with_addition_and_deletion() {
+        let before = ["a", "b"].into_iter().collect::<HashSet<_>>();
+        let after = ["b", "c"].into_iter().collect::<HashSet<_>>();
+
+        let actual = before.diff(after);
+
+        let expected = vec![
+            DiffSegment {
+                value: "a",
+                tag: DiffTag::Delete,
+            },
+            DiffSegment {
+                value: "b",
+                tag: DiffTag::Equal,
+            },
+            DiffSegment {
+                value: "c",
+                tag: DiffTag::Insert,
+            },
+        ];
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn diff_identical_maps() {
+        let before = [("a", 1), ("b", 2)].into_iter().collect::<HashMap<_, _>>();
+        let after = [("a", 1), ("b", 2)].into_iter().collect::<HashMap<_, _>>();
+
+        let actual = before.diff(after);
+
+        let expected = vec![
+            DiffSegment {
+                value: ("a", 1),
+                tag: DiffTag::Equal,
+            },
+            DiffSegment {
+                value: ("b", 2),
+                tag: DiffTag::Equal,
+            },
+        ];
+
+        assert_eq!(
+            actual.into_iter().collect::<HashSet<_>>(),
+            expected.into_iter().collect::<HashSet<_>>()
+        );
+    }
+
+    #[test]
+    fn diff_maps_with_addition() {
+        let before = [("a", 1)].into_iter().collect::<HashMap<_, _>>();
+        let after = [("a", 1), ("b", 2)].into_iter().collect::<HashMap<_, _>>();
+
+        let actual = before.diff(after);
+
+        let expected = vec![
+            DiffSegment {
+                value: ("a", 1),
+                tag: DiffTag::Equal,
+            },
+            DiffSegment {
+                value: ("b", 2),
+                tag: DiffTag::Insert,
+            },
+        ];
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn diff_maps_with_deletion() {
+        let before = [("a", 1), ("b", 2)].into_iter().collect::<HashMap<_, _>>();
+        let after = [("a", 1)].into_iter().collect::<HashMap<_, _>>();
+
+        let actual = before.diff(after);
+
+        let expected = vec![
+            DiffSegment {
+                value: ("b", 2),
+                tag: DiffTag::Delete,
+            },
+            DiffSegment {
+                value: ("a", 1),
+                tag: DiffTag::Equal,
+            },
+        ];
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn diff_maps_with_addition_and_deletion() {
+        let before = [("a", 1), ("b", 2)].into_iter().collect::<HashMap<_, _>>();
+        let after = [("b", 2), ("c", 3)].into_iter().collect::<HashMap<_, _>>();
+
+        let actual = before.diff(after);
+
+        let expected = vec![
+            DiffSegment {
+                value: ("a", 1),
+                tag: DiffTag::Delete,
+            },
+            DiffSegment {
+                value: ("b", 2),
+                tag: DiffTag::Equal,
+            },
+            DiffSegment {
+                value: ("c", 3),
+                tag: DiffTag::Insert,
+            },
+        ];
+
+        assert_eq!(actual, expected);
     }
 }

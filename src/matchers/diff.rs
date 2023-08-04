@@ -65,7 +65,7 @@ impl DiffTag {
 ///
 /// [`value`]: crate::matchers::DiffSegment::value
 /// [`Diffable::Segment`]: crate::matchers::Diffable::Segment
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct DiffSegment<Value> {
     /// The value of this segment.
     pub value: Value,
