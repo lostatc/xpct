@@ -134,7 +134,7 @@ expected.insert("d", "durian");
 expect!(actual).to(eq_diff(expected));
 ```
 
-![Stderr from failed assertion](https://media.githubusercontent.com/media/lostatc/xpct/main/examples/diff.png)
+<img src="https://media.githubusercontent.com/media/lostatc/xpct/main/examples/diff.png" width=50% alt="stderr from failed assertion" />
 
 [*Image transcript*](https://raw.githubusercontent.com/lostatc/xpct/main/examples/diff.txt)
 
