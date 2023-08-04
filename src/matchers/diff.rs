@@ -57,7 +57,7 @@ impl DiffTag {
 /// 2. Something that is in the expected value but not the actual value (a deletion).
 /// 3. Something that is the same between the two values.
 ///
-/// The "something" that was added, removed, or unchanged in the diff is returned by [`value`].
+/// The "something" that was added, removed, or unchanged in the diff is [`value`].
 ///
 /// A diff segment is generic over its `Value`, which maps to [`Diffable::Segment`].
 ///
@@ -67,25 +67,11 @@ impl DiffTag {
 /// [`Diffable::Segment`]: crate::matchers::Diffable::Segment
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DiffSegment<Value> {
-    value: Value,
-    tag: DiffTag,
-}
+    /// The value of this segment.
+    pub value: Value,
 
-impl<Value> DiffSegment<Value> {
-    /// Create a new [`DiffSegment`] from a value and a tag.
-    pub fn new(value: Value, tag: DiffTag) -> Self {
-        Self { value, tag }
-    }
-
-    /// Return the value of this segment.
-    pub fn value(&self) -> &Value {
-        &self.value
-    }
-
-    /// Return whether this segment represents an insertion, a deletion, or no change.
-    pub fn tag(&self) -> DiffTag {
-        self.tag
-    }
+    /// Whether this segment represents an insertion, a deletion, or no change.
+    pub tag: DiffTag,
 }
 
 /// A diff between an actual and expected value.

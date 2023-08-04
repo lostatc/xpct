@@ -276,7 +276,7 @@ where
             STRING_DIFF_KIND => {
                 f.indented(style::INDENT_LEN, |f| {
                     for segment in diff {
-                        let (format, style) = match segment.tag() {
+                        let (format, style) = match segment.tag {
                             DiffTag::Insert => (
                                 self.style.string.format.insert.clone(),
                                 self.style.string.style.insert.clone(),
@@ -291,7 +291,7 @@ where
                             ),
                         };
 
-                        let segment_string = Expected::repr(segment.value());
+                        let segment_string = Expected::repr(&segment.value);
                         let formatted_segment =
                             format.replacen(FORMAT_PLACEHOLDER, &segment_string, 1);
 
@@ -315,7 +315,7 @@ where
                     f.write_char('\n');
 
                     for segment in diff {
-                        let (gutter, gutter_style, element_style) = match segment.tag() {
+                        let (gutter, gutter_style, element_style) = match segment.tag {
                             DiffTag::Insert => (
                                 self.style.collection.gutter_char.insert,
                                 self.style.collection.gutter_style.insert.clone(),
@@ -341,7 +341,7 @@ where
                         f.write_str(strings::whitespace(style::indent_len(1) as usize - 1));
 
                         f.set_style(element_style);
-                        f.write_str(Expected::repr(segment.value()));
+                        f.write_str(Expected::repr(&segment.value));
                         f.reset_style();
 
                         f.write_char(',');
