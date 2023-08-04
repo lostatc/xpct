@@ -12,7 +12,7 @@ license = "MIT"
 keywords = ["testing", "assertions", "assert", "matchers"]
 categories = ["development-tools", "development-tools::testing"]
 # If you update this, update the GitHub Actions workflow as well.
-rust-version = "1.63.0"
+rust-version = "1.71.1"
 
   # We use an attribute when building on docs.rs so we can make use of unstable
   # rustdoc features.
