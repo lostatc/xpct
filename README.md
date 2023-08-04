@@ -117,21 +117,9 @@ expect!(items)
 Showing rich diffs of data structures:
 
 ```rust,should_panic
-use std::collections::HashMap;
-
 use xpct::{eq_diff, expect};
 
-let mut actual = HashMap::new();
-actual.insert("a", "apple");
-actual.insert("b", "banana");
-actual.insert("c", "cucumber");
-
-let mut expected = HashMap::new();
-expected.insert("a", "not apple");
-expected.insert("b", "banana");
-expected.insert("d", "durian");
-
-expect!(actual).to(eq_diff(expected));
+expect!(["apple", "banana"]).to(eq_diff(["banana", "orage"]));
 ```
 
 <img src="https://media.githubusercontent.com/media/lostatc/xpct/main/examples/diff.png" width="60%" alt="stderr from failed assertion" />

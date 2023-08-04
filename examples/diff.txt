@@ -1,9 +1,7 @@
-[src/main.rs:18:5] = actual
+[src/main.rs:6:5] = ["apple", "banana"]
     Expected these to be equal:
-        {
-         -  "a": "not apple",
-         -  "d": "durian",
-            "b": "banana",
-         +  "a": "apple",
-         +  "c": "cucumber",
-        }
+        [
+         +  "apple",
+            "banana",
+         -  "orange",
+        ]
