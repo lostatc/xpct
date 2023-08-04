@@ -1,4 +1,4 @@
-[src/main.rs:18:5] = player
+[src/main.rs:20:5] = player
     Expected all of these fields to succeed:
         xpct::main::Player {
             id: OK

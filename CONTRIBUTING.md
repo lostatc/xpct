@@ -55,3 +55,27 @@ To run doctests in the `crate::docs` module, run the following command:
 ```shell
 RUSTDOCFLAGS='--cfg docsrs' cargo +nightly test --all-features
 ```
+
+## Screenshots
+
+To generate the screenshots in the README, we use
+[termshot](https://github.com/homeport/termshot).
+
+However, when a process panics, Rust gives us additional output that we don't
+want to include in the screenshot. Additionally, xpct normally only prints text
+styles when stderr is a tty.
+
+If you pass the `debug_screenshot` rustc flag, xpct will do three things:
+
+1. Print its output to stdout.
+2. Use `std::process::exit` instead of panicking.
+3. Include the ANSI escape codes for text styles even if stdout is not a tty.
+
+Make sure that if you update the screenshots in the README, you also update the
+plain-text transcripts.
+
+Here's a full example:
+
+```shell
+termshot --filename examples/foo.png -- env RUSTFLAGS="--cfg debug_screenshot" cargo run --quiet --all-features
+```

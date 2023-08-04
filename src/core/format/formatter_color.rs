@@ -192,8 +192,14 @@ impl FormattedOutput {
     /// This does not print colors or text styles when the [`NO_COLOR`](https://no-color.org/)
     /// environment variable is set or when stderr is not a tty.
     pub fn fail(&self) -> ! {
-        check_disable_color();
-        panic!("\n{}\n", self);
+        // See CONTRIBUTING.md for an explanation of why we do this.
+        if cfg!(debug_screenshot) {
+            println!("{}", self);
+            std::process::exit(0);
+        } else {
+            check_disable_color();
+            panic!("\n{}\n", self);
+        }
     }
 }
 
