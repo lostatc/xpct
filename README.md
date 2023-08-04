@@ -114,6 +114,30 @@ expect!(items)
 
 [*Image transcript*](https://raw.githubusercontent.com/lostatc/xpct/main/examples/collections.txt)
 
+Showing rich diffs of data structures:
+
+```rust,should_panic
+use std::collections::HashMap;
+
+use xpct::{eq_diff, expect};
+
+let mut actual = HashMap::new();
+actual.insert("a", "apple");
+actual.insert("b", "banana");
+actual.insert("c", "cucumber");
+
+let mut expected = HashMap::new();
+expected.insert("a", "not apple");
+expected.insert("b", "banana");
+expected.insert("d", "durian");
+
+expect!(actual).to(eq_diff(expected));
+```
+
+![Stderr from failed assertion](https://media.githubusercontent.com/media/lostatc/xpct/main/examples/diff.png)
+
+[*Image transcript*](https://raw.githubusercontent.com/lostatc/xpct/main/examples/diff.txt)
+
 ## MSRV Policy
 
 The last two stable Rust releases are supported. Older releases may be supported
