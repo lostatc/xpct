@@ -628,7 +628,7 @@ where
     }
 
     fn repr(segment: &Self::Segment) -> String {
-        format!("{:?}: {:?}", segment.0, segment.1)
+        format!("{:?}", segment)
     }
 }
 
@@ -732,7 +732,7 @@ where
     }
 
     fn repr(segment: &Self::Segment) -> String {
-        format!("{:?}: {:?}", segment.0, segment.1)
+        format!("{:?}", segment)
     }
 }
 
