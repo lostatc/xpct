@@ -438,3 +438,35 @@ where
         DiffFormat::<Actual, Expected>::new(DiffStyle::provided()),
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use super::eq_diff;
+    use crate::expect;
+
+    #[test]
+    fn succeeds_when_equal() {
+        expect!("some string").to(eq_diff("some string"));
+        expect!(["some", "slice"]).to(eq_diff(["some", "slice"]));
+    }
+
+    #[test]
+    fn succeeds_when_not_equal() {
+        expect!("some string").to_not(eq_diff("a different string"));
+        expect!(["some", "slice"]).to_not(eq_diff(["different", "slice"]));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_equal() {
+        expect!("some string").to_not(eq_diff("some string"));
+        expect!(["some", "slice"]).to_not(eq_diff(["some", "slice"]));
+    }
+
+    #[test]
+    #[should_panic]
+    fn fails_when_not_equal() {
+        expect!("some string").to(eq_diff("a different string"));
+        expect!(["some", "slice"]).to(eq_diff(["different", "slice"]));
+    }
+}
