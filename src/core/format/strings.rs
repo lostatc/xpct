@@ -65,7 +65,7 @@ mod with_color {
                     style: segment.style.clone(),
                 });
 
-                if !is_last_segment && needs_newline {
+                if (!is_last_segment || !is_last_line_in_segment) && needs_newline {
                     new_segments.push(OutputSegment {
                         buf: whitespace(spaces as usize).into_owned(),
                         style: OutputStyle::default(),
