@@ -375,16 +375,16 @@ where
 ///
 /// # Examples
 ///
-/// ```should_panic
+/// ```
 /// use xpct::{expect, eq_diff};
 ///
-/// expect!("Hello, world!").to(eq_diff("Goodbye, world!"));
+/// expect!("diffing strings").to(eq_diff("diffing strings"));
 /// ```
 ///
-/// ```should_panic
+/// ```
 /// use xpct::{expect, eq_diff};
 ///
-/// expect!(["apple", "banana", "orange"]).to(eq_diff(["apple", "kiwi", "pear"]));
+/// expect!(["slices", "too"]).to(eq_diff(["slices", "too"]));
 /// ```
 ///
 /// # Custom Styling
