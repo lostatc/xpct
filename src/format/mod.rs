@@ -51,7 +51,7 @@ pub use option::ExpectationFormat;
 pub use why::WhyFormat;
 
 #[cfg(feature = "diff")]
-pub use diff::{DiffFormat, DiffSegmentStyle, DiffStyle, SliceDiffStyle, StringDiffStyle};
+pub use diff::{CollectionDiffStyle, DiffFormat, DiffSegmentStyle, DiffStyle, StringDiffStyle};
 
 pub(crate) mod matchers {
     pub use super::all::all;

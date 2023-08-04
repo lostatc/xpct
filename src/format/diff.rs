@@ -111,11 +111,11 @@ impl Default for StringDiffStyle {
     }
 }
 
-/// The styling for slice diffs when using [`DiffFormat`].
+/// The styling for diffs of collections when using [`DiffFormat`].
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
-pub struct SliceDiffStyle {
-    /// The text styling to use for each element in the slice.
+pub struct CollectionDiffStyle {
+    /// The text styling to use for each element in the collection.
     ///
     /// You can change the styling of elements to represent values that have been added or removed.
     pub element_style: DiffSegmentStyle<OutputStyle>,
@@ -130,7 +130,7 @@ pub struct SliceDiffStyle {
     pub gutter_style: DiffSegmentStyle<OutputStyle>,
 }
 
-impl SliceDiffStyle {
+impl CollectionDiffStyle {
     /// The provided styling, used by [`eq_diff`].
     ///
     /// You can use this as a starting point for customizing the provided styling. The value
@@ -180,7 +180,7 @@ impl SliceDiffStyle {
     }
 }
 
-impl Default for SliceDiffStyle {
+impl Default for CollectionDiffStyle {
     fn default() -> Self {
         Self {
             element_style: DiffSegmentStyle {
@@ -205,16 +205,16 @@ impl Default for SliceDiffStyle {
 /// The style sheet for [`DiffFormat`].
 ///
 /// Out of the box, [`DiffFormat`] relies on text styling to distinguish added and removed values in
-/// some cases, particularly for string diffs. If you prefer to have text styling disabled, or if
-/// the provided styling is inaccessible for you, you can use this to customize the styling.
+/// string diffs. If you prefer to have text styling disabled, or if the provided styling is
+/// inaccessible for you, you can use this style sheet to customize the styling.
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct DiffStyle {
     /// The styling for string diffs.
     pub string: StringDiffStyle,
 
-    /// The styling for slice diffs.
-    pub slice: SliceDiffStyle,
+    /// The styling for diffs of collections.
+    pub collection: CollectionDiffStyle,
 }
 
 impl DiffStyle {
@@ -225,7 +225,7 @@ impl DiffStyle {
     pub fn provided() -> Self {
         Self {
             string: StringDiffStyle::provided(),
-            slice: SliceDiffStyle::provided(),
+            collection: CollectionDiffStyle::provided(),
         }
     }
 }
@@ -317,19 +317,19 @@ where
                     for segment in diff {
                         let (gutter, gutter_style, element_style) = match segment.tag() {
                             DiffTag::Insert => (
-                                self.style.slice.gutter_char.insert,
-                                self.style.slice.gutter_style.insert.clone(),
-                                self.style.slice.element_style.insert.clone(),
+                                self.style.collection.gutter_char.insert,
+                                self.style.collection.gutter_style.insert.clone(),
+                                self.style.collection.element_style.insert.clone(),
                             ),
                             DiffTag::Delete => (
-                                self.style.slice.gutter_char.delete,
-                                self.style.slice.gutter_style.delete.clone(),
-                                self.style.slice.element_style.delete.clone(),
+                                self.style.collection.gutter_char.delete,
+                                self.style.collection.gutter_style.delete.clone(),
+                                self.style.collection.element_style.delete.clone(),
                             ),
                             DiffTag::Equal => (
-                                self.style.slice.gutter_char.equal,
-                                self.style.slice.gutter_style.equal.clone(),
-                                self.style.slice.element_style.equal.clone(),
+                                self.style.collection.gutter_char.equal,
+                                self.style.collection.gutter_style.equal.clone(),
+                                self.style.collection.element_style.equal.clone(),
                             ),
                         };
 
@@ -389,7 +389,7 @@ where
 ///
 /// # Custom Styling
 ///
-/// This matcher relies on text styling to distinguish added and removed values in some cases. If
+/// This matcher relies on text styling to distinguish added and removed values in string diffs. If
 /// you prefer to have text styling disabled, or if the provided styling is inaccessible for you,
 /// you can override the provided styling.
 ///
