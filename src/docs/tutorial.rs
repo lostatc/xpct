@@ -182,11 +182,12 @@ expect!(command).to(match_pattern(pattern!(
 You can use [`eq_diff`] instead of [`equal`] for any type that implements
 [`Diffable`] to print a rich diff when the values are not equal:
 
-```should_panic
+```
 use xpct::{expect, eq_diff};
 
-expect!("Hello, world!").to(eq_diff("Goodbye, world!"));
-expect!(["apple", "banana", "orange"]).to(eq_diff(["apple", "kiwi", "pear"]));
+expect!("you can diff strings").to(eq_diff("you can diff strings"));
+expect!(["and", "slices", "too"]).to(eq_diff(["and", "slices", "too"]));
+// also sets and maps
 ```
 
 If you want to assert on multiple fields of a struct, rather than using a
