@@ -45,7 +45,7 @@ use xpct::{expect, equal};
 expect!("disco").to(equal("Disco"));
 ```
 
-![Stderr from failed assertion](https://media.githubusercontent.com/media/lostatc/xpct/main/examples/equality.png)
+<img src="https://media.githubusercontent.com/media/lostatc/xpct/main/examples/equality.png" width=50% alt="stderr from failed assertion" />
 
 [*Image transcript*](https://raw.githubusercontent.com/lostatc/xpct/main/examples/equality.txt)
 
@@ -59,7 +59,7 @@ expect!(Some(41))
     .to(be_gt(57));
 ```
 
-![Stderr from failed assertion](https://media.githubusercontent.com/media/lostatc/xpct/main/examples/chaining.png)
+<img src="https://media.githubusercontent.com/media/lostatc/xpct/main/examples/chaining.png" width=50% alt="stderr from failed assertion" />
 
 [*Image transcript*](https://raw.githubusercontent.com/lostatc/xpct/main/examples/chaining.txt)
 
@@ -90,7 +90,7 @@ expect!(player).to(match_fields(fields!(Player {
 })));
 ```
 
-![Stderr from failed assertion](https://media.githubusercontent.com/media/lostatc/xpct/main/examples/fields.png)
+<img src="https://media.githubusercontent.com/media/lostatc/xpct/main/examples/fields.png" width=50% alt="stderr from failed assertion" />
 
 [*Image transcript*](https://raw.githubusercontent.com/lostatc/xpct/main/examples/fields.txt)
 
@@ -110,7 +110,7 @@ expect!(items)
     ]));
 ```
 
-![Stderr from failed assertion](https://media.githubusercontent.com/media/lostatc/xpct/main/examples/collections.png)
+<img src="https://media.githubusercontent.com/media/lostatc/xpct/main/examples/collections.png" width=50% alt="stderr from failed assertion" />
 
 [*Image transcript*](https://raw.githubusercontent.com/lostatc/xpct/main/examples/collections.txt)
 
