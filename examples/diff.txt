@@ -1,9 +1,9 @@
 [src/main.rs:18:5] = actual
     Expected these to be equal:
         {
-        -   "d": "durian",
-        -   "a": "not apple",
+         -  "a": "not apple",
+         -  "d": "durian",
             "b": "banana",
-        +   "c": "cucumber",
-        +   "a": "apple",
+         +  "a": "apple",
+         +  "c": "cucumber",
         }

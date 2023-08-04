@@ -334,11 +334,12 @@ where
                         };
 
                         f.set_style(gutter_style);
+                        f.write_char(' ');
                         f.write_char(gutter);
                         f.reset_style();
 
                         // Leave room for the gutter char.
-                        f.write_str(strings::whitespace(style::indent_len(1) as usize - 1));
+                        f.write_str(strings::whitespace(style::indent_len(1) as usize - 2));
 
                         f.set_style(element_style);
                         f.write_str(Expected::repr(&segment.value));
