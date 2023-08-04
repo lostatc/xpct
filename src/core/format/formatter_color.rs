@@ -1,13 +1,14 @@
 #![cfg(feature = "color")]
 
 use std::fmt;
+use std::io::{self, IsTerminal};
 
 use super::strings::{indent_segments, OutputSegment};
 use super::{Format, OutputStyle};
 
 // Disable colors and text styles if stderr is not a tty.
 fn check_disable_color() {
-    if atty::isnt(atty::Stream::Stderr) {
+    if !io::stderr().is_terminal() {
         colored::control::set_override(false)
     }
 }

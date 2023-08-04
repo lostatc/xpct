@@ -24,7 +24,6 @@ rust-version = "1.70.0"
 anyhow = "1.0"
 bitflags = "2.3.3"
 colored = { version = "2.0", optional = true }
-atty = { version = "0.2", optional = true }
 regex = { version = "1.7.0", optional = true }
 serde_json = { version = "1.0.91", optional = true }
 float-cmp = { version = "0.9.0", optional = true }
@@ -40,7 +39,7 @@ regex = ["dep:regex"]
 json = ["dep:serde_json"]
 float = ["dep:float-cmp"]
 casefold = ["dep:unicase"]
-color = ["dep:colored", "dep:atty"]
+color = ["dep:colored"]
 diff = ["similar"]
 unicode-diff = ["diff", "similar/unicode"]
 fmt = []
