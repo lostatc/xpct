@@ -432,7 +432,7 @@ where
 pub fn eq_diff<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + PartialEq<Expected> + Eq + 'a,
-    Expected: Diffable<Actual> + fmt::Debug + 'a,
+    Expected: fmt::Debug + Diffable<Actual> + 'a,
 {
     Matcher::new(
         EqDiffMatcher::new(expected),
