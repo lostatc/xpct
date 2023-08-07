@@ -46,18 +46,16 @@ impl DiffTag {
 /// 2. Something that is in the expected value but not the actual value (a deletion).
 /// 3. Something that is the same between the two values.
 ///
-/// The "something" that was added, removed, or unchanged in the diff is [`value`].
-///
-/// A diff segment is generic over its `Value`, which maps to [`Diffable::Segment`].
+/// The "something" that was inserted, deleted, or unchanged in the diff is [`value`].
 ///
 /// See [`Diffable`] for more information.
 ///
 /// [`value`]: crate::matchers::DiffSegment::value
 /// [`Diffable::Segment`]: crate::matchers::Diffable::Segment
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct DiffSegment<Value> {
-    /// The value of this segment.
-    pub value: Value,
+pub struct DiffSegment {
+    /// The string representation of the thing that was inserted, deleted, or unchanged.
+    pub value: String,
 
     /// Whether this segment represents an insertion, a deletion, or no change.
     pub tag: DiffTag,
@@ -66,33 +64,16 @@ pub struct DiffSegment<Value> {
 /// A diff between an actual and expected value.
 ///
 /// You can generate a [`Diff`] from any type which implements [`Diffable`].
-pub type Diff<Segment> = Vec<DiffSegment<Segment>>;
+pub type Diff = Vec<DiffSegment>;
 
 /// A value which can be diffed against another value.
 ///
 /// Diffing two values produces a [`Diff`], which consists of a list of [`DiffSegment`]s.
 pub trait Diffable<Other> {
-    /// The unit that diffs are broken up into.
-    ///
-    /// A diff consists of a list of segments that each represent an addition, a deletion, or no
-    /// change. This type represents the segments that the diffable values should be broken up into.
-    ///
-    /// If you're diffing `Vec<T>`, the `Segment` could be `T`. If you're diffing strings, the
-    /// `Segment` could be `char` or `str`.
-    type Segment;
-
     const KIND: DiffKind;
 
     /// Generate a diff of this value and `other`.
-    fn diff(&self, other: Other) -> Diff<Self::Segment>;
-
-    /// The string representation of the value to use in the diff output.
-    ///
-    /// In practice, this will probably delegate to the type's [`Debug`] or [`Display`] impl.
-    ///
-    /// [`Debug`]: std::fmt::Debug
-    /// [`Display`]: std::fmt::Display
-    fn repr(segment: &Self::Segment) -> String;
+    fn diff(&self, other: Other) -> Diff;
 }
 
 /// The matcher for [`eq_diff`].
@@ -115,7 +96,7 @@ where
     Actual: PartialEq<Expected> + Eq,
     Expected: Diffable<Actual>,
 {
-    type Fail = Diff<Expected::Segment>;
+    type Fail = Diff;
 
     fn matches(&mut self, actual: &Actual) -> crate::Result<bool> {
         Ok(actual == &self.expected)

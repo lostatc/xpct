@@ -251,7 +251,7 @@ where
     Actual: fmt::Debug,
     Expected: Diffable<Actual> + fmt::Debug,
 {
-    type Value = MatchFailure<Diff<Expected::Segment>>;
+    type Value = MatchFailure<Diff>;
 
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         let diff = match value {
@@ -288,9 +288,8 @@ where
                             ),
                         };
 
-                        let segment_string = Expected::repr(&segment.value);
                         let formatted_segment =
-                            format.replacen(FORMAT_PLACEHOLDER, &segment_string, 1);
+                            format.replacen(FORMAT_PLACEHOLDER, &segment.value, 1);
 
                         f.set_style(style);
                         f.write_str(&formatted_segment);
@@ -339,7 +338,7 @@ where
                         f.write_str(strings::whitespace(style::indent_len(1) as usize - 2));
 
                         f.set_style(element_style);
-                        f.write_str(Expected::repr(&segment.value));
+                        f.write_str(segment.value);
                         f.reset_style();
 
                         f.write_char(',');
