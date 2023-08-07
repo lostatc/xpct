@@ -32,10 +32,7 @@ impl<'a> Diffable<&'a str> for &'a str {
             .ops()
             .iter()
             .flat_map(move |op| remapper.iter_slices(op))
-            .map(|(tag, slice)| DiffSegment {
-                value: slice.to_owned(),
-                tag: DiffTag::from_tag(tag),
-            })
+            .map(|(tag, slice)| DiffSegment::from_display(slice, DiffTag::from_tag(tag)))
             .collect()
     }
 }
@@ -114,10 +111,7 @@ where
         capture_diff_slices(DIFF_ALGORITHM, self, other)
             .into_iter()
             .flat_map(|op| op.iter_changes(*self, other))
-            .map(|change| DiffSegment {
-                value: format!("{:?}", change.value()),
-                tag: DiffTag::from_tag(change.tag()),
-            })
+            .map(|change| DiffSegment::from_debug(change.value(), DiffTag::from_tag(change.tag())))
             .collect()
     }
 }
@@ -294,20 +288,17 @@ where
     const KIND: DiffKind = DiffKind::Set;
 
     fn diff(&self, other: &HashSet<T>) -> Diff {
-        let deletions = self.difference(other).map(|element| DiffSegment {
-            value: format!("{:?}", element.to_owned()),
-            tag: DiffTag::Delete,
-        });
+        let deletions = self
+            .difference(other)
+            .map(|element| DiffSegment::from_debug(element, DiffTag::Delete));
 
-        let equal = self.intersection(other).map(|element| DiffSegment {
-            value: format!("{:?}", element.to_owned()),
-            tag: DiffTag::Equal,
-        });
+        let equal = self
+            .intersection(other)
+            .map(|element| DiffSegment::from_debug(element, DiffTag::Equal));
 
-        let insertions = other.difference(self).map(|element| DiffSegment {
-            value: format!("{:?}", element.to_owned()),
-            tag: DiffTag::Insert,
-        });
+        let insertions = other
+            .difference(self)
+            .map(|element| DiffSegment::from_debug(element, DiffTag::Insert));
 
         let mut segments = deletions.collect::<Vec<_>>();
         segments.extend(equal);
@@ -335,20 +326,17 @@ where
     const KIND: DiffKind = DiffKind::Set;
 
     fn diff(&self, other: &BTreeSet<T>) -> Diff {
-        let deletions = self.difference(other).map(|element| DiffSegment {
-            value: format!("{:?}", element.to_owned()),
-            tag: DiffTag::Delete,
-        });
+        let deletions = self
+            .difference(other)
+            .map(|element| DiffSegment::from_debug(element, DiffTag::Delete));
 
-        let equal = self.intersection(other).map(|element| DiffSegment {
-            value: format!("{:?}", element.to_owned()),
-            tag: DiffTag::Equal,
-        });
+        let equal = self
+            .intersection(other)
+            .map(|element| DiffSegment::from_debug(element, DiffTag::Equal));
 
-        let insertions = other.difference(self).map(|element| DiffSegment {
-            value: format!("{:?}", element.to_owned()),
-            tag: DiffTag::Insert,
-        });
+        let insertions = other
+            .difference(self)
+            .map(|element| DiffSegment::from_debug(element, DiffTag::Insert));
 
         let mut segments = deletions.collect::<Vec<_>>();
         segments.extend(equal);
@@ -407,10 +395,7 @@ where
         // Pairs in `self` but not `other`.
         let deletions = hash_map_difference(self, other)
             .into_iter()
-            .map(|pair| DiffSegment {
-                value: format!("{:?}", pair),
-                tag: DiffTag::Delete,
-            });
+            .map(|pair| DiffSegment::from_debug(pair, DiffTag::Delete));
 
         segments.extend(deletions);
 
@@ -425,10 +410,7 @@ where
                 _ => continue,
             };
 
-            equal.push(DiffSegment {
-                value: format!("{:?}", pair),
-                tag: DiffTag::Equal,
-            });
+            equal.push(DiffSegment::from_debug(pair, DiffTag::Equal));
         }
 
         segments.extend(equal);
@@ -436,10 +418,7 @@ where
         // Pairs in `other` but not `self`.
         let insertions = hash_map_difference(other, self)
             .into_iter()
-            .map(|pair| DiffSegment {
-                value: format!("{:?}", pair),
-                tag: DiffTag::Insert,
-            });
+            .map(|pair| DiffSegment::from_debug(pair, DiffTag::Insert));
 
         segments.extend(insertions);
 
@@ -499,10 +478,7 @@ where
         // Pairs in `self` but not `other`.
         let deletions = btree_map_difference(self, other)
             .into_iter()
-            .map(|pair| DiffSegment {
-                value: format!("{:?}", pair),
-                tag: DiffTag::Delete,
-            });
+            .map(|pair| DiffSegment::from_debug(pair, DiffTag::Delete));
 
         segments.extend(deletions);
 
@@ -517,10 +493,7 @@ where
                 _ => continue,
             };
 
-            equal.push(DiffSegment {
-                value: format!("{:?}", pair),
-                tag: DiffTag::Equal,
-            });
+            equal.push(DiffSegment::from_debug(pair, DiffTag::Equal));
         }
 
         segments.extend(equal);
@@ -528,10 +501,7 @@ where
         // Pairs in `other` but not `self`.
         let insertions = btree_map_difference(other, self)
             .into_iter()
-            .map(|pair| DiffSegment {
-                value: format!("{:?}", pair),
-                tag: DiffTag::Insert,
-            });
+            .map(|pair| DiffSegment::from_debug(pair, DiffTag::Insert));
 
         segments.extend(insertions);
 

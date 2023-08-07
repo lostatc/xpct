@@ -1,5 +1,6 @@
 #![cfg(feature = "diff")]
 
+use std::fmt;
 use std::hash::Hash;
 
 use similar::ChangeTag;
@@ -60,6 +61,22 @@ pub struct DiffSegment {
 
     /// Whether this segment represents an insertion, a deletion, or no change.
     pub tag: DiffTag,
+}
+
+impl DiffSegment {
+    pub fn from_debug(value: impl fmt::Debug, tag: DiffTag) -> Self {
+        Self {
+            value: format!("{:?}", value),
+            tag,
+        }
+    }
+
+    pub fn from_display(value: impl fmt::Display, tag: DiffTag) -> Self {
+        Self {
+            value: format!("{}", value),
+            tag,
+        }
+    }
 }
 
 /// A diff between an actual and expected value.
