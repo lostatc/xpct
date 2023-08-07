@@ -75,9 +75,29 @@ impl Formatter {
         self.push_segments(formatted.segments)
     }
 
+    fn indented_inner(
+        &mut self,
+        prefix: impl AsRef<str>,
+        hanging: bool,
+        func: impl FnOnce(&mut Formatter) -> crate::Result<()>,
+    ) -> crate::Result<()> {
+        let mut formatter = Self::new();
+        formatter.current.style = self.current.style.clone();
+
+        func(&mut formatter)?;
+
+        let segments = formatter.into_segments();
+        let output = FormattedOutput { segments };
+
+        let indented = output.indented_inner(prefix.as_ref(), hanging);
+        self.push_segments(indented.segments);
+
+        Ok(())
+    }
+
     /// Write some indented text to the output.
     ///
-    /// Anything written to the [`Formatter`] passed to `func` is indented by the given `prefix`.
+    /// Anything written to the [`Formatter`] passed to `func` is indented by `prefix`.
     ///
     /// To indent with whitespace, you can use [`whitespace`].
     ///
@@ -90,18 +110,20 @@ impl Formatter {
         prefix: impl AsRef<str>,
         func: impl FnOnce(&mut Formatter) -> crate::Result<()>,
     ) -> crate::Result<()> {
-        let mut formatter = Self::new();
-        formatter.current.style = self.current.style.clone();
+        self.indented_inner(prefix, false, func)
+    }
 
-        func(&mut formatter)?;
-
-        let segments = formatter.into_segments();
-        let output = FormattedOutput { segments };
-
-        let indented = output.indented(prefix.as_ref());
-        self.push_segments(indented.segments);
-
-        Ok(())
+    /// Write some indented text to the output with a hanging indent.
+    ///
+    /// This is the same as [`indented`], but generates a hanging indent.
+    ///
+    /// [`indented`]: crate::core::Formatter::indented
+    pub fn indented_hanging(
+        &mut self,
+        prefix: impl AsRef<str>,
+        func: impl FnOnce(&mut Formatter) -> crate::Result<()>,
+    ) -> crate::Result<()> {
+        self.indented_inner(prefix, true, func)
     }
 
     /// Get the current [`OutputStyle`].
@@ -153,7 +175,17 @@ impl FormattedOutput {
         })
     }
 
-    /// Return a new [`FormattedOutput`] which has been indented by the given `prefix`.
+    fn indented_inner(self, prefix: impl AsRef<str>, hanging: bool) -> Self {
+        if prefix.as_ref().is_empty() {
+            return self;
+        }
+
+        Self {
+            segments: indent_segments(self.segments, prefix.as_ref(), hanging),
+        }
+    }
+
+    /// Return a new [`FormattedOutput`] which has been indented by `prefix`.
     ///
     /// To indent with whitespace, you can use [`whitespace`].
     ///
@@ -162,13 +194,16 @@ impl FormattedOutput {
     /// [`whitespace`]: crate::core::whitespace
     /// [`FormattedFailure::into_indented`]: crate::core::FormattedFailure::into_indented
     pub fn indented(self, prefix: impl AsRef<str>) -> Self {
-        if prefix.as_ref().is_empty() {
-            return self;
-        }
+        self.indented_inner(prefix, false)
+    }
 
-        Self {
-            segments: indent_segments(self.segments, prefix.as_ref()),
-        }
+    /// Return a new [`FormattedOutput`] which has been indented by `prefix` with a hanging indent.
+    ///
+    /// This is the same as [`indented`], but generates a hanging indent.
+    ///
+    /// [`indented`]: crate::core::FormattedOutput::indented
+    pub fn indented_hanging(self, prefix: impl AsRef<str>) -> Self {
+        self.indented_inner(prefix, true)
     }
 
     /// Panic with this output as the error message.

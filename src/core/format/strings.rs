@@ -17,17 +17,23 @@ mod with_color {
     /// Indent each line of the string represented by the given list of styled segments.
     ///
     /// This ensures that the whitespace used for indentation is unstyled.
-    pub fn indent_segments(segments: Vec<OutputSegment>, prefix: &str) -> Vec<OutputSegment> {
+    pub fn indent_segments(
+        segments: Vec<OutputSegment>,
+        prefix: &str,
+        hanging: bool,
+    ) -> Vec<OutputSegment> {
         // We know that we'll probably need more segments than we were given, but we don't know
         // exactly how many yet.
         let mut new_segments = Vec::with_capacity(segments.len() * 2);
 
         // Write the indentation spaces with no formatting. Even though colors won't appear on
         // whitespace, some text styles will.
-        new_segments.push(OutputSegment {
-            buf: prefix.to_string(),
-            style: OutputStyle::default(),
-        });
+        if !hanging {
+            new_segments.push(OutputSegment {
+                buf: prefix.to_string(),
+                style: OutputStyle::default(),
+            });
+        }
 
         let non_empty_segments = segments
             .into_iter()

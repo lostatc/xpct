@@ -35,9 +35,10 @@ impl Formatter {
         self.buf.push_str(&output.into().buf);
     }
 
-    pub fn indented(
+    fn indented_inner(
         &mut self,
         prefix: impl AsRef<str>,
+        hanging: bool,
         func: impl FnOnce(&mut Formatter) -> crate::Result<()>,
     ) -> crate::Result<()> {
         let mut formatter = Self::new();
@@ -45,10 +46,26 @@ impl Formatter {
 
         let output = FormattedOutput { buf: formatter.buf };
 
-        let indented = output.indented(prefix.as_ref());
+        let indented = output.indented_inner(prefix.as_ref(), hanging);
         self.buf.push_str(&indented.buf);
 
         Ok(())
+    }
+
+    pub fn indented(
+        &mut self,
+        prefix: impl AsRef<str>,
+        func: impl FnOnce(&mut Formatter) -> crate::Result<()>,
+    ) -> crate::Result<()> {
+        self.indented_inner(prefix, false, func)
+    }
+
+    pub fn indented_hanging(
+        &mut self,
+        prefix: impl AsRef<str>,
+        func: impl FnOnce(&mut Formatter) -> crate::Result<()>,
+    ) -> crate::Result<()> {
+        self.indented_inner(prefix, true, func)
     }
 
     pub fn style(&self) -> &OutputStyle {
@@ -79,12 +96,20 @@ impl FormattedOutput {
         Ok(Self { buf: formatter.buf })
     }
 
-    pub fn indented(mut self, prefix: impl AsRef<str>) -> Self {
+    fn indented_inner(mut self, prefix: impl AsRef<str>, hanging: bool) -> Self {
         if !prefix.as_ref().is_empty() {
-            self.buf = strings::indent(&self.buf, prefix.as_ref(), false).into();
+            self.buf = strings::indent(&self.buf, prefix.as_ref(), hanging).into();
         }
 
         self
+    }
+
+    pub fn indented(self, prefix: impl AsRef<str>) -> Self {
+        self.indented_inner(prefix, false)
+    }
+
+    pub fn indented_hanging(self, prefix: impl AsRef<str>) -> Self {
+        self.indented_inner(prefix, true)
     }
 
     pub fn fail(&self) -> ! {
