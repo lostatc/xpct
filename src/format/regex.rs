@@ -21,7 +21,7 @@ use super::MismatchFormat;
 ///
 /// expect!("foobar").to(match_regex(r"^foo\w*$"));
 /// ```
-pub fn match_regex<'a, Actual>(regex: &str) -> Matcher<'a, Actual, Actual>
+pub fn match_regex<'a, Actual>(regex: impl AsRef<str>) -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + AsRef<str> + 'a,
 {

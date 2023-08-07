@@ -18,9 +18,9 @@ impl RegexMatcher {
     /// Create a new [`RegexMatcher`] from the expected regex.
     ///
     /// If the given regex is invalid, the matcher will return an error.
-    pub fn new(regex: &str) -> Self {
+    pub fn new(regex: impl AsRef<str>) -> Self {
         Self {
-            regex: Regex::new(regex),
+            regex: Regex::new(regex.as_ref()),
         }
     }
 }
