@@ -7,10 +7,7 @@ use crate::core::{
     strings, style, Color, Format, Formatter, MatchFailure, Matcher, OutputStyle, TextColor,
     TextStyle,
 };
-use crate::matchers::{
-    Diff, DiffTag, Diffable, EqDiffMatcher, MAP_DIFF_KIND, SET_DIFF_KIND, SLICE_DIFF_KIND,
-    STRING_DIFF_KIND,
-};
+use crate::matchers::{Diff, DiffKind, DiffTag, Diffable, EqDiffMatcher};
 
 const FORMAT_PLACEHOLDER: &str = "%s";
 
@@ -273,7 +270,7 @@ where
         f.reset_style();
 
         match Expected::KIND {
-            STRING_DIFF_KIND => {
+            DiffKind::String => {
                 f.indented(style::INDENT_LEN, |f| {
                     for segment in diff {
                         let (format, style) = match segment.tag {
@@ -304,11 +301,11 @@ where
 
                 Ok(())
             }
-            SLICE_DIFF_KIND | SET_DIFF_KIND | MAP_DIFF_KIND => {
+            DiffKind::Slice | DiffKind::Set | DiffKind::Map => {
                 f.indented(style::INDENT_LEN, |f| {
                     match Expected::KIND {
-                        SLICE_DIFF_KIND => f.write_char('['),
-                        SET_DIFF_KIND | MAP_DIFF_KIND => f.write_char('{'),
+                        DiffKind::Slice => f.write_char('['),
+                        DiffKind::Set | DiffKind::Map => f.write_char('{'),
                         _ => unreachable!(),
                     };
 
@@ -350,8 +347,8 @@ where
                     }
 
                     match Expected::KIND {
-                        SLICE_DIFF_KIND => f.write_char(']'),
-                        SET_DIFF_KIND | MAP_DIFF_KIND => f.write_char('}'),
+                        DiffKind::Slice => f.write_char(']'),
+                        DiffKind::Set | DiffKind::Map => f.write_char('}'),
                         _ => unreachable!(),
                     };
 
@@ -360,9 +357,8 @@ where
 
                 Ok(())
             }
-            _ => Err(crate::Error::msg(format!(
-                "this is not a supported diffable kind: {}",
-                Expected::KIND,
+            DiffKind::Custom(name) => Err(crate::Error::msg(format!(
+                "this is not a supported diffable kind: {name}",
             ))),
         }
     }

@@ -39,10 +39,7 @@ pub use combinator::{
 pub use contain::{BeInMatcher, ConsistOfMatcher, ContainElementsMatcher, Contains};
 pub use default::BeDefaultMatcher;
 #[cfg(feature = "diff")]
-pub use diff::{
-    Diff, DiffSegment, DiffTag, Diffable, EqDiffMatcher, MAP_DIFF_KIND, SET_DIFF_KIND,
-    SLICE_DIFF_KIND, STRING_DIFF_KIND,
-};
+pub use diff::{Diff, DiffKind, DiffSegment, DiffTag, Diffable, EqDiffMatcher};
 pub use elements::MatchElementsMatcher;
 pub use equal::{EqualMatcher, Mismatch};
 pub use every::EveryMatcher;

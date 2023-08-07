@@ -8,17 +8,14 @@ use std::hash::Hash;
 
 use similar::{capture_diff_slices, utils::TextDiffRemapper, TextDiff};
 
-use super::diff::SET_DIFF_KIND;
-use super::{
-    Diff, DiffSegment, DiffTag, Diffable, MAP_DIFF_KIND, SLICE_DIFF_KIND, STRING_DIFF_KIND,
-};
+use super::{Diff, DiffKind, DiffSegment, DiffTag, Diffable};
 
 const DIFF_ALGORITHM: similar::Algorithm = similar::Algorithm::Patience;
 
 impl<'a> Diffable<&'a str> for &'a str {
     type Segment = String;
 
-    const KIND: &'static str = STRING_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::String;
 
     fn diff(&self, other: &'a str) -> Diff<Self::Segment> {
         #[cfg(feature = "unicode-diff")]
@@ -52,7 +49,7 @@ impl<'a> Diffable<&'a str> for &'a str {
 impl<'a> Diffable<String> for &'a str {
     type Segment = String;
 
-    const KIND: &'static str = STRING_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::String;
 
     fn diff(&self, other: String) -> Diff<Self::Segment> {
         self.diff(other.as_str())
@@ -66,7 +63,7 @@ impl<'a> Diffable<String> for &'a str {
 impl<'a> Diffable<Cow<'a, str>> for &'a str {
     type Segment = String;
 
-    const KIND: &'static str = STRING_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::String;
 
     fn diff(&self, other: Cow<'a, str>) -> Diff<Self::Segment> {
         self.diff(other.as_ref())
@@ -80,7 +77,7 @@ impl<'a> Diffable<Cow<'a, str>> for &'a str {
 impl<'a> Diffable<&'a str> for String {
     type Segment = String;
 
-    const KIND: &'static str = STRING_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::String;
 
     fn diff(&self, other: &'a str) -> Diff<Self::Segment> {
         self.as_str().diff(other)
@@ -94,7 +91,7 @@ impl<'a> Diffable<&'a str> for String {
 impl<'a> Diffable<String> for String {
     type Segment = String;
 
-    const KIND: &'static str = STRING_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::String;
 
     fn diff(&self, other: String) -> Diff<Self::Segment> {
         self.as_str().diff(other.as_str())
@@ -108,7 +105,7 @@ impl<'a> Diffable<String> for String {
 impl<'a> Diffable<Cow<'a, str>> for String {
     type Segment = String;
 
-    const KIND: &'static str = STRING_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::String;
 
     fn diff(&self, other: Cow<'a, str>) -> Diff<Self::Segment> {
         self.as_str().diff(other.as_ref())
@@ -122,7 +119,7 @@ impl<'a> Diffable<Cow<'a, str>> for String {
 impl<'a> Diffable<&'a str> for Cow<'a, str> {
     type Segment = String;
 
-    const KIND: &'static str = STRING_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::String;
 
     fn diff(&self, other: &'a str) -> Diff<Self::Segment> {
         self.as_ref().diff(other)
@@ -136,7 +133,7 @@ impl<'a> Diffable<&'a str> for Cow<'a, str> {
 impl<'a> Diffable<String> for Cow<'a, str> {
     type Segment = String;
 
-    const KIND: &'static str = STRING_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::String;
 
     fn diff(&self, other: String) -> Diff<Self::Segment> {
         self.as_ref().diff(other.as_str())
@@ -150,7 +147,7 @@ impl<'a> Diffable<String> for Cow<'a, str> {
 impl<'a> Diffable<Cow<'a, str>> for Cow<'a, str> {
     type Segment = String;
 
-    const KIND: &'static str = STRING_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::String;
 
     fn diff(&self, other: Cow<'a, str>) -> Diff<Self::Segment> {
         self.as_ref().diff(other.as_ref())
@@ -167,7 +164,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SLICE_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Slice;
 
     fn diff(&self, other: &'a [T]) -> Diff<Self::Segment> {
         capture_diff_slices(DIFF_ALGORITHM, self, other)
@@ -191,7 +188,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SLICE_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Slice;
 
     fn diff(&self, other: [T; OTHER_LEN]) -> Diff<Self::Segment> {
         self.diff(other.as_slice())
@@ -208,7 +205,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SLICE_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Slice;
 
     fn diff(&self, other: &[T; OTHER_LEN]) -> Diff<Self::Segment> {
         self.diff(other.as_slice())
@@ -225,7 +222,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SLICE_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Slice;
 
     fn diff(&self, other: Vec<T>) -> Diff<Self::Segment> {
         self.diff(other.as_slice())
@@ -242,7 +239,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SLICE_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Slice;
 
     fn diff(&self, other: &Vec<T>) -> Diff<Self::Segment> {
         self.diff(other.as_slice())
@@ -259,7 +256,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SLICE_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Slice;
 
     fn diff(&self, other: &'a [T]) -> Diff<Self::Segment> {
         self.as_slice().diff(other)
@@ -276,7 +273,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SLICE_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Slice;
 
     fn diff(&self, other: [T; OTHER_LEN]) -> Diff<Self::Segment> {
         self.as_slice().diff(other.as_slice())
@@ -293,7 +290,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SLICE_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Slice;
 
     fn diff(&self, other: Vec<T>) -> Diff<Self::Segment> {
         self.as_slice().diff(other.as_slice())
@@ -310,7 +307,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SLICE_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Slice;
 
     fn diff(&self, other: &'a [T]) -> Diff<Self::Segment> {
         self.as_slice().diff(other)
@@ -327,7 +324,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SLICE_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Slice;
 
     fn diff(&self, other: &[T; OTHER_LEN]) -> Diff<Self::Segment> {
         self.as_slice().diff(other.as_slice())
@@ -344,7 +341,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SLICE_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Slice;
 
     fn diff(&self, other: Vec<T>) -> Diff<Self::Segment> {
         self.as_slice().diff(other.as_slice())
@@ -361,7 +358,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SLICE_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Slice;
 
     fn diff(&self, other: &Vec<T>) -> Diff<Self::Segment> {
         self.as_slice().diff(other.as_slice())
@@ -378,7 +375,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SLICE_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Slice;
 
     fn diff(&self, other: &'a [T]) -> Diff<Self::Segment> {
         self.as_slice().diff(other)
@@ -395,7 +392,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SLICE_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Slice;
 
     fn diff(&self, other: Vec<T>) -> Diff<Self::Segment> {
         self.as_slice().diff(other.as_slice())
@@ -412,7 +409,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SLICE_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Slice;
 
     fn diff(&self, other: &'a [T]) -> Diff<Self::Segment> {
         self.as_slice().diff(other)
@@ -429,7 +426,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SLICE_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Slice;
 
     fn diff(&self, other: &Vec<T>) -> Diff<Self::Segment> {
         self.as_slice().diff(other.as_slice())
@@ -446,7 +443,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SET_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Set;
 
     fn diff(&self, other: &HashSet<T>) -> Diff<Self::Segment> {
         let deletions = self.difference(other).map(|element| DiffSegment {
@@ -482,7 +479,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SET_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Set;
 
     fn diff(&self, other: HashSet<T>) -> Diff<Self::Segment> {
         <&HashSet<T>>::diff(&self, &other)
@@ -499,7 +496,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SET_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Set;
 
     fn diff(&self, other: &BTreeSet<T>) -> Diff<Self::Segment> {
         let deletions = self.difference(other).map(|element| DiffSegment {
@@ -535,7 +532,7 @@ where
 {
     type Segment = T;
 
-    const KIND: &'static str = SET_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Set;
 
     fn diff(&self, other: BTreeSet<T>) -> Diff<Self::Segment> {
         <&BTreeSet<T>>::diff(&self, &other)
@@ -578,7 +575,7 @@ where
 {
     type Segment = (K, V);
 
-    const KIND: &'static str = MAP_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Map;
 
     fn diff(&self, other: &HashMap<K, V>) -> Diff<Self::Segment> {
         let mut segments = Vec::with_capacity(self.len() + other.len());
@@ -639,7 +636,7 @@ where
 {
     type Segment = (K, V);
 
-    const KIND: &'static str = MAP_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Map;
 
     fn diff(&self, other: HashMap<K, V>) -> Diff<Self::Segment> {
         <&HashMap<K, V>>::diff(&self, &other)
@@ -682,7 +679,7 @@ where
 {
     type Segment = (K, V);
 
-    const KIND: &'static str = MAP_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Map;
 
     fn diff(&self, other: &BTreeMap<K, V>) -> Diff<Self::Segment> {
         let mut segments = Vec::with_capacity(self.len() + other.len());
@@ -743,7 +740,7 @@ where
 {
     type Segment = (K, V);
 
-    const KIND: &'static str = MAP_DIFF_KIND;
+    const KIND: DiffKind = DiffKind::Map;
 
     fn diff(&self, other: BTreeMap<K, V>) -> Diff<Self::Segment> {
         <&BTreeMap<K, V>>::diff(&self, &other)

@@ -6,25 +6,14 @@ use similar::ChangeTag;
 
 use crate::core::Match;
 
-/// A [`Diffable::KIND`] for strings.
-///
-/// [`Diffable::KIND`]: crate::matchers::Diffable::KIND
-pub const STRING_DIFF_KIND: &str = "string";
-
-/// A [`Diffable::KIND`] for slices.
-///
-/// [`Diffable::KIND`]: crate::matchers::Diffable::KIND
-pub const SLICE_DIFF_KIND: &str = "slice";
-
-/// A [`Diffable::KIND`] for sets.
-///
-/// [`Diffable::KIND`]: crate::matchers::Diffable::KIND
-pub const SET_DIFF_KIND: &str = "set";
-
-/// A [`Diffable::KIND`] for maps.
-///
-/// [`Diffable::KIND`]: crate::matchers::Diffable::KIND
-pub const MAP_DIFF_KIND: &str = "map";
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum DiffKind {
+    String,
+    Slice,
+    Set,
+    Map,
+    Custom(&'static str),
+}
 
 /// Whether a [`DiffSegment`] represents an insertion, deletion, or no change.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -92,16 +81,7 @@ pub trait Diffable<Other> {
     /// `Segment` could be `char` or `str`.
     type Segment;
 
-    /// A discriminant that represents how this diffable should be formatted.
-    ///
-    /// This value allows [formatters][crate::core::Format] to represent different kinds of diffable
-    /// values differently. For example, a diff of two strings should be formatted differently from
-    /// a diff of two vectors of strings, even if they both have a [`Segment`] of type `String`.
-    ///
-    /// [`STRING_DIFF_KIND`] and [`SLICE_DIFF_KIND`] are two examples of provided diff kinds.
-    ///
-    /// [`Segment`]: crate::matchers::Diffable::Segment
-    const KIND: &'static str;
+    const KIND: DiffKind;
 
     /// Generate a diff of this value and `other`.
     fn diff(&self, other: Other) -> Diff<Self::Segment>;
