@@ -24,7 +24,7 @@ impl<'a> Diffable<&'a str> for &'a str {
         #[cfg(not(feature = "unicode-diff"))]
         let text_diff = TextDiff::configure()
             .algorithm(DIFF_ALGORITHM)
-            .diff_chars(self, other);
+            .diff_chars(*self, other);
 
         let remapper = TextDiffRemapper::from_text_diff(&text_diff, self, other);
 
