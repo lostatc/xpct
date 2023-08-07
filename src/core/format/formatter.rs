@@ -37,7 +37,7 @@ impl Formatter {
 
     pub fn indented(
         &mut self,
-        spaces: u32,
+        prefix: impl AsRef<str>,
         func: impl FnOnce(&mut Formatter) -> crate::Result<()>,
     ) -> crate::Result<()> {
         let mut formatter = Self::new();
@@ -45,7 +45,7 @@ impl Formatter {
 
         let output = FormattedOutput { buf: formatter.buf };
 
-        let indented = output.indented(spaces);
+        let indented = output.indented(prefix.as_ref());
         self.buf.push_str(&indented.buf);
 
         Ok(())
@@ -79,9 +79,9 @@ impl FormattedOutput {
         Ok(Self { buf: formatter.buf })
     }
 
-    pub fn indented(mut self, spaces: u32) -> Self {
-        if spaces > 0 {
-            self.buf = strings::indent(&self.buf, spaces, false).into();
+    pub fn indented(mut self, prefix: impl AsRef<str>) -> Self {
+        if !prefix.as_ref().is_empty() {
+            self.buf = strings::indent(&self.buf, prefix.as_ref(), false).into();
         }
 
         self

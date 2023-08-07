@@ -29,7 +29,8 @@ impl Format for SomeFailuresFormat {
 
     fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         let num_failures = value.len();
-        let failure_indent = strings::int_len(num_failures, 10) + 4;
+        let failure_indent =
+            strings::whitespace((strings::int_len(num_failures, 10) + style::INDENT_LEN) as usize);
 
         for (i, maybe_fail) in value.into_iter().enumerate() {
             if let Some(fail) = maybe_fail {
@@ -46,7 +47,7 @@ impl Format for SomeFailuresFormat {
                 f.reset_style();
                 f.write_char('\n');
 
-                f.write_fmt(fail.into_indented(failure_indent));
+                f.write_fmt(fail.into_indented(failure_indent.as_ref()));
 
                 f.write_char('\n');
             };

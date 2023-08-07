@@ -270,7 +270,7 @@ where
 
         match Expected::KIND {
             DiffKind::String => {
-                f.indented(style::INDENT_LEN, |f| {
+                f.indented(style::indent(1), |f| {
                     for segment in diff {
                         let (format, style) = match segment.tag {
                             DiffTag::Insert => (
@@ -300,7 +300,7 @@ where
                 Ok(())
             }
             DiffKind::Slice | DiffKind::Set | DiffKind::Map => {
-                f.indented(style::INDENT_LEN, |f| {
+                f.indented(style::indent(1), |f| {
                     match Expected::KIND {
                         DiffKind::Slice => f.write_char('['),
                         DiffKind::Set | DiffKind::Map => f.write_char('{'),

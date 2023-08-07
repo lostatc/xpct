@@ -71,7 +71,7 @@ impl FormattedFailure {
         })
     }
 
-    /// Convert this into a [`FormattedOutput`], indented by the given number of spaces.
+    /// Convert this into a [`FormattedOutput`], indented by the given `prefix`.
     ///
     ///
     /// This method is equivalent to:
@@ -121,8 +121,8 @@ impl FormattedFailure {
     ///
     /// [`SomeFailures`]: crate::matchers::SomeFailures
     /// [`FormattedOutput::indented`]: crate::core::FormattedOutput::indented
-    pub fn into_indented(self, spaces: u32) -> FormattedOutput {
-        FormattedOutput::from(self).indented(spaces)
+    pub fn into_indented(self, prefix: impl AsRef<str>) -> FormattedOutput {
+        FormattedOutput::from(self).indented(prefix.as_ref())
     }
 }
 

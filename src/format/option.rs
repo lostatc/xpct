@@ -60,7 +60,7 @@ where
         match value {
             MatchFailure::Pos(expectation) => {
                 f.set_style(style::bad());
-                f.indented(style::INDENT_LEN, |f| {
+                f.indented(style::indent(1), |f| {
                     f.write_str(format!("{:?}", expectation.actual));
                     Ok(())
                 })?;
@@ -72,7 +72,7 @@ where
             }
             MatchFailure::Neg(expectation) => {
                 f.set_style(style::bad());
-                f.indented(style::INDENT_LEN, |f| {
+                f.indented(style::indent(1), |f| {
                     f.write_str(format!("{:?}", expectation.actual));
                     Ok(())
                 })?;

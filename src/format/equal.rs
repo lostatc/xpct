@@ -59,7 +59,7 @@ where
                 f.write_str("Expected:\n");
 
                 f.set_style(style::bad());
-                f.indented(style::INDENT_LEN, |f| {
+                f.indented(style::indent(1), |f| {
                     f.write_str(format!("{:?}", mismatch.actual));
                     Ok(())
                 })?;
@@ -70,7 +70,7 @@ where
                 f.write_str(":\n");
 
                 f.set_style(style::bad());
-                f.indented(style::INDENT_LEN, |f| {
+                f.indented(style::indent(1), |f| {
                     f.write_str(format!("{:?}", mismatch.expected));
                     Ok(())
                 })?;
@@ -81,7 +81,7 @@ where
                 f.write_str("Expected:\n");
 
                 f.set_style(style::bad());
-                f.indented(style::INDENT_LEN, |f| {
+                f.indented(style::indent(1), |f| {
                     f.write_str(format!("{:?}", mismatch.actual));
                     Ok(())
                 })?;
@@ -92,7 +92,7 @@ where
                 f.write_str(":\n");
 
                 f.set_style(style::bad());
-                f.indented(style::INDENT_LEN, |f| {
+                f.indented(style::indent(1), |f| {
                     f.write_str(format!("{:?}", mismatch.expected));
                     Ok(())
                 })?;

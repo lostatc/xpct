@@ -77,15 +77,17 @@ impl Formatter {
 
     /// Write some indented text to the output.
     ///
-    /// Anything written to the [`Formatter`] passed to `func` is indented by the given number of
-    /// `spaces`.
+    /// Anything written to the [`Formatter`] passed to `func` is indented by the given `prefix`.
+    ///
+    /// To indent with whitespace, you can use [`whitespace`].
     ///
     /// The current [`style`] is inherited by the [`Formatter`] passed to `func`.
     ///
+    /// [`whitespace`]: crate::core::whitespace
     /// [`style`]: crate::core::Formatter::style
     pub fn indented(
         &mut self,
-        spaces: u32,
+        prefix: impl AsRef<str>,
         func: impl FnOnce(&mut Formatter) -> crate::Result<()>,
     ) -> crate::Result<()> {
         let mut formatter = Self::new();
@@ -96,7 +98,7 @@ impl Formatter {
         let segments = formatter.into_segments();
         let output = FormattedOutput { segments };
 
-        let indented = output.indented(spaces);
+        let indented = output.indented(prefix.as_ref());
         self.push_segments(indented.segments);
 
         Ok(())
@@ -151,18 +153,21 @@ impl FormattedOutput {
         })
     }
 
-    /// Return a new [`FormattedOutput`] which has been indented by the given number of spaces.
+    /// Return a new [`FormattedOutput`] which has been indented by the given `prefix`.
+    ///
+    /// To indent with whitespace, you can use [`whitespace`].
     ///
     /// Also see [`FormattedFailure::into_indented`].
     ///
+    /// [`whitespace`]: crate::core::whitespace
     /// [`FormattedFailure::into_indented`]: crate::core::FormattedFailure::into_indented
-    pub fn indented(self, spaces: u32) -> Self {
-        if spaces == 0 {
+    pub fn indented(self, prefix: impl AsRef<str>) -> Self {
+        if prefix.as_ref().is_empty() {
             return self;
         }
 
         Self {
-            segments: indent_segments(self.segments, spaces),
+            segments: indent_segments(self.segments, prefix.as_ref()),
         }
     }
 

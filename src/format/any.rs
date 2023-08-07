@@ -58,7 +58,7 @@ where
             MatchFailure::Neg(fail) => fail,
         };
 
-        f.write_fmt(FormattedOutput::new(fail, self.inner)?.indented(style::indent_len(1)));
+        f.write_fmt(FormattedOutput::new(fail, self.inner)?.indented(style::indent(1)));
 
         Ok(())
     }

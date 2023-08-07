@@ -17,12 +17,12 @@ pub const AT_LESAT_ONE_FIELD_OK_HEADER: &str = "Expected at least one of these f
 
 pub const AT_LESAT_ONE_NOT_OK_MSG: &str = "Expected at least one of these to fail.";
 
-pub fn indent(levels: u32) -> Cow<'static, str> {
-    strings::whitespace((INDENT_LEN * levels) as usize)
-}
-
 pub fn indent_len(levels: u32) -> u32 {
     INDENT_LEN * levels
+}
+
+pub fn indent(levels: u32) -> Cow<'static, str> {
+    strings::whitespace(indent_len(levels) as usize)
 }
 
 pub fn important() -> OutputStyle {

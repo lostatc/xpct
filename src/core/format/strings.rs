@@ -7,8 +7,6 @@ mod with_color {
 
     use crate::core::OutputStyle;
 
-    use super::whitespace;
-
     /// A styled segment of a string.
     #[derive(Debug, Default, Clone)]
     pub struct OutputSegment {
@@ -19,7 +17,7 @@ mod with_color {
     /// Indent each line of the string represented by the given list of styled segments.
     ///
     /// This ensures that the whitespace used for indentation is unstyled.
-    pub fn indent_segments(segments: Vec<OutputSegment>, spaces: u32) -> Vec<OutputSegment> {
+    pub fn indent_segments(segments: Vec<OutputSegment>, prefix: &str) -> Vec<OutputSegment> {
         // We know that we'll probably need more segments than we were given, but we don't know
         // exactly how many yet.
         let mut new_segments = Vec::with_capacity(segments.len() * 2);
@@ -27,7 +25,7 @@ mod with_color {
         // Write the indentation spaces with no formatting. Even though colors won't appear on
         // whitespace, some text styles will.
         new_segments.push(OutputSegment {
-            buf: whitespace(spaces as usize).into_owned(),
+            buf: prefix.to_string(),
             style: OutputStyle::default(),
         });
 
@@ -67,7 +65,7 @@ mod with_color {
 
                 if (!is_last_segment || !is_last_line_in_segment) && needs_newline {
                     new_segments.push(OutputSegment {
-                        buf: whitespace(spaces as usize).into_owned(),
+                        buf: prefix.to_owned(),
                         style: OutputStyle::default(),
                     });
                 }
@@ -112,12 +110,11 @@ mod with_fmt {
 pub use with_fmt::*;
 
 /// Indent each line by the given number of spaces.
-pub fn indent(s: &str, spaces: u32, hanging: bool) -> Cow<str> {
-    if s.is_empty() || spaces == 0 {
+#[cfg(any(not(feature = "color"), test))]
+pub fn indent<'a>(s: &'a str, prefix: &'a str, hanging: bool) -> Cow<'a, str> {
+    if s.is_empty() || prefix.is_empty() {
         return Cow::Borrowed(s);
     }
-
-    let prefix = whitespace(spaces as usize);
 
     // We know that we'll need more than `s.len()` bytes for the output, but we don't know exactly
     // how many without counting LF characters, which is expensive.
@@ -144,7 +141,7 @@ pub fn indent(s: &str, spaces: u32, hanging: bool) -> Cow<str> {
 }
 
 /// Return a string of whitespace of the given length.
-pub fn whitespace<'a>(spaces: usize) -> Cow<'a, str> {
+pub fn whitespace(spaces: usize) -> Cow<'static, str> {
     match spaces {
         i if i < PREFIX_CACHE.len() => Cow::Borrowed(&PREFIX_CACHE[..i]),
         i => Cow::Owned(" ".repeat(i)),
@@ -159,20 +156,20 @@ mod tests {
     fn indent_when_the_indent_len_is_zero() {
         let input = "line 1\nline 2\n line 3\n";
         let expected = Cow::Borrowed(input);
-        assert_eq!(indent(input, 0, false), expected);
+        assert_eq!(indent(input, "", false), expected);
     }
 
     #[test]
     fn indent_when_the_indent_len_is_non_zero() {
         let input = " line 1\n  line 2\n   line 3\n";
         let expected = Cow::<'_, str>::Owned(String::from("   line 1\n    line 2\n     line 3\n"));
-        assert_eq!(indent(input, 2, false), expected);
+        assert_eq!(indent(input, "  ", false), expected);
     }
 
     #[test]
     fn indent_when_there_is_no_trailing_newline() {
         let input = " line 1\n line 2\n line 3";
         let expected = Cow::<'_, str>::Owned(String::from("   line 1\n   line 2\n   line 3"));
-        assert_eq!(indent(input, 2, false), expected);
+        assert_eq!(indent(input, "  ", false), expected);
     }
 }
