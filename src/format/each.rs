@@ -1,5 +1,5 @@
 use crate::core::style::{ALL_OK_HEADER, AT_LESAT_ONE_OK_HEADER};
-use crate::core::{strings, style, Format, Formatter, Matcher};
+use crate::core::{strings, style, Format, FormattedOutput, Formatter, Matcher};
 use crate::matchers::{CombinatorContext, CombinatorMatcher, CombinatorMode, SomeFailures};
 
 use super::HeaderFormat;
@@ -47,7 +47,7 @@ impl Format for SomeFailuresFormat {
                 f.reset_style();
                 f.write_char('\n');
 
-                f.write_fmt(fail.into_indented(failure_indent.as_ref()));
+                f.write_fmt(FormattedOutput::from(fail).indented(failure_indent.as_ref()));
 
                 f.write_char('\n');
             };

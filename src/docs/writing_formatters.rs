@@ -125,21 +125,6 @@ If your matcher composes other matchers, it will likely pass a
 those matchers. You can use [`Formatter::write_fmt`] to efficiently pass this
 through to your formatter's output.
 
-You can also indent the output of the inner matcher using
-[`FormattedFailure::into_indented`] like this:
-
-```
-# use xpct::core::{Formatter, FormattedFailure};
-# fn fmt(f: &mut Formatter, failure: FormattedFailure) {
-f.write_fmt(failure.into_indented(4));
-# }
-```
-
-Printing the output of nested matchers on a separate line and indenting them is
-a strategy the provided formatters use to make sure that formatters can compose
-each other nicely without having to worry about what the output of the inner
-formatter actually looks like.
-
 If you really hate the default formatters and you want to replace all the
 provided formatters in this module with your own, you can disable the default
 `fmt` Cargo feature. Again, there's more info on the [Cargo
@@ -157,5 +142,4 @@ Features][crate::docs::cargo_features] page.
 [`Formatter::set_style`]: crate::core::Formatter::set_style
 [`Formatter::reset_style`]: crate::core::Formatter::reset_style
 [`FormattedFailure`]: crate::core::FormattedFailure
-[`FormattedFailure::into_indented`]: crate::core::FormattedFailure::into_indented
 */

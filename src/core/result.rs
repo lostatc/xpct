@@ -51,10 +51,9 @@ impl<Pos, Neg> MatchFailure<Pos, Neg> {
 /// values and is also an [`Error`].
 ///
 /// Values of this type can be converted into a more generic [`FormattedOutput`] via
-/// [`From`]/[`Into`] or [`into_indented`].
+/// [`From`]/[`Into`].
 ///
 /// [`Error`]: std::error::Error
-/// [`into_indented`]: crate::core::FormattedFailure::into_indented
 #[derive(Debug)]
 pub struct FormattedFailure {
     inner: FormattedOutput,
@@ -69,60 +68,6 @@ impl FormattedFailure {
         Ok(Self {
             inner: FormattedOutput::new(fail, format)?,
         })
-    }
-
-    /// Convert this into a [`FormattedOutput`], indented by the given `prefix`.
-    ///
-    ///
-    /// This method is equivalent to:
-    ///
-    /// ```
-    /// # use xpct::core::{FormattedFailure, FormattedOutput, MatchFailure};
-    /// # use xpct::format::MessageFormat;
-    /// # let formatted_failure = FormattedFailure::new(
-    /// #     MatchFailure::<()>::Pos(()),
-    /// #     MessageFormat::new("", "")
-    /// # ).unwrap();
-    /// # let spaces = 4u32;
-    /// FormattedOutput::from(formatted_failure).indented(spaces);
-    /// ```
-    ///
-    /// See [`FormattedOutput::indented`].
-    ///
-    /// # Examples
-    ///
-    /// Here's a simple formatter that composes the output of multiple other formatters, via
-    /// [`SomeFailures`].
-    ///
-    /// ```
-    /// # struct SomeFailuresFormat;
-    /// use xpct::core::{Formatter, Format};
-    /// use xpct::matchers::SomeFailures;
-    ///
-    /// impl Format for SomeFailuresFormat {
-    ///     type Value = SomeFailures;
-    ///
-    ///     fn fmt(self, f: &mut Formatter, value: Self::Value) -> xpct::Result<()> {
-    ///         for (i, maybe_fail) in value.into_iter().enumerate() {
-    ///             f.write_str(format!("[{}]\n", i));
-    ///
-    ///             match maybe_fail {
-    ///                 Some(fail) => f.write_fmt(fail.into_indented(4)),
-    ///                 None => f.write_str("    OK"),
-    ///             }
-    ///
-    ///             f.write_char('\n');
-    ///         }
-    ///
-    ///         Ok(())
-    ///     }
-    /// }
-    /// ```
-    ///
-    /// [`SomeFailures`]: crate::matchers::SomeFailures
-    /// [`FormattedOutput::indented`]: crate::core::FormattedOutput::indented
-    pub fn into_indented(self, prefix: impl AsRef<str>) -> FormattedOutput {
-        FormattedOutput::from(self).indented(prefix.as_ref())
     }
 }
 

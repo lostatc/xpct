@@ -189,10 +189,7 @@ impl FormattedOutput {
     ///
     /// To indent with whitespace, you can use [`whitespace`].
     ///
-    /// Also see [`FormattedFailure::into_indented`].
-    ///
     /// [`whitespace`]: crate::core::whitespace
-    /// [`FormattedFailure::into_indented`]: crate::core::FormattedFailure::into_indented
     pub fn indented(self, prefix: impl AsRef<str>) -> Self {
         self.indented_inner(prefix, false)
     }
