@@ -14,31 +14,37 @@ your custom matcher, or even to change the formatting of an existing matcher,
 here's how to do it.
 
 Matcher formatters are types that implement the [`MatcherFormat`] trait.
-However, you can instead implement the more generic [`Format`] trait, making its
-[`Format::Value`] a [`MatchFailure`], which will automatically implement
-[`MatcherFormat`] via a blanket impl.
+However, you can instead implement the more generic [`Format`] trait, which will
+implement [`MatcherFormat`] via a blanket impl.
 
 Let's write a simple formatter that accepts a [`Mismatch`] and prints that the
 two values are not equal. This is an example; in practice, you can just use
 [`MismatchFormat`] for this.
 
+We'll also need to write our own [`equal`] function that calls our formatter
+instead of the provided one. Notice that we don't need to reimplement me logic
+of the matcher; we can just reuse the existing [`EqualMatcher`] and plug in our
+custom formatter.
+
 ```
 use std::fmt;
 use std::marker::PhantomData;
 
-use xpct::core::{Format, Formatter, MatchFailure};
-use xpct::matchers::Mismatch;
+use xpct::core::{whitespace, Format, Formatter, MatchFailure, Matcher};
+use xpct::matchers::{EqualMatcher, Mismatch};
 
+#[derive(Debug)]
 pub struct NotEqualFormat<Actual, Expected> {
     marker: PhantomData<(Actual, Expected)>,
 }
 
 impl<Actual, Expected> NotEqualFormat<Actual, Expected> {
     pub fn new() -> Self {
-        Self { marker: PhantomData }
+        Self {
+            marker: PhantomData,
+        }
     }
 }
-
 
 impl<Actual, Expected> Format for NotEqualFormat<Actual, Expected>
 where
@@ -51,55 +57,50 @@ where
         match value {
             MatchFailure::Pos(mismatch) => {
                 f.write_str("Expected:\n");
-                f.write_str(format!("    {:?}\n", mismatch.actual));
+
+                f.indented(whitespace(4), |f| {
+                    f.write_str(format!("{:?}", mismatch.actual));
+
+                    Ok(())
+                })?;
+
                 f.write_str("to equal:\n");
-                f.write_str(format!("    {:?}\n", mismatch.expected));
-            },
+
+                f.indented(whitespace(4), |f| {
+                    f.write_str(format!("{:?}", mismatch.expected));
+
+                    Ok(())
+                })?;
+            }
             MatchFailure::Neg(mismatch) => {
                 f.write_str("Expected:\n");
-                f.write_str(format!("    {:?}\n", mismatch.actual));
+
+                f.indented(whitespace(4), |f| {
+                    f.write_str(format!("{:?}", mismatch.actual));
+
+                    Ok(())
+                })?;
+
                 f.write_str("to not equal:\n");
-                f.write_str(format!("    {:?}\n", mismatch.expected));
-            },
+
+                f.indented(whitespace(4), |f| {
+                    f.write_str(format!("{:?}", mismatch.expected));
+
+                    Ok(())
+                })?;
+            }
         };
 
         Ok(())
     }
 }
-```
-
-Now that we've written a custom formatter, we can make our own [`equal`] matcher
-that uses our custom formatter without rewriting the matcher logic; we can just
-reuse the existing [`EqualMatcher`]!
-
-```
-# use std::marker::PhantomData;
-# use xpct::core::{Format, Formatter, MatchFailure};
-# use xpct::matchers::Mismatch;
-# struct NotEqualFormat<A, E>(PhantomData<(A, E)>);
-# impl<A, E> NotEqualFormat<A, E> {
-#     fn new() -> Self { NotEqualFormat(PhantomData) }
-# }
-# impl<A, E> Format for NotEqualFormat<A, E> {
-#     type Value = MatchFailure<Mismatch<A, E>>;
-#     fn fmt(self, f: &mut Formatter, value: Self::Value) -> xpct::Result<()> {
-#         Ok(())
-#     }
-# }
-use std::fmt;
-
-use xpct::core::Matcher;
-use xpct::matchers::EqualMatcher;
 
 pub fn equal<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + PartialEq<Expected> + Eq + 'a,
     Expected: fmt::Debug + 'a,
 {
-    Matcher::new(
-        EqualMatcher::new(expected),
-        NotEqualFormat::new(),
-    )
+    Matcher::new(EqualMatcher::new(expected), NotEqualFormat::new())
 }
 ```
 
@@ -127,7 +128,7 @@ through to your formatter's output.
 
 If you really hate the default formatters and you want to replace all the
 provided formatters in this module with your own, you can disable the default
-`fmt` Cargo feature. Again, there's more info on the [Cargo
+`fmt` Cargo feature. There's more info on the [Cargo
 Features][crate::docs::cargo_features] page.
 
 [`equal`]: crate::equal
