@@ -336,9 +336,13 @@ where
                         // Leave room for the gutter char.
                         f.write_str(strings::whitespace(style::indent_len(1) as usize - 2));
 
-                        f.set_style(element_style);
-                        f.write_str(segment.value);
-                        f.reset_style();
+                        f.indented_hanging(style::indent(1), |f| {
+                            f.set_style(element_style);
+                            f.write_str(segment.value);
+                            f.reset_style();
+
+                            Ok(())
+                        })?;
 
                         f.write_char(',');
                         f.write_char('\n');
