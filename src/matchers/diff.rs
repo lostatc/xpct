@@ -7,6 +7,7 @@ use similar::ChangeTag;
 use crate::core::Match;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[non_exhaustive]
 pub enum DiffKind {
     String,
     Slice,
