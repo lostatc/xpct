@@ -382,7 +382,11 @@ macro_rules! expect {
             let mut ctx = <$crate::core::AssertionContext as ::std::default::Default>::default();
             ctx.expr =
                 ::std::option::Option::Some(::std::string::String::from(stringify!($actual)));
-            ctx.location = ::std::option::Option::Some($crate::file_location!());
+            ctx.location = ::std::option::Option::Some($crate::core::FileLocation {
+                file: ::std::string::String::from(file!()),
+                line: line!(),
+                column: column!(),
+            });
             ctx
         })
     };
