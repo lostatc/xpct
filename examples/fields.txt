@@ -12,6 +12,6 @@
                 to be in:
                     1..=20
             is_superstar: FAILED
-                🛈 only superstars allowed
+                [why] only superstars allowed
                 Expected this to be true
         }

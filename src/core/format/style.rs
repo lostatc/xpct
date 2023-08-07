@@ -4,7 +4,7 @@ use std::borrow::Cow;
 
 use super::{strings, Color, OutputStyle, TextColor, TextStyle};
 
-pub const INFO_SYMBOL: &str = "\u{1f6c8}";
+pub const WHY_SYMBOL: &str = "[why]";
 pub const OK_MSG: &str = "OK";
 pub const FAILED_MSG: &str = "FAILED";
 pub const INDENT_LEN: u32 = 4;
