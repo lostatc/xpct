@@ -61,7 +61,7 @@ impl<'a> Diffable<&'a str> for String {
     }
 }
 
-impl<'a> Diffable<String> for String {
+impl Diffable<String> for String {
     const KIND: DiffKind = DiffKind::String;
 
     fn diff(&self, other: String) -> Diff {
@@ -603,15 +603,15 @@ mod tests {
 
         let expected = vec![
             DiffSegment {
-                value: "a",
+                value: String::from("\"a\""),
                 tag: DiffTag::Equal,
             },
             DiffSegment {
-                value: "b",
+                value: String::from("\"b\""),
                 tag: DiffTag::Equal,
             },
             DiffSegment {
-                value: "c",
+                value: String::from("\"c\""),
                 tag: DiffTag::Equal,
             },
         ];
@@ -625,11 +625,11 @@ mod tests {
 
         let expected = vec![
             DiffSegment {
-                value: "a",
+                value: String::from("\"a\""),
                 tag: DiffTag::Equal,
             },
             DiffSegment {
-                value: "b",
+                value: String::from("\"b\""),
                 tag: DiffTag::Insert,
             },
         ];
@@ -643,11 +643,11 @@ mod tests {
 
         let expected = vec![
             DiffSegment {
-                value: "a",
+                value: String::from("\"a\""),
                 tag: DiffTag::Equal,
             },
             DiffSegment {
-                value: "b",
+                value: String::from("\"b\""),
                 tag: DiffTag::Delete,
             },
         ];
@@ -661,15 +661,15 @@ mod tests {
 
         let expected = vec![
             DiffSegment {
-                value: "a",
+                value: String::from("\"a\""),
                 tag: DiffTag::Delete,
             },
             DiffSegment {
-                value: "b",
+                value: String::from("\"b\""),
                 tag: DiffTag::Equal,
             },
             DiffSegment {
-                value: "c",
+                value: String::from("\"c\""),
                 tag: DiffTag::Insert,
             },
         ];
@@ -691,15 +691,15 @@ mod tests {
 
         let expected = vec![
             DiffSegment {
-                value: "a",
+                value: String::from("\"a\""),
                 tag: DiffTag::Equal,
             },
             DiffSegment {
-                value: "b",
+                value: String::from("\"b\""),
                 tag: DiffTag::Equal,
             },
             DiffSegment {
-                value: "c",
+                value: String::from("\"c\""),
                 tag: DiffTag::Equal,
             },
         ];
@@ -719,11 +719,11 @@ mod tests {
 
         let expected = vec![
             DiffSegment {
-                value: "a",
+                value: String::from("\"a\""),
                 tag: DiffTag::Equal,
             },
             DiffSegment {
-                value: "b",
+                value: String::from("\"b\""),
                 tag: DiffTag::Insert,
             },
         ];
@@ -740,11 +740,11 @@ mod tests {
 
         let expected = vec![
             DiffSegment {
-                value: "b",
+                value: String::from("\"b\""),
                 tag: DiffTag::Delete,
             },
             DiffSegment {
-                value: "a",
+                value: String::from("\"a\""),
                 tag: DiffTag::Equal,
             },
         ];
@@ -761,15 +761,15 @@ mod tests {
 
         let expected = vec![
             DiffSegment {
-                value: "a",
+                value: String::from("\"a\""),
                 tag: DiffTag::Delete,
             },
             DiffSegment {
-                value: "b",
+                value: String::from("\"b\""),
                 tag: DiffTag::Equal,
             },
             DiffSegment {
-                value: "c",
+                value: String::from("\"c\""),
                 tag: DiffTag::Insert,
             },
         ];
@@ -786,11 +786,11 @@ mod tests {
 
         let expected = vec![
             DiffSegment {
-                value: ("a", 1),
+                value: String::from("(\"a\", 1)"),
                 tag: DiffTag::Equal,
             },
             DiffSegment {
-                value: ("b", 2),
+                value: String::from("(\"b\", 2)"),
                 tag: DiffTag::Equal,
             },
         ];
@@ -810,11 +810,11 @@ mod tests {
 
         let expected = vec![
             DiffSegment {
-                value: ("a", 1),
+                value: String::from("(\"a\", 1)"),
                 tag: DiffTag::Equal,
             },
             DiffSegment {
-                value: ("b", 2),
+                value: String::from("(\"b\", 2)"),
                 tag: DiffTag::Insert,
             },
         ];
@@ -831,11 +831,11 @@ mod tests {
 
         let expected = vec![
             DiffSegment {
-                value: ("b", 2),
+                value: String::from("(\"b\", 2)"),
                 tag: DiffTag::Delete,
             },
             DiffSegment {
-                value: ("a", 1),
+                value: String::from("(\"a\", 1)"),
                 tag: DiffTag::Equal,
             },
         ];
@@ -852,15 +852,15 @@ mod tests {
 
         let expected = vec![
             DiffSegment {
-                value: ("a", 1),
+                value: String::from("(\"a\", 1)"),
                 tag: DiffTag::Delete,
             },
             DiffSegment {
-                value: ("b", 2),
+                value: String::from("(\"b\", 2)"),
                 tag: DiffTag::Equal,
             },
             DiffSegment {
-                value: ("c", 3),
+                value: String::from("(\"c\", 3)"),
                 tag: DiffTag::Insert,
             },
         ];

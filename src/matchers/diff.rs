@@ -7,13 +7,33 @@ use similar::ChangeTag;
 
 use crate::core::Match;
 
+/// A discriminant that represents how a diff should be formatted.
+///
+/// You would format a diff of two strings differently from a diff of two slices. Diff "kinds" exist
+/// to pass this information along to the [formatter][crate::core::Format].
+///
+/// The [`Custom`] variant exists for when you're implementing [`Diffable`] on your own types and
+/// the none of the provided kinds are suitable. Note that the [provided
+/// formatter][crate::format::DiffFormat] won't know what to do with custom diff kinds, so you would
+/// need to implement your own formatter in this case.
+///
+/// [`Custom`]: crate::matchers::DiffKind::Custom
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum DiffKind {
+    /// Diffing strings.
     String,
+
+    /// Diffing slices.
     Slice,
+
+    /// Diffing sets.
     Set,
+
+    /// Diffing maps.
     Map,
+
+    /// Provide your own custom diff kind.
     Custom(&'static str),
 }
 
@@ -64,6 +84,9 @@ pub struct DiffSegment {
 }
 
 impl DiffSegment {
+    /// Create a [`DiffSegment`] from a value that implements [`Debug`].
+    ///
+    /// [`Debug`]: std::fmt::Debug
     pub fn from_debug(value: impl fmt::Debug, tag: DiffTag) -> Self {
         Self {
             value: format!("{:?}", value),
@@ -71,6 +94,9 @@ impl DiffSegment {
         }
     }
 
+    /// Create a [`DiffSegment`] from a value that implements [`Display`].
+    ///
+    /// [`Display`]: std::fmt::Display
     pub fn from_display(value: impl fmt::Display, tag: DiffTag) -> Self {
         Self {
             value: format!("{}", value),
@@ -88,6 +114,9 @@ pub type Diff = Vec<DiffSegment>;
 ///
 /// Diffing two values produces a [`Diff`], which consists of a list of [`DiffSegment`]s.
 pub trait Diffable<Other> {
+    /// A discriminant that represents how the diff should be formatted.
+    ///
+    /// See [`DiffKind`].
     const KIND: DiffKind;
 
     /// Generate a diff of this value and `other`.
