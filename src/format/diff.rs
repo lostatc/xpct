@@ -201,9 +201,8 @@ impl Default for CollectionDiffStyle {
 
 /// The style sheet for [`DiffFormat`].
 ///
-/// Out of the box, [`DiffFormat`] relies on text styling to distinguish added and removed values in
-/// string diffs. If you prefer to have text styling disabled, or if the provided styling is
-/// inaccessible for you, you can use this style sheet to customize the styling.
+/// If the provided text styling for diffs is inaccessible for you, or you prefer to have text
+/// styling disabled, you can use this style sheet to customize the styling of diffs.
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct DiffStyle {
@@ -363,11 +362,13 @@ where
     }
 }
 
-/// Succeeds when the actual value equals the expected value and shows a diff.
+/// Succeeds when the actual value equals the expected value and shows a diff otherwise.
 ///
 /// This matcher is functionally identical to [`equal`], except it shows a diff if the values are
 /// not equal. You can use this matcher with any type that implements [`Diffable`], and you can
 /// implement [`Diffable`] for your own types.
+///
+/// Out of the box, you can diff strings, slices, sets, and maps.
 ///
 /// # Examples
 ///
@@ -386,8 +387,8 @@ where
 /// # Custom Styling
 ///
 /// This matcher relies on text styling to distinguish added and removed values in string diffs. If
-/// you prefer to have text styling disabled, or if the provided styling is inaccessible for you,
-/// you can override the provided styling.
+/// the provided text styling for diffs is inaccessible for you, or you prefer to have text styling
+/// disabled, you can override the provided styling.
 ///
 /// To do this, write a custom style sheet using [`DiffStyle`] and write your own matcher function
 /// that calls [`EqDiffMatcher`].
