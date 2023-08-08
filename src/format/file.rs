@@ -2,7 +2,7 @@ use std::fmt;
 use std::path::Path;
 
 use crate::core::Matcher;
-use crate::matchers::{FileExistsMatcher, FileExistsMode};
+use crate::matchers::files::{FileExistsMatcher, FileExistsMode};
 
 use super::ExpectationFormat;
 

@@ -299,7 +299,7 @@ matchers provided by this crate.
 [`why`]: crate::why
 [`why_lazy`]: crate::why_lazy
 [`match_pattern`]: crate::match_pattern
-[`Diffable`]: crate::matchers::Diffable
+[`Diffable`]: crate::matchers::diff::Diffable
 [`pattern!`]: crate::pattern
 [`match_fields`]: crate::match_fields
 [`expect!`]: crate::expect
@@ -310,8 +310,8 @@ matchers provided by this crate.
 [`be_in`]: crate::be_in
 [`every`]: crate::every
 [`match_elements`]: crate::match_elements
-[`Len`]: crate::matchers::Len
-[`Contains`]: crate::matchers::Contains
+[`Len`]: crate::matchers::collections::Len
+[`Contains`]: crate::matchers::collections::Contains
 [`Assertion`]: crate::core::Assertion
 [`Assertion::to_not`]: crate::core::Assertion::to_not
 [`Matcher`]: crate::core::Matcher

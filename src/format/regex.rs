@@ -3,7 +3,7 @@
 use std::fmt;
 
 use crate::core::Matcher;
-use crate::matchers::RegexMatcher;
+use crate::matchers::strings::RegexMatcher;
 
 use super::MismatchFormat;
 

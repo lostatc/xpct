@@ -1,14 +1,12 @@
-use std::{
-    marker::PhantomData,
-    num::{
-        NonZeroI128, NonZeroI16, NonZeroI32, NonZeroI64, NonZeroI8, NonZeroIsize, NonZeroU128,
-        NonZeroU16, NonZeroU32, NonZeroU64, NonZeroU8, NonZeroUsize,
-    },
+use std::marker::PhantomData;
+use std::num::{
+    NonZeroI128, NonZeroI16, NonZeroI32, NonZeroI64, NonZeroI8, NonZeroIsize, NonZeroU128,
+    NonZeroU16, NonZeroU32, NonZeroU64, NonZeroU8, NonZeroUsize,
 };
 
 use crate::core::{MatchOutcome, TransformMatch};
 
-use super::Expectation;
+use crate::matchers::Expectation;
 
 /// An integer type which has a non-zero counterpart.
 pub trait NonZeroInt: crate::Sealed {

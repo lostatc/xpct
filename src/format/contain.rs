@@ -2,7 +2,9 @@ use std::borrow::Borrow;
 use std::fmt;
 
 use crate::core::Matcher;
-use crate::matchers::{BeInMatcher, ConsistOfMatcher, ContainElementsMatcher, Contains, Len};
+use crate::matchers::collections::{
+    BeInMatcher, ConsistOfMatcher, ContainElementsMatcher, Contains, Len,
+};
 
 use super::MismatchFormat;
 

@@ -1,41 +1,33 @@
-use std::fmt;
+use crate::core::{MatchOutcome, Matcher, TransformMatch};
+use crate::matchers::SomeFailures;
 
-use crate::core::{DynTransformMatch, MatchOutcome, Matcher, TransformMatch};
-
-use super::SomeFailures;
-
-/// The matcher for [`every`].
+/// The matcher for [`match_elements`].
 ///
-/// [`every`]: crate::every
-pub struct EveryMatcher<'a, PosOut, NegOut, IntoIter>
+/// [`match_elements`]: crate::match_elements
+#[derive(Debug)]
+pub struct MatchElementsMatcher<'a, PosOut, NegOut, IntoIter>
 where
     IntoIter: IntoIterator + 'a,
 {
-    match_func: Box<dyn Fn() -> Matcher<'a, IntoIter::Item, PosOut, NegOut> + 'a>,
+    matchers: Vec<Matcher<'a, IntoIter::Item, PosOut, NegOut>>,
 }
 
-impl<'a, PosOut, NegOut, IntoIter> fmt::Debug for EveryMatcher<'a, PosOut, NegOut, IntoIter>
+impl<'a, PosOut, NegOut, IntoIter> MatchElementsMatcher<'a, PosOut, NegOut, IntoIter>
 where
     IntoIter: IntoIterator + 'a,
 {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("EveryMatcher").finish_non_exhaustive()
-    }
-}
-
-impl<'a, PosOut, NegOut, IntoIter> EveryMatcher<'a, PosOut, NegOut, IntoIter>
-where
-    IntoIter: IntoIterator + 'a,
-{
-    /// Create a new [`EveryMatcher`] from a function that returns a matcher.
-    pub fn new(match_func: impl Fn() -> Matcher<'a, IntoIter::Item, PosOut, NegOut> + 'a) -> Self {
+    /// Create a new [`MatchElementsMatcher`] from the given matchers.
+    pub fn new(
+        matchers: impl IntoIterator<Item = Matcher<'a, IntoIter::Item, PosOut, NegOut>>,
+    ) -> Self {
         Self {
-            match_func: Box::new(match_func),
+            matchers: matchers.into_iter().collect::<Vec<_>>(),
         }
     }
 }
 
-impl<'a, PosOut, NegOut, IntoIter> TransformMatch for EveryMatcher<'a, PosOut, NegOut, IntoIter>
+impl<'a, PosOut, NegOut, IntoIter> TransformMatch
+    for MatchElementsMatcher<'a, PosOut, NegOut, IntoIter>
 where
     IntoIter: IntoIterator + 'a,
 {
@@ -54,8 +46,8 @@ where
         let mut failures = Vec::new();
         let mut successes = Vec::new();
 
-        for input in actual {
-            match Box::new((self.match_func)()).match_pos(input)? {
+        for (item, matcher) in actual.into_iter().zip(self.matchers) {
+            match matcher.into_box().match_pos(item)? {
                 MatchOutcome::Success(success) => {
                     failures.push(None);
                     successes.push(success);
@@ -80,8 +72,8 @@ where
         let mut failures = Vec::new();
         let mut successes = Vec::new();
 
-        for input in actual {
-            match Box::new((self.match_func)()).match_neg(input)? {
+        for (item, matcher) in actual.into_iter().zip(self.matchers) {
+            match matcher.into_box().match_neg(item)? {
                 MatchOutcome::Success(success) => {
                     failures.push(None);
                     successes.push(success);

@@ -5,8 +5,9 @@ use std::marker::PhantomData;
 use std::ops::{Range, RangeFrom, RangeInclusive, RangeTo, RangeToInclusive};
 
 use crate::core::Match;
+use crate::matchers::Mismatch;
 
-use super::{Len, Mismatch};
+use super::Len;
 
 /// A collection that supports testing for membership.
 pub trait Contains<T: ?Sized> {

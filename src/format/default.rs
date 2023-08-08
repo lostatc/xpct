@@ -1,6 +1,7 @@
 use std::fmt;
 
-use crate::{core::Matcher, matchers::BeDefaultMatcher};
+use crate::core::Matcher;
+use crate::matchers::default::BeDefaultMatcher;
 
 use super::MismatchFormat;
 

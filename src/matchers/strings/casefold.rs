@@ -1,12 +1,9 @@
-#![cfg(feature = "casefold")]
-
 use std::borrow::Cow;
 
 use unicase::UniCase;
 
 use crate::core::Match;
-
-use super::Mismatch;
+use crate::matchers::Mismatch;
 
 /// The matcher for [`eq_casefold`].
 ///

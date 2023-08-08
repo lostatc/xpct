@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use crate::core::{style, Format, Formatter, MatchFailure, Matcher, NegFormat};
-use crate::matchers::BeTrueMatcher;
+use crate::matchers::boolean::BeTrueMatcher;
 
 /// A formatter which prints a static string message.
 ///

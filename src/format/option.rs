@@ -3,7 +3,8 @@ use std::fmt;
 use std::marker::PhantomData;
 
 use crate::core::{style, Format, Formatter, MatchFailure, Matcher, NegFormat};
-use crate::matchers::{BeSomeMatcher, Expectation};
+use crate::matchers::option::BeSomeMatcher;
+use crate::matchers::Expectation;
 
 /// A formatter for [`Expectation`] values.
 ///

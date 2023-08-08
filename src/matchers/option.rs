@@ -3,28 +3,7 @@ use std::marker::PhantomData;
 
 use crate::core::{MatchOutcome, TransformMatch};
 
-/// A value that is returned by matchers when the actual value doesn't meet some criteria.
-///
-/// This is meant to be a deliberately generic value that can be reused in a number of different
-/// matchers and formatted with [`ExpectationFormat`].
-///
-/// This can be used for matchers like [`be_some`] and [`be_ok`] to represent a value not meeting
-/// some criteria, such as not being `Some(_)` and not being `Ok(_)` respectively.
-///
-/// Use this over [`Mismatch`] when there's only one case in which the matcher could fail.
-///
-/// When returned by a matcher, this value just means, "here is the actual value." It's up to the
-/// formatter to determine how that information is presented to the user.
-///
-/// [`ExpectationFormat`]: crate::format::ExpectationFormat
-/// [`Mismatch`]: crate::matchers::Mismatch
-/// [`be_some`]: crate::be_some
-/// [`be_ok`]: crate::be_ok
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Expectation<Actual> {
-    /// The actual value.
-    pub actual: Actual,
-}
+use super::Expectation;
 
 /// The matcher for [`be_some`] and [`be_none`].
 ///

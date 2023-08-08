@@ -1,6 +1,7 @@
 use crate::core::style::{ALL_OK_HEADER, AT_LESAT_ONE_OK_HEADER};
 use crate::core::{strings, style, Format, FormattedOutput, Formatter, Matcher};
-use crate::matchers::{CombinatorContext, CombinatorMatcher, CombinatorMode, SomeFailures};
+use crate::matchers::combinators::{CombinatorContext, CombinatorMatcher, CombinatorMode};
+use crate::matchers::SomeFailures;
 
 use super::HeaderFormat;
 
@@ -106,12 +107,12 @@ impl Format for SomeFailuresFormat {
 /// [`not`]: crate::not
 /// [`be_ok`]: crate::be_ok
 /// [`be_some`]: crate::be_some
-/// [`to`]: crate::matchers::CombinatorAssertion::to
-/// [`to_not`]: crate::matchers::CombinatorAssertion::to_not
-/// [`done`]: crate::matchers::CombinatorAssertion::done
-/// [`borrow`]: crate::matchers::CombinatorContext::borrow
-/// [`copied`]: crate::matchers::CombinatorContext::copied
-/// [`cloned`]: crate::matchers::CombinatorContext::cloned
+/// [`to`]: crate::matchers::combinators::CombinatorAssertion::to
+/// [`to_not`]: crate::matchers::combinators::CombinatorAssertion::to_not
+/// [`done`]: crate::matchers::combinators::CombinatorAssertion::done
+/// [`borrow`]: crate::matchers::combinators::CombinatorContext::borrow
+/// [`copied`]: crate::matchers::combinators::CombinatorContext::copied
+/// [`cloned`]: crate::matchers::combinators::CombinatorContext::cloned
 pub fn each<'a, T>(block: impl FnOnce(&mut CombinatorContext<T>) + 'a) -> Matcher<'a, T, T>
 where
     T: 'a,

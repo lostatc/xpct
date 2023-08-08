@@ -1,7 +1,7 @@
 use std::convert::Infallible;
 
 use crate::core::{Format, Formatter, MatchFailure, Matcher};
-use crate::matchers::{IterMap, IterMapMatcher, IterTryMapMatcher, MapMatcher, TryMapMatcher};
+use crate::matchers::map::{IterMap, IterMapMatcher, IterTryMapMatcher, MapMatcher, TryMapMatcher};
 
 use super::FailureFormat;
 

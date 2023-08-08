@@ -1,7 +1,7 @@
 use crate::core::{DynTransformMatch, FormattedFailure, MatchError, MatchOutcome, TransformMatch};
 use std::fmt;
 
-use super::IterMap;
+use crate::matchers::map::IterMap;
 
 /// A type used with [`ChainMatcher`] to compose assertions.
 ///
@@ -43,7 +43,7 @@ impl<In> ChainAssertion<In> {
     ///
     /// This tests that the given matcher does *not* succeed.
     ///
-    /// [`to`]: crate::matchers::ChainAssertion::to
+    /// [`to`]: crate::matchers::combinators::ChainAssertion::to
     /// [`Assertion::to_not`]: crate::core::Assertion::to_not
     pub fn to_not<Out>(
         self,

@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::fmt;
 
 use crate::core::Matcher;
-use crate::matchers::{ContainSubstrMatcher, HavePrefixMatcher, HaveSuffixMatcher};
+use crate::matchers::strings::{ContainSubstrMatcher, HavePrefixMatcher, HaveSuffixMatcher};
 
 use super::MismatchFormat;
 

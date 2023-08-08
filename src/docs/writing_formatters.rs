@@ -132,7 +132,7 @@ provided formatters in this module with your own, you can disable the default
 Features][crate::docs::cargo_features] page.
 
 [`equal`]: crate::equal
-[`EqualMatcher`]: crate::matchers::EqualMatcher
+[`EqualMatcher`]: crate::matchers::equal::EqualMatcher
 [`MatcherFormat`]: crate::core::MatcherFormat
 [`Format`]: crate::core::Format
 [`Format::Value`]: crate::core::Format::Value

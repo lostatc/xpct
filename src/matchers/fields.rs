@@ -1,13 +1,9 @@
 use std::fmt;
 
-use crate::core::{FormattedFailure, MatchOutcome, TransformMatch};
+use crate::core::{MatchOutcome, TransformMatch};
+use crate::matchers::combinators::CombinatorMode;
 
-use super::CombinatorMode;
-
-/// A pairing of field names to optional match failures.
-///
-/// This can be used by matchers that test each field of a struct or tuple.
-pub type FailuresByField = Vec<(&'static str, Option<FormattedFailure>)>;
+use super::values::FailuresByField;
 
 /// This method is an implementation detail of the [`fields!`][crate::fields] macro and IS NOT part
 /// of the public API.
@@ -202,8 +198,8 @@ macro_rules! fields {
             $(,)?
         }
     ) => {
-        $crate::matchers::FieldsSpec::__new(
-            |params: $crate::matchers::__FieldsSpecParams<$struct_type>,| -> $crate::Result<::std::vec::Vec<(&::std::primitive::str, ::std::option::Option<$crate::core::FormattedFailure>)>> {
+        $crate::matchers::fields::FieldsSpec::__new(
+            |params: $crate::matchers::fields::__FieldsSpecParams<$struct_type>,| -> $crate::Result<::std::vec::Vec<(&::std::primitive::str, ::std::option::Option<$crate::core::FormattedFailure>)>> {
                 $crate::Result::Ok(vec![$(
                     (
                         stringify!($field_name),

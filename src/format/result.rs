@@ -1,7 +1,7 @@
 use std::fmt;
 
 use crate::core::{Matcher, NegFormat};
-use crate::matchers::BeOkMatcher;
+use crate::matchers::result::BeOkMatcher;
 
 use super::ExpectationFormat;
 

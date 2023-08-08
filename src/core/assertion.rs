@@ -1,6 +1,6 @@
 use std::convert::TryInto;
 
-use crate::matchers::IterMap;
+use crate::matchers::map::IterMap;
 
 use super::{
     AssertionFailure, AssertionFormat, DynTransformMatch, FormattedOutput, MatchError, MatchOutcome,

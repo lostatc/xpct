@@ -1,6 +1,6 @@
 use crate::core::style::AT_LESAT_ONE_NOT_OK_MSG;
 use crate::core::{DispatchFormat, MatchError, Matcher};
-use crate::matchers::{ChainAssertion, ChainMatcher};
+use crate::matchers::combinators::{ChainAssertion, ChainMatcher};
 
 use super::{FailureFormat, MessageFormat};
 
@@ -62,8 +62,8 @@ use super::{FailureFormat, MessageFormat};
 ///
 /// [`each`]: crate::each
 /// [`Assertion`]: crate::core::Assertion
-/// [`to`]: crate::matchers::ChainAssertion::to
-/// [`to_not`]: crate::matchers::ChainAssertion::to_not
+/// [`to`]: crate::matchers::combinators::ChainAssertion::to
+/// [`to_not`]: crate::matchers::combinators::ChainAssertion::to_not
 /// [`not`]: crate::not
 /// [`expect!`]: crate::expect
 /// [`match_fields`]: crate::match_fields

@@ -1,5 +1,3 @@
-#![cfg(feature = "diff")]
-
 use std::fmt;
 use std::hash::Hash;
 
@@ -17,7 +15,7 @@ use crate::core::Match;
 /// formatter][crate::format::DiffFormat] won't know what to do with custom diff kinds, so you would
 /// need to implement your own formatter in this case.
 ///
-/// [`Custom`]: crate::matchers::DiffKind::Custom
+/// [`Custom`]: crate::matchers::diff::DiffKind::Custom
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum DiffKind {
@@ -72,8 +70,8 @@ impl DiffTag {
 ///
 /// See [`Diffable`] for more information.
 ///
-/// [`value`]: crate::matchers::DiffSegment::value
-/// [`Diffable::Segment`]: crate::matchers::Diffable::Segment
+/// [`value`]: crate::matchers::diff::DiffSegment::value
+/// [`Diffable::Segment`]: crate::matchers::diff::Diffable::Segment
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct DiffSegment {
     /// The string representation of the thing that was inserted, deleted, or unchanged.

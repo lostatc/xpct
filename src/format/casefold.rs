@@ -3,7 +3,7 @@
 use std::{borrow::Cow, fmt};
 
 use crate::core::Matcher;
-use crate::matchers::EqCasefoldMatcher;
+use crate::matchers::strings::EqCasefoldMatcher;
 
 use super::MismatchFormat;
 

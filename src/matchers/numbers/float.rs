@@ -1,10 +1,7 @@
-#![cfg(feature = "float")]
-
 use float_cmp::approx_eq;
 
 use crate::core::Match;
-
-use super::Mismatch;
+use crate::matchers::Mismatch;
 
 /// The matcher for [`approx_eq_f32`] and [`approx_eq_f64`].
 ///

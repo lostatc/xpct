@@ -1,7 +1,7 @@
 use std::time::{Duration, SystemTime};
 
 use crate::core::Matcher;
-use crate::matchers::ApproxEqTimeMatcher;
+use crate::matchers::time::ApproxEqTimeMatcher;
 
 use super::MismatchFormat;
 

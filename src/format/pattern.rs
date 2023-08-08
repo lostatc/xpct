@@ -1,7 +1,7 @@
 use std::fmt;
 
 use crate::core::Matcher;
-use crate::matchers::{Pattern, PatternMatcher};
+use crate::matchers::pattern::{Pattern, PatternMatcher};
 
 use super::MismatchFormat;
 

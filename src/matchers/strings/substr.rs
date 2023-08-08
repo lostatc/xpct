@@ -1,8 +1,7 @@
 use std::borrow::Cow;
 
 use crate::core::Match;
-
-use super::Mismatch;
+use crate::matchers::Mismatch;
 
 /// The matcher for [`contain_substr`].
 ///

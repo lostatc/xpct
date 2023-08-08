@@ -2,7 +2,7 @@ use std::fmt;
 
 use crate::core::style::{ALL_OK_HEADER, AT_LESAT_ONE_OK_HEADER};
 use crate::core::Matcher;
-use crate::matchers::EveryMatcher;
+use crate::matchers::collections::EveryMatcher;
 
 use super::{HeaderFormat, SomeFailuresFormat};
 

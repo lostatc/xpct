@@ -1,6 +1,6 @@
 use crate::core::style::{ALL_OK_HEADER, AT_LESAT_ONE_OK_HEADER};
 use crate::core::{style, Format, FormattedOutput, Formatter, MatchFailure, Matcher};
-use crate::matchers::{CombinatorContext, CombinatorMatcher, CombinatorMode};
+use crate::matchers::combinators::{CombinatorContext, CombinatorMatcher, CombinatorMode};
 
 use super::SomeFailuresFormat;
 
@@ -102,11 +102,11 @@ where
 /// ```
 ///
 /// [`not`]: crate::not
-/// [`to`]: crate::matchers::CombinatorAssertion::to
-/// [`to_not`]: crate::matchers::CombinatorAssertion::to_not
-/// [`borrow`]: crate::matchers::CombinatorContext::borrow
-/// [`copied`]: crate::matchers::CombinatorContext::copied
-/// [`cloned`]: crate::matchers::CombinatorContext::cloned
+/// [`to`]: crate::matchers::combinators::CombinatorAssertion::to
+/// [`to_not`]: crate::matchers::combinators::CombinatorAssertion::to_not
+/// [`borrow`]: crate::matchers::combinators::CombinatorContext::borrow
+/// [`copied`]: crate::matchers::combinators::CombinatorContext::copied
+/// [`cloned`]: crate::matchers::combinators::CombinatorContext::cloned
 pub fn any<'a, T>(block: impl Fn(&mut CombinatorContext<T>) + 'a) -> Matcher<'a, T, T>
 where
     T: 'a,

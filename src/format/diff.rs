@@ -7,7 +7,7 @@ use crate::core::{
     strings, style, Color, Format, Formatter, MatchFailure, Matcher, OutputStyle, TextColor,
     TextStyle,
 };
-use crate::matchers::{Diff, DiffKind, DiffTag, Diffable, EqDiffMatcher};
+use crate::matchers::diff::{Diff, DiffKind, DiffTag, Diffable, EqDiffMatcher};
 
 const FORMAT_PLACEHOLDER: &str = "%s";
 
@@ -228,7 +228,7 @@ impl DiffStyle {
 
 /// A formatter for [`Diff`] values.
 ///
-/// [`Diff`]: crate::matchers::Diff
+/// [`Diff`]: crate::matchers::diff::Diff
 #[derive(Debug)]
 pub struct DiffFormat<Actual, Expected> {
     style: DiffStyle,
@@ -427,8 +427,8 @@ where
 /// ```
 ///
 /// [`equal`]: crate::equal
-/// [`Diffable`]: crate::matchers::Diffable
-/// [`EqDiffMatcher`]: crate::matchers::EqDiffMatcher
+/// [`Diffable`]: crate::matchers::diff::Diffable
+/// [`EqDiffMatcher`]: crate::matchers::diff::EqDiffMatcher
 pub fn eq_diff<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
 where
     Actual: fmt::Debug + PartialEq<Expected> + Eq + 'a,

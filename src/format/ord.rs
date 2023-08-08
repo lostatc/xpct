@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use std::fmt;
 
 use crate::core::Matcher;
-use crate::matchers::{BeSortedByMatcher, BeSortedMatcher, Inequality, OrdMatcher, SortOrder};
+use crate::matchers::ord::{BeSortedByMatcher, BeSortedMatcher, Inequality, OrdMatcher, SortOrder};
 
 use super::{ExpectationFormat, MismatchFormat};
 

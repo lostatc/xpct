@@ -1,5 +1,3 @@
-#![cfg(feature = "diff")]
-
 use std::borrow::Cow;
 use std::cmp;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
@@ -8,7 +6,7 @@ use std::hash::Hash;
 
 use similar::{capture_diff_slices, utils::TextDiffRemapper, TextDiff};
 
-use super::{Diff, DiffKind, DiffSegment, DiffTag, Diffable};
+use super::diff::{Diff, DiffKind, DiffSegment, DiffTag, Diffable};
 
 const DIFF_ALGORITHM: similar::Algorithm = similar::Algorithm::Patience;
 

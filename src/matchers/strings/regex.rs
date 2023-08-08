@@ -1,10 +1,7 @@
-#![cfg(feature = "regex")]
-
 use regex::Regex;
 
 use crate::core::Match;
-
-use super::Mismatch;
+use crate::matchers::Mismatch;
 
 /// The matcher for [`match_regex`].
 ///

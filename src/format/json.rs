@@ -4,7 +4,7 @@ use std::borrow::Cow;
 use std::fmt;
 
 use crate::core::Matcher;
-use crate::matchers::JsonMatcher;
+use crate::matchers::strings::JsonMatcher;
 
 use super::MismatchFormat;
 

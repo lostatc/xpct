@@ -1,6 +1,6 @@
 use crate::core::Match;
 
-use super::Mismatch;
+use crate::matchers::Mismatch;
 
 /// The matcher for [`be_default`].
 ///

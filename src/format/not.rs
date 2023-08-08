@@ -1,5 +1,5 @@
 use crate::core::{Format, FormattedFailure, Formatter, MatchFailure, Matcher};
-use crate::matchers::NotMatcher;
+use crate::matchers::not::NotMatcher;
 
 /// A formatter for a pre-formatted [`FormattedFailure`] value.
 ///

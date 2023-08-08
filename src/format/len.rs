@@ -1,7 +1,7 @@
 use std::fmt;
 
 use crate::core::Matcher;
-use crate::matchers::{BeEmptyMatcher, HaveLenMatcher, Len};
+use crate::matchers::collections::{BeEmptyMatcher, HaveLenMatcher, Len};
 
 use super::{ExpectationFormat, MismatchFormat};
 

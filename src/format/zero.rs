@@ -1,7 +1,7 @@
 use std::fmt;
 
 use crate::core::Matcher;
-use crate::matchers::{BeZeroMatcher, NonZeroInt};
+use crate::matchers::numbers::{BeZeroMatcher, NonZeroInt};
 
 use super::ExpectationFormat;
 

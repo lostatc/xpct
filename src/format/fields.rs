@@ -2,7 +2,9 @@ use std::any::type_name;
 
 use crate::core::style::{ALL_FIELDS_OK_HEADER, AT_LESAT_ONE_FIELD_OK_HEADER};
 use crate::core::{style, Format, FormattedOutput, Formatter, Matcher};
-use crate::matchers::{CombinatorMode, FailuresByField, FieldMatcher, FieldsSpec};
+use crate::matchers::combinators::CombinatorMode;
+use crate::matchers::fields::{FieldMatcher, FieldsSpec};
+use crate::matchers::FailuresByField;
 
 use super::HeaderFormat;
 

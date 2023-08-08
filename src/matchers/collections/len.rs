@@ -1,12 +1,10 @@
-use std::{
-    borrow::Cow,
-    collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap, HashSet, LinkedList, VecDeque},
-    ffi::{OsStr, OsString},
-};
+use std::borrow::Cow;
+use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap, HashSet, LinkedList, VecDeque};
+use std::ffi::{OsStr, OsString};
 
 use crate::core::Match;
 
-use super::{Expectation, Mismatch};
+use crate::matchers::{Expectation, Mismatch};
 
 /// A collection that has a length.
 pub trait Len {

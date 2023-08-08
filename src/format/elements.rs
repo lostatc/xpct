@@ -1,7 +1,7 @@
 use std::fmt;
 
 use crate::core::{style, Matcher};
-use crate::matchers::MatchElementsMatcher;
+use crate::matchers::collections::MatchElementsMatcher;
 
 use super::{HeaderFormat, SomeFailuresFormat};
 

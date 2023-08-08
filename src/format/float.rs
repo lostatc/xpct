@@ -1,7 +1,7 @@
 #![cfg(feature = "float")]
 
 use crate::core::Matcher;
-use crate::matchers::ApproxEqFloatMatcher;
+use crate::matchers::numbers::ApproxEqFloatMatcher;
 
 use super::MismatchFormat;
 
