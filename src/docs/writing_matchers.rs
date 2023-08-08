@@ -93,7 +93,7 @@ can use any formatter which accepts a [`Mismatch`], like the provided
 [`MismatchFormat`].
 
 ```
-# use xpct::matchers::EqualMatcher;
+# use xpct::matchers::equal::EqualMatcher;
 use std::fmt;
 
 use xpct::expect;
@@ -118,7 +118,7 @@ What if we wanted to make a matcher which is the negated version of
 [`Match`], we can call [`Matcher::neg`] to negate it.
 
 ```
-# use xpct::matchers::EqualMatcher;
+# use xpct::matchers::equal::EqualMatcher;
 use std::fmt;
 
 use xpct::expect;
@@ -218,7 +218,7 @@ Now let's make some functions for invoking our matcher.
 ```
 use std::fmt;
 
-# use xpct::matchers::BeOkMatcher;
+# use xpct::matchers::result::BeOkMatcher;
 use xpct::core::{Matcher, NegFormat};
 use xpct::format::ExpectationFormat;
 

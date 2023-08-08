@@ -100,7 +100,7 @@ impl<'a, 'b: 'a, Actual> Match<Actual> for PatternMatcher<'a, Actual> {
 ///
 /// ```
 /// use xpct::pattern;
-/// use xpct::matchers::Pattern;
+/// use xpct::matchers::pattern::Pattern;
 ///
 /// let pat: Pattern<Option<&str>> = pattern!(Some("foo") | Some("bar"));
 /// ```
@@ -109,7 +109,7 @@ impl<'a, 'b: 'a, Actual> Match<Actual> for PatternMatcher<'a, Actual> {
 ///
 /// ```
 /// use xpct::pattern;
-/// use xpct::matchers::Pattern;
+/// use xpct::matchers::pattern::Pattern;
 ///
 /// let pat: Pattern<Option<&str>> = pattern!(Some(value) if *value == "foo");
 /// ```
@@ -118,7 +118,7 @@ impl<'a, 'b: 'a, Actual> Match<Actual> for PatternMatcher<'a, Actual> {
 #[macro_export]
 macro_rules! pattern {
     ($pattern:pat $( if $guard:expr )? $(,)?) => {
-        $crate::matchers::Pattern::__new(
+        $crate::matchers::pattern::Pattern::__new(
             stringify!($pattern $( if $guard )?),
             |ref actual| match actual {
                 $pattern $( if $guard )? => true,

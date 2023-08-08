@@ -31,7 +31,8 @@ use std::fmt;
 use std::marker::PhantomData;
 
 use xpct::core::{whitespace, Format, Formatter, MatchFailure, Matcher};
-use xpct::matchers::{EqualMatcher, Mismatch};
+use xpct::matchers::Mismatch;
+use xpct::matchers::equal::EqualMatcher;
 
 #[derive(Debug)]
 pub struct NotEqualFormat<Actual, Expected> {

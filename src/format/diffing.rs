@@ -45,7 +45,7 @@ pub struct StringDiffStyle {
     /// # Examples
     ///
     /// ```
-    /// use xpct::format::DiffSegmentStyle;
+    /// use xpct::format::diff::DiffSegmentStyle;
     ///
     /// let style = DiffSegmentStyle {
     ///     insert: String::from("+(%s)"),
@@ -401,8 +401,8 @@ where
 /// use std::fmt;
 ///
 /// use xpct::core::Matcher;
-/// use xpct::format::{DiffFormat, DiffSegmentStyle, DiffStyle};
-/// use xpct::matchers::{Diffable, EqDiffMatcher};
+/// use xpct::format::diff::{DiffFormat, DiffSegmentStyle, DiffStyle};
+/// use xpct::matchers::diff::{Diffable, EqDiffMatcher};
 ///
 /// pub fn eq_diff<'a, Actual, Expected>(expected: Expected) -> Matcher<'a, Actual, Actual>
 /// where
