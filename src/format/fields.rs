@@ -8,7 +8,17 @@ use crate::matchers::FailuresByField;
 
 use super::HeaderFormat;
 
-/// A formatter that formats failures for each field of a struct.
+/// A formatter for [`FailuresByField`] values.
+///
+/// This formatter just writes the pre-formatted [`FormattedFailure`] values via
+/// [`Formatter::write_fmt`]. It's mostly useful for combinator matchers which need to print the
+/// output of the matchers they compose.
+///
+/// If you only need to print a single [`FormattedFailure`], use [`FailureFormat`].
+///
+/// [`FailuresByField`]: crate::matchers::FailuresByField
+/// [`FormattedFailure`]: crate::core::FormattedFailure
+/// [`FailureFormat`]: crate::format::FailureFormat
 #[derive(Debug)]
 pub struct ByFieldFormat {
     type_name: String,

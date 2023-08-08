@@ -1,7 +1,7 @@
 use crate::core::{Format, FormattedFailure, Formatter, MatchFailure, Matcher};
 use crate::matchers::not::NotMatcher;
 
-/// A formatter for a pre-formatted [`FormattedFailure`] value.
+/// A formatter for [`FormattedFailure`] values.
 ///
 /// This formatter just writes a pre-formatted value via [`Formatter::write_fmt`]. It's mostly
 /// useful for combinator matchers which need to print the output of the matchers they compose.

@@ -5,13 +5,15 @@ use crate::matchers::SomeFailures;
 
 use super::HeaderFormat;
 
-/// A formatter which prints a vec of pre-formatted [`FormattedFailure`] values.
+/// A formatter for [`SomeFailures`] values.
 ///
-/// This formatter just writes the pre-formatted values via [`Formatter::write_fmt`]. It's mostly
-/// useful for combinator matchers which need to print the output of the matchers they compose.
+/// This formatter just writes the pre-formatted [`FormattedFailure`] values via
+/// [`Formatter::write_fmt`]. It's mostly useful for combinator matchers which need to print the
+/// output of the matchers they compose.
 ///
 /// If you only need to print a single [`FormattedFailure`], use [`FailureFormat`].
 ///
+/// [`SomeFailures`]: crate::matchers::SomeFailures
 /// [`FormattedFailure`]: crate::core::FormattedFailure
 /// [`FailureFormat`]: crate::format::FailureFormat
 #[non_exhaustive]

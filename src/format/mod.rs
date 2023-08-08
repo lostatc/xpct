@@ -18,7 +18,8 @@ mod boolean;
 mod casefold;
 mod contain;
 mod default;
-mod diff;
+#[cfg(feature = "diff")]
+mod diffing;
 mod each;
 mod elements;
 mod equal;
@@ -40,6 +41,14 @@ mod time;
 mod why;
 mod zero;
 
+/// Types for styling formatted diffs.
+#[cfg(feature = "diff")]
+pub mod diff {
+    pub use super::diffing::{
+        CollectionDiffStyle, DiffFormat, DiffSegmentStyle, DiffStyle, StringDiffStyle,
+    };
+}
+
 pub use any::HeaderFormat;
 pub use boolean::MessageFormat;
 pub use each::SomeFailuresFormat;
@@ -51,7 +60,7 @@ pub use option::ExpectationFormat;
 pub use why::WhyFormat;
 
 #[cfg(feature = "diff")]
-pub use diff::{CollectionDiffStyle, DiffFormat, DiffSegmentStyle, DiffStyle, StringDiffStyle};
+pub use diffing::DiffFormat;
 
 pub(crate) mod matchers {
     pub use super::all::all;
@@ -78,7 +87,7 @@ pub(crate) mod matchers {
     pub use super::zero::be_zero;
 
     #[cfg(feature = "diff")]
-    pub use super::diff::eq_diff;
+    pub use super::diffing::eq_diff;
 
     #[cfg(feature = "casefold")]
     pub use super::casefold::eq_casefold;

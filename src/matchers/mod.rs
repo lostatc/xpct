@@ -8,7 +8,7 @@ pub mod collections;
 pub mod combinators;
 /// Matchers for working with `Default` values.
 pub mod default;
-/// Matchers for generating diffs between values.
+/// Matchers that generate diffs between values.
 #[cfg(feature = "diff")]
 pub mod diff;
 #[cfg(feature = "diff")]

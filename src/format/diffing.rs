@@ -1,5 +1,3 @@
-#![cfg(feature = "diff")]
-
 use std::fmt;
 use std::marker::PhantomData;
 
