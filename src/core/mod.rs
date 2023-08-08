@@ -1,7 +1,9 @@
 //! Core types for the library.
 //!
-//! This module contains everything that isn't a matcher or formatter. If you're just writing tests
-//! and not writing custom matchers or formatters, you don't need anything in this module.
+//! This module contains everything that isn't a matcher or formatter.
+//!
+//! If you're just writing tests and not writing custom matchers or formatters, you don't need
+//! anything in this module.
 
 mod adapter;
 mod assertion;

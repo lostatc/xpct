@@ -1,4 +1,23 @@
 //! The matchers provided by this crate.
+//!
+//! This module provides the underlying matcher implementations for the matcher functions exported
+//! at the crate root. For example, this module provides [`EqualMatcher`], which is used to
+//! implement [`equal`].
+//!
+//! If you're just writing tests and not writing custom matchers or formatters, you don't need
+//! anything in this module.
+//!
+//! If you want to change the formatting of one of the provided matchers, you can re-use the matcher
+//! implementation in this module and pair it with your own custom formatter.
+//!
+//! See [Writing Custom Formatters][crate::docs::writing_formatters] to learn how to change the
+//! formatting of the provided matchers.
+//!
+//! See [Writing Custom Matchers][crate::docs::writing_matchers] to learn how to implement your own
+//! matchers like the ones in this module.
+//!
+//! [`EqualMatcher`]: crate::matchers::equal::EqualMatcher
+//! [`equal`]: crate::equal
 
 /// Matchers for working with booleans.
 pub mod boolean;

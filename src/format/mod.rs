@@ -1,11 +1,20 @@
 //! The formatters provided by this crate.
 //!
 //! The formatters in this module can be used to implement custom matchers without having to
-//! manually implement their formatting logic. You can use these formatters to get pretty
-//! formatting "for free."
+//! manually implement their formatting logic. You can use these formatters to get pretty formatting
+//! for free.
+//!
+//! If you're just writing tests and not writing custom matchers or formatters, you don't need
+//! anything in this module.
 //!
 //! The [`Format::Value`] of a formatter tells you what failure output it accepts. For example,
 //! [`MismatchFormat`] can format any matcher that returns a [`Mismatch`].
+//!
+//! See [Writing Custom Matchers][crate::docs::writing_matchers] to learn how to implement your own
+//! matchers that use these provided formatters.
+//!
+//! See [Writing Custom Formatters][crate::docs::writing_formatters] to learn how to implement your
+//! own formatters like the ones in this module.
 //!
 //! [`Format::Value`]: crate::core::Format::Value
 //! [`Mismatch`]: crate::matchers::Mismatch
