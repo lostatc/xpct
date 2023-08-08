@@ -61,7 +61,6 @@ where
 
                 f.indented(whitespace(4), |f| {
                     f.write_str(format!("{:?}", mismatch.actual));
-
                     Ok(())
                 })?;
 
@@ -69,7 +68,6 @@ where
 
                 f.indented(whitespace(4), |f| {
                     f.write_str(format!("{:?}", mismatch.expected));
-
                     Ok(())
                 })?;
             }
@@ -78,7 +76,6 @@ where
 
                 f.indented(whitespace(4), |f| {
                     f.write_str(format!("{:?}", mismatch.actual));
-
                     Ok(())
                 })?;
 
@@ -86,7 +83,6 @@ where
 
                 f.indented(whitespace(4), |f| {
                     f.write_str(format!("{:?}", mismatch.expected));
-
                     Ok(())
                 })?;
             }
