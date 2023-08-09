@@ -147,6 +147,12 @@ pub fn indent<'a>(s: &'a str, prefix: &'a str, hanging: bool) -> Cow<'a, str> {
 }
 
 /// Return a string of whitespace of the given length.
+///
+/// You can use this for indenting text with whitespace via [`Formatter::indented`] and
+/// [`FormattedOutput::indented`].
+///
+/// [`Formatter::indented`]: crate::core::Formatter::indented
+/// [`FormattedOutput::indented`]: crate::core::FormattedOutput::indented
 pub fn whitespace(spaces: usize) -> Cow<'static, str> {
     match spaces {
         i if i < PREFIX_CACHE.len() => Cow::Borrowed(&PREFIX_CACHE[..i]),
