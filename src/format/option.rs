@@ -54,7 +54,7 @@ where
 {
     type Value = MatchFailure<Expectation<Actual>>;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
+    fn fmt(&self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         f.set_style(style::important());
         f.write_str("Expected:\n");
 
@@ -68,7 +68,7 @@ where
                 f.write_char('\n');
 
                 f.set_style(style::important());
-                f.write_str(self.pos_msg);
+                f.write_str(&self.pos_msg);
                 f.write_char('\n');
             }
             MatchFailure::Neg(expectation) => {
@@ -80,7 +80,7 @@ where
                 f.write_char('\n');
 
                 f.set_style(style::important());
-                f.write_str(self.neg_msg);
+                f.write_str(&self.neg_msg);
                 f.write_char('\n');
             }
         };

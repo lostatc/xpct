@@ -11,7 +11,18 @@ pub trait Format {
     type Value;
 
     /// Format the value.
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()>;
+    fn fmt(&self, f: &mut Formatter, value: Self::Value) -> crate::Result<()>;
+}
+
+impl<T: ?Sized> Format for &T
+where
+    T: Format,
+{
+    type Value = T::Value;
+
+    fn fmt(&self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
+        T::fmt(self, f, value)
+    }
 }
 
 /// A formatter for failed matchers.
@@ -84,7 +95,7 @@ where
 {
     type Value = MatchFailure<Neg, Pos>;
 
-    fn fmt(self, f: &mut super::Formatter, value: Self::Value) -> crate::Result<()> {
+    fn fmt(&self, f: &mut super::Formatter, value: Self::Value) -> crate::Result<()> {
         match value {
             MatchFailure::Pos(fail) => self.0.fmt(f, MatchFailure::Neg(fail)),
             MatchFailure::Neg(fail) => self.0.fmt(f, MatchFailure::Pos(fail)),
@@ -121,7 +132,7 @@ where
 {
     type Value = MatchFailure<PosFail, NegFail>;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
+    fn fmt(&self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         match value {
             MatchFailure::Pos(fail) => self.pos_fmt.fmt(f, MatchFailure::Pos(fail)),
             MatchFailure::Neg(fail) => self.neg_fmt.fmt(f, MatchFailure::Neg(fail)),

@@ -44,11 +44,11 @@ where
 {
     type Value = MatchFailure<Fmt::Value>;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
+    fn fmt(&self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         f.set_style(style::important());
         match value {
-            MatchFailure::Pos(_) => f.write_str(self.pos_header),
-            MatchFailure::Neg(_) => f.write_str(self.neg_header),
+            MatchFailure::Pos(_) => f.write_str(&self.pos_header),
+            MatchFailure::Neg(_) => f.write_str(&self.neg_header),
         };
         f.reset_style();
         f.write_char('\n');
@@ -58,7 +58,7 @@ where
             MatchFailure::Neg(fail) => fail,
         };
 
-        f.write_fmt(FormattedOutput::new(fail, self.inner)?.indented(style::indent(1)));
+        f.write_fmt(FormattedOutput::new(fail, &self.inner)?.indented(style::indent(1)));
 
         Ok(())
     }

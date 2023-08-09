@@ -15,7 +15,7 @@ pub struct InfallibleFormat;
 impl Format for InfallibleFormat {
     type Value = MatchFailure<Infallible>;
 
-    fn fmt(self, _: &mut Formatter, _: Self::Value) -> crate::Result<()> {
+    fn fmt(&self, _: &mut Formatter, _: Self::Value) -> crate::Result<()> {
         unreachable!()
     }
 }

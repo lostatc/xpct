@@ -36,7 +36,7 @@ impl ByFieldFormat {
 impl Format for ByFieldFormat {
     type Value = FailuresByField;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
+    fn fmt(&self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         f.write_str(format!("{} {{\n", &self.type_name));
 
         for (field_name, maybe_fail) in value {

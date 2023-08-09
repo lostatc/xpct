@@ -53,7 +53,7 @@ where
 {
     type Value = MatchFailure<Mismatch<Actual, Expected>>;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
+    fn fmt(&self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         match value {
             MatchFailure::Pos(mismatch) => {
                 f.set_style(style::important());
@@ -67,7 +67,7 @@ where
                 f.write_char('\n');
 
                 f.set_style(style::important());
-                f.write_str(self.pos_msg);
+                f.write_str(&self.pos_msg);
                 f.write_str(":\n");
 
                 f.set_style(style::bad());
@@ -89,7 +89,7 @@ where
                 f.write_char('\n');
 
                 f.set_style(style::important());
-                f.write_str(self.neg_msg);
+                f.write_str(&self.neg_msg);
                 f.write_str(":\n");
 
                 f.set_style(style::bad());

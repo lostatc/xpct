@@ -250,7 +250,7 @@ where
 {
     type Value = MatchFailure<Diff>;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
+    fn fmt(&self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         let diff = match value {
             MatchFailure::Pos(diff) => {
                 f.set_style(style::important());

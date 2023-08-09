@@ -30,7 +30,7 @@ impl SomeFailuresFormat {
 impl Format for SomeFailuresFormat {
     type Value = SomeFailures;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
+    fn fmt(&self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         let num_failures = value.len();
         let failure_indent =
             strings::whitespace((strings::int_len(num_failures, 10) + style::INDENT_LEN) as usize);

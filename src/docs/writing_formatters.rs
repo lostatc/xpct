@@ -54,7 +54,7 @@ where
 {
     type Value = MatchFailure<Mismatch<Actual, Expected>>;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> xpct::Result<()> {
+    fn fmt(&self, f: &mut Formatter, value: Self::Value) -> xpct::Result<()> {
         match value {
             MatchFailure::Pos(mismatch) => {
                 f.write_str("Expected:\n");

@@ -5,7 +5,7 @@ use crate::core::{style, Format, FormattedFailure, Formatter, MatchFailure, Matc
 
 enum WhyFormatReason<'a> {
     Eager(Cow<'a, str>),
-    Lazy(Box<dyn FnOnce() -> Cow<'a, str> + 'a>),
+    Lazy(Box<dyn Fn() -> Cow<'a, str> + 'a>),
 }
 
 impl<'a> fmt::Debug for WhyFormatReason<'a> {
@@ -33,7 +33,7 @@ impl<'a> WhyFormat<'a> {
 
     /// Create a new [`WhyFormat`] from the given function, which will be called lazily if the
     /// matcher fails.
-    pub fn lazy(reason: impl FnOnce() -> Cow<'a, str> + 'a) -> Self {
+    pub fn lazy(reason: impl Fn() -> Cow<'a, str> + 'a) -> Self {
         Self {
             reason: WhyFormatReason::Lazy(Box::new(reason)),
         }
@@ -43,12 +43,12 @@ impl<'a> WhyFormat<'a> {
 impl<'a> Format for WhyFormat<'a> {
     type Value = MatchFailure<FormattedFailure>;
 
-    fn fmt(self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
+    fn fmt(&self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         f.set_style(style::info());
         f.write_str(style::WHY_SYMBOL);
         f.write_str(" ");
 
-        match self.reason {
+        match &self.reason {
             WhyFormatReason::Eager(reason) => {
                 f.write_str(reason.as_ref());
             }
@@ -117,7 +117,7 @@ where
 /// ```
 pub fn why_lazy<'a, In, PosOut, NegOut>(
     matcher: Matcher<'a, In, PosOut, NegOut>,
-    reason: impl FnOnce() -> Cow<'a, str> + 'a,
+    reason: impl Fn() -> Cow<'a, str> + 'a,
 ) -> Matcher<In, PosOut, NegOut>
 where
     In: 'a,
