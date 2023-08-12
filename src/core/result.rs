@@ -56,6 +56,18 @@ impl<T> MatchFailure<T, T> {
             Self::Neg(value) => value,
         }
     }
+
+    /// Consume this match failure and return the inner value.
+    ///
+    /// This does the same thing as [`unwrap`], but returns the inner value by value.
+    ///
+    /// [`unwrap`]: crate::core::MatchFailure::unwrap
+    pub fn into_inner(self) -> T {
+        match self {
+            Self::Pos(value) => value,
+            Self::Neg(value) => value,
+        }
+    }
 }
 
 /// A [`MatchFailure`] which has been formatted with a [`MatcherFormat`].
