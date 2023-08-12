@@ -90,7 +90,7 @@ expect!(player).to(match_fields(fields!(Player {
 })));
 ```
 
-<img src="https://media.githubusercontent.com/media/lostatc/xpct/main/examples/fields.png" width="60%" alt="stderr from failed assertion" />
+<img src="https://media.githubusercontent.com/media/lostatc/xpct/main/examples/fields.png" width="80%" alt="stderr from failed assertion" />
 
 [*Image transcript*](https://raw.githubusercontent.com/lostatc/xpct/main/examples/fields.txt)
 
@@ -110,7 +110,7 @@ expect!(items)
     ]));
 ```
 
-<img src="https://media.githubusercontent.com/media/lostatc/xpct/main/examples/collections.png" width="60%" alt="stderr from failed assertion" />
+<img src="https://media.githubusercontent.com/media/lostatc/xpct/main/examples/collections.png" width="80%" alt="stderr from failed assertion" />
 
 [*Image transcript*](https://raw.githubusercontent.com/lostatc/xpct/main/examples/collections.txt)
 
@@ -122,7 +122,7 @@ use xpct::{eq_diff, expect};
 expect!(["apple", "banana"]).to(eq_diff(["banana", "orage"]));
 ```
 
-<img src="https://media.githubusercontent.com/media/lostatc/xpct/main/examples/diff.png" width="60%" alt="stderr from failed assertion" />
+<img src="https://media.githubusercontent.com/media/lostatc/xpct/main/examples/diff.png" width="80%" alt="stderr from failed assertion" />
 
 [*Image transcript*](https://raw.githubusercontent.com/lostatc/xpct/main/examples/diff.txt)
 
