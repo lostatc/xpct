@@ -251,18 +251,15 @@ where
     type Value = MatchFailure<Diff>;
 
     fn fmt(&self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
-        let diff = match value {
-            MatchFailure::Pos(diff) => {
-                f.set_style(style::important());
-                f.write_str("Expected these to be equal:\n");
-                diff
-            }
-            MatchFailure::Neg(diff) => {
-                f.set_style(style::important());
-                f.write_str("Expected these to not be equal:\n");
-                diff
-            }
-        };
+        let diff = value.unwrap();
+
+        f.set_style(style::important());
+
+        if value.is_pos() {
+            f.write_str("Expected these to be equal:\n");
+        } else {
+            f.write_str("Expected these to not be equal:\n");
+        }
 
         f.reset_style();
 
@@ -336,7 +333,7 @@ where
 
                         f.indented_hanging(style::indent(1), |f| {
                             f.set_style(element_style);
-                            f.write_str(segment.value);
+                            f.write_str(&segment.value);
                             f.reset_style();
 
                             Ok(())

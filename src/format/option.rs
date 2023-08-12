@@ -55,35 +55,25 @@ where
     type Value = MatchFailure<Expectation<Actual>>;
 
     fn fmt(&self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
+        let expectation = value.unwrap();
+
         f.set_style(style::important());
         f.write_str("Expected:\n");
 
-        match value {
-            MatchFailure::Pos(expectation) => {
-                f.set_style(style::bad());
-                f.indented(style::indent(1), |f| {
-                    f.write_str(format!("{:?}", expectation.actual));
-                    Ok(())
-                })?;
-                f.write_char('\n');
+        f.set_style(style::bad());
+        f.indented(style::indent(1), |f| {
+            f.write_str(format!("{:?}", expectation.actual));
+            Ok(())
+        })?;
+        f.write_char('\n');
 
-                f.set_style(style::important());
-                f.write_str(&self.pos_msg);
-                f.write_char('\n');
-            }
-            MatchFailure::Neg(expectation) => {
-                f.set_style(style::bad());
-                f.indented(style::indent(1), |f| {
-                    f.write_str(format!("{:?}", expectation.actual));
-                    Ok(())
-                })?;
-                f.write_char('\n');
-
-                f.set_style(style::important());
-                f.write_str(&self.neg_msg);
-                f.write_char('\n');
-            }
-        };
+        f.set_style(style::important());
+        if value.is_pos() {
+            f.write_str(&self.pos_msg);
+        } else {
+            f.write_str(&self.neg_msg);
+        }
+        f.write_char('\n');
 
         Ok(())
     }

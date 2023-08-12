@@ -48,10 +48,11 @@ impl<PosFail, NegFail> Format for MessageFormat<PosFail, NegFail> {
 
     fn fmt(&self, f: &mut Formatter, value: Self::Value) -> crate::Result<()> {
         f.set_style(style::bad());
-        f.write_str(match value {
-            MatchFailure::Pos(_) => &self.pos_msg,
-            MatchFailure::Neg(_) => &self.neg_msg,
-        });
+        if value.is_pos() {
+            f.write_str(&self.pos_msg);
+        } else {
+            f.write_str(&self.neg_msg);
+        }
         f.reset_style();
         f.write_char('\n');
 
