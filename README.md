@@ -110,7 +110,7 @@ expect!(items)
     ]));
 ```
 
-<img src="https://media.githubusercontent.com/media/lostatc/xpct/main/examples/collections.png" width="600" alt="stderr from failed assertion" />
+<img src="https://media.githubusercontent.com/media/lostatc/xpct/main/examples/collections.png" width="500" alt="stderr from failed assertion" />
 
 [*Image transcript*](https://raw.githubusercontent.com/lostatc/xpct/main/examples/collections.txt)
 
@@ -122,7 +122,7 @@ use xpct::{eq_diff, expect};
 expect!(["apple", "banana"]).to(eq_diff(["banana", "orage"]));
 ```
 
-<img src="https://media.githubusercontent.com/media/lostatc/xpct/main/examples/diff.png" width="600" alt="stderr from failed assertion" />
+<img src="https://media.githubusercontent.com/media/lostatc/xpct/main/examples/diff.png" width="500" alt="stderr from failed assertion" />
 
 [*Image transcript*](https://raw.githubusercontent.com/lostatc/xpct/main/examples/diff.txt)
 
