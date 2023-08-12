@@ -31,8 +31,8 @@ use std::fmt;
 use std::marker::PhantomData;
 
 use xpct::core::{whitespace, Format, Formatter, MatchFailure, Matcher};
-use xpct::matchers::Mismatch;
 use xpct::matchers::equal::EqualMatcher;
+use xpct::matchers::Mismatch;
 
 #[derive(Debug)]
 pub struct NotEqualFormat<Actual, Expected> {
@@ -55,38 +55,25 @@ where
     type Value = MatchFailure<Mismatch<Actual, Expected>>;
 
     fn fmt(&self, f: &mut Formatter, value: Self::Value) -> xpct::Result<()> {
-        match value {
-            MatchFailure::Pos(mismatch) => {
-                f.write_str("Expected:\n");
+        let mismatch = value.unwrap();
 
-                f.indented(whitespace(4), |f| {
-                    f.write_str(format!("{:?}", mismatch.actual));
-                    Ok(())
-                })?;
+        f.write_str("Expected:\n");
 
-                f.write_str("to equal:\n");
+        f.indented(whitespace(4), |f| {
+            f.write_str(format!("{:?}", mismatch.actual));
+            Ok(())
+        })?;
 
-                f.indented(whitespace(4), |f| {
-                    f.write_str(format!("{:?}", mismatch.expected));
-                    Ok(())
-                })?;
-            }
-            MatchFailure::Neg(mismatch) => {
-                f.write_str("Expected:\n");
+        if value.is_pos() {
+            f.write_str("to equal:\n");
+        } else {
+            f.write_str("to not equal:\n");
+        }
 
-                f.indented(whitespace(4), |f| {
-                    f.write_str(format!("{:?}", mismatch.actual));
-                    Ok(())
-                })?;
-
-                f.write_str("to not equal:\n");
-
-                f.indented(whitespace(4), |f| {
-                    f.write_str(format!("{:?}", mismatch.expected));
-                    Ok(())
-                })?;
-            }
-        };
+        f.indented(whitespace(4), |f| {
+            f.write_str(format!("{:?}", mismatch.expected));
+            Ok(())
+        })?;
 
         Ok(())
     }
@@ -122,11 +109,6 @@ If your matcher composes other matchers, it will likely pass a
 [`FormattedFailure`] to the formatter, which represents the formatted output of
 those matchers. You can use [`Formatter::write_fmt`] to efficiently pass this
 through to your formatter's output.
-
-If you really hate the default formatters and you want to replace all the
-provided formatters in this module with your own, you can disable the default
-`fmt` Cargo feature. There's more info on the [Cargo
-Features][crate::docs::cargo_features] page.
 
 [`equal`]: crate::equal
 [`EqualMatcher`]: crate::matchers::equal::EqualMatcher
