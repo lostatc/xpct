@@ -45,6 +45,19 @@ impl<Pos, Neg> MatchFailure<Pos, Neg> {
     }
 }
 
+impl<T> MatchFailure<T, T> {
+    /// Unwrap the inner value and return a reference to it.
+    ///
+    /// When the types for the positive and negative cases are the same, you can use this method to
+    /// unwrap the value.
+    pub fn unwrap(&self) -> &T {
+        match self {
+            Self::Pos(value) => value,
+            Self::Neg(value) => value,
+        }
+    }
+}
+
 /// A [`MatchFailure`] which has been formatted with a [`MatcherFormat`].
 ///
 /// This type is similar to [`FormattedOutput`], except it is specific to formatted [`MatchFailure`]
